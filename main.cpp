@@ -7,7 +7,7 @@ using namespace agentx;
 using namespace std;
 
 
-void print_serialized(const basic_string<uint8_t> stream)
+void print_serialized(data_t stream)
 {
 
     cout << "+----------+----------+----------+----------+" << endl;
@@ -31,7 +31,7 @@ void print_serialized(const basic_string<uint8_t> stream)
 
 int main()
 {
-    basic_string<uint8_t> data;
+    data_t data;
 
     ofstream o1_file("o1.oid");
     oid o1(1,2,6,1,5,6,7,8,9);

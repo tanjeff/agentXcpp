@@ -61,7 +61,7 @@ std::ostream& agentx::operator<<(std::ostream& out, const oid& o)
 
 
 
-std::basic_string<uint8_t> oid::serialize(uint8_t _include)
+data_t oid::serialize(uint8_t _include)
 {
     // The serial representation of an OID is as follows (RFC 2741, section 
     // 5.1):
@@ -83,7 +83,7 @@ std::basic_string<uint8_t> oid::serialize(uint8_t _include)
     const int reserved = 2;
 
     // This is our binary data:
-    std::basic_string<uint8_t> serialized_oid;
+    data_t serialized_oid;
     serialized_oid.resize(4);	// we will need at least the header
 
     // Set reserved field to 0
@@ -134,7 +134,7 @@ std::basic_string<uint8_t> oid::serialize(uint8_t _include)
 }
 
 
-void oid::deserialize(std::basic_string<uint8_t> data) throw(parse_error)
+void oid::deserialize(data_t data) throw(parse_error)
 {
     if( data.size() < 4)
     {

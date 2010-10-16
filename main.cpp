@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "oid.h"
 
 
@@ -30,24 +31,34 @@ void print_serialized(const basic_string<uint8_t> stream)
 
 int main()
 {
-    oid o1(1,2,3,4,5,6,7,8,9);
-    print_serialized(o1.serialize(0xee));
+    basic_string<uint8_t> data;
+
+    ofstream o1_file("o1.oid");
+    oid o1(1,2,6,1,5,6,7,8,9);
+    data = o1.serialize(0xee);
+    print_serialized(data);
+    for( int i = 0; i < data.size(); i++)
+    {
+	o1_file.put((char)data[i]);
+    }
     cout << endl;
+    o1_file.close();
+
+
+    data.clear();
     
-    oid o2(1,3,6,1,5,6,7,8,9);
-    print_serialized(o2.serialize(0xee));
-    cout << endl;
+    ifstream file("o1.oid");
+    char ch;
+    while ( file.get(ch) )
+    {
+	data.push_back(ch);
+    }
+    file.close();
+    cout << "Read " << data.size() << " bytes." << endl;
 
-    oid o3(1,3,6,1,2);
-    print_serialized(o3.serialize(0xee));
-    cout << endl;
-
-    oid o4(1);
-    print_serialized(o4.serialize(0xee));
-    cout << endl;
-
-    oid o5(1);
-    print_serialized(o5.serialize(0));
+    oid o2;
+    o2.deserialize(data);
+    cout << "o2 is " << o2 << endl;
 
     return 0;
 }

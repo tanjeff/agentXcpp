@@ -5,6 +5,7 @@
 #include <ostream>
 #include <string>
 #include "types.h"
+#include "exceptions.h"
 
 namespace agentx
 {
@@ -71,6 +72,7 @@ namespace agentx
 	oid& operator,(int);
 
 	std::basic_string<uint8_t> serialize(uint8_t include);
+	void deserialize(std::basic_string<uint8_t>) throw(parse_error);
     
 	friend std::ostream& operator<<(std::ostream&, const agentx::oid&);
 

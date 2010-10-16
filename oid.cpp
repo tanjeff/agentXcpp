@@ -132,3 +132,44 @@ std::basic_string<uint8_t> oid::serialize(uint8_t _include)
 
     return serialized_oid;
 }
+
+
+void oid::deserialize(std::basic_string<uint8_t> data) throw(parse_error)
+{
+    if( data.size() < 4)
+    {
+	// Header missing!
+	throw parse_error();
+    }
+
+    // get number of subid's
+    int n_subid = data[0];
+
+    if( data.size() != 4 + n_subid * 4 )
+    {
+	// too much/less data!
+	throw parse_error();
+    }
+    
+    // parse prefix
+    int prefix = data[1];
+    if( prefix != 0 )
+    {
+	identifier.push_back(1);
+	identifier.push_back(3);
+	identifier.push_back(6);
+	identifier.push_back(1);
+	identifier.push_back(prefix);
+    }
+
+    // parse rest of data, subid by subid
+    uint32_t subid;
+    for( int i = 0; i < n_subid; i++)
+    {
+	subid = data[4+i*4 + 0] << 24;
+	subid |= data[4+i*4 + 1] << 16;
+	subid |= data[4+i*4 + 2] << 8;
+	subid |= data[4+i*4 + 3] << 0;
+	identifier.push_back(subid);
+    }
+}

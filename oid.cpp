@@ -1,3 +1,4 @@
+#include <iostream>
 #include "oid.h"
 using namespace agentx;
 
@@ -83,6 +84,7 @@ std::basic_string<uint8_t> oid::serialize(uint8_t _include)
 
     // This is our binary data:
     std::basic_string<uint8_t> serialized_oid;
+    serialized_oid.resize(4);	// we will need at least the header
 
     // Set reserved field to 0
     serialized_oid[reserved] = 0;
@@ -104,25 +106,29 @@ std::basic_string<uint8_t> oid::serialize(uint8_t _include)
 	// store the first integer after 1.3.6.1 to prefix field
 	serialized_oid[prefix] = identifier[4];
 	subid += 5; // point to the subid behind prefix
+
+	// 5 elements are represented by prefix
+	serialized_oid[n_subid] = identifier.size() - 5;
+
     }
     else
     {
 	// don't use prefix field
 	serialized_oid[prefix] = 0;
+
+	// All subid's are stored in the stream explicitly
+	serialized_oid[n_subid] = identifier.size();
     }
 
     // copy subids to serialized_oid
-    std::basic_string<uint8_t>::iterator stream_pos =
-	serialized_oid.begin() + 5; // first subid at 5th byte in stream
     while( subid != identifier.end() )
     {
-	*stream_pos++ = (*subid) << 24 & 0xff;
-	*stream_pos++ = (*subid) << 16 & 0xff;
-	*stream_pos++ = (*subid) << 8 & 0xff;
-	*stream_pos++ = (*subid) << 0 & 0xff;
+	serialized_oid.push_back( (*subid) << 24 & 0xff );
+	serialized_oid.push_back( (*subid) << 16 & 0xff );
+	serialized_oid.push_back( (*subid) << 8 & 0xff );
+	serialized_oid.push_back( (*subid) << 0 & 0xff );
+	subid++;
     }
-
-
 
     return serialized_oid;
 }

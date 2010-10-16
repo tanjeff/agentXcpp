@@ -44,7 +44,7 @@ std::ostream& agentx::operator<<(std::ostream& out, const oid& o)
     {
 	return out;
     }
-    std::vector<int>::const_iterator it;
+    std::vector<uint32_t>::const_iterator it;
     it = o.identifier.begin();
 
     out << *it;
@@ -56,4 +56,73 @@ std::ostream& agentx::operator<<(std::ostream& out, const oid& o)
 	it++;
     }
     return out;
+}
+
+
+
+std::basic_string<uint8_t> oid::serialize(uint8_t _include)
+{
+    // The serial representation of an OID is as follows (RFC 2741, section 
+    // 5.1):
+    //
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |  n_subid      |  prefix       |  include      |  <reserved>   |
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |                       sub-identifier #1                       |
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |                       sub-identifier #n_subid                 |
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    //
+    // We use a string here to represent the serial stream, an we use some 
+    // constants as indexes:
+    const int n_subid = 0;
+    const int prefix = 1;
+    const int include = 2;
+    const int reserved = 2;
+
+    // This is our binary data:
+    std::basic_string<uint8_t> serialized_oid;
+
+    // Set reserved field to 0
+    serialized_oid[reserved] = 0;
+
+    // Set include field
+    serialized_oid[include] = _include;
+
+    // Iterator for the subid's
+    std::vector<uint32_t>::const_iterator subid = identifier.begin();
+
+    // Check whether we can use the prefix (RFC 2741, section 5.1)
+    if( identifier.size() >= 5 &&
+	identifier[0] == 1 &&
+	identifier[1] == 3 &&
+	identifier[2] == 6 &&
+	identifier[3] == 1 &&
+	identifier[4] <= 0xff)	// we have only one byte for the prefix!
+    {
+	// store the first integer after 1.3.6.1 to prefix field
+	serialized_oid[prefix] = identifier[4];
+	subid += 5; // point to the subid behind prefix
+    }
+    else
+    {
+	// don't use prefix field
+	serialized_oid[prefix] = 0;
+    }
+
+    // copy subids to serialized_oid
+    std::basic_string<uint8_t>::iterator stream_pos =
+	serialized_oid.begin() + 5; // first subid at 5th byte in stream
+    while( subid != identifier.end() )
+    {
+	*stream_pos++ = (*subid) << 24 & 0xff;
+	*stream_pos++ = (*subid) << 16 & 0xff;
+	*stream_pos++ = (*subid) << 8 & 0xff;
+	*stream_pos++ = (*subid) << 0 & 0xff;
+    }
+
+
+
+    return serialized_oid;
 }

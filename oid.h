@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <ostream>
+#include <string>
+#include "types.h"
 
 namespace agentx
 {
@@ -11,7 +13,7 @@ namespace agentx
      */
     class oid
     {
-	std::vector<int> identifier;
+	std::vector<uint32_t> identifier;
 
 	public:
 
@@ -67,6 +69,8 @@ namespace agentx
 	 * \endcode
 	 */
 	oid& operator,(int);
+
+	std::basic_string<uint8_t> serialize(uint8_t include);
     
 	friend std::ostream& operator<<(std::ostream&, const agentx::oid&);
 

@@ -1,4 +1,4 @@
-OBJS=oid.o octet_string.o
+OBJS=oid.o octet_string.o varbind.o
 CXXFLAGS=-g -O0
 
 %.o : %.cpp %.h

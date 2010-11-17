@@ -15,6 +15,7 @@ namespace agentx
     class oid
     {
 	std::vector<uint32_t> identifier;
+	bool include;
 
 	public:
 
@@ -71,7 +72,7 @@ namespace agentx
 	 */
 	oid& operator,(int);
 
-	data_t serialize(uint8_t include);
+	data_t serialize();
 	void deserialize(data_t, bool big_endian=false) throw(parse_error);
     
 	friend std::ostream& operator<<(std::ostream&, const agentx::oid&);

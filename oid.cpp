@@ -8,6 +8,8 @@ oid::oid(int c1, int c2, int c3, int c4, int c5, int c6,
 	 int c13, int c14, int c15, int c16, int c17, int c18,
 	 int c19, int c20)
 {
+    include = false;
+
     if(c1) identifier.push_back(c1); else return;
     if(c2) identifier.push_back(c2); else return;
     if(c3) identifier.push_back(c3); else return;
@@ -61,7 +63,7 @@ std::ostream& agentx::operator<<(std::ostream& out, const oid& o)
 
 
 
-data_t oid::serialize(uint8_t _include)
+data_t oid::serialize()
 {
     // The serial representation of an OID is as follows (RFC 2741, section 
     // 5.1):
@@ -90,7 +92,7 @@ data_t oid::serialize(uint8_t _include)
     serialized_oid[reserved] = 0;
 
     // Set include field
-    serialized_oid[include] = _include;
+    serialized_oid[include] = include ? 1 : 0;
 
     // Iterator for the subid's
     std::vector<uint32_t>::const_iterator subid = identifier.begin();
@@ -160,6 +162,20 @@ void oid::deserialize(data_t data, bool big_endian) throw(parse_error)
 	identifier.push_back(6);
 	identifier.push_back(1);
 	identifier.push_back(prefix);
+    }
+
+    // parse include field
+    switch( data[2] )
+    {
+	case 0:
+	    include = false;
+	    break;
+	case 1:
+	    include = true;
+	    break;
+	default:
+	    // Invalid value; we are picky and indicate an error:
+	    throw parse_error();
     }
 
     // parse rest of data, subid by subid

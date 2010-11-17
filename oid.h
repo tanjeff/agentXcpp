@@ -72,7 +72,7 @@ namespace agentx
 	oid& operator,(int);
 
 	data_t serialize(uint8_t include);
-	void deserialize(data_t) throw(parse_error);
+	void deserialize(data_t, bool big_endian=false) throw(parse_error);
     
 	friend std::ostream& operator<<(std::ostream&, const agentx::oid&);
 

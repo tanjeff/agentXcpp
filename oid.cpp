@@ -134,7 +134,7 @@ data_t oid::serialize(uint8_t _include)
 }
 
 
-void oid::deserialize(data_t data) throw(parse_error)
+void oid::deserialize(data_t data, bool big_endian) throw(parse_error)
 {
     if( data.size() < 4)
     {
@@ -166,10 +166,21 @@ void oid::deserialize(data_t data) throw(parse_error)
     uint32_t subid;
     for( int i = 0; i < n_subid; i++)
     {
-	subid = data[4+i*4 + 0] << 24;
-	subid |= data[4+i*4 + 1] << 16;
-	subid |= data[4+i*4 + 2] << 8;
-	subid |= data[4+i*4 + 3] << 0;
+	if(big_endian)
+	{
+	    // big endian
+	    subid =  data[4+i*4 + 0] << 24;
+	    subid |= data[4+i*4 + 1] << 16;
+	    subid |= data[4+i*4 + 2] << 8;
+	    subid |= data[4+i*4 + 3] << 0;
+	}
+	else
+	{
+	    subid =  data[4+i*4 + 0] << 0;
+	    subid |= data[4+i*4 + 1] << 8;
+	    subid |= data[4+i*4 + 2] << 16;
+	    subid |= data[4+i*4 + 3] << 24;
+	}
 	identifier.push_back(subid);
     }
 }

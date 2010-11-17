@@ -21,6 +21,8 @@ data_t octet_string::serialize()
 void octet_string::deserialize(data_t data, bool big_endian)
 {
     uint32_t size;
+
+    // Get size
     if( big_endian )
     {
 	size =  data[0] << 24;
@@ -35,6 +37,12 @@ void octet_string::deserialize(data_t data, bool big_endian)
 	size |= data[2] << 16;
 	size |= data[3] << 24;
     }
+    if( size == 0 )
+    {
+	// nothing left to parse
+	return;
+    }
 
+    // Get value
     value = data.assign(data, 4, data.size()-4);
 }

@@ -72,7 +72,42 @@ namespace agentx
 	 */
 	oid& operator,(int);
 
+	/**
+	 * \brief get the current include value
+	 *
+	 * The include value is present in the serialized form of an OID. If an 
+	 * OID object is created by parsing a AgentX message, the 'include' 
+	 * member is set accordingly.
+	 *
+	 * See RFC 2741, sections 5.1 and 5.2 for details.
+	 */
+	bool get_include() { return include; }
+
+	/**
+	 * \brief set the include value
+	 *
+	 * The include value is present in the serialized form of an OID. If an 
+	 * OID object is serialized, the include field is encoded into the 
+	 * stream.
+	 *
+	 * See RFC 2741, sections 5.1 and 5.2 for details.
+	 */
+	void set_include(bool i) { include = i; }
+
+	/**
+	 * \brief Encode an OID object as described in RFC 2741, section 5.1.
+	 */
 	data_t serialize();
+
+	/**
+	 * \brief Decode an OID object as described in RFC 2741, section 5.1.
+	 *
+	 * This function expects a data packet containing exactly one OID. If 
+	 * the packet contains too much (or too less) data, a parse_error is 
+	 * exception thrown.
+	 *
+	 * An exception is also thrown on other parse errors.
+	 */
 	void deserialize(data_t, bool big_endian=false) throw(parse_error);
     
 	friend std::ostream& operator<<(std::ostream&, const agentx::oid&);

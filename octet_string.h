@@ -25,6 +25,8 @@ namespace agentx
 	     */
 	    data_t serialize();
 
+	    octet_string(data_t initial_value) : value(initial_value) {}
+
 
 	    void deserialize(data_t data, bool big_endian=false);
 
@@ -34,6 +36,16 @@ namespace agentx
 	    }
 
 	    virtual data_t get() = 0;
+
+	    /**
+	     * \brief Set the current value
+	     */
+	    void set_value(data_t new_value) { value = new_value; }
+
+	    /**
+	     * \brief get the current value
+	     */
+	    data_t get_value() { return value; }
     };
 }
 

@@ -79,20 +79,20 @@ data_t oid::serialize()
     //
     // We use a string here to represent the serial stream, an we use some 
     // constants as indexes:
-    const int n_subid = 0;
-    const int prefix = 1;
-    const int include = 2;
-    const int reserved = 2;
+    const int n_subid_idx = 0;
+    const int prefix_idx = 1;
+    const int include_idx = 2;
+    const int reserved_idx = 2;
 
     // This is our binary data:
     data_t serialized_oid;
     serialized_oid.resize(4);	// we will need at least the header
 
     // Set reserved field to 0
-    serialized_oid[reserved] = 0;
+    serialized_oid[reserved_idx] = 0;
 
     // Set include field
-    serialized_oid[include] = include ? 1 : 0;
+    serialized_oid[include_idx] = include ? 1 : 0;
 
     // Iterator for the subid's
     std::vector<uint32_t>::const_iterator subid = identifier.begin();
@@ -106,20 +106,20 @@ data_t oid::serialize()
 	identifier[4] <= 0xff)	// we have only one byte for the prefix!
     {
 	// store the first integer after 1.3.6.1 to prefix field
-	serialized_oid[prefix] = identifier[4];
+	serialized_oid[prefix_idx] = identifier[4];
 	subid += 5; // point to the subid behind prefix
 
 	// 5 elements are represented by prefix
-	serialized_oid[n_subid] = identifier.size() - 5;
+	serialized_oid[n_subid_idx] = identifier.size() - 5;
 
     }
     else
     {
 	// don't use prefix field
-	serialized_oid[prefix] = 0;
+	serialized_oid[prefix_idx] = 0;
 
 	// All subid's are stored in the stream explicitly
-	serialized_oid[n_subid] = identifier.size();
+	serialized_oid[n_subid_idx] = identifier.size();
     }
 
     // copy subids to serialized_oid

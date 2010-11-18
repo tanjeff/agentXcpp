@@ -27,6 +27,7 @@ data_t varbind::serialize()
     // encode type
     uint16_t type = NONE;
     if( dynamic_cast<octet_string*>(var) ) type = 4;
+    if( dynamic_cast<integer*>(var) ) type = 2;
     serialized.push_back( type << 8 & 0xff );
     serialized.push_back( type << 0 & 0xff );
     

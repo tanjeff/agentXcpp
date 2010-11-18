@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "oid.h"
+#include "integer.h"
 
 
 using namespace agentx;
@@ -31,35 +32,35 @@ void print_serialized(data_t stream)
 
 int main()
 {
-    data_t data;
+    //data_t data;
 
-    ofstream o1_file("o1.oid");
-    oid o1(1,2,6,1,5,6,7,8,9);
-    o1.set_include(0xee);
-    data = o1.serialize();
-    print_serialized(data);
-    for( int i = 0; i < data.size(); i++)
-    {
-	o1_file.put((char)data[i]);
-    }
-    cout << endl;
-    o1_file.close();
+    //ofstream o1_file("o1.oid");
+    //oid o1(1,2,6,1,5,6,7,8,9);
+    //o1.set_include(0xee);
+    //data = o1.serialize();
+    //print_serialized(data);
+    //for( int i = 0; i < data.size(); i++)
+    //{
+    //    o1_file.put((char)data[i]);
+    //}
+    //cout << endl;
+    //o1_file.close();
 
 
-    data.clear();
-    
-    ifstream file("o1.oid");
-    char ch;
-    while ( file.get(ch) )
-    {
-	data.push_back(ch);
-    }
-    file.close();
-    cout << "Read " << data.size() << " bytes." << endl;
+    //data.clear();
+    //
+    //ifstream file("o1.oid");
+    //char ch;
+    //while ( file.get(ch) )
+    //{
+    //    data.push_back(ch);
+    //}
+    //file.close();
+    //cout << "Read " << data.size() << " bytes." << endl;
 
-    oid o2;
-    o2.deserialize(data.begin());
-    cout << "o2 is " << o2 << endl;
+    //oid o2;
+    //o2.deserialize(data.begin());
+    //cout << "o2 is " << o2 << endl;
 
     return 0;
 }

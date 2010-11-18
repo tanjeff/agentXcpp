@@ -1,6 +1,7 @@
 .PHONY: all documentation library clean
+CXXFLAGS += -I src/
 
-all: library documentation
+all: library main
 
 documentation:
 	doxygen doxygen.conf
@@ -9,8 +10,8 @@ library:
 	make -C src/
 
 
-#main : main.cpp $(OBJS)
-#	g++ $< *.o -o $@ $(CXXFLAGS)
+main : main.cpp library
+	$(CXX) $< -o $@ $(CXXFLAGS)
 
 
 clean:

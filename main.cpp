@@ -5,6 +5,7 @@
 #include "octet_string.h"
 #include "varbind.h"
 #include "counter32.h"
+#include "Gauge32.h"
 
 
 using namespace agentx;
@@ -191,6 +192,63 @@ void test_counter32()
 
 }
 
+
+
+
+class myGauge32 : public Gauge32
+{
+    public:
+	myGauge32(int v) { value = v; }
+	myGauge32() {}
+	friend std::ostream& operator<<(std::ostream&, const myGauge32&);
+
+};
+std::ostream& operator<<(std::ostream& out, const myGauge32& i)
+{
+    out << i.value;
+
+    return out;
+}
+void test_Gauge32()
+{
+    cout << "--- Testing Gauge32---" << endl;
+
+    myGauge32 g1(0xcafebabe);
+    cout << hex;
+    cout << "Gauge32 value is " << g1 << endl;
+
+    data_t data;
+
+    ofstream ofile("Gauge32_1.oid");
+    data = g1.serialize();
+    print_serialized(data);
+    for( int i = 0; i < data.size(); i++)
+    {
+        ofile.put((char)data[i]);
+    }
+    cout << endl;
+    ofile.close();
+
+
+    data.clear();
+    
+    ifstream ifile("Gauge32_1.oid");
+    char ch;
+    while ( ifile.get(ch) )
+    {
+        data.push_back(ch);
+    }
+    ifile.close();
+    cout << "Read " << data.size() << " bytes." << endl;
+
+    myGauge32 g2;
+    g2.deserialize(data.begin(), true);
+    cout << "g2 is " << g2 << endl;
+
+    cout << dec;
+
+}
+
 void test_varbind()
 {
     cout << "--- Testing varbind ---" << endl;
@@ -220,6 +278,11 @@ void test_varbind()
     data = vb_counter32.serialize();
     print_serialized(data);
     
+    myGauge32 g32(0x5a);
+    varbind vb_Gauge32(&o, &g32);
+    data = vb_Gauge32.serialize();
+    print_serialized(data);
+    
     cout << endl;
 }
 
@@ -228,6 +291,7 @@ int main()
     test_integer();
     test_octet_string();
     test_counter32();
+    test_Gauge32();
 
 
     test_varbind();

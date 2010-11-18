@@ -108,7 +108,9 @@ namespace agentx
 	 *
 	 * An exception is also thrown on other parse errors.
 	 */
-	void deserialize(data_t, bool big_endian=false) throw(parse_error);
+	void deserialize(data_t::const_iterator start,
+		bool big_endian=false)
+	    throw(parse_error);
     
 	friend std::ostream& operator<<(std::ostream&, const agentx::oid&);
 

@@ -135,26 +135,15 @@ data_t oid::serialize()
     return serialized_oid;
 }
 
-
-void oid::deserialize(data_t data, bool big_endian) throw(parse_error)
+void oid::deserialize(data_t::const_iterator it,
+	              bool big_endian)
+    throw(parse_error)
 {
-    if( data.size() < 4)
-    {
-	// Header missing!
-	throw parse_error();
-    }
-
     // get number of subid's
-    int n_subid = data[0];
+    int n_subid = *it++;
 
-    if( data.size() != 4 + n_subid * 4 )
-    {
-	// too much/less data!
-	throw parse_error();
-    }
-    
     // parse prefix
-    int prefix = data[1];
+    int prefix = *it++;
     if( prefix != 0 )
     {
 	identifier.push_back(1);
@@ -165,7 +154,7 @@ void oid::deserialize(data_t data, bool big_endian) throw(parse_error)
     }
 
     // parse include field
-    switch( data[2] )
+    switch( *it++ )
     {
 	case 0:
 	    include = false;
@@ -178,6 +167,9 @@ void oid::deserialize(data_t data, bool big_endian) throw(parse_error)
 	    throw parse_error();
     }
 
+    // skip reserved field
+    it++;
+
     // parse rest of data, subid by subid
     uint32_t subid;
     for( int i = 0; i < n_subid; i++)
@@ -185,17 +177,18 @@ void oid::deserialize(data_t data, bool big_endian) throw(parse_error)
 	if(big_endian)
 	{
 	    // big endian
-	    subid =  data[4+i*4 + 0] << 24;
-	    subid |= data[4+i*4 + 1] << 16;
-	    subid |= data[4+i*4 + 2] << 8;
-	    subid |= data[4+i*4 + 3] << 0;
+	    subid =  *it++ << 24;
+	    subid |= *it++ << 16;
+	    subid |= *it++ << 8;
+	    subid |= *it++ << 0;
 	}
 	else
 	{
-	    subid =  data[4+i*4 + 0] << 0;
-	    subid |= data[4+i*4 + 1] << 8;
-	    subid |= data[4+i*4 + 2] << 16;
-	    subid |= data[4+i*4 + 3] << 24;
+	    // little endian
+	    subid =  *it++ << 0;
+	    subid |= *it++ << 8;
+	    subid |= *it++ << 16;
+	    subid |= *it++ << 24;
 	}
 	identifier.push_back(subid);
     }

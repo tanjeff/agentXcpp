@@ -35,7 +35,8 @@ int main()
 
     ofstream o1_file("o1.oid");
     oid o1(1,2,6,1,5,6,7,8,9);
-    data = o1.serialize(0xee);
+    o1.set_include(0xee);
+    data = o1.serialize();
     print_serialized(data);
     for( int i = 0; i < data.size(); i++)
     {
@@ -57,7 +58,7 @@ int main()
     cout << "Read " << data.size() << " bytes." << endl;
 
     oid o2;
-    o2.deserialize(data);
+    o2.deserialize(data.begin());
     cout << "o2 is " << o2 << endl;
 
     return 0;

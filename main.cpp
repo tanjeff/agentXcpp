@@ -2,6 +2,7 @@
 #include <fstream>
 #include "oid.h"
 #include "integer.h"
+#include "octet_string.h"
 
 
 using namespace agentx;
@@ -30,37 +31,90 @@ void print_serialized(data_t stream)
     }
 }
 
+
+void test_octet_string()
+{
+    data_t tmp;
+    tmp.push_back('H');
+    tmp.push_back('e');
+    tmp.push_back('l');
+    tmp.push_back('l');
+    tmp.push_back('o');
+
+    octet_string os1(tmp);
+
+    data_t data;
+
+    ofstream ofile("os1.oid");
+    data = os1.serialize();
+    print_serialized(data);
+    for( int i = 0; i < data.size(); i++)
+    {
+        ofile.put((char)data[i]);
+    }
+    cout << endl;
+    ofile.close();
+
+
+    data.clear();
+    
+    ifstream ifile("os1.oid");
+    char ch;
+    while ( ifile.get(ch) )
+    {
+        data.push_back(ch);
+    }
+    ifile.close();
+    cout << "Read " << data.size() << " bytes." << endl;
+
+    integer os2;
+    os2.deserialize(data.begin(), true);
+    cout << "os2 is \"" << os2 << "\"" << endl;
+
+}
+void test_integer()
+{
+
+    integer i1(0xcafebabe);
+    cout << hex;
+    cout << "integer value is " << i1 << endl;
+
+    data_t data;
+
+    ofstream i1_file("i1.oid");
+    data = i1.serialize();
+    print_serialized(data);
+    for( int i = 0; i < data.size(); i++)
+    {
+        i1_file.put((char)data[i]);
+    }
+    cout << endl;
+    i1_file.close();
+
+
+    data.clear();
+    
+    ifstream file("i1.oid");
+    char ch;
+    while ( file.get(ch) )
+    {
+        data.push_back(ch);
+    }
+    file.close();
+    cout << "Read " << data.size() << " bytes." << endl;
+
+    integer i2;
+    i2.deserialize(data.begin(), true);
+    cout << "i2 is " << i2 << endl;
+
+    cout << dec;
+
+}
+
 int main()
 {
-    //data_t data;
-
-    //ofstream o1_file("o1.oid");
-    //oid o1(1,2,6,1,5,6,7,8,9);
-    //o1.set_include(0xee);
-    //data = o1.serialize();
-    //print_serialized(data);
-    //for( int i = 0; i < data.size(); i++)
-    //{
-    //    o1_file.put((char)data[i]);
-    //}
-    //cout << endl;
-    //o1_file.close();
-
-
-    //data.clear();
-    //
-    //ifstream file("o1.oid");
-    //char ch;
-    //while ( file.get(ch) )
-    //{
-    //    data.push_back(ch);
-    //}
-    //file.close();
-    //cout << "Read " << data.size() << " bytes." << endl;
-
-    //oid o2;
-    //o2.deserialize(data.begin());
-    //cout << "o2 is " << o2 << endl;
+    test_integer();
+    test_octet_string();
 
     return 0;
 }

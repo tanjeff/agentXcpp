@@ -7,11 +7,12 @@
 namespace agentx
 {
     /**
-     * \brief Represents an Octet String as descibed in RFC 2741, section 5.3
+     * \brief Represents an Integer as descibed in RFC 2741
      */
     class integer : public variable
     {
 	private:
+	    /** \brief the value */
 	    uint32_t value;
 
 	public:
@@ -23,30 +24,34 @@ namespace agentx
 	     */
 	    virtual data_t serialize();
 
+	    /**
+	     * \brief Initialize an Integer object with a value
+	     */
 	    integer(uint32_t initial_value) : value(initial_value) {}
+
+	    /**
+	     * \brief Create an integer without initialization.
+	     *
+	     * The value after creation is undefined.
+	     */
 	    integer() {}
 
-
+	    /**
+	     * \brief Deserialize an integer object.
+	     *
+	     * This sets the integer value to the value found in the serialized 
+	     * data.
+	     */
 	    void deserialize(data_t::const_iterator begin, bool big_endian=false);
 
-	    /**
-	     * \brief Set the current value
-	     */
-	    void set_value(uint32_t new_value) { value = new_value; }
-
-	    /**
-	     * \brief get the current value
-	     */
-	    uint32_t get_value() { return value; }
-	
 	    friend std::ostream& operator<<(std::ostream&, const agentx::integer&);
     };
     
     /**
      * \brief The output operator for the integer class.
      *
-     * The integer class uses a builtin to represent its value, therefore all 
-     * stream modifiers should work as expected.
+     * The integer class uses a builtin integer type to represent its value, 
+     * therefore it behaves like int or long would do.
      */
     std::ostream& operator<<(std::ostream&, const agentx::integer&);
 

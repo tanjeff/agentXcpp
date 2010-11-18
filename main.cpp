@@ -71,16 +71,33 @@ void test_octet_string()
     ifile.close();
     cout << "Read " << data.size() << " bytes." << endl;
 
-    integer os2;
-    os2.deserialize(data.begin(), true);
-    cout << "os2 is \"" << os2 << "\"" << endl;
+    //octet_string os2;
+    //os2.deserialize(data.begin(), true);
+    //cout << "os2 is \"" << os2 << "\"" << endl;
 
+}
+
+
+
+class myinteger : public integer
+{
+    public:
+	myinteger(int v) { value = v; }
+	myinteger() {}
+	friend std::ostream& operator<<(std::ostream&, const myinteger&);
+
+};
+std::ostream& operator<<(std::ostream& out, const myinteger& i)
+{
+    out << i.value;
+
+    return out;
 }
 void test_integer()
 {
     cout << "--- Testing integer ---" << endl;
 
-    integer i1(0xcafebabe);
+    myinteger i1(0xcafebabe);
     cout << hex;
     cout << "integer value is " << i1 << endl;
 
@@ -108,7 +125,7 @@ void test_integer()
     file.close();
     cout << "Read " << data.size() << " bytes." << endl;
 
-    integer i2;
+    myinteger i2;
     i2.deserialize(data.begin(), true);
     cout << "i2 is " << i2 << endl;
 
@@ -131,7 +148,7 @@ void test_varbind()
     
     octet_string os(tmp);
     oid o(1,3,6,1,23,42);
-    integer i(0xa5);
+    myinteger i(0xa5);
 
     varbind vb_integer(&o, &i);
     data = vb_integer.serialize();

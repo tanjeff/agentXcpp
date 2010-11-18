@@ -36,12 +36,3 @@ void integer::deserialize(data_t::const_iterator it, bool big_endian)
 	value |= *it++ << 24;
     }
 }
-
-#include <iostream>
-
-std::ostream& agentx::operator<<(std::ostream& out, const integer& i)
-{
-    out << i.value;
-
-    return out;
-}

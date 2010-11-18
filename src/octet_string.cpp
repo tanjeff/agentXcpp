@@ -8,13 +8,22 @@ data_t octet_string::serialize()
 
     // encode size (big endian)
     int size = value.size();
-    serialized.push_back(size << 24 & 0xff);
-    serialized.push_back(size << 16 & 0xff);
-    serialized.push_back(size << 8 & 0xff);
-    serialized.push_back(size << 0 & 0xff);
+    serialized.push_back(size >> 24 & 0xff);
+    serialized.push_back(size >> 16 & 0xff);
+    serialized.push_back(size >> 8 & 0xff);
+    serialized.push_back(size >> 0 & 0xff);
 
     // encode value
     serialized += value;
+
+    // Padding bytes
+    int padsize = 4 - (size % 4);
+    while( padsize-- )
+    {
+	serialized.push_back(0);
+    }
+
+    return serialized;
 }
 
 

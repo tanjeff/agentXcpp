@@ -30,7 +30,6 @@ namespace agentx
 
 	    void deserialize(data_t::const_iterator begin, bool big_endian=false);
 
-	    virtual data_t get() = 0;
 
 	    /**
 	     * \brief Set the current value

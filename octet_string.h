@@ -30,11 +30,6 @@ namespace agentx
 
 	    void deserialize(data_t::const_iterator begin, bool big_endian=false);
 
-	    virtual uint16_t syntax()
-	    {
-		return 4;	// RFC 2741, section 5.4
-	    }
-
 	    virtual data_t get() = 0;
 
 	    /**

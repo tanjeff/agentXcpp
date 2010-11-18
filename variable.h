@@ -13,7 +13,6 @@ class variable
 	//virtual void deserialize(data_t);
 	
 	// Needed for encoding varbinds
-	virtual uint16_t syntax();
 	virtual data_t get() = 0;
 	virtual data_t serialize();
 };

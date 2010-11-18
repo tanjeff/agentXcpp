@@ -11,10 +11,10 @@ namespace agentx
     {
 	private:
 	    oid* name;
-	    variable* data;
+	    variable* var;
 	public:
-	    varbind(oid&);
-	    varbind(oid&, data_t&);
+
+	    varbind(oid*, variable* v);
 	    data_t serialize();
     };
 

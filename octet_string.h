@@ -28,7 +28,7 @@ namespace agentx
 	    octet_string(data_t initial_value) : value(initial_value) {}
 
 
-	    void deserialize(data_t data, bool big_endian=false);
+	    void deserialize(data_t::const_iterator begin, bool big_endian=false);
 
 	    virtual uint16_t syntax()
 	    {

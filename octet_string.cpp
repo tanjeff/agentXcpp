@@ -18,24 +18,24 @@ data_t octet_string::serialize()
 }
 
 
-void octet_string::deserialize(data_t data, bool big_endian)
+void octet_string::deserialize(data_t::const_iterator it, bool big_endian)
 {
     uint32_t size;
 
     // Get size
     if( big_endian )
     {
-	size =  data[0] << 24;
-	size |= data[1] << 16;
-	size |= data[2] << 8;
-	size |= data[3] << 0;
+	size =  *it++ << 24;
+	size |= *it++ << 16;
+	size |= *it++ << 8;
+	size |= *it++ << 0;
     }
     else
     {
-	size =  data[0] << 0;
-	size |= data[1] << 8;
-	size |= data[2] << 16;
-	size |= data[3] << 24;
+	size =  *it++ << 0;
+	size |= *it++ << 8;
+	size |= *it++ << 16;
+	size |= *it++ << 24;
     }
     if( size == 0 )
     {
@@ -44,5 +44,5 @@ void octet_string::deserialize(data_t data, bool big_endian)
     }
 
     // Get value
-    value = data.assign(data, 4, data.size()-4);
+    value.assign(it, it+size);
 }

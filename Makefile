@@ -1,8 +1,18 @@
-OBJS=oid.o octet_string.o varbind.o integer.o
-CXXFLAGS=-g -O0
+.PHONY: all documentation library clean
 
-%.o : %.cpp %.h
-	g++ $< -o $@ -c $(CXXFLAGS)
+all: library documentation
 
-main : main.cpp $(OBJS)
-	g++ $< *.o -o $@ $(CXXFLAGS)
+documentation:
+	doxygen doxygen.conf
+
+library:
+	make -C src/
+
+
+#main : main.cpp $(OBJS)
+#	g++ $< *.o -o $@ $(CXXFLAGS)
+
+
+clean:
+	rm -fr doc/
+	make -C src/ clean

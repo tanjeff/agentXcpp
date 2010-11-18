@@ -3,6 +3,7 @@
 #include "oid.h"
 #include "integer.h"
 #include "octet_string.h"
+#include "varbind.h"
 
 
 using namespace agentx;
@@ -29,11 +30,14 @@ void print_serialized(data_t stream)
 	    }
 	}
     }
+    cout << endl;
 }
 
 
 void test_octet_string()
 {
+    cout << "--- Testing octet_string ---" << endl;
+
     data_t tmp;
     tmp.push_back('H');
     tmp.push_back('e');
@@ -74,6 +78,7 @@ void test_octet_string()
 }
 void test_integer()
 {
+    cout << "--- Testing integer ---" << endl;
 
     integer i1(0xcafebabe);
     cout << hex;
@@ -111,10 +116,41 @@ void test_integer()
 
 }
 
+void test_varbind()
+{
+    cout << "--- Testing varbind ---" << endl;
+
+    data_t data;
+    
+    data_t tmp;
+    tmp.push_back('H');
+    tmp.push_back('e');
+    tmp.push_back('l');
+    tmp.push_back('l');
+    tmp.push_back('o');
+    
+    octet_string os(tmp);
+    oid o(1,3,6,1,23,42);
+    integer i(0xa5);
+
+    varbind vb_integer(&o, &i);
+    data = vb_integer.serialize();
+    print_serialized(data);
+    
+    varbind vb_octet_string(&o, &os);
+    data = vb_octet_string.serialize();
+    print_serialized(data);
+    
+    cout << endl;
+}
+
 int main()
 {
     test_integer();
     test_octet_string();
+
+
+    test_varbind();
 
     return 0;
 }

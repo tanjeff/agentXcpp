@@ -1,5 +1,6 @@
 #include "varbind.h"
 #include "octet_string.h"
+#include "integer.h"
 
 using namespace agentx;
 
@@ -40,6 +41,8 @@ data_t varbind::serialize()
 
     // encode data
     serialized += var->serialize();
+
+    return serialized;
 }
 
 

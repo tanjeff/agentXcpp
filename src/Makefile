@@ -2,7 +2,7 @@ OBJS=oid.o octet_string.o integer.o
 CXXFLAGS=-g -O0
 
 agentxcpp.a: $(OBJS)
-	$(LD) $(OBJS) -shared -o $@
+	$(AR) -r $@ $(OBJS)
 
 %.o : %.cpp %.h
 	$(CXX) $< -o $@ -c $(CXXFLAGS)

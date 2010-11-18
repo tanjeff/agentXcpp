@@ -11,7 +11,7 @@ library:
 
 
 main : main.cpp library
-	$(CXX) $< -o $@ $(CXXFLAGS)
+	$(CXX) $< -o $@ src/agentxcpp.a $(CXXFLAGS)
 
 
 clean:

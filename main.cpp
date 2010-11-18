@@ -4,6 +4,7 @@
 #include "integer.h"
 #include "octet_string.h"
 #include "varbind.h"
+#include "counter32.h"
 
 
 using namespace agentx;
@@ -133,11 +134,75 @@ void test_integer()
 
 }
 
+
+
+
+class mycounter32 : public counter32
+{
+    public:
+	mycounter32(int v) { value = v; }
+	mycounter32() {}
+	friend std::ostream& operator<<(std::ostream&, const mycounter32&);
+
+};
+std::ostream& operator<<(std::ostream& out, const mycounter32& i)
+{
+    out << i.value;
+
+    return out;
+}
+void test_counter32()
+{
+    cout << "--- Testing counter32 ---" << endl;
+
+    mycounter32 c32_1(0xcafebabe);
+    cout << hex;
+    cout << "counter32 value is " << c32_1 << endl;
+
+    data_t data;
+
+    ofstream ofile("c32_1.oid");
+    data = c32_1.serialize();
+    print_serialized(data);
+    for( int i = 0; i < data.size(); i++)
+    {
+        ofile.put((char)data[i]);
+    }
+    cout << endl;
+    ofile.close();
+
+
+    data.clear();
+    
+    ifstream ifile("c32_1.oid");
+    char ch;
+    while ( ifile.get(ch) )
+    {
+        data.push_back(ch);
+    }
+    ifile.close();
+    cout << "Read " << data.size() << " bytes." << endl;
+
+    mycounter32 c32_2;
+    c32_2.deserialize(data.begin(), true);
+    cout << "c32_2 is " << c32_2 << endl;
+
+    cout << dec;
+
+}
+
 void test_varbind()
 {
     cout << "--- Testing varbind ---" << endl;
 
     data_t data;
+    
+    oid o(1,3,6,1,23,42);
+    
+    myinteger i(0xa5);
+    varbind vb_integer(&o, &i);
+    data = vb_integer.serialize();
+    print_serialized(data);
     
     data_t tmp;
     tmp.push_back('H');
@@ -145,17 +210,14 @@ void test_varbind()
     tmp.push_back('l');
     tmp.push_back('l');
     tmp.push_back('o');
-    
     octet_string os(tmp);
-    oid o(1,3,6,1,23,42);
-    myinteger i(0xa5);
-
-    varbind vb_integer(&o, &i);
-    data = vb_integer.serialize();
-    print_serialized(data);
-    
     varbind vb_octet_string(&o, &os);
     data = vb_octet_string.serialize();
+    print_serialized(data);
+    
+    mycounter32 c32(0x5a);
+    varbind vb_counter32(&o, &c32);
+    data = vb_counter32.serialize();
     print_serialized(data);
     
     cout << endl;
@@ -165,6 +227,7 @@ int main()
 {
     test_integer();
     test_octet_string();
+    test_counter32();
 
 
     test_varbind();

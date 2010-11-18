@@ -1,4 +1,4 @@
-OBJS=oid.o octet_string.o integer.o varbind.o
+OBJS=oid.o octet_string.o integer.o varbind.o counter32.o
 CXXFLAGS=-g -O0
 
 agentxcpp.a: $(OBJS)

@@ -1,6 +1,7 @@
 #include "varbind.h"
 #include "octet_string.h"
 #include "integer.h"
+#include "counter32.h"
 
 using namespace agentx;
 
@@ -27,8 +28,9 @@ data_t varbind::serialize()
 
     // encode type
     uint16_t type = NONE;
-    if( dynamic_cast<octet_string*>(var) ) type = 4;
-    if( dynamic_cast<integer*>(var) ) type = 2;
+    if( dynamic_cast<octet_string*>(var) ) type = Octet_String;
+    if( dynamic_cast<integer*>(var) ) type = Integer;
+    if( dynamic_cast<counter32*>(var) ) type = Counter32;
     serialized.push_back( type << 8 & 0xff );
     serialized.push_back( type << 0 & 0xff );
     

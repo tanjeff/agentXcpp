@@ -1,14 +1,16 @@
-OBJS=oid.o octet_string.o varbind.o integer.o
+OBJS=oid.o octet_string.o integer.o
 CXXFLAGS=-g -O0
 
-all: $(OBJS)
+agentxcpp.a: $(OBJS)
+	$(LD) $(OBJS) -shared -o $@
 
 %.o : %.cpp %.h
-	g++ $< -o $@ -c $(CXXFLAGS)
+	$(CXX) $< -o $@ -c $(CXXFLAGS)
 
 
 
 . PHONY: clean
 
 clean:
-	rm -f *.o
+	rm -f $(OBJS)
+	rm -f agentxcpp.a

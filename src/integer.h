@@ -21,14 +21,13 @@ namespace agentx
 	     * Note:
 	     * We always use big endian.
 	     */
-	    data_t serialize();
+	    virtual data_t serialize();
 
 	    integer(uint32_t initial_value) : value(initial_value) {}
+	    integer() {}
 
 
 	    void deserialize(data_t::const_iterator begin, bool big_endian=false);
-
-	    virtual data_t get() = 0;
 
 	    /**
 	     * \brief Set the current value
@@ -39,7 +38,18 @@ namespace agentx
 	     * \brief get the current value
 	     */
 	    uint32_t get_value() { return value; }
+	
+	    friend std::ostream& operator<<(std::ostream&, const agentx::integer&);
     };
+    
+    /**
+     * \brief The output operator for the integer class.
+     *
+     * The integer class uses a builtin to represent its value, therefore all 
+     * stream modifiers should work as expected.
+     */
+    std::ostream& operator<<(std::ostream&, const agentx::integer&);
+
 }
 
 #endif

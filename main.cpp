@@ -5,6 +5,7 @@
 #include "octet_string.h"
 #include "varbind.h"
 #include "Counter32.h"
+#include "Counter64.h"
 #include "Gauge32.h"
 
 
@@ -195,6 +196,62 @@ void test_counter32()
 
 
 
+class mycounter64 : public Counter64
+{
+    public:
+	mycounter64(unsigned long long v) { value = v; }
+	mycounter64() {}
+	friend std::ostream& operator<<(std::ostream&, const mycounter64&);
+
+};
+std::ostream& operator<<(std::ostream& out, const mycounter64& i)
+{
+    out << i.value;
+
+    return out;
+}
+void test_counter64()
+{
+    cout << "--- Testing Counter64 ---" << endl;
+
+    mycounter64 c64_1(0xcafebabeaffe0505);
+    cout << hex;
+    cout << "Counter64 value is " << c64_1 << endl;
+
+    data_t data;
+
+    ofstream ofile("c64_1");
+    data = c64_1.serialize();
+    print_serialized(data);
+    for( int i = 0; i < data.size(); i++)
+    {
+        ofile.put((char)data[i]);
+    }
+    cout << endl;
+    ofile.close();
+
+
+    data.clear();
+    
+    ifstream ifile("c64_1");
+    char ch;
+    while ( ifile.get(ch) )
+    {
+        data.push_back(ch);
+    }
+    ifile.close();
+    cout << "Read " << data.size() << " bytes." << endl;
+
+    mycounter64 c64_2;
+    c64_2.deserialize(data.begin(), true);
+    cout << "c64_2 is " << c64_2 << endl;
+
+    cout << dec;
+
+}
+
+
+
 class myGauge32 : public Gauge32
 {
     public:
@@ -291,6 +348,7 @@ int main()
     test_integer();
     test_octet_string();
     test_counter32();
+    test_counter64();
     test_Gauge32();
 
 

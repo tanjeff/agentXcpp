@@ -2,6 +2,7 @@
 #include "octet_string.h"
 #include "Integer.h"
 #include "Counter32.h"
+#include "Counter64.h"
 #include "Gauge32.h"
 #include "TimeTicks.h"
 
@@ -17,6 +18,7 @@ data_t varbind::serialize()
     if( dynamic_cast<octet_string*>(var) ) type = 4;
     if( dynamic_cast<Integer*>(var) ) type = 2;
     if( dynamic_cast<Counter32*>(var) ) type = 65;
+    if( dynamic_cast<Counter64*>(var) ) type = 70;
     if( dynamic_cast<Gauge32*>(var) ) type = 66;
     if( dynamic_cast<TimeTicks*>(var) ) type = 67;
     serialized.push_back( type << 8 & 0xff );

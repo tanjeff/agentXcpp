@@ -1,6 +1,6 @@
 #include "varbind.h"
 #include "octet_string.h"
-#include "integer.h"
+#include "Integer.h"
 #include "counter32.h"
 #include "Gauge32.h"
 
@@ -14,7 +14,7 @@ data_t varbind::serialize()
     // encode type according to RFC 2741, section 5.4
     uint16_t type = 0;   // not in RFC
     if( dynamic_cast<octet_string*>(var) ) type = 4;
-    if( dynamic_cast<integer*>(var) ) type = 2;
+    if( dynamic_cast<Integer*>(var) ) type = 2;
     if( dynamic_cast<counter32*>(var) ) type = 65;
     if( dynamic_cast<Gauge32*>(var) ) type = 66;
     serialized.push_back( type << 8 & 0xff );

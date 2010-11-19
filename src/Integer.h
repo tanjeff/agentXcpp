@@ -9,21 +9,21 @@ namespace agentx
     /**
      * \brief Represents an Integer as descibed in RFC 2741
      */
-    class integer : public variable
+    class Integer : public variable
     {
 	protected:
 	    /**
-	     * \brief The integer value
+	     * \brief The Integer value
 	     */
 	    uint32_t value;
 
 	public:
 	    /**
-	     * \brief Create an integer without initialization.
+	     * \brief Create an Integer without initialization.
 	     *
 	     * The value after creation is undefined.
 	     */
-	    integer() {}
+	    Integer() {}
 	    
 	    /**
 	     * \brief Encode the object as described in RFC 2741, section 5.4
@@ -33,10 +33,10 @@ namespace agentx
 	    virtual data_t serialize();
 	    
 	    /**
-	     * \brief Deserialize an integer object.
+	     * \brief Deserialize an Integer object.
 	     *
-	     * This sets the integer value to the value found in the serialized 
-	     * data.
+	     * This sets the Integer value to the value found in the 
+	     * serialized data.
 	     */
 	    void deserialize(data_t::const_iterator begin, bool big_endian=false);
     };

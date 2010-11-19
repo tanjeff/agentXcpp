@@ -1,8 +1,8 @@
-#include "integer.h"
+#include "Integer.h"
 
 using namespace agentx;
 
-data_t integer::serialize()
+data_t Integer::serialize()
 {
     data_t serialized;
 
@@ -16,7 +16,7 @@ data_t integer::serialize()
 }
 
 
-void integer::deserialize(data_t::const_iterator it, bool big_endian)
+void Integer::deserialize(data_t::const_iterator it, bool big_endian)
 {
     uint32_t size;
 

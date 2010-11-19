@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "oid.h"
-#include "integer.h"
+#include "Integer.h"
 #include "octet_string.h"
 #include "varbind.h"
 #include "counter32.h"
@@ -81,7 +81,7 @@ void test_octet_string()
 
 
 
-class myinteger : public integer
+class myinteger : public Integer
 {
     public:
 	myinteger(int v) { value = v; }
@@ -97,11 +97,11 @@ std::ostream& operator<<(std::ostream& out, const myinteger& i)
 }
 void test_integer()
 {
-    cout << "--- Testing integer ---" << endl;
+    cout << "--- Testing Integer ---" << endl;
 
     myinteger i1(0xcafebabe);
     cout << hex;
-    cout << "integer value is " << i1 << endl;
+    cout << "Integer value is " << i1 << endl;
 
     data_t data;
 

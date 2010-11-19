@@ -2,7 +2,7 @@ OBJS=oid.o \
      octet_string.o \
      Integer.o \
      varbind.o \
-     counter32.o \
+     Counter32.o \
      Gauge32.o \
      TimeTicks.o
 CXXFLAGS=-g -O0

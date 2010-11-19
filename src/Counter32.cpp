@@ -1,8 +1,8 @@
-#include "counter32.h"
+#include "Counter32.h"
 
 using namespace agentx;
 
-data_t counter32::serialize()
+data_t Counter32::serialize()
 {
     data_t serialized;
 
@@ -16,7 +16,7 @@ data_t counter32::serialize()
 }
 
 
-void counter32::deserialize(data_t::const_iterator it, bool big_endian)
+void Counter32::deserialize(data_t::const_iterator it, bool big_endian)
 {
     uint32_t size;
 

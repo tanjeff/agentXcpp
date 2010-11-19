@@ -9,7 +9,7 @@ namespace agentx
     /**
      * \brief Represents an Integer as descibed in RFC 2741
      */
-    class counter32 : public variable
+    class Counter32 : public variable
     {
 	protected:
 	    /**
@@ -23,7 +23,7 @@ namespace agentx
 	     *
 	     * The value after creation is undefined.
 	     */
-	    counter32() {}
+	    Counter32() {}
 	    
 	    /**
 	     * \brief Encode the object as described in RFC 2741, section 5.4

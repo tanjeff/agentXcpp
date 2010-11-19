@@ -4,7 +4,7 @@
 #include "Integer.h"
 #include "octet_string.h"
 #include "varbind.h"
-#include "counter32.h"
+#include "Counter32.h"
 #include "Gauge32.h"
 
 
@@ -138,7 +138,7 @@ void test_integer()
 
 
 
-class mycounter32 : public counter32
+class mycounter32 : public Counter32
 {
     public:
 	mycounter32(int v) { value = v; }
@@ -154,11 +154,11 @@ std::ostream& operator<<(std::ostream& out, const mycounter32& i)
 }
 void test_counter32()
 {
-    cout << "--- Testing counter32 ---" << endl;
+    cout << "--- Testing Counter32 ---" << endl;
 
     mycounter32 c32_1(0xcafebabe);
     cout << hex;
-    cout << "counter32 value is " << c32_1 << endl;
+    cout << "Counter32 value is " << c32_1 << endl;
 
     data_t data;
 

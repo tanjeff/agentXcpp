@@ -3,7 +3,8 @@ OBJS=oid.o \
      Integer.o \
      varbind.o \
      counter32.o \
-     Gauge32.o
+     Gauge32.o \
+     TimeTicks.o
 CXXFLAGS=-g -O0
 
 agentxcpp.a: $(OBJS)

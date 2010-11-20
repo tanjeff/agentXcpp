@@ -135,15 +135,15 @@ data_t oid::serialize()
     return serialized_oid;
 }
 
-void oid::deserialize(data_t::const_iterator it,
+void oid::deserialize(data_t::const_iterator& pos,
 	              bool big_endian)
     throw(parse_error)
 {
     // get number of subid's
-    int n_subid = *it++;
+    int n_subid = *pos++;
 
     // parse prefix
-    int prefix = *it++;
+    int prefix = *pos++;
     if( prefix != 0 )
     {
 	identifier.push_back(1);
@@ -154,7 +154,7 @@ void oid::deserialize(data_t::const_iterator it,
     }
 
     // parse include field
-    switch( *it++ )
+    switch( *pos++ )
     {
 	case 0:
 	    include = false;
@@ -168,7 +168,7 @@ void oid::deserialize(data_t::const_iterator it,
     }
 
     // skip reserved field
-    it++;
+    pos++;
 
     // parse rest of data, subid by subid
     uint32_t subid;
@@ -177,18 +177,18 @@ void oid::deserialize(data_t::const_iterator it,
 	if(big_endian)
 	{
 	    // big endian
-	    subid =  *it++ << 24;
-	    subid |= *it++ << 16;
-	    subid |= *it++ << 8;
-	    subid |= *it++ << 0;
+	    subid =  *pos++ << 24;
+	    subid |= *pos++ << 16;
+	    subid |= *pos++ << 8;
+	    subid |= *pos++ << 0;
 	}
 	else
 	{
-	    // little endian
-	    subid =  *it++ << 0;
-	    subid |= *it++ << 8;
-	    subid |= *it++ << 16;
-	    subid |= *it++ << 24;
+	    // little posdian
+	    subid =  *pos++ << 0;
+	    subid |= *pos++ << 8;
+	    subid |= *pos++ << 16;
+	    subid |= *pos++ << 24;
 	}
 	identifier.push_back(subid);
     }

@@ -16,23 +16,23 @@ data_t Integer::serialize()
 }
 
 
-void Integer::deserialize(data_t::const_iterator it, bool big_endian)
+void Integer::deserialize(data_t::const_iterator& pos, bool big_endian)
 {
     uint32_t size;
 
     // Get value
     if( big_endian )
     {
-	value =  *it++ << 24;
-	value |= *it++ << 16;
-	value |= *it++ << 8;
-	value |= *it++ << 0;
+	value =  *pos++ << 24;
+	value |= *pos++ << 16;
+	value |= *pos++ << 8;
+	value |= *pos++ << 0;
     }
     else
     {
-	value =  *it++ << 0;
-	value |= *it++ << 8;
-	value |= *it++ << 16;
-	value |= *it++ << 24;
+	value =  *pos++ << 0;
+	value |= *pos++ << 8;
+	value |= *pos++ << 16;
+	value |= *pos++ << 24;
     }
 }

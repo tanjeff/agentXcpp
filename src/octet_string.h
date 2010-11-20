@@ -28,7 +28,15 @@ namespace agentx
 	    octet_string(data_t initial_value) : value(initial_value) {}
 
 
-	    void deserialize(data_t::const_iterator begin, bool big_endian=false);
+	    /**
+	     * \brief Deserialize an octet_string object.
+	     *
+	     * This sets the octet_string to the value found in the serialized 
+	     * data.  The iterator 'pos' is advanced while parsing.  After the 
+	     * object is deserialized, 'pos' points to the first byte after the 
+	     * object.
+	     */
+	    void deserialize(data_t::const_iterator& pos, bool big_endian=false);
 
 
 	    /**

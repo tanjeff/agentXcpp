@@ -104,11 +104,13 @@ namespace agentx
 	 *
 	 * This function expects a data packet containing exactly one OID. If 
 	 * the packet contains too much (or too less) data, a parse_error is 
-	 * exception thrown.
+	 * exception thrown. An exception is also thrown on other parse 
+	 * errors.
 	 *
-	 * An exception is also thrown on other parse errors.
+	 * The iterator 'pos' is advanced while parsing. After the OID is 
+	 * deserialized, 'pos' points to the first byte after the OID.
 	 */
-	void deserialize(data_t::const_iterator start,
+	void deserialize(data_t::const_iterator& pos,
 		bool big_endian=false)
 	    throw(parse_error);
     

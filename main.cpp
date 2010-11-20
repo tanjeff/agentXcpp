@@ -75,7 +75,8 @@ void test_octet_string()
     cout << "Read " << data.size() << " bytes." << endl;
 
     //octet_string os2;
-    //os2.deserialize(data.begin(), true);
+    //data_t::const_iterator it = data.begin();
+    //os2.deserialize(it, true);
     //cout << "os2 is \"" << os2 << "\"" << endl;
 
 }
@@ -129,7 +130,8 @@ void test_integer()
     cout << "Read " << data.size() << " bytes." << endl;
 
     myinteger i2;
-    i2.deserialize(data.begin(), true);
+    data_t::const_iterator it = data.begin();
+    i2.deserialize(it, true);
     cout << "i2 is " << i2 << endl;
 
     cout << dec;
@@ -186,7 +188,8 @@ void test_counter32()
     cout << "Read " << data.size() << " bytes." << endl;
 
     mycounter32 c32_2;
-    c32_2.deserialize(data.begin(), true);
+    data_t::const_iterator it = data.begin();
+    c32_2.deserialize(it, true);
     cout << "c32_2 is " << c32_2 << endl;
 
     cout << dec;
@@ -243,7 +246,8 @@ void test_counter64()
     cout << "Read " << data.size() << " bytes." << endl;
 
     mycounter64 c64_2;
-    c64_2.deserialize(data.begin(), true);
+    data_t::const_iterator it = data.begin();
+    c64_2.deserialize(it, true);
     cout << "c64_2 is " << c64_2 << endl;
 
     cout << dec;
@@ -299,7 +303,8 @@ void test_Gauge32()
     cout << "Read " << data.size() << " bytes." << endl;
 
     myGauge32 g2;
-    g2.deserialize(data.begin(), true);
+    data_t::const_iterator it = data.begin();
+    g2.deserialize(it, true);
     cout << "g2 is " << g2 << endl;
 
     cout << dec;

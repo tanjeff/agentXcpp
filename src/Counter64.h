@@ -35,10 +35,12 @@ namespace agentx
 	    /**
 	     * \brief Deserialize an integer object.
 	     *
-	     * This sets the counter value to the value found in the 
-	     * serialized data.
+	     * This sets the counter value to the value found in the serialized 
+	     * data. The iterator 'pos' is advanced while parsing. After the 
+	     * object is deserialized, 'pos' points to the first byte after the 
+	     * object.
 	     */
-	    void deserialize(data_t::const_iterator begin, bool big_endian=false);
+	    void deserialize(data_t::const_iterator& pos, bool big_endian=false);
     };
 }
 

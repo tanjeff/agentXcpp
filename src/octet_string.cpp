@@ -27,24 +27,24 @@ data_t octet_string::serialize()
 }
 
 
-void octet_string::deserialize(data_t::const_iterator it, bool big_endian)
+void octet_string::deserialize(data_t::const_iterator& pos, bool big_endian)
 {
     uint32_t size;
 
     // Get size
     if( big_endian )
     {
-	size =  *it++ << 24;
-	size |= *it++ << 16;
-	size |= *it++ << 8;
-	size |= *it++ << 0;
+	size =  *pos++ << 24;
+	size |= *pos++ << 16;
+	size |= *pos++ << 8;
+	size |= *pos++ << 0;
     }
     else
     {
-	size =  *it++ << 0;
-	size |= *it++ << 8;
-	size |= *it++ << 16;
-	size |= *it++ << 24;
+	size =  *pos++ << 0;
+	size |= *pos++ << 8;
+	size |= *pos++ << 16;
+	size |= *pos++ << 24;
     }
     if( size == 0 )
     {
@@ -53,5 +53,6 @@ void octet_string::deserialize(data_t::const_iterator it, bool big_endian)
     }
 
     // Get value
-    value.assign(it, it+size);
+    value.assign(pos, pos+size);
+    pos += size;
 }

@@ -6,6 +6,7 @@
 #include "Gauge32.h"
 #include "TimeTicks.h"
 #include "Opaque.h"
+#include "IpAddress.h"
 
 using namespace agentx;
 
@@ -41,16 +42,16 @@ varbind::varbind(oid* o, variable* v) throw(inval_param)
     if( dynamic_cast<Integer*>(var) ) type = 2;
     else if( dynamic_cast<octet_string*>(var) ) type = 4;
     else if( dynamic_cast<oid*>(var) ) type = 6;
-    //else if( dynamic_cast<IpAddress*>(var) ) type = 64;
+    else if( dynamic_cast<IpAddress*>(var) ) type = 64;
     else if( dynamic_cast<Counter32*>(var) ) type = 65;
     else if( dynamic_cast<Gauge32*>(var) ) type = 66;
     else if( dynamic_cast<TimeTicks*>(var) ) type = 67;
     else if( dynamic_cast<Opaque*>(var) ) type = 68;
     else if( dynamic_cast<Counter64*>(var) ) type = 70;
-
-    if(!type)
+    else
     {
 	// Type could not be determined -> invalid parameter.
+	throw inval_param();
     }
 }
 

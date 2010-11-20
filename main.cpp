@@ -37,6 +37,25 @@ void print_serialized(data_t stream)
 }
 
 
+class myoctetstring : public octet_string
+{
+    public:
+	myoctetstring(data_t v) { value = v; }
+	myoctetstring() {}
+	friend std::ostream& operator<<(std::ostream&, const myoctetstring&);
+
+};
+std::ostream& operator<<(std::ostream& out, const myoctetstring& o)
+{
+    data_t::const_iterator i = o.value.begin();
+    while( i != o.value.end() )
+    {
+	out << *i;
+	i++;
+    }
+
+    return out;
+}
 void test_octet_string()
 {
     cout << "--- Testing octet_string ---" << endl;
@@ -48,7 +67,7 @@ void test_octet_string()
     tmp.push_back('l');
     tmp.push_back('o');
 
-    octet_string os1(tmp);
+    myoctetstring os1(tmp);
 
     data_t data;
 
@@ -74,10 +93,10 @@ void test_octet_string()
     ifile.close();
     cout << "Read " << data.size() << " bytes." << endl;
 
-    //octet_string os2;
-    //data_t::const_iterator it = data.begin();
-    //os2.deserialize(it, true);
-    //cout << "os2 is \"" << os2 << "\"" << endl;
+    myoctetstring os2;
+    data_t::const_iterator it = data.begin();
+    os2.deserialize(it, true);
+    cout << "os2 is \"" << os2 << "\"" << endl;
 
 }
 

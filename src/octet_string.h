@@ -11,7 +11,7 @@ namespace agentx
      */
     class octet_string : public variable
     {
-	private:
+	protected:
 	    // We use data_t here although it was not invented for this.
 	    // TODO: Is this a problem?
 	    data_t value;
@@ -26,6 +26,8 @@ namespace agentx
 	    data_t serialize();
 
 	    octet_string(data_t initial_value) : value(initial_value) {}
+
+	    octet_string() { }
 
 
 	    /**

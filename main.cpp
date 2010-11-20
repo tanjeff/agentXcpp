@@ -52,7 +52,7 @@ void test_octet_string()
 
     data_t data;
 
-    ofstream ofile("os1.oid");
+    ofstream ofile("test.data");
     data = os1.serialize();
     print_serialized(data);
     for( int i = 0; i < data.size(); i++)
@@ -65,7 +65,7 @@ void test_octet_string()
 
     data.clear();
     
-    ifstream ifile("os1.oid");
+    ifstream ifile("test.data");
     char ch;
     while ( ifile.get(ch) )
     {
@@ -107,7 +107,7 @@ void test_integer()
 
     data_t data;
 
-    ofstream i1_file("i1.oid");
+    ofstream i1_file("test.data");
     data = i1.serialize();
     print_serialized(data);
     for( int i = 0; i < data.size(); i++)
@@ -120,7 +120,7 @@ void test_integer()
 
     data.clear();
     
-    ifstream file("i1.oid");
+    ifstream file("test.data");
     char ch;
     while ( file.get(ch) )
     {
@@ -165,7 +165,7 @@ void test_counter32()
 
     data_t data;
 
-    ofstream ofile("c32_1.oid");
+    ofstream ofile("test.data");
     data = c32_1.serialize();
     print_serialized(data);
     for( int i = 0; i < data.size(); i++)
@@ -178,7 +178,7 @@ void test_counter32()
 
     data.clear();
     
-    ifstream ifile("c32_1.oid");
+    ifstream ifile("test.data");
     char ch;
     while ( ifile.get(ch) )
     {
@@ -223,7 +223,7 @@ void test_counter64()
 
     data_t data;
 
-    ofstream ofile("c64_1");
+    ofstream ofile("test.data");
     data = c64_1.serialize();
     print_serialized(data);
     for( int i = 0; i < data.size(); i++)
@@ -236,7 +236,7 @@ void test_counter64()
 
     data.clear();
     
-    ifstream ifile("c64_1");
+    ifstream ifile("test.data");
     char ch;
     while ( ifile.get(ch) )
     {
@@ -280,7 +280,7 @@ void test_Gauge32()
 
     data_t data;
 
-    ofstream ofile("Gauge32_1.oid");
+    ofstream ofile("test.data");
     data = g1.serialize();
     print_serialized(data);
     for( int i = 0; i < data.size(); i++)
@@ -293,7 +293,7 @@ void test_Gauge32()
 
     data.clear();
     
-    ifstream ifile("Gauge32_1.oid");
+    ifstream ifile("test.data");
     char ch;
     while ( ifile.get(ch) )
     {

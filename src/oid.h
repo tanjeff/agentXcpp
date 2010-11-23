@@ -113,6 +113,64 @@ namespace agentx
 	void deserialize(data_t::const_iterator& pos,
 		bool big_endian=false)
 	    throw(parse_error);
+
+	/**
+	 * \brief The less-than operator
+	 *
+	 * An OID is less than another OID if the first not-identical part is 
+	 * lesser or, if all parts are identical, it has lesser parts.
+	 *
+	 * Example:\n
+	 * 1.3.6.1.4.1.42.3.3.1 \n
+	 * is less than \n
+	 * 1.3.6.1.4.1.42.3.4.1 \n
+	 * Note the next to last number.
+	 *
+	 * Also,\n
+	 * 1.3.6.1.4.1.42.3.3.1 \n
+	 * is less than \n
+	 * 1.3.6.1.4.1.42.3.3.1.1 \n
+	 * because it is shorter.
+	 *
+	 * However, \n
+	 * 1.3.6.1.4.1.42.3.3.1 \n
+	 * is greater less than \n
+	 * 1.3.6.1.4.1.42.3.2.1.1 \n
+	 * because the 9th number is greater (although the first OID has less 
+	 * numbers than the second).
+	 */
+	bool operator<(const oid& o) const;
+
+	/**
+	 * \brief The equal-operator
+	 *
+	 * See operator<() for a more detailed description about comparing 
+	 * OIDs.
+	 */
+	bool operator==(const oid& o) const;
+	
+	/**
+	 * \brief The not-equal-operator for oids
+	 *
+	 * See operator<() for a more detailed description about comparing 
+	 * OIDs.
+	 */
+	bool operator!=(const oid& o) const
+	{
+	    return ! (*this == o);
+	}
+
+	/**
+	 * \brief The greater-than operator
+	 *
+	 * See operator<() for a more detailed description about comparing 
+	 * OIDs.
+	 */
+	bool operator>(const oid& o) const
+	{
+	    // a > b is the same as b < a :-)
+	    return o < *this;
+	}
     
 	friend std::ostream& operator<<(std::ostream&, const agentx::oid&);
 

@@ -193,3 +193,78 @@ void oid::deserialize(data_t::const_iterator& pos,
 	identifier.push_back(subid);
     }
 }
+
+
+bool oid::operator<(const oid& o) const
+{
+    std::vector<uint32_t>::const_iterator mine, yours;
+    mine = this->identifier.begin();
+    yours = o.identifier.begin();
+
+    // Test as many parts as the shorter OID has:
+    while( mine != this->identifier.end()
+	    && yours != o.identifier.end() )
+    {
+	if( *mine < *yours )
+	{
+	    // my oid part is less than yours
+	    return true;
+	}
+	if( *mine > *yours )
+	{
+	    // my oid part is greater than yours
+	    return false;
+	}
+
+	// our parts are identical; test next art.:
+	mine++;
+	yours++;
+    }
+
+    // Ok, either you and I have different length (where the one with fewer 
+    // parts is less than the other) or we have the same number of parts (in 
+    // which case we are identical).
+    if( this->identifier.size() < o.identifier.size() )
+    {
+	// I have less parts than you, so I am less than you:
+	return true;
+    }
+    else
+    {
+	// I have not less parts than you:
+	return false;
+    }
+}
+
+bool oid::operator==(const oid& o) const
+{
+    // Quick test: if the oids have different number of parts, they are not 
+    // equal:
+    if( this->identifier.size() != o.identifier.size() )
+    {
+	return false;
+    }
+    
+    // Test all parts:
+    std::vector<uint32_t>::const_iterator mine, yours;
+    mine = this->identifier.begin();
+    yours = o.identifier.begin();
+
+    while( mine != this->identifier.end()
+	    && yours != o.identifier.end() )
+    {
+	if( *mine != *yours )
+	{
+	    // The parts differ: OIDs not equal
+	    return false;
+	}
+
+	// Parts are equal, test next parts
+	mine++;
+	yours++;
+    }
+
+    // All parts tested and all parts were equal. Further both OIDs have the 
+    // same number of parts, thus they are equal.
+    return true;
+}

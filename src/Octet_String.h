@@ -9,7 +9,7 @@ namespace agentx
     /**
      * \brief Represents an Octet String as descibed in RFC 2741, section 5.3
      */
-    class octet_string : public variable
+    class Octet_String : public variable
     {
 	protected:
 	    // We use data_t here although it was not invented for this.
@@ -25,15 +25,15 @@ namespace agentx
 	     */
 	    data_t serialize();
 
-	    octet_string(data_t initial_value) : value(initial_value) {}
+	    Octet_String(data_t initial_value) : value(initial_value) {}
 
-	    octet_string() { }
+	    Octet_String() { }
 
 
 	    /**
-	     * \brief Deserialize an octet_string object.
+	     * \brief Deserialize an Octet_String object.
 	     *
-	     * This sets the octet_string to the value found in the serialized 
+	     * This sets the Octet_String to the value found in the serialized 
 	     * data.  The iterator 'pos' is advanced while parsing.  After the 
 	     * object is deserialized, 'pos' points to the first byte after the 
 	     * object.

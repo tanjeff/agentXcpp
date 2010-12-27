@@ -1,5 +1,5 @@
 OBJS=oid.o \
-     octet_string.o \
+     Octet_String.o \
      Integer.o \
      varbind.o \
      Counter32.o \

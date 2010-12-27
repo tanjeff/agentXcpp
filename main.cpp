@@ -2,7 +2,7 @@
 #include <fstream>
 #include "oid.h"
 #include "Integer.h"
-#include "octet_string.h"
+#include "Octet_String.h"
 #include "varbind.h"
 #include "Counter32.h"
 #include "Counter64.h"
@@ -37,7 +37,7 @@ void print_serialized(data_t stream)
 }
 
 
-class myoctetstring : public octet_string
+class myoctetstring : public Octet_String
 {
     public:
 	myoctetstring(data_t v) { value = v; }
@@ -56,9 +56,9 @@ std::ostream& operator<<(std::ostream& out, const myoctetstring& o)
 
     return out;
 }
-void test_octet_string()
+void test_Octet_String()
 {
-    cout << "--- Testing octet_string ---" << endl;
+    cout << "--- Testing Octet_String ---" << endl;
 
     data_t tmp;
     tmp.push_back('H');
@@ -349,9 +349,9 @@ void test_varbind()
     tmp.push_back('l');
     tmp.push_back('l');
     tmp.push_back('o');
-    octet_string os(tmp);
-    varbind vb_octet_string(&o, &os);
-    data = vb_octet_string.serialize();
+    Octet_String os(tmp);
+    varbind vb_Octet_String(&o, &os);
+    data = vb_Octet_String.serialize();
     print_serialized(data);
     
     mycounter32 c32(0x5a);
@@ -370,7 +370,7 @@ void test_varbind()
 int main()
 {
     test_integer();
-    test_octet_string();
+    test_Octet_String();
     test_counter32();
     test_counter64();
     test_Gauge32();

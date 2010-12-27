@@ -1,8 +1,8 @@
-#include "octet_string.h"
+#include "Octet_String.h"
 
 using namespace agentx;
 
-data_t octet_string::serialize()
+data_t Octet_String::serialize()
 {
     data_t serialized;
 
@@ -27,7 +27,7 @@ data_t octet_string::serialize()
 }
 
 
-void octet_string::deserialize(data_t::const_iterator& pos, bool big_endian)
+void Octet_String::deserialize(data_t::const_iterator& pos, bool big_endian)
 {
     uint32_t size;
 

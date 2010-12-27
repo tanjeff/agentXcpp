@@ -41,7 +41,7 @@ namespace agentx
 	     *
 	     * The variable must be one of the following types:
 	     * - Integer
-	     * - octet_string
+	     * - Octet_String
 	     * - oid
 	     * - IpAddress
 	     * - Counter32

@@ -1,5 +1,5 @@
 #include "varbind.h"
-#include "octet_string.h"
+#include "Octet_String.h"
 #include "Integer.h"
 #include "Counter32.h"
 #include "Counter64.h"
@@ -40,7 +40,7 @@ varbind::varbind(oid* o, variable* v) throw(inval_param)
 
     // Determine type of variable and fill type field.
     if( dynamic_cast<Integer*>(var) ) type = 2;
-    else if( dynamic_cast<octet_string*>(var) ) type = 4;
+    else if( dynamic_cast<Octet_String*>(var) ) type = 4;
     else if( dynamic_cast<oid*>(var) ) type = 6;
     else if( dynamic_cast<IpAddress*>(var) ) type = 64;
     else if( dynamic_cast<Counter32*>(var) ) type = 65;

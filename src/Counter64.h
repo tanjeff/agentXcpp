@@ -26,6 +26,8 @@ namespace agentx
 	    Counter64() {}
 	    
 	    /**
+	     * \internal
+	     *
 	     * \brief Encode the object as described in RFC 2741, section 5.4
 	     *
 	     * This function uses big endian.
@@ -33,6 +35,8 @@ namespace agentx
 	    virtual data_t serialize();
 	    
 	    /**
+	     * \internal
+	     *
 	     * \brief Deserialize an integer object.
 	     *
 	     * This sets the counter value to the value found in the serialized 

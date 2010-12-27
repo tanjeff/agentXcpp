@@ -19,6 +19,8 @@ namespace agentx
 
 	public:
 	    /**
+	     * \internal
+	     *
 	     * \brief Encode the object as described in RFC 2741, section 5.4 / 
 	     * 5.3
 	     *
@@ -33,6 +35,8 @@ namespace agentx
 
 
 	    /**
+	     * \internal
+	     *
 	     * \brief Deserialize an Opaque object.
 	     *
 	     * This sets the Opaque data to the value found in the serialized 

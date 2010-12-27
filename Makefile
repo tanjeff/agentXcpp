@@ -3,8 +3,8 @@ CXXFLAGS += -I src/
 
 all: library main
 
-documentation:
-	doxygen doxygen.conf
+api-doc:
+	doxygen api.doxyfile
 
 library:
 	make -C src/

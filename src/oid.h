@@ -95,11 +95,15 @@ namespace agentx
 	void set_include(bool i) { include = i; }
 
 	/**
+	 * \internal
+	 *
 	 * \brief Encode an OID object as described in RFC 2741, section 5.1.
 	 */
 	data_t serialize();
 
 	/**
+	 * \internal
+	 *
 	 * \brief Decode an OID object as described in RFC 2741, section 5.1.
 	 *
 	 * This function expects a data packet containing exactly one OID. If 

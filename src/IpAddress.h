@@ -23,6 +23,8 @@ namespace agentx
 
 	public:
 	    /**
+	     * \internal
+	     *
 	     * \brief Encode the object as described in RFC 2741, section 5.4 / 
 	     * 5.3
 	     *
@@ -31,6 +33,9 @@ namespace agentx
 	     */
 	    data_t serialize();
 
+	    /**
+	     * \brief FIXME
+	     */
 	    IpAddress(uint32_t a,
 		    uint32_t b,
 		    uint32_t c,
@@ -45,6 +50,8 @@ namespace agentx
 
 
 	    /**
+	     * \internal
+	     *
 	     * \brief Deserialize an IpAddress object.
 	     *
 	     * This sets the address of this object to the value found in the 

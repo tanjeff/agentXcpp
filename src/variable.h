@@ -3,9 +3,13 @@
 
 #include "types.h"
 
-// This class represents a SNMP variable. It is inherited by more concrete 
-// classes.
-//
+/**
+ * \internal
+ *
+ * \brief This class represents a SNMP variable.
+ *
+ * It is inherited by more concrete classes.
+ */
 class variable
 {
     public:

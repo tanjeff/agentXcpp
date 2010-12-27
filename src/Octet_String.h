@@ -18,6 +18,8 @@ namespace agentx
 
 	public:
 	    /**
+	     * \internal
+	     *
 	     * \brief Encode the object as described in RFC 2741, section 5.3
 	     *
 	     * Note:
@@ -25,12 +27,20 @@ namespace agentx
 	     */
 	    data_t serialize();
 
+	    /**
+	     * \brief FIXME
+	     */
 	    Octet_String(data_t initial_value) : value(initial_value) {}
 
+	    /**
+	     * \brief FIXME
+	     */
 	    Octet_String() { }
 
 
 	    /**
+	     * \internal
+	     *
 	     * \brief Deserialize an Octet_String object.
 	     *
 	     * This sets the Octet_String to the value found in the serialized 

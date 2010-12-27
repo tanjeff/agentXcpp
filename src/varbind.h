@@ -74,11 +74,15 @@ namespace agentx
 	    varbind(oid*, type_t) throw(inval_param);
 
 	    /**
+	     * \internal
+	     *
 	     * \brief Serialize the varbind.
 	     *
 	     * This creates the binary representation of the varbind.
 	     */
 	    data_t serialize();
+
+	    //TODO: deserialize!
     };
 
 }

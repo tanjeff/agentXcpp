@@ -1,5 +1,6 @@
 *.swp
 doc/api/
+doc/internal/
 main
 *.o
 *.a

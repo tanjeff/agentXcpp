@@ -1,5 +1,5 @@
 *.swp
-doc/
+doc/api/
 main
 *.o
 *.a

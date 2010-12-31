@@ -107,6 +107,7 @@ class myinteger : public Integer
     public:
 	myinteger(int v) { value = v; }
 	myinteger() {}
+	myinteger(Integer& x) : Integer(x) {}
 	friend std::ostream& operator<<(std::ostream&, const myinteger&);
 
 };
@@ -140,18 +141,11 @@ void test_integer()
     data.clear();
     
     ifstream file("test.data");
-    char ch;
-    while ( file.get(ch) )
-    {
-        data.push_back(ch);
-    }
+    Integer i2(file);
     file.close();
-    cout << "Read " << data.size() << " bytes." << endl;
 
-    myinteger i2;
-    data_t::const_iterator it = data.begin();
-    i2.deserialize(it, true);
-    cout << "i2 is " << i2 << endl;
+    myinteger my2(i2);
+    cout << "i2 is " << my2 << endl;
 
     cout << dec;
 

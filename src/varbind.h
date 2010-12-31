@@ -1,6 +1,8 @@
 #ifndef _VARBIND_H_
 #define _VARBIND_H_
 
+#include <istream>
+
 #include "types.h"
 #include "oid.h"
 #include "variable.h"
@@ -76,13 +78,32 @@ namespace agentx
 	    /**
 	     * \internal
 	     *
+	     * \brief Construct a varbind object from an input stream
+	     *
+	     * This constructor parses a serialized varbind. The varbind is 
+	     * removed from the stream during parsing (i.e.  the stream 
+	     * position is forwarded).
+	     *
+	     * The constructor expects valid data from the stream; if parsing 
+	     * fails, parse_error is thrown. In this case, the stream position 
+	     * is undefined.
+	     *
+	     * \param in An input stream
+	     * \param big_endian Whether the input stream is in big endian
+	     *                   format
+	     * 
+	     */
+	    varbind(std::istream& in, bool big_endian=true) throw(parse_error);
+
+	    /**
+	     * \internal
+	     *
 	     * \brief Serialize the varbind.
 	     *
 	     * This creates the binary representation of the varbind.
 	     */
 	    data_t serialize();
 
-	    //TODO: deserialize!
     };
 
 }

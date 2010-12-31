@@ -76,3 +76,41 @@ varbind::varbind(oid* o, type_t t) throw(inval_param)
     }
 }
 
+varbind::varbind(std::istream& in, bool big_endian) throw(parse_error)
+{
+    uint16_t type;
+    
+    // Get type
+    if( big_endian )
+    {
+	type |= in.get() << 8;
+	type |= in.get() << 0;
+    }
+    else
+    {
+	type |= in.get() << 0;
+	type |= in.get() << 8;
+    }
+
+    // skip reserved field
+    in.seekg(2, std::ios_base::cur);
+    
+    // check stream
+    if(!in)
+    {
+	throw(parse_error());
+    }
+
+    // TODO: read OID!
+
+    // Get data: no exceptions are catched; they are forwarded to the caller
+    switch(type)
+    {
+	case 2:
+	    var = new Integer(in, big_endian);
+	    break;
+	default:
+	    // invalid type
+	    throw(parse_error());
+    }
+}

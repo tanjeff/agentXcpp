@@ -1,8 +1,11 @@
 #ifndef _INTEGER_H_
 #define _INTEGER_H_
 
+#include <istream>
+
 #include "types.h"
 #include "variable.h"
+#include "exceptions.h"
 
 namespace agentx
 {
@@ -37,14 +40,22 @@ namespace agentx
 	    /**
 	     * \internal
 	     *
-	     * \brief Deserialize an Integer object.
+	     * \brief Construct an Integer object from an input stream
 	     *
-	     * This sets the Integer value to the value found in the serialized 
-	     * data. The iterator 'pos' is advanced while parsing. After the 
-	     * Integer is deserialized, 'pos' points to the first byte after 
-	     * the integer. 
+	     * This constructor parses a serialized Integer. The Integer is 
+	     * removed from the stream during parsing (i.e.  the stream 
+	     * position is forwarded).
+	     *
+	     * The constructor expects valid data from the stream; if parsing 
+	     * fails, parse_error is thrown. In this case, the stream position 
+	     * is undefined.
+	     *
+	     * \param in An input stream
+	     * \param big_endian Whether the input stream is in big endian
+	     *                   format
+	     * 
 	     */
-	    void deserialize(data_t::const_iterator& pos, bool big_endian=false);
+	    Integer(std::istream& in, bool big_endian=true) throw(parse_error);
     };
 }
 

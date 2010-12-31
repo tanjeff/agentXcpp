@@ -16,23 +16,29 @@ data_t Integer::serialize()
 }
 
 
-void Integer::deserialize(data_t::const_iterator& pos, bool big_endian)
+Integer::Integer(std::istream& in, bool big_endian) throw(parse_error)
 {
     uint32_t size;
 
     // Get value
     if( big_endian )
     {
-	value =  *pos++ << 24;
-	value |= *pos++ << 16;
-	value |= *pos++ << 8;
-	value |= *pos++ << 0;
+	value =  in.get() << 24;
+	value |= in.get() << 16;
+	value |= in.get() << 8;
+	value |= in.get() << 0;
     }
     else
     {
-	value =  *pos++ << 0;
-	value |= *pos++ << 8;
-	value |= *pos++ << 16;
-	value |= *pos++ << 24;
+	value =  in.get() << 0;
+	value |= in.get() << 8;
+	value |= in.get() << 16;
+	value |= in.get() << 24;
+    }
+
+    // Check for errors
+    if(!in)
+    {
+	throw(parse_error());
     }
 }

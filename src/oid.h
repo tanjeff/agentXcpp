@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <ostream>
+#include <istream>
 #include <string>
 #include "types.h"
 #include "exceptions.h"
@@ -104,19 +105,21 @@ namespace agentx
 	/**
 	 * \internal
 	 *
-	 * \brief Decode an OID object as described in RFC 2741, section 5.1.
+	 * \brief Construct an oid object from an input stream
 	 *
-	 * This function expects a data packet containing exactly one OID. If 
-	 * the packet contains too much (or too less) data, a parse_error is 
-	 * exception thrown. An exception is also thrown on other parse 
-	 * errors.
+	 * This constructor parses a serialized object identifier. The oid is 
+	 * removed from the stream during parsing (i.e.  the stream position is 
+	 * forwarded).
 	 *
-	 * The iterator 'pos' is advanced while parsing. After the OID is 
-	 * deserialized, 'pos' points to the first byte after the OID.
+	 * The constructor expects valid data from the stream; if parsing 
+	 * fails, parse_error is thrown. In this case, the stream position 
+	 * is undefined.
+	 *
+	 * \param in An input stream
+	 * \param big_endian Whether the input stream is in big endian
+	 *                   format
 	 */
-	void deserialize(data_t::const_iterator& pos,
-		bool big_endian=false)
-	    throw(parse_error);
+	oid(std::istream& in, bool big_endian=true) throw(parse_error);
 
 	/**
 	 * \brief The less-than operator

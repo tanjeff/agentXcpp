@@ -102,6 +102,7 @@ varbind::varbind(std::istream& in, bool big_endian) throw(parse_error)
     }
 
     // TODO: read OID!
+    name = new oid(in, big_endian);
 
     // Get data: no exceptions are catched; they are forwarded to the caller
     switch(type)

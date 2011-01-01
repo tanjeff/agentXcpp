@@ -1,0 +1,26 @@
+/*!
+
+\internal
+
+\page parsing Parsing
+
+This section explains how parsing is done in agentxcpp.
+
+AgentX PDUs are read from a stream, while constructing C++ objects which 
+represents the PDUs and all its parts in memory. To read an entity from the 
+stream, the stream object is provided to the constructor of that entity. The 
+constructor then reads the serialized form of the object from the stream, 
+constructing that object.
+
+For example, to read an AgentX PDU (Processing Data Unit) from the stream, the 
+stream object (e.g. an ifstream object or even the cin object) is given to the 
+constructor of the pdu class. This constructor will read the PDU header from 
+the stream, then detect which type of PDU is being read and create such an 
+object (e.g. a getpdu), giving the stream to the constructor of it. This is 
+repeated to read the OID and the varbind objects, this creating several objects 
+in memory which initializes themselves from the input stream. Finally, the 
+complete PDU is constructed and the next PDU can be read by creating a new pdu 
+object, giving the stream to its constructor.
+
+
+*/

@@ -1,0 +1,16 @@
+/*! 
+
+\mainpage AgentXcpp API documentation
+
+The AgentXcpp library is intendet to implement SNMP MIB implementation. This is 
+achieved by implementing the AgentX protocol as defined in RFC 2741. The main 
+goals of the library are:
+
+  - Compliance to RFC 2741
+  - Provide a clean, easy to use API
+  - Provide full documentation of the API
+  - Ensure stable operation
+
+
+
+*/

@@ -16,7 +16,7 @@ data_t Integer::serialize()
 }
 
 
-Integer::Integer(std::istream& in, bool big_endian) throw(parse_error)
+Integer::Integer(input_stream& in, bool big_endian) throw(parse_error)
 {
     uint32_t size;
 

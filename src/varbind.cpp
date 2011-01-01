@@ -76,7 +76,7 @@ varbind::varbind(oid* o, type_t t) throw(inval_param)
     }
 }
 
-varbind::varbind(std::istream& in, bool big_endian) throw(parse_error)
+varbind::varbind(input_stream& in, bool big_endian) throw(parse_error)
 {
     uint16_t type;
     

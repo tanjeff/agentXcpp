@@ -25,6 +25,25 @@ namespace agentx
 	    /**
 	     * \internal
 	     *
+	     * \brief Construct a IpAddress object from an input stream
+	     *
+	     * This constructor parses a serialized IpAddress. The IpAddress is 
+	     * removed from the stream during parsing (i.e.  the stream 
+	     * position is forwarded).
+	     *
+	     * The constructor expects valid data from the stream; if parsing 
+	     * fails, parse_error is thrown. In this case, the stream position 
+	     * is undefined.
+	     *
+	     * \param in An input stream
+	     * \param big_endian Whether the input stream is in big endian
+	     *                   format
+	     */
+	    IpAddress(input_stream& in, bool big_endian=true) throw(parse_error);
+
+	    /**
+	     * \internal
+	     *
 	     * \brief Encode the object as described in RFC 2741, section 5.4 / 
 	     * 5.3
 	     *
@@ -46,26 +65,6 @@ namespace agentx
 		address[2] = c;
 		address[3] = d;
 	    }
-
-
-
-	    /**
-	     * \internal
-	     *
-	     * \brief Deserialize an IpAddress object.
-	     *
-	     * This sets the address of this object to the value found in the 
-	     * serialized data.  The iterator 'pos' is advanced while parsing.  
-	     * After the object is deserialized, 'pos' points to the first byte 
-	     * after the object.
-	     *
-	     * IpAddress's are encoded as Octet Strings with a size of 16 (4 x 
-	     * 32bit). If the size read during deserializing is not 16, then a 
-	     * parse_error exception is thrown.
-	     */
-	    void deserialize(data_t::const_iterator& pos, bool big_endian=false) throw(parse_error);
-
-
     };
 }
 

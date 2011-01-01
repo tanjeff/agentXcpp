@@ -20,31 +20,37 @@ data_t Counter64::serialize()
 }
 
 
-void Counter64::deserialize(data_t::const_iterator& pos, bool big_endian)
+Counter64::Counter64(input_stream& in, bool big_endian) throw(parse_error)
 {
     uint32_t size;
 
     // Get value
     if( big_endian )
     {
-	value =  static_cast<uint64_t>(*pos++) << 56;
-	value |= static_cast<uint64_t>(*pos++) << 48;
-	value |= static_cast<uint64_t>(*pos++) << 40;
-	value |= static_cast<uint64_t>(*pos++) << 32;
-	value |= static_cast<uint64_t>(*pos++) << 24;
-	value |= static_cast<uint64_t>(*pos++) << 16;
-	value |= static_cast<uint64_t>(*pos++) << 8;
-	value |= static_cast<uint64_t>(*pos++) << 0;
+	value =  static_cast<uint64_t>(in.get()) << 56;
+	value |= static_cast<uint64_t>(in.get()) << 48;
+	value |= static_cast<uint64_t>(in.get()) << 40;
+	value |= static_cast<uint64_t>(in.get()) << 32;
+	value |= static_cast<uint64_t>(in.get()) << 24;
+	value |= static_cast<uint64_t>(in.get()) << 16;
+	value |= static_cast<uint64_t>(in.get()) << 8;
+	value |= static_cast<uint64_t>(in.get()) << 0;
     }
     else
     {
-	value =  static_cast<uint64_t>(*pos++) << 0;
-	value |= static_cast<uint64_t>(*pos++) << 8;
-	value |= static_cast<uint64_t>(*pos++) << 16;
-	value |= static_cast<uint64_t>(*pos++) << 24;
-	value |= static_cast<uint64_t>(*pos++) << 32;
-	value |= static_cast<uint64_t>(*pos++) << 40;
-	value |= static_cast<uint64_t>(*pos++) << 48;
-	value |= static_cast<uint64_t>(*pos++) << 56;
+	value =  static_cast<uint64_t>(in.get()) << 0;
+	value |= static_cast<uint64_t>(in.get()) << 8;
+	value |= static_cast<uint64_t>(in.get()) << 16;
+	value |= static_cast<uint64_t>(in.get()) << 24;
+	value |= static_cast<uint64_t>(in.get()) << 32;
+	value |= static_cast<uint64_t>(in.get()) << 40;
+	value |= static_cast<uint64_t>(in.get()) << 48;
+	value |= static_cast<uint64_t>(in.get()) << 56;
+    }
+    
+    // check stream
+    if(!in)
+    {
+	throw(parse_error());
     }
 }

@@ -14,7 +14,6 @@ class variable
 {
     public:
 	//virtual data_t serialize();
-	//virtual void deserialize(data_t);
 	
 	// Needed for encoding varbinds
 	virtual data_t serialize() = 0;

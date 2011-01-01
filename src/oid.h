@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <ostream>
-#include <istream>
 #include <string>
 #include "types.h"
 #include "exceptions.h"
@@ -119,7 +118,7 @@ namespace agentx
 	 * \param big_endian Whether the input stream is in big endian
 	 *                   format
 	 */
-	oid(std::istream& in, bool big_endian=true) throw(parse_error);
+	oid(input_stream& in, bool big_endian=true) throw(parse_error);
 
 	/**
 	 * \brief The less-than operator

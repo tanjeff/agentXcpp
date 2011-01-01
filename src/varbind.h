@@ -93,7 +93,7 @@ namespace agentx
 	     *                   format
 	     * 
 	     */
-	    varbind(std::istream& in, bool big_endian=true) throw(parse_error);
+	    varbind(input_stream& in, bool big_endian=true) throw(parse_error);
 
 	    /**
 	     * \internal

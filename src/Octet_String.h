@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "variable.h"
+#include "exceptions.h"
 
 namespace agentx
 {
@@ -14,7 +15,7 @@ namespace agentx
 	protected:
 	    // We use data_t here although it was not invented for this.
 	    // TODO: Is this a problem?
-	    data_t value;
+	    std::basic_string<byte_t> value;
 
 	public:
 	    /**
@@ -36,20 +37,25 @@ namespace agentx
 	     * \brief FIXME
 	     */
 	    Octet_String() { }
-
-
+	    
 	    /**
 	     * \internal
 	     *
-	     * \brief Deserialize an Octet_String object.
+	     * \brief Construct a Octet_String object from an input stream
 	     *
-	     * This sets the Octet_String to the value found in the serialized 
-	     * data.  The iterator 'pos' is advanced while parsing.  After the 
-	     * object is deserialized, 'pos' points to the first byte after the 
-	     * object.
+	     * This constructor parses a serialized Octet_String. The Octet_String is 
+	     * removed from the stream during parsing (i.e.  the stream 
+	     * position is forwarded).
+	     *
+	     * The constructor expects valid data from the stream; if parsing 
+	     * fails, parse_error is thrown. In this case, the stream position 
+	     * is undefined.
+	     *
+	     * \param in An input stream
+	     * \param big_endian Whether the input stream is in big endian
+	     *                   format
 	     */
-	    void deserialize(data_t::const_iterator& pos, bool big_endian=false);
-
+	    Octet_String(input_stream& in, bool big_endian=true) throw(parse_error);
 
 	    /**
 	     * \brief Set the current value

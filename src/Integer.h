@@ -1,8 +1,6 @@
 #ifndef _INTEGER_H_
 #define _INTEGER_H_
 
-#include <istream>
-
 #include "types.h"
 #include "variable.h"
 #include "exceptions.h"
@@ -55,7 +53,7 @@ namespace agentx
 	     *                   format
 	     * 
 	     */
-	    Integer(std::istream& in, bool big_endian=true) throw(parse_error);
+	    Integer(input_stream& in, bool big_endian=true) throw(parse_error);
     };
 }
 

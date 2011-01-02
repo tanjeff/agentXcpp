@@ -27,32 +27,26 @@ data_t Opaque::serialize()
 }
 
 
-Opaque::Opaque(input_stream& in, bool big_endian) throw(parse_error)
+Opaque::Opaque(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
 {
     uint32_t size;
 
     // Get size
     if( big_endian )
     {
-	size =  in.get() << 24;
-	size |= in.get() << 16;
-	size |= in.get() << 8;
-	size |= in.get() << 0;
+	size =  *pos++ << 24;
+	size |= *pos++ << 16;
+	size |= *pos++ << 8;
+	size |= *pos++ << 0;
     }
     else
     {
-	size =  in.get() << 0;
-	size |= in.get() << 8;
-	size |= in.get() << 16;
-	size |= in.get() << 24;
+	size =  *pos++ << 0;
+	size |= *pos++ << 8;
+	size |= *pos++ << 16;
+	size |= *pos++ << 24;
     }
     
-    // check stream
-    if(!in)
-    {
-	throw(parse_error());
-    }
-
     // Octet String emtpy?
     if( size == 0 )
     {
@@ -61,7 +55,6 @@ Opaque::Opaque(input_stream& in, bool big_endian) throw(parse_error)
     }
 
     // Get value
-    byte_t* buf = new byte_t[size];
-    in.read(buf, size);	// read 'size' bytes into 'buf'
-    value.assign(buf);
+    value.assign(pos, pos+size);
+    pos += size;
 }

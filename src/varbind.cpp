@@ -76,63 +76,57 @@ varbind::varbind(oid* o, type_t t) throw(inval_param)
     }
 }
 
-varbind::varbind(input_stream& in, bool big_endian) throw(parse_error)
+varbind::varbind(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
 {
     uint16_t type;
     
     // Get type
     if( big_endian )
     {
-	type |= in.get() << 8;
-	type |= in.get() << 0;
+	type |= *pos++ << 8;
+	type |= *pos++ << 0;
     }
     else
     {
-	type |= in.get() << 0;
-	type |= in.get() << 8;
+	type |= *pos++ << 0;
+	type |= *pos++ << 8;
     }
 
     // skip reserved field
-    in.seekg(2, std::ios_base::cur);
+    pos += 2;
     
-    // check stream
-    if(!in)
-    {
-	throw(parse_error());
-    }
-
     // read OID
-    name = new oid(in, big_endian);
+    name = new oid(pos, big_endian);
 
     // Get data: no exceptions are catched; they are forwarded to the caller
     switch(type)
     {
 	case 2:
-	    var = new Integer(in, big_endian);
+	    var = new Integer(pos, big_endian);
 	    break;
 	case 4:
-	    var = new Octet_String(in, big_endian);
+	    var = new Octet_String(pos, big_endian);
 	    break;
 	case 6:
-	    var = new oid(in, big_endian);
+	    var = new oid(pos, big_endian);
 	    break;
 	case 64:
-	    var = new IpAddress(in, big_endian);
+	    var = new IpAddress(pos, big_endian);
 	    break;
 	case 65:
-	    var = new Counter32(in, big_endian);
+	    var = new Counter32(pos, big_endian);
 	    break;
 	case 66:
-	    var = new Gauge32(in, big_endian);
+	    var = new Gauge32(pos, big_endian);
 	    break;
 	case 67:
-	    var = new TimeTicks(in, big_endian);
+	    var = new TimeTicks(pos, big_endian);
 	    break;
 	case 68:
-	    var = new Opaque(in, big_endian);
+	    var = new Opaque(pos, big_endian);
 	    break;
 	case 70:
-	    var = new Counter64(in, big_endian);
+	    var = new Counter64(pos, big_endian);
 	    break;
 	case 5:	    // Null
 	case 128:   // noSuchObject

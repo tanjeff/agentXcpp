@@ -38,22 +38,22 @@ namespace agentx
 	    /**
 	     * \internal
 	     *
-	     * \brief Construct an Integer object from an input stream
+	     * \brief Construct the object from input stream
 	     *
-	     * This constructor parses a serialized Integer. The Integer is 
-	     * removed from the stream during parsing (i.e.  the stream 
-	     * position is forwarded).
-	     *
+	     * This constructor parses the serialized form of the object.
+	     * It takes an iterator, starts parsing at the position of the 
+	     * iterator and advances the iterator to the position right behind 
+	     * the object.
+	     * 
 	     * The constructor expects valid data from the stream; if parsing 
-	     * fails, parse_error is thrown. In this case, the stream position 
-	     * is undefined.
+	     * fails, parse_error is thrown. In this case, the iterator 
+	     * position is undefined.
 	     *
-	     * \param in An input stream
+	     * \param pos iterator pointing into the stream
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
-	     * 
 	     */
-	    Integer(input_stream& in, bool big_endian=true) throw(parse_error);
+	    Integer(data_t::const_iterator& pos, bool big_endian=true) throw(parse_error);
     };
 }
 

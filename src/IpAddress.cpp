@@ -34,24 +34,24 @@ data_t IpAddress::serialize()
 }
 
 
-IpAddress::IpAddress(input_stream& in, bool big_endian) throw(parse_error)
+IpAddress::IpAddress(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
 {
     uint32_t size;
 
     // Get size
     if( big_endian )
     {
-	size =  in.get() << 24;
-	size |= in.get() << 16;
-	size |= in.get() << 8;
-	size |= in.get() << 0;
+	size =  *pos++ << 24;
+	size |= *pos++ << 16;
+	size |= *pos++ << 8;
+	size |= *pos++ << 0;
     }
     else
     {
-	size =  in.get() << 0;
-	size |= in.get() << 8;
-	size |= in.get() << 16;
-	size |= in.get() << 24;
+	size =  *pos++ << 0;
+	size |= *pos++ << 8;
+	size |= *pos++ << 16;
+	size |= *pos++ << 24;
     }
     if( size != 4 )
     {
@@ -62,46 +62,40 @@ IpAddress::IpAddress(input_stream& in, bool big_endian) throw(parse_error)
     // Get address
     if( big_endian )
     {
-	address[0] =  in.get() << 24;
-	address[0] |= in.get() << 16;
-	address[0] |= in.get() << 8;
-	address[0] |= in.get() << 0;
-	address[1] =  in.get() << 24;
-	address[1] |= in.get() << 16;
-	address[1] |= in.get() << 8;
-	address[1] |= in.get() << 0;
-	address[2] =  in.get() << 24;
-	address[2] |= in.get() << 16;
-	address[2] |= in.get() << 8;
-	address[2] |= in.get() << 0;
-	address[3] =  in.get() << 24;
-	address[3] |= in.get() << 16;
-	address[3] |= in.get() << 8;
-	address[3] |= in.get() << 0;
+	address[0] =  *pos++ << 24;
+	address[0] |= *pos++ << 16;
+	address[0] |= *pos++ << 8;
+	address[0] |= *pos++ << 0;
+	address[1] =  *pos++ << 24;
+	address[1] |= *pos++ << 16;
+	address[1] |= *pos++ << 8;
+	address[1] |= *pos++ << 0;
+	address[2] =  *pos++ << 24;
+	address[2] |= *pos++ << 16;
+	address[2] |= *pos++ << 8;
+	address[2] |= *pos++ << 0;
+	address[3] =  *pos++ << 24;
+	address[3] |= *pos++ << 16;
+	address[3] |= *pos++ << 8;
+	address[3] |= *pos++ << 0;
     }
     else
     {
-	address[0] =  in.get() << 0;
-	address[0] |= in.get() << 8;
-	address[0] |= in.get() << 16;
-	address[0] |= in.get() << 24;
-	address[1] =  in.get() << 0;
-	address[1] |= in.get() << 8;
-	address[1] |= in.get() << 16;
-	address[1] |= in.get() << 24;
-	address[2] =  in.get() << 0;
-	address[2] |= in.get() << 8;
-	address[2] |= in.get() << 16;
-	address[2] |= in.get() << 24;
-	address[3] =  in.get() << 0;
-	address[3] |= in.get() << 8;
-	address[3] |= in.get() << 16;
-	address[3] |= in.get() << 24;
-    }
-    
-    // check stream
-    if(!in)
-    {
-	throw(parse_error());
+	address[0] =  *pos++ << 0;
+	address[0] |= *pos++ << 8;
+	address[0] |= *pos++ << 16;
+	address[0] |= *pos++ << 24;
+	address[1] =  *pos++ << 0;
+	address[1] |= *pos++ << 8;
+	address[1] |= *pos++ << 16;
+	address[1] |= *pos++ << 24;
+	address[2] =  *pos++ << 0;
+	address[2] |= *pos++ << 8;
+	address[2] |= *pos++ << 16;
+	address[2] |= *pos++ << 24;
+	address[3] =  *pos++ << 0;
+	address[3] |= *pos++ << 8;
+	address[3] |= *pos++ << 16;
+	address[3] |= *pos++ << 24;
     }
 }

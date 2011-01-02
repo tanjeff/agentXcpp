@@ -4,6 +4,7 @@
 #include <vector>
 #include <ostream>
 #include <string>
+#include "variable.h"
 #include "types.h"
 #include "exceptions.h"
 
@@ -12,7 +13,7 @@ namespace agentx
     /**
      * \brief Represents an SNMP object identifier (OID)
      */
-    class oid
+    class oid: public variable
     {
 	std::vector<uint32_t> identifier;
 	bool include;

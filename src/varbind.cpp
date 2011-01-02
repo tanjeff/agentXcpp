@@ -101,7 +101,7 @@ varbind::varbind(input_stream& in, bool big_endian) throw(parse_error)
 	throw(parse_error());
     }
 
-    // TODO: read OID!
+    // read OID
     name = new oid(in, big_endian);
 
     // Get data: no exceptions are catched; they are forwarded to the caller
@@ -109,6 +109,36 @@ varbind::varbind(input_stream& in, bool big_endian) throw(parse_error)
     {
 	case 2:
 	    var = new Integer(in, big_endian);
+	    break;
+	case 4:
+	    var = new Octet_String(in, big_endian);
+	    break;
+	case 6:
+	    var = new oid(in, big_endian);
+	    break;
+	case 64:
+	    var = new IpAddress(in, big_endian);
+	    break;
+	case 65:
+	    var = new Counter32(in, big_endian);
+	    break;
+	case 66:
+	    var = new Gauge32(in, big_endian);
+	    break;
+	case 67:
+	    var = new TimeTicks(in, big_endian);
+	    break;
+	case 68:
+	    var = new Opaque(in, big_endian);
+	    break;
+	case 70:
+	    var = new Counter64(in, big_endian);
+	    break;
+	case 5:	    // Null
+	case 128:   // noSuchObject
+	case 129:   // noSuchInstance
+	case 130:   // endOfMibView
+	    var = 0;
 	    break;
 	default:
 	    // invalid type

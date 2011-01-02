@@ -7,4 +7,7 @@ class parse_error { };
 // Invalid parameter.
 class inval_param { };
 
+// Received PDU with wrong AgentX protocol version
+class version_mismatch { };
+
 #endif

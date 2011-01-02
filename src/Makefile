@@ -7,7 +7,10 @@ OBJS=oid.o \
      Gauge32.o \
      TimeTicks.o \
      Opaque.o \
-     IpAddress.o
+     IpAddress.o \
+     PDU.o \
+     OpenPDU.o
+
 CXXFLAGS=-g -O0
 
 agentxcpp.a: $(OBJS)

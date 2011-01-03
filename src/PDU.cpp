@@ -1,118 +1,45 @@
 #include "PDU.h"
 #include "OpenPDU.h"
+#include "helper.h"
 
 using namespace agentx;
 
-PDU* PDU::get_pdu(input_stream& in) throw(parse_error, version_mismatch)
+PDU::PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error, version_mismatch)
 {
-
     uint32_t sessionID;
     uint32_t transactionID;
     uint32_t packetID;
     
     // check protocol version
-    byte_t version = in.get();
-    if( !in )
-    {
-	throw( parse_error() );
-    }
+    byte_t version = *pos++;
     if( version != 1 )
     {
 	throw( version_mismatch() );
     }
 
-    // read type and flags
-    byte_t type = in.get();
-    byte_t flags = in.get();
+    // skip type field (not needed here)
+    pos++;
+
+    // read flags
+    byte_t flags = *pos++;
     bool INSTANCE_REGISTRATION    = ( flags & (1<<0) ) ? true : false;
     bool NEW_INDEX                = ( flags & (1<<1) ) ? true : false;
     bool ANY_INDEX                = ( flags & (1<<2) ) ? true : false;
-    bool non_default_context = ( flags & (1<<3) ) ? true : false;
-    bool big_endian          = ( flags & (1<<4) ) ? true : false;
 
-    // session_id
-    if( big_endian )
-    {
-	sessionID =  in.get() << 24;
-	sessionID |= in.get() << 16;
-	sessionID |= in.get() << 8;
-	sessionID |= in.get() << 0;
-    }
-    else
-    {
-	sessionID =  in.get() << 0;
-	sessionID |= in.get() << 8;
-	sessionID |= in.get() << 16;
-	sessionID |= in.get() << 24;
-    }
+    // sessionID
+    sessionID = read32(pos, big_endian);
 
     // transactionID
-    if( big_endian )
-    {
-	transactionID =  in.get() << 24;
-	transactionID |= in.get() << 16;
-	transactionID |= in.get() << 8;
-	transactionID |= in.get() << 0;
-    }
-    else
-    {
-	transactionID =  in.get() << 0;
-	transactionID |= in.get() << 8;
-	transactionID |= in.get() << 16;
-	transactionID |= in.get() << 24;
-    }
+    transactionID = read32(pos, big_endian);
 
     // packetID
-    if( big_endian )
-    {
-	packetID =  in.get() << 24;
-	packetID |= in.get() << 16;
-	packetID |= in.get() << 8;
-	packetID |= in.get() << 0;
-    }
-    else
-    {
-	packetID =  in.get() << 0;
-	packetID |= in.get() << 8;
-	packetID |= in.get() << 16;
-	packetID |= in.get() << 24;
-    }
-    
-    // payload length
-    uint32_t size;
-    if( big_endian )
-    {
-	size =  in.get() << 24;
-	size |= in.get() << 16;
-	size |= in.get() << 8;
-	size |= in.get() << 0;
-    }
-    else
-    {
-	size =  in.get() << 0;
-	size |= in.get() << 8;
-	size |= in.get() << 16;
-	size |= in.get() << 24;
-    }
+    packetID = read32(pos, big_endian);
 
-    // Read payload
-    byte_t* buf = new byte_t[size];
-    in.read(buf, size);
-    data_t payload;
-    payload.assign(buf, size);
-    delete[] buf;
-    if( !in )
-    {
-	// stream failure during read
-	throw( parse_error() );
-    }
+    // skip payload length (not needed here)
+    pos += 4;
 
-    // construct iterator for further pasing
-    data_t::const_iterator pos = payload.begin();
-    
     // Read context if present
-    Octet_String* context;
-    if(non_default_context)
+    if( flags & (1<<3) ) // NON_DEFAULT_CONTEXT set?
     {
         context = new Octet_String(pos, big_endian);
     }
@@ -120,16 +47,56 @@ PDU* PDU::get_pdu(input_stream& in) throw(parse_error, version_mismatch)
     {
         context = 0;	// no context in PDU
     }
+}
+
+
+PDU* PDU::get_pdu(input_stream& in) throw(parse_error)
+{
+    data_t msg;	// serialized form of the PDU
+    data_t::const_iterator pos;	// needed for parsing
+
+    // read header
+    const int header_size = 20;
+    byte_t header[header_size];
+    in.read(header, header_size);
+    if( !in )
+    {
+	throw( parse_error() );
+    }
+    msg.assign(header, header_size);
+
+    // read endianess flag
+    byte_t flags = msg[2];
+    bool big_endian = ( flags & (1<<4) ) ? true : false;
     
+    // read payload length
+    uint32_t payload_length;
+    pos = msg.begin() + 16;
+    payload_length = read32(pos, big_endian);
+
+    // read payload
+    byte_t* payload = new byte_t[payload_length];
+    in.read(payload, payload_length);
+    if( !in )
+    {
+	throw( parse_error() );
+    }
+    msg.append(payload, payload_length);
+    delete[] payload;
+
+    // read type
+    byte_t type = msg[1];
+
     // create PDU
     PDU* pdu;
+    pos = msg.begin();
     switch(type)
     {
         case agentxOpenPDU:
             pdu = new OpenPDU(pos, big_endian);
             break;
+	default:
+	    // type is invalid
+	    throw(parse_error());
     }
-    pdu->context = context;
-    
-
 }

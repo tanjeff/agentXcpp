@@ -4,27 +4,17 @@
 
 using namespace agentx;
 
-PDU::PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error, version_mismatch)
+PDU::PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
 {
-    uint32_t sessionID;
-    uint32_t transactionID;
-    uint32_t packetID;
-    
-    // check protocol version
-    byte_t version = *pos++;
-    if( version != 1 )
-    {
-	throw( version_mismatch() );
-    }
-
-    // skip type field (not needed here)
-    pos++;
+    // skip protocol version (already checked by get_pdu()) and
+    // type field (not needed here)
+    pos += 2;
 
     // read flags
     byte_t flags = *pos++;
-    bool INSTANCE_REGISTRATION    = ( flags & (1<<0) ) ? true : false;
-    bool NEW_INDEX                = ( flags & (1<<1) ) ? true : false;
-    bool ANY_INDEX                = ( flags & (1<<2) ) ? true : false;
+    instance_registration    = ( flags & (1<<0) ) ? true : false;
+    new_index                = ( flags & (1<<1) ) ? true : false;
+    any_index                = ( flags & (1<<2) ) ? true : false;
 
     // sessionID
     sessionID = read32(pos, big_endian);
@@ -50,9 +40,9 @@ PDU::PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error, versio
 }
 
 
-PDU* PDU::get_pdu(input_stream& in) throw(parse_error)
+PDU* PDU::get_pdu(input_stream& in) throw(parse_error, version_mismatch)
 {
-    data_t msg;	// serialized form of the PDU
+    data_t buf;	// serialized form of the PDU
     data_t::const_iterator pos;	// needed for parsing
 
     // read header
@@ -63,16 +53,29 @@ PDU* PDU::get_pdu(input_stream& in) throw(parse_error)
     {
 	throw( parse_error() );
     }
-    msg.assign(header, header_size);
+    buf.append(header, header_size);
 
+    // check protocol version
+    byte_t version = buf[0];
+    if( version != 1 )
+    {
+	throw( version_mismatch() );
+    }
+    
     // read endianess flag
-    byte_t flags = msg[2];
+    byte_t flags = buf[2];
     bool big_endian = ( flags & (1<<4) ) ? true : false;
     
     // read payload length
     uint32_t payload_length;
-    pos = msg.begin() + 16;
+    pos = buf.begin() + 16;
     payload_length = read32(pos, big_endian);
+    if( payload_length%4 != 0 )
+    {
+	// payload length must be a multiple of 4!
+	// See RFC 2741, 6.1. "AgentX PDU Header"
+	throw( parse_error() );
+    }
 
     // read payload
     byte_t* payload = new byte_t[payload_length];
@@ -81,15 +84,15 @@ PDU* PDU::get_pdu(input_stream& in) throw(parse_error)
     {
 	throw( parse_error() );
     }
-    msg.append(payload, payload_length);
+    buf.append(payload, payload_length);
     delete[] payload;
 
     // read type
-    byte_t type = msg[1];
+    byte_t type = buf[1];
 
     // create PDU
     PDU* pdu;
-    pos = msg.begin();
+    pos = buf.begin();
     switch(type)
     {
         case agentxOpenPDU:
@@ -99,4 +102,7 @@ PDU* PDU::get_pdu(input_stream& in) throw(parse_error)
 	    // type is invalid
 	    throw(parse_error());
     }
+
+    // return created PDU
+    return pdu;
 }

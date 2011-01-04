@@ -23,18 +23,6 @@ namespace agentx
     {
 	private:
 	    /**
-	     * \brief The PDU context
-	     *
-	     * The PDU context, if any. If this field is NULL, the PDU has the 
-	     * default context.
-	     *
-	     * This field is not interpreted. It is parsed from the serialized 
-	     * form of the PDU respectively included when the PDU is 
-	     * serialized.
-	     */
-	    Octet_String* context;
-
-	    /**
 	     * \brief The PDU types with their values
 	     *
 	     * The PDU types according to RFC 2741, section 6.1 "AgentX PDU 
@@ -62,9 +50,74 @@ namespace agentx
 		agentxResponsePDU         = 18
 
 	    };
+	    
+	    // header flags
+	    bool instance_registration;
+	    bool new_index;
+	    bool any_index;
+	    
+	    /**
+	     * \brief h.sessionID field
+	     *
+	     * According to RFC 2741, 6.1. "AgentX PDU Header"
+	     */
+	    uint32_t sessionID;
+	    
+	    /**
+	     * \brief h.transactionID field
+	     *
+	     * According to RFC 2741, 6.1. "AgentX PDU Header"
+	     */
+	    uint32_t transactionID;
+	    
+	    /**
+	     * \brief h.packetID field
+	     *
+	     * According to RFC 2741, 6.1. "AgentX PDU Header"
+	     */
+	    uint32_t packetID;
 
 
 	public:
+	    /**
+	     * \brief Get sessionID
+	     */
+	    uint32_t get_sessionID() { return sessionID; }
+	    /**
+	     * \brief Set sessionID
+	     */
+	    void set_sessionID(uint32_t id) { sessionID = id; }
+
+	    /**
+	     * \brief Get transactionID
+	     */
+	    uint32_t get_transactionID() { return transactionID; }
+	    /**
+	     * \brief Set transactionID
+	     */
+	    void get_transactionID(uint32_t id) { transactionID = id; }
+	    
+	    /**
+	     * \brief Get packetID
+	     */
+	    uint32_t get_packetID() { return packetID; }
+	    /**
+	     * \brief Set packetID
+	     */
+	    void get_packetID(uint32_t id) { packetID = id; }
+
+	    /**
+	     * \brief The PDU context
+	     *
+	     * The PDU context, if any. If this field is NULL, the PDU has the 
+	     * default context.
+	     *
+	     * This field is not interpreted. It is parsed from the serialized 
+	     * form of the PDU respectively included when the PDU is 
+	     * serialized.
+	     */
+	    Octet_String* context;
+	    
 	    /**
 	     * \brief read the PDU from an input stream
 	     *
@@ -77,13 +130,18 @@ namespace agentx
 	     * \exception parse_error If parsing fails, for example because
 	     *			      reading the stream fails or the PDU is 
 	     *			      malformed.
+	     * 
+	     * \exception version_mismatch If the AgentX version of the PDU
+	     *                             in the stream is not 1.  The stream 
+	     *                             position is undefined after this 
+	     *                             error.
 	     *
 	     * \param in the input stream to read from
 	     *
 	     * \return Pointer to PDU object of according type; the user must
 	     *	       delete the object if it is not longer needed.
 	     */
-	    static PDU* get_pdu(input_stream& in) throw(parse_error);
+	    static PDU* get_pdu(input_stream& in) throw(parse_error, version_mismatch);
 
 	    /**
 	     * \brief Construct the common part of a PDU object
@@ -97,15 +155,11 @@ namespace agentx
 	     * \param big_endian Wether the serialized form of the PDU is in
 	     *                   big_endian format.
 	     *
-	     * \exception version_mismatch If the AgentX version of the PDU in
-	     *                             the stream is not 1. The stream 
-	     *                             position is undefined after this 
-	     *                             error.
 	     * \exception parse_error If parsing fails, for example because
 	     *			      reading the stream fails or the PDU is 
 	     *			      malformed.
 	     */
-	    PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error, version_mismatch);
+	    PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error);
 
     };
 }

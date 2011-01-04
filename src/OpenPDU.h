@@ -2,6 +2,8 @@
 #define __OPENPDU_H__
 
 #include "PDU.h"
+#include "oid.h"
+#include "Octet_String.h"
 
 namespace agentx
 {
@@ -12,6 +14,11 @@ namespace agentx
      */
     class OpenPDU : public PDU
     {
+	private:
+	    byte_t timeout;
+	    oid* id;
+	    Octet_String* descr;
+
 	public:
 	    /**
 	     * \brief Parse constructor

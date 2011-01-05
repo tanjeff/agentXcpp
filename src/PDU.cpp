@@ -106,3 +106,18 @@ PDU* PDU::get_pdu(input_stream& in) throw(parse_error, version_mismatch)
     // return created PDU
     return pdu;
 }
+
+PDU::PDU()
+{
+    // Set default values, can be set after object creation:
+    sessionID = 0;
+    transactionID = 0;
+    context = 0;    // null pointer means default context
+    
+    // Generate packetID
+    packetID = ++packetID_cnt;
+
+    instance_registration = false;
+    new_index = false;
+    any_index = false;
+}

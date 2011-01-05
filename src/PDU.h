@@ -69,13 +69,39 @@ namespace agentx
 	     * According to RFC 2741, 6.1. "AgentX PDU Header"
 	     */
 	    uint32_t transactionID;
+
+	protected:
+	    /**
+	     * \brief Initialize base class part of a PDU
+	     */
+	    PDU();
 	    
 	    /**
 	     * \brief h.packetID field
 	     *
-	     * According to RFC 2741, 6.1. "AgentX PDU Header"
+	     * According to RFC 2741, 6.1. "AgentX PDU Header". Is 
+	     * automatically filled by constructors, is set to another value by 
+	     * ResponsePDU. The PDU class has no setter for this member.
+	     *
+	     * The ResponsePDU is a special case in resepect of packetIDs, 
+	     * therefore this member is protected to allow the ResponsePDU to 
+	     * alter it.
 	     */
 	    uint32_t packetID;
+	    
+	    /**
+	     * \brief Counter for automatic packetID generator
+	     *
+	     * The packetID member is set automatically by the constructors; 
+	     * each new PDU gets a new packetID. This member contains the last 
+	     * used packetID.
+	     *
+	     * The ResponsePDU is a special case in resepect of packetIDs, 
+	     * therefore this member is protected to allow the ResponsePDU to 
+	     * alter it.
+	     */
+	    static uint32_t packetID_cnt;
+	    
 
 
 	public:
@@ -95,16 +121,12 @@ namespace agentx
 	    /**
 	     * \brief Set transactionID
 	     */
-	    void get_transactionID(uint32_t id) { transactionID = id; }
+	    void set_transactionID(uint32_t id) { transactionID = id; }
 	    
 	    /**
 	     * \brief Get packetID
 	     */
 	    uint32_t get_packetID() { return packetID; }
-	    /**
-	     * \brief Set packetID
-	     */
-	    void get_packetID(uint32_t id) { packetID = id; }
 
 	    /**
 	     * \brief The PDU context

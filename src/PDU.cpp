@@ -121,3 +121,44 @@ PDU::PDU()
     new_index = false;
     any_index = false;
 }
+
+
+void PDU::add_header(byte_t type, data_t& payload)
+{
+    /* Add context to payload, if any */
+    if(context)
+    {
+	// insert serialized context at position 0:
+	payload.insert(0, context->serialize());
+    }
+    
+    /* Construct header */
+    data_t header;
+
+    // Protocol version
+    header.push_back(1);
+
+    // Type
+    header.push_back(type);
+
+    // flags
+    byte_t flags = 0;
+    if(instance_registration) flags |= (1<<0);
+    if(new_index)             flags |= (1<<1);
+    if(any_index)             flags |= (1<<2);
+    if(context)               flags |= (1<<3);  // NON_DEFAULT_INDEX
+		              flags |= (1<<4);	// We always use big endian
+    header.push_back(flags);
+
+    // reserved field
+    header.push_back(0);
+
+    // remaining fields
+    write32(header, sessionID);
+    write32(header, transactionID);
+    write32(header, packetID);
+    write32(header, payload.size());	// payload length
+    
+    // Add header to payload
+    payload.insert(0, header);
+}

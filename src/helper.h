@@ -24,6 +24,22 @@ inline uint32_t read32(data_t::const_iterator& pos, bool big_endian)
     return value;
 }
 
+/**
+ * \brief Write a 32-bit value into a string
+ *
+ * \param serialized The string to which the value is appended.
+ * 
+ * \param value The value which is appended to the string.
+ */
+inline void write32(data_t& serialized, uint32_t value)
+{
+    // always big endian
+    serialized.push_back(value >> 24 & 0xff);
+    serialized.push_back(value >> 16 & 0xff);
+    serialized.push_back(value >> 8 & 0xff);
+    serialized.push_back(value >> 0 & 0xff);
+}
+
 inline uint16_t read16(data_t::const_iterator& pos, bool big_endian)
 {
     uint16_t value;

@@ -183,6 +183,25 @@ namespace agentx
 	     */
 	    PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error);
 
+	    /**
+	     * \brief Construct the PDU header and add it to the payload
+	     *
+	     * Add the PDU header to the payload. This also adds the context, 
+	     * although it is not strictly part of the header. The payload must 
+	     * not grow or shrink after a call to this function as its size is 
+	     * encoded into the header.
+	     *
+	     * The header is encoded in big endian format.
+	     *
+	     * \param type The PDU type, according to RFC 2741, 6.1. "AgentX
+	     *             PDU Header"
+	     *
+	     * \param payload The payload of the PDU, excluding the context.
+	     *		      The header is added to the payload, i.e. the 
+	     *		      payload is altered by this function.
+	     */
+	    void add_header(byte_t type, data_t& payload);
+
     };
 }
 

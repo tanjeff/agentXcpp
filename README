@@ -1,0 +1,59 @@
+About
+-----
+
+This is the AgentXcpp library, a C++ library to implement SNMP MIBs through the 
+AgentX protocol.
+
+This README introduces the directory structure and describes how to build the 
+documentation. Further information can be found in the documentation.
+
+
+Directory Structure
+-------------------
+
+The top level directory contains the following elements:
+
+doc/ This directory contains the documentation. Note that the documentation is 
+     created using Doxygen and most of it is contained in the source code.  The 
+     doc/ directory contains the doxygen configs, some additional documentation 
+     files and a Makefile to build the documentation.
+
+src/ This directory contains the source code of the library.
+
+main.cpp This is very hackish test code, just to try out parts of the library.  
+	 It is not meant to be part of the library and serves as development 
+	 aid only. Hopefully it will be replaced by test suite.
+
+Makefile This Makefile provides the possibility to build the library and the
+	 documentation.
+
+rfc2741_AgentX.txt The RFC describing the AgentX protocol. This is the 
+		   reference for the AgentXcpp implementation.
+
+
+Documentation
+-------------
+
+There are two types of HTML documentation. The API documentation describes the 
+AgentXcpp API and is intended for the user of the library. The internals 
+documentation is the complete reference of the library, describing all 
+internals, including other things such as the build system.
+
+To build the documentation, cd to the top level directory (the one containing 
+this README) and type
+    
+    make documentation
+
+This builds both documentations. To build only one of the documentations, cd 
+into the doc/ directory and use one of the following commands:
+    
+    make api-doc
+
+or
+    
+    make internals-doc
+
+After buidling, the documentation can be displayed by pointing a web browser to 
+doc/api/html/index.html respectively doc/internals/html/index.html.
+
+Happy hacking :-)

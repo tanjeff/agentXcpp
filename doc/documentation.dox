@@ -2,7 +2,7 @@
 
 \internal
 
-\page documentation About the AgentXcpp documentation
+\page documentation About the Documentation
 
 The AgentXcpp documentation is created using Doxygen. The <tt>doc/</tt> 
 directory contains two doxygen configuration files, <tt>api.doxyfile</tt> and 

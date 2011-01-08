@@ -11,8 +11,9 @@ goals of the library are:
   - Provide full documentation of the API
   - Ensure stable operation
 
-\subpage documentation
-
-\subpage parsing
+Table of contents:
+- \subpage documentation
+- \subpage buildsystem
+- \subpage parsing
 
 */

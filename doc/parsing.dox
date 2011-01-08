@@ -2,7 +2,7 @@
 
 \internal
 
-\page parsing Parsing
+\page parsing Parsing Incoming PDUs
 
 This section explains how parsing is done in agentxcpp.
 

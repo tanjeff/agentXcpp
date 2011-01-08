@@ -1,0 +1,23 @@
+/*!
+
+\internal
+
+\page buildsystem The Build System
+
+Currently, no advanced build system is used for AgentXcpp. Instead, simple 
+Makefiles are used.
+
+The <tt>src/</tt> directory contains a Makefile which compiles each 
+<tt>*.cpp</tt> file into a <tt>*.o</tt> object and finally links all objects 
+into an archive.
+
+The doc/ directory contains a Makefile to build the documentations.
+
+The top level directory contains a Makefile providing the targets 
+<tt>documentation</tt> (build the documentations), <tt>library</tt> (build the 
+library) and <tt>main</tt> (build the hakish test program <tt>main.cpp</tt>).  
+The default target builds the library and the main program.
+
+All Makefiles also support the <tt>clean</tt> target.
+
+*/

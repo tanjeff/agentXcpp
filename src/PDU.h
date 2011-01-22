@@ -141,24 +141,25 @@ namespace agentx
 	    Octet_String* context;
 	    
 	    /**
-	     * \brief read the PDU from an input stream
+	     * \internal
 	     *
-	     * Read the PDU into a buffer, then create a PDU of the according 
-	     * type (e.g. OpenPDU) from that buffer.
+	     * \brief Create a %PDU from an input stream
 	     *
-	     * If the PDU version is not 1, version_mismatch is thrown. On 
-	     * parse error, parse_error is thrown. In case of error, 
+	     * Read the %PDU into a buffer, then create a %PDU of the according 
+	     * type (e.g. OpenPDU) from that buffer. See \ref parsing for 
+	     * details about %PDU parsing.
 	     *
 	     * \exception parse_error If parsing fails, for example because
 	     *			      reading the stream fails or the PDU is 
-	     *			      malformed.
+	     *			      malformed. The stream position is 
+	     *			      undefined after this error.
 	     * 
-	     * \exception version_mismatch If the AgentX version of the PDU
+	     * \exception version_mismatch If the AgentX version of the %PDU
 	     *                             in the stream is not 1.  The stream 
 	     *                             position is undefined after this 
 	     *                             error.
 	     *
-	     * \param in the input stream to read from
+	     * \param in The input stream to read from.
 	     *
 	     * \return Pointer to PDU object of according type; the user must
 	     *	       delete the object if it is not longer needed.
@@ -166,19 +167,19 @@ namespace agentx
 	    static PDU* get_pdu(input_stream& in) throw(parse_error, version_mismatch);
 
 	    /**
-	     * \brief Construct the common part of a PDU object
+	     * \brief Parse constructor for the common part of a %PDU object
 	     *
-	     * Read the PDU header from a buffer and initialize part of the PDU 
-	     * object.	     
+	     * Read the %PDU header from a buffer and initialize part of the 
+	     * %PDU object. See \ref parsing for details about %PDU parsing.
 	     * 
 	     * \param pos Iterator pointing to the current stream position. The
 	     *		  iterator is advanced while reading the header.
 	     *
-	     * \param big_endian Wether the serialized form of the PDU is in
+	     * \param big_endian Whether the serialized form of the %PDU is in
 	     *                   big_endian format.
 	     *
 	     * \exception parse_error If parsing fails, for example because
-	     *			      reading the stream fails or the PDU is 
+	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
 	    PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error);

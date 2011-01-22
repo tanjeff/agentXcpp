@@ -2,25 +2,64 @@
 
 \internal
 
-\page parsing Parsing Incoming PDUs
+\page parsing Parsing incoming PDUs
 
 This section explains how parsing is done in agentxcpp.
 
-AgentX PDUs are read from a stream, while constructing C++ objects which 
-represents the PDUs and all its parts in memory. To read an entity from the 
-stream, the stream object is provided to the constructor of that entity. The 
-constructor then reads the serialized form of the object from the stream, 
-constructing that object.
+AgentX PDUs are read from a stream, constructing C++ objects which represent 
+the PDUs and all their parts (such as varbinds, for example). In general, the 
+C++ objects, such as OpenPDU, varbind, oid or Integer, are created by providing 
+an iterator (pointing into a buffer) to their constructors. The constructor 
+uses the iterator to read the serialized form of the object and construct the 
+C++ object accordingly.  Along the way, the iterator is modified to point 
+behind the object which was just deserialized.
 
-For example, to read an AgentX PDU (Processing Data Unit) from the stream, the 
-stream object (e.g. an ifstream object or even the cin object) is given to the 
-constructor of the pdu class. This constructor will read the PDU header from 
-the stream, then detect which type of PDU is being read and create such an 
-object (e.g. a getpdu), giving the stream to the constructor of it. This is 
-repeated to read the OID and the varbind objects, this creating several objects 
-in memory which initializes themselves from the input stream. Finally, the 
-complete PDU is constructed and the next PDU can be read by creating a new pdu 
-object, giving the stream to its constructor.
+An example of such a constructor is 
+agentx::varbind::varbind(data_t::const_iterator& pos, bool big_endian).  It 
+takes an iterator ('pos') and begins parsing at where 'pos' points to.  While 
+reading, the varbind object is constructed. Note that a varbind always contains 
+(at least) an oid.  The varbind constructor therefore creates an oid object by 
+passing the 'pos' iterator to the constructor of the oid class, which reads the 
+serialized oid and construncts the oid object. If needed, another variable is 
+created the same way (e.g. an Integer or an Octet_String). When the varbind 
+object is fully constructed, the 'pos' iterator points to the position behind 
+the varbind and the constructor returns. Note that the interator is modified by 
+the constructor. The caller may then use 'pos' to create the next object, until 
+the buffer is completely parsed.
 
+
+Reading a PDU is initiated by calling the static class member 
+agentx::PDU::get_pdu(input_stream & in). The input stream can be a file, a unix 
+domain socket, a network socket or even the cin object.  The function first 
+reads the PDU into a buffer.  It then interprets the PDU header from the buffer 
+and creates a concrete PDU object (e.g.  OpenPDU) corresponding to the type 
+field found in the header. The PDU and its subobjects are created as described 
+above. Finally, a pointer to the created object is returned, and the caller is 
+responsible for deleting it when it is not longer needed.
+
+The agentx::PDU class cannot be instantiated itself, as it does not represent a 
+PDU type defined in RFC2741. It serves as base class for the concrete PDU 
+types.  Each concrete PDU type (for example the OpenPDU class) inherits from 
+PDU. The constructor of such a concrete class must call the constructor of the 
+PDU class, which parses the header. Example:
+
+\code
+OpenPDU::OpenPDU(data_t::const_iterator& pos, bool big_endian)
+    : PDU(pos, big_endian) // parse header
+{
+    timeout = *pos++;                      // parse timeout field
+    pos += 3;	                           // skip reserved fields
+    id = oid(pos, big_endian);             // parse oid
+    descr = Octet_String(pos, big_endian); // parse desciption
+}
+\endcode
+
+Note that the header is parsed two times. The first time is in the get_pdu() 
+function (described above), where the header is inspected to determine the 
+payload length, the PDU type and the endianess of the PDU. The protocol version 
+is also checked in get_pdu(). The second time is in the agentx::PDU::PDU() 
+constructor, where the sessionID, transactionID, packetID, some flags and the 
+context are parsed (even though the context in fact is not part of the 
+header).
 
 */

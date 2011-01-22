@@ -72,11 +72,6 @@ namespace agentx
 
 	protected:
 	    /**
-	     * \brief Initialize base class part of a PDU
-	     */
-	    PDU();
-	    
-	    /**
 	     * \brief h.packetID field
 	     *
 	     * According to RFC 2741, 6.1. "AgentX PDU Header". Is 

@@ -1,5 +1,7 @@
 #include "PDU.h"
 #include "OpenPDU.h"
+#include "ClosePDU.h"
+#include "RegisterPDU.h"
 #include "helper.h"
 
 using namespace agentx;
@@ -98,6 +100,12 @@ PDU* PDU::get_pdu(input_stream& in) throw(parse_error, version_mismatch)
         case agentxOpenPDU:
             pdu = new OpenPDU(pos, big_endian);
             break;
+	case agentxClosePDU:
+	    pdu = new ClosePDU(pos, big_endian);
+	    break;
+	case agentxResponsePDU:
+	    pdu = new RegisterPDU(pos, big_endian);
+	    break;
 	default:
 	    // type is invalid
 	    throw(parse_error());

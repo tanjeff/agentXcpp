@@ -1,6 +1,9 @@
 #ifndef __REGISTERPDU_H__
 #define __REGISTERPDU_H__
 
+#include "types.h"
+#include "oid.h"
+#include "PDU.h"
 
 namespace agentx
 {
@@ -10,6 +13,7 @@ namespace agentx
 	    byte_t timeout;
 	    byte_t priority;
 	    byte_t range_subid;
+	    oid subtree;
 	    oid upper_bound;
 
 	public:
@@ -30,6 +34,11 @@ namespace agentx
 	     *			      malformed.
 	     */
 	    RegisterPDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error);
+	    
+	    /**
+	     * \brief Serialize the %PDU
+	     */
+	    data_t serialize();
     };
 }
 #endif

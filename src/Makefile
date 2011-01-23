@@ -10,7 +10,8 @@ OBJS=oid.o \
      IpAddress.o \
      PDU.o \
      OpenPDU.o \
-     ClosePDU.o
+     ClosePDU.o \
+     RegisterPDU.o
 
 CXXFLAGS=-g -O0
 

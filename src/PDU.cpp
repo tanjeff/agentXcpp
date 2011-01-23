@@ -5,6 +5,33 @@
 #include "helper.h"
 
 using namespace agentx;
+	    
+
+/*
+ * The PDU types according to RFC 2741, section 6.1 "AgentX PDU Header":
+ */
+enum type_t
+{
+    agentxOpenPDU             = 1,
+    agentxClosePDU            = 2,
+    agentxRegisterPDU         = 3,
+    agentxUnregisterPDU       = 4,
+    agentxGetPDU              = 5,
+    agentxGetNextPDU          = 6,
+    agentxGetBulkPDU          = 7,
+    agentxTestSetPDU          = 8,
+    agentxCommitSetPDU        = 9,
+    agentxUndoSetPDU          = 10,
+    agentxCleanupSetPDU       = 11,
+    agentxNotifyPDU           = 12,
+    agentxPingPDU             = 13,
+    agentxIndexAllocatePDU    = 14,
+    agentxIndexDeallocatePDU  = 15,
+    agentxAddAgentCapsPDU     = 16,
+    agentxRemoveAgentCapsPDU  = 17,
+    agentxResponsePDU         = 18
+
+};
 
 PDU::PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
 {

@@ -12,45 +12,25 @@ namespace agentx
      *
      * \brief The base class of all PDU's
      *
-     * This class is never instantiated itself, it only serves as base class 
-     * for the various PSU classes (e.g. OpenPDU, RegisterPDU, ...).
+     * This class is never instantiated itself, but serves as the base class 
+     * for all concrete %PDU classes (e.g.  OpenPDU). It contains data and 
+     * functionality common to all %PDU types and can be said to represent the 
+     * %PDU header. Note, however, that in terms of RFC2741 it does not exactly 
+     * represent a %PDU header; for example it takes care of the context field 
+     * of the %PDU's, which is not part of the header (but is common to all 
+     * %PDU types).
      *
-     * This class provides the static class method PDU::get_pdu() which reads a 
-     * PDU of arbitrary type from an input stream and constructs an appropriate 
-     * PDU object.
+     * This class also provides an automatic packetID generator. Whenever a PDU 
+     * object is created, the packetID is automatically incremented. The two 
+     * exceptions are:
+     * - The parse contructor fills the packetID from the received %PDU
+     * - The ResponsePDU class overwrites the packetID
+     * The mechanism uses a static class member packetID_cnt to store the last 
+     * used packetID. The counter wraps at its limit.
      */
     class PDU
     {
 	private:
-	    /**
-	     * \brief The PDU types with their values
-	     *
-	     * The PDU types according to RFC 2741, section 6.1 "AgentX PDU 
-	     * Header".
-	     */
-	    enum type_t
-	    {
-		agentxOpenPDU             = 1,
-		agentxClosePDU            = 2,
-		agentxRegisterPDU         = 3,
-		agentxUnregisterPDU       = 4,
-		agentxGetPDU              = 5,
-		agentxGetNextPDU          = 6,
-		agentxGetBulkPDU          = 7,
-		agentxTestSetPDU          = 8,
-		agentxCommitSetPDU        = 9,
-		agentxUndoSetPDU          = 10,
-		agentxCleanupSetPDU       = 11,
-		agentxNotifyPDU           = 12,
-		agentxPingPDU             = 13,
-		agentxIndexAllocatePDU    = 14,
-		agentxIndexDeallocatePDU  = 15,
-		agentxAddAgentCapsPDU     = 16,
-		agentxRemoveAgentCapsPDU  = 17,
-		agentxResponsePDU         = 18
-
-	    };
-	    
 	    // header flags
 	    bool instance_registration;
 	    bool new_index;
@@ -69,20 +49,24 @@ namespace agentx
 	     * According to RFC 2741, 6.1. "AgentX PDU Header"
 	     */
 	    uint32_t transactionID;
-
-	protected:
+	    
 	    /**
-	     * \brief h.packetID field
+	     * \brief The PDU context
 	     *
-	     * According to RFC 2741, 6.1. "AgentX PDU Header". Is 
-	     * automatically filled by constructors, is set to another value by 
-	     * ResponsePDU. The PDU class has no setter for this member.
+	     * The PDU context, if any. If this field is NULL, the PDU has the 
+	     * default context.
 	     *
-	     * The ResponsePDU is a special case in resepect of packetIDs, 
-	     * therefore this member is protected to allow the ResponsePDU to 
-	     * alter it.
+	     * When serializing a %PDU, the context (if present) is included.  
+	     * When parsing a %PDU, this field is filled.
+	     *
+	     * TODO: How to handle memory?
 	     */
-	    uint32_t packetID;
+	    Octet_String* context;
+
+	    /**
+	     * \brief Hide default constructor
+	     */
+	    PDU();
 	    
 	    /**
 	     * \brief Counter for automatic packetID generator
@@ -91,11 +75,66 @@ namespace agentx
 	     * each new PDU gets a new packetID. This member contains the last 
 	     * used packetID.
 	     *
+	     * The parse constructor does not use this member, because it reads 
+	     * the packetID from a stream.
+	     */
+	    static uint32_t packetID_cnt;
+	    
+
+	protected:
+	    /**
+	     * \brief h.packetID field according to RFC 2741, 6.1. "AgentX PDU
+	     *        Header".
+	     * 
+	     * Is automatically filled by constructors, is set to another value 
+	     * by ResponsePDU. The PDU class has no setter for this member.
+	     *
 	     * The ResponsePDU is a special case in resepect of packetIDs, 
 	     * therefore this member is protected to allow the ResponsePDU to 
 	     * alter it.
 	     */
-	    static uint32_t packetID_cnt;
+	    uint32_t packetID;
+	    
+	    /**
+	     * \brief Parse constructor
+	     *
+	     * Read the %PDU header from a buffer and initialize part of the 
+	     * %PDU object. Is called by the parse constructors of derived 
+	     * classes. See \ref parsing for details about %PDU parsing.
+	     * 
+	     * \param pos Iterator pointing to the current stream position. The
+	     *		  iterator is advanced while reading the header.
+	     *
+	     * \param big_endian Whether the serialized form of the %PDU is in
+	     *                   big_endian format.
+	     *
+	     * \exception parse_error If parsing fails, for example because
+	     *			      reading the stream fails or the %PDU is 
+	     *			      malformed.
+	     */
+	    PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error);
+
+	    /**
+	     * \brief Construct the PDU header and add it to the payload
+	     *
+	     * Add the PDU header to the payload. This also adds the context, 
+	     * although it is not strictly part of the header. Called by 
+	     * derived classes during serialization.
+	     * 
+	     * \warning The payload must not grow or shrink after a call to
+	     *          this function as its size is encoded into the header.
+	     *
+	     * The header is encoded in big endian format.
+	     *
+	     * \param type The PDU type, according to RFC 2741, 6.1. "AgentX
+	     *             PDU Header"
+	     *
+	     * \param payload The payload of the PDU, excluding the context.
+	     *		      The header is added to the payload, i.e. the 
+	     *		      payload is altered by this function.
+	     */
+	    void add_header(byte_t type, data_t& payload);
+
 	    
 
 
@@ -104,6 +143,7 @@ namespace agentx
 	     * \brief Get sessionID
 	     */
 	    uint32_t get_sessionID() { return sessionID; }
+	    
 	    /**
 	     * \brief Set sessionID
 	     */
@@ -113,6 +153,7 @@ namespace agentx
 	     * \brief Get transactionID
 	     */
 	    uint32_t get_transactionID() { return transactionID; }
+	    
 	    /**
 	     * \brief Set transactionID
 	     */
@@ -122,23 +163,20 @@ namespace agentx
 	     * \brief Get packetID
 	     */
 	    uint32_t get_packetID() { return packetID; }
-
-	    /**
-	     * \brief The PDU context
-	     *
-	     * The PDU context, if any. If this field is NULL, the PDU has the 
-	     * default context.
-	     *
-	     * This field is not interpreted. It is parsed from the serialized 
-	     * form of the PDU respectively included when the PDU is 
-	     * serialized.
-	     */
-	    Octet_String* context;
 	    
 	    /**
-	     * \internal
-	     *
-	     * \brief Create a %PDU from an input stream
+	     * \brief Get context
+	     */
+	    Octet_String* get_context() { return context; }
+	    
+	    /**
+	     * \brief Set context
+	     */
+	    void set_context(Octet_String* c) { context = c; }
+
+	    
+	    /**
+	     * \brief Parse a %PDU from an input stream
 	     *
 	     * Read the %PDU into a buffer, then create a %PDU of the according 
 	     * type (e.g. OpenPDU) from that buffer. See \ref parsing for 
@@ -160,43 +198,6 @@ namespace agentx
 	     *	       delete the object if it is not longer needed.
 	     */
 	    static PDU* get_pdu(input_stream& in) throw(parse_error, version_mismatch);
-
-	    /**
-	     * \brief Parse constructor for the common part of a %PDU object
-	     *
-	     * Read the %PDU header from a buffer and initialize part of the 
-	     * %PDU object. See \ref parsing for details about %PDU parsing.
-	     * 
-	     * \param pos Iterator pointing to the current stream position. The
-	     *		  iterator is advanced while reading the header.
-	     *
-	     * \param big_endian Whether the serialized form of the %PDU is in
-	     *                   big_endian format.
-	     *
-	     * \exception parse_error If parsing fails, for example because
-	     *			      reading the stream fails or the %PDU is 
-	     *			      malformed.
-	     */
-	    PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error);
-
-	    /**
-	     * \brief Construct the PDU header and add it to the payload
-	     *
-	     * Add the PDU header to the payload. This also adds the context, 
-	     * although it is not strictly part of the header. The payload must 
-	     * not grow or shrink after a call to this function as its size is 
-	     * encoded into the header.
-	     *
-	     * The header is encoded in big endian format.
-	     *
-	     * \param type The PDU type, according to RFC 2741, 6.1. "AgentX
-	     *             PDU Header"
-	     *
-	     * \param payload The payload of the PDU, excluding the context.
-	     *		      The header is added to the payload, i.e. the 
-	     *		      payload is altered by this function.
-	     */
-	    void add_header(byte_t type, data_t& payload);
 
     };
 }

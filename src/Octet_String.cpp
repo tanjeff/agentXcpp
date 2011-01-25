@@ -20,6 +20,7 @@ data_t Octet_String::serialize()
 
     // Padding bytes
     int padsize = 4 - (size % 4);
+    if( padsize == 4 ) padsize = 0; // avoid adding 4 padding bytes
     while( padsize-- )
     {
 	serialized.push_back(0);

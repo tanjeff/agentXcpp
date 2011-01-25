@@ -60,4 +60,12 @@ Octet_String::Octet_String(data_t::const_iterator& pos, bool big_endian) throw(p
     // Get value
     value.assign(pos, pos+size);
     pos += size;
+    
+    // Eat padding bytes
+    int padsize = 4 - (size % 4);
+    if( padsize == 4 ) padsize = 0;
+    while( padsize-- )
+    {
+	pos++;
+    }
 }

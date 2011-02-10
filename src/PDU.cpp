@@ -45,6 +45,9 @@ PDU::PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
     new_index                = ( flags & (1<<1) ) ? true : false;
     any_index                = ( flags & (1<<2) ) ? true : false;
 
+    // skip reserved field
+    pos++;
+
     // sessionID
     sessionID = read32(pos, big_endian);
 

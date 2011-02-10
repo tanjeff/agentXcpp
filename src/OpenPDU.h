@@ -19,11 +19,6 @@ namespace agentx
 	    oid id;
 	    Octet_String descr;
 
-	    /**
-	     * \brief Hide default constructor
-	     */
-	    OpenPDU();
-
 	public:
 	    /**
 	     * \brief Parse constructor
@@ -46,11 +41,7 @@ namespace agentx
 	    /**
 	     * \brief Constructor
 	     *
-	     * Sets timeout to 0 (means "no timeout for session specified)
-	     *
 	     * \param description A string describing the subagent.
-	     *
-	     * \param ID An Object Identifier that identifies the subagent.
 	     *
 	     * \param timeout The length of time, in seconds, that a master
 	     *		      agent should allow to elapse after dispatching a 
@@ -60,10 +51,16 @@ namespace agentx
 	     *		      values associated with specific registered MIB 
 	     *		      regions.  The default value of 0 indicates that 
 	     *		      there is no session-wide default value.
+	     *
+	     * \param ID An Object Identifier that identifies the subagent.
+	     *           Default is an emtpy OID.
+	     *
+	     * \param context The context for the PDU. Default is no context.
 	     */
-	    OpenPDU(Octet_String description = Octet_String(),
-		    oid ID = oid(),
-		    byte_t timeout = 0);
+	    OpenPDU(Octet_String description=Octet_String(),
+		    byte_t timeout=0,
+		    oid ID=oid(),
+		    Octet_String* context=0);
 
 	    /**
 	     * \brief Serialize the %PDU

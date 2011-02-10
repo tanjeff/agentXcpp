@@ -1,5 +1,6 @@
 #include "OpenPDU.h"
 
+
 using namespace agentx;
 
 OpenPDU::OpenPDU(data_t::const_iterator& pos, bool big_endian)
@@ -16,7 +17,11 @@ OpenPDU::OpenPDU(data_t::const_iterator& pos, bool big_endian)
 }
 	    
 
-OpenPDU::OpenPDU(Octet_String _descr, oid _id, byte_t _timeout)
+OpenPDU::OpenPDU(Octet_String _descr,
+		 byte_t _timeout,
+		 oid _id,
+		 Octet_String* context)
+: PDU(context)
 {
     timeout = _timeout;
     id = _id;

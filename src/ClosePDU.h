@@ -41,7 +41,9 @@ namespace agentx
 	     *
 	     * \exception inval_param If the reason value is invalid.
 	     */
-	    ClosePDU(reason_t reason) throw(inval_param);
+	    ClosePDU(uint32_t sessionID,
+		     reason_t reason,
+		     Octet_String* context=0) throw(inval_param);
 
 	    /**
 	     * \brief Get the reason

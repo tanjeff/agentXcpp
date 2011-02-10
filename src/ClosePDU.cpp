@@ -2,8 +2,15 @@
 
 using namespace agentx;
 
-ClosePDU::ClosePDU(reason_t _reason) throw(inval_param)
+ClosePDU::ClosePDU(uint32_t _sessionID,
+		   reason_t _reason,
+		   Octet_String* context) throw(inval_param)
+: PDU(context)
+
 {
+    // Set sessionID
+    set_sessionID(_sessionID);
+
     // Check parameter
     if( _reason < 1 || _reason > 6 )
     {

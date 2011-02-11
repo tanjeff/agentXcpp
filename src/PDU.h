@@ -4,6 +4,7 @@
 #include "types.h"
 #include "exceptions.h"
 #include "Octet_String.h"
+#include <boost/asio.hpp>
 
 namespace agentx
 {
@@ -63,11 +64,6 @@ namespace agentx
 	     */
 	    Octet_String* context;
 
-	    /**
-	     * \brief Hide default constructor
-	     */
-	    PDU();
-	    
 	    /**
 	     * \brief Counter for automatic packetID generator
 	     *
@@ -135,8 +131,19 @@ namespace agentx
 	     */
 	    void add_header(byte_t type, data_t& payload);
 
-	    
-
+	    /**
+	     * \brief Default constructor
+	     *
+	     * The packetID_cnt is incremented and the packetID is set to the 
+	     * new packetID_cnt value. The sessionID and transactionID are both 
+	     * set to 0. The context is set to the provided value or to 0.
+	     *
+	     * TODO: What to du with the flags? Currently, they are set to 
+	     * false.
+	     * 
+	     * \param context The PDU context
+	     */
+	    PDU(Octet_String* context=0) throw();
 
 	public:
 	    /**
@@ -197,7 +204,11 @@ namespace agentx
 	     * \return Pointer to PDU object of according type; the user must
 	     *	       delete the object if it is not longer needed.
 	     */
+	    /*
 	    static PDU* get_pdu(input_stream& in) throw(parse_error, version_mismatch);
+	    */
+	    static PDU* get_pdu(boost::asio::local::stream_protocol::socket& in)
+		throw(parse_error, version_mismatch);
 
     };
 }

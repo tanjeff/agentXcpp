@@ -5,7 +5,9 @@
 #include "helper.h"
 
 using namespace agentx;
-	    
+
+
+uint32_t PDU::packetID_cnt = 0;
 
 /*
  * The PDU types according to RFC 2741, section 6.1 "AgentX PDU Header":
@@ -32,6 +34,22 @@ enum type_t
     agentxResponsePDU         = 18
 
 };
+
+
+
+PDU::PDU(Octet_String* _context) throw()
+{
+    packetID = ++packetID_cnt;
+    context = _context;
+
+    sessionID = 0;
+    transactionID = 0;
+
+    instance_registration=false;
+    new_index=false;
+    any_index=false;
+
+}
 
 PDU::PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
 {
@@ -72,7 +90,7 @@ PDU::PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
 }
 
 
-PDU* PDU::get_pdu(input_stream& in) throw(parse_error, version_mismatch)
+PDU* PDU::get_pdu(boost::asio::local::stream_protocol::socket& in) throw(parse_error, version_mismatch)
 {
     data_t buf;	// serialized form of the PDU
     data_t::const_iterator pos;	// needed for parsing
@@ -80,11 +98,11 @@ PDU* PDU::get_pdu(input_stream& in) throw(parse_error, version_mismatch)
     // read header
     const int header_size = 20;
     byte_t header[header_size];
-    in.read(header, header_size);
-    if( !in )
-    {
-	throw( parse_error() );
-    }
+    in.receive(boost::asio::buffer(header, header_size));
+    //if( !in )
+    //{
+    //    throw( parse_error() );
+    //}
     buf.append(header, header_size);
 
     // check protocol version
@@ -111,11 +129,11 @@ PDU* PDU::get_pdu(input_stream& in) throw(parse_error, version_mismatch)
 
     // read payload
     byte_t* payload = new byte_t[payload_length];
-    in.read(payload, payload_length);
-    if( !in )
-    {
-	throw( parse_error() );
-    }
+    in.receive(boost::asio::buffer(payload, payload_length));
+    //if( !in )
+    //{
+    //    throw( parse_error() );
+    //}
     buf.append(payload, payload_length);
     delete[] payload;
 

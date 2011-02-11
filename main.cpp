@@ -7,36 +7,15 @@
 #include "Counter32.h"
 #include "Counter64.h"
 #include "Gauge32.h"
-
+#include "session.h"
+#include "OpenPDU.h"
 
 using namespace agentx;
 using namespace std;
 
 
-void print_serialized(data_t stream)
-{
 
-    cout << "+----------+----------+----------+----------+" << endl;
-    cout << "| ";//begin line
-    for(int i = 0; i < stream.size(); i++)
-    {
-	cout.width(8);// 8 chars per field
-	cout << (int)stream[i] << " | ";
-	if( (i+1)%4 == 0 )
-	{
-	    cout << endl;   // end line
-	    cout << "+----------+----------+----------+----------+";
-	    if( i != stream.size() - 1 )
-	    {
-		// We have further data; begin a new line
-		cout << endl << "| ";
-	    }
-	}
-    }
-    cout << endl;
-}
-
-
+#if 0
 class myoctetstring : public Octet_String
 {
     public:
@@ -360,17 +339,29 @@ void test_varbind()
     
     cout << endl;
 }
+#endif
+
+
 
 int main()
 {
-    test_integer();
-    test_Octet_String();
-    test_counter32();
-    test_counter64();
-    test_Gauge32();
+//    test_integer();
+//    test_Octet_String();
+//    test_counter32();
+//    test_counter64();
+//    test_Gauge32();
+//
+//
+//    test_varbind();
 
 
-    test_varbind();
+
+    //cout << __FILE__ << ": Line " << __LINE__ << endl;
+    //agentx::agent subagent("socket_test/echo_socket");
+    agentx::session subagent("/var/agentx/master");
+
+
+
 
     return 0;
 }

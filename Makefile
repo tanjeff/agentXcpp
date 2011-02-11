@@ -1,5 +1,7 @@
 .PHONY: all documentation library clean
-CXXFLAGS += -I src/
+CXXFLAGS += -I src/ -l boost_system -l pthread
+CXXFLAGS += -g
+
 
 all: library main
 

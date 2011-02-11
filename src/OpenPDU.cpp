@@ -19,9 +19,7 @@ OpenPDU::OpenPDU(data_t::const_iterator& pos, bool big_endian)
 
 OpenPDU::OpenPDU(Octet_String _descr,
 		 byte_t _timeout,
-		 oid _id,
-		 Octet_String* context)
-: PDU(context)
+		 oid _id)
 {
     timeout = _timeout;
     id = _id;

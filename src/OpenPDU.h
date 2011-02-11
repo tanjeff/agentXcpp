@@ -54,13 +54,10 @@ namespace agentx
 	     *
 	     * \param ID An Object Identifier that identifies the subagent.
 	     *           Default is an emtpy OID.
-	     *
-	     * \param context The context for the PDU. Default is no context.
 	     */
 	    OpenPDU(Octet_String description=Octet_String(),
 		    byte_t timeout=0,
-		    oid ID=oid(),
-		    Octet_String* context=0);
+		    oid ID=oid());
 
 	    /**
 	     * \brief Serialize the %PDU

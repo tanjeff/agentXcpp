@@ -15,7 +15,7 @@ namespace agentx
 	protected:
 	    // We use data_t here although it was not invented for this.
 	    // TODO: Is this a problem?
-	    std::basic_string<byte_t> value;
+	    data_t value;
 
 	public:
 	    /**

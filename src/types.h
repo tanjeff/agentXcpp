@@ -3,6 +3,7 @@
 
 #include <string>
 #include <istream>
+#include <ostream>
 
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
@@ -28,6 +29,30 @@ typedef unsigned char byte_t; // for machines where unsigned char has 8bits
 typedef std::basic_istream<byte_t> input_stream;
 
 // A type representing a contigous byte stream
-typedef std::basic_string<byte_t> data_t;
+class data_t : public std::basic_string<byte_t> { };
+
+inline std::ostream& operator<<(std::ostream& out, const data_t& stream)
+{
+    out << "+----------+----------+----------+----------+" << std::endl;
+    out << "| ";//begin line
+    for(int i = 0; i < stream.size(); i++)
+    {
+	out.width(8);// 8 chars per field
+	out << (int)stream[i] << " | ";
+	if( (i+1)%4 == 0 )
+	{
+	    out << std::endl;   // end line
+	    out << "+----------+----------+----------+----------+";
+	    if( i != stream.size() - 1 )
+	    {
+		// We have further data; begin a new line
+		out << std::endl << "| ";
+	    }
+	}
+    }
+    out << std::endl;
+
+    return out;
+}
 
 #endif

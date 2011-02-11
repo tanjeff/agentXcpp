@@ -11,7 +11,8 @@ OBJS=oid.o \
      PDU.o \
      OpenPDU.o \
      ClosePDU.o \
-     RegisterPDU.o
+     RegisterPDU.o \
+     session.o
 
 CXXFLAGS=-g -O0
 

@@ -32,6 +32,7 @@ goals of the library are:
   - Ensure stable operation
 
 Table of contents:
+- \subpage license
 - \subpage documentation
 - \subpage buildsystem
 - \subpage parsing

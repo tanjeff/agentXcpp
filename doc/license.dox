@@ -25,24 +25,103 @@
 
 Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
 
-\image html lgplv3-logo.png
+\image html gplv3-logo.png
 
-AgentXcpp is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+\section foreword Foreword
 
-AgentXcpp is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
+The agentXcpp software is licensed under the GNU General Public License (GPL), 
+plus a linking exception.  The GPL was designed to give the program's users the 
+four essential freedoms:
+- The freedom to run the program, for any purpose (freedom 0).
+- The freedom to study how the program works, and change it to make it do what 
+  she wishes (freedom 1).
+- The freedom to redistribute copies (freedom 2).
+- The freedom to distribute copies of modified versions to others (freedom 3).
+
+In addition, the GPL garantuees that these freedoms remain intact when the 
+software is distributed, be it unmodified or modified.
+
+However, there is one freedom that the GPL denies to the user of a GPL'ed \em 
+library: the freedom to license her own code however she wishes. Each program 
+that uses a GPL'ed library becomes "infected" and must be released under the 
+terms of the GPL.  In particular, there is no way to use such a library in a 
+proprietary software, even if the library itself is kept intact and distributed 
+under the terms of the GPL.
+
+The only way to use a C++ library (or to "run" it, as termed in freedom 0) is 
+by using its interfaces in another program and linking the library to that 
+other program.  Therefore, the GPL provides freedom 0 to the user only as long 
+as she either don't give her code away or she licenses her code under the terms 
+of the GPL.  The author of agentXcpp considers "using a library" to not create 
+a derivative or combined work. Using the library should not restrict the user's 
+choice of how to license her own work - its up to the creator of \em that 
+program to choose a license..
+
+The Lesser General Public License (LGPL) would have been an alternative to the 
+GPL, but it imposes some requirements to the user to be compliant to the 
+license.  Although these requirements are in principal acceptable, it is hard 
+to understand what is exactly required. In practice the library will be used by 
+developers, not lawyers, which makes ensuring compliance with the LGPL even 
+harder.
+
+Therefore, the agentXcpp library is licensed under the GPL, with a linking 
+exception, to ensure ease of use even in non-free software. Note that the 
+library may be \em used without any further restrictions, but changing it and
+copying its code is still covered by the GPL.
+
+Finally, a word on non-copyleft licenses (e.g. the well-known BSD-licenses).  
+The authour could have choosen one of them. This would have made agentXcpp a 
+free software, but these licenses do not ensure that the software remains free.  
+For the author, it was not an option that users (especially companies) could 
+benefit from their improvements to free software while not giving them back to 
+the community.  In the authors opinion it is acceptable that changes to a 
+freesoftware are made available to other users, even for companies.
+
+
+\section license LICENSE
+
+\verbatim
+
+AgentXcpp is free software: you can redistribute it and/or modify it under the 
+terms of the GNU General Public License as published by the Free Software 
+Foundation, either version 3 of the License, or (at your option) any later 
+version.
+
+AgentXcpp is distributed in the hope that it will be useful, but WITHOUT ANY 
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along 
+with AgentXcpp.  If not, see <http://www.gnu.org/licenses/>.
+
+Linking this library statically or dynamically with other modules is making a 
+combined work based on this library. Thus, the terms and conditions of the GNU 
+General Public License cover the whole combination.
+
+As a special exception, the copyright holder of this library gives you the 
+following permissions:
+
+1) The permission to link this library with independent modules to produce
+   an executable, regardless of the license terms of these independent 
+   modules, and to copy and distribute the resulting executable under terms of 
+   your choice, provided that you also meet, for each linked independent 
+   module, the terms and conditions of the license of that module. An 
+   independent module is a module which is not derived from or based on this 
+   library.
+
+2) The permission to instantiate templates, use macros and/or use inline
+   functions provided by the library without causing the resulting work to be 
+   covered by the GNU General Public License, provided you don't copy code 
+   from the library to your program.
+
+If you modify this library, you may extend this exception to your version of 
+the library, but you are not obliged to do so. If you do not wish to do so, 
+delete this exception statement from your version.
+
+\endverbatim
 
 Here is a verbatim copy of the GNU Lesser General Public License (see below for 
 the GNU General Public License):
 
-\include COPYING.LESSER
-
-Here is a verbatim copy of the GNU General Public License:
-
-\include COPYING
+\verbinclude LICENSE
 */

@@ -1,0 +1,9 @@
+
+# Always build the agentxcpp library:
+build-project src ;
+
+# These are libraries we need later:
+lib boost_system pthread ;
+
+# Build the test binary, needs the libs specified above
+exe test : main.cpp src//agentxcpp boost_system pthread ;

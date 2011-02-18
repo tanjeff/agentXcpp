@@ -37,8 +37,6 @@ data_t Integer::serialize()
 
 Integer::Integer(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
 {
-    uint32_t size;
-
     // Get value
     if( big_endian )
     {

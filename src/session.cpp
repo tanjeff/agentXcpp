@@ -28,8 +28,8 @@ using namespace std;
 using namespace agentx;
 
 session::session(std::string filename)
-: socket(io_service),
-    endpoint(filename.c_str())
+    : endpoint(filename.c_str()),
+      socket(io_service)
 {
     cout << filename << endl;
 

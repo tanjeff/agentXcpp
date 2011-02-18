@@ -41,8 +41,6 @@ data_t Counter64::serialize()
 
 Counter64::Counter64(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
 {
-    uint32_t size;
-
     // Get value
     if( big_endian )
     {

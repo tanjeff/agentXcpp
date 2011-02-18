@@ -56,6 +56,8 @@ oid::oid(int c1, int c2, int c3, int c4, int c5, int c6,
 oid& oid::operator,(int component)
 {
     identifier.push_back(component);
+
+    return *this;
 }
 
 

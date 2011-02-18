@@ -101,12 +101,12 @@ varbind::varbind(data_t::const_iterator& pos, bool big_endian) throw(parse_error
     // Get type
     if( big_endian )
     {
-	type |= *pos++ << 8;
+	type = *pos++ << 8;
 	type |= *pos++ << 0;
     }
     else
     {
-	type |= *pos++ << 0;
+	type = *pos++ << 0;
 	type |= *pos++ << 8;
     }
 

@@ -22,11 +22,25 @@ for more details.
 About
 -----
 
-This is the AgentXcpp library, a C++ library to implement SNMP MIBs through the 
-AgentX protocol.
+AgentXcpp is a C++ implementation of the AgentX protocol (RFC 2741).
+
+The AgentX protocol is used to implement SNMP MIBs as subagents, which are 
+separate processes connecting to a master agent, which in turn provides a SNMP 
+interface to the outside world. Thus, agentXcpp is used to implement a SNMP 
+MIB.
 
 This README introduces the directory structure and describes how to build the 
 documentation. Further information can be found in the documentation.
+
+
+Status
+------
+
+THIS SOFTWARE IS CURRENTLY NOT USABLE.
+
+It is work in progress.  Unfortunately, the author has little time to work on 
+the software. It is expected that basic functionality is available by end of 
+2011.
 
 
 Directory Structure

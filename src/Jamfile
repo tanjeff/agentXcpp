@@ -1,18 +1,5 @@
+
 project : usage-requirements <include>. ;
 
-lib agentxcpp : oid.cpp
-		Octet_String.cpp
-		Integer.cpp
-		varbind.cpp
-		Counter32.cpp
-		Counter64.cpp
-		Gauge32.cpp
-		TimeTicks.cpp
-		Opaque.cpp
-		IpAddress.cpp
-		PDU.cpp
-		OpenPDU.cpp
-		ClosePDU.cpp
-		RegisterPDU.cpp
-		session.cpp
-	      ;
+lib agentxcpp : [ glob *.cpp ] ;
+

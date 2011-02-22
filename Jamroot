@@ -1,3 +1,4 @@
+import os ;
 
 # Always build the agentxcpp library:
 build-project src ;
@@ -7,3 +8,32 @@ lib boost_system pthread ;
 
 # Build the test binary, needs the libs specified above
 exe test : main.cpp src//agentxcpp boost_system pthread ;
+
+### INSTALLING ###
+
+# Get PREFIX from environment; use default if not set
+PREFIX = [ os.environ PREFIX ] ;
+if $(PREFIX) = ""
+{
+    PREFIX = "install-root" ;
+}
+
+# Get LIB_DIR from environment; use default if not set
+LIB_DIR = [ os.environ LIB_DIR ] ;
+if $(LIB_DIR) = ""
+{
+    LIB_DIR = "$(PREFIX)/lib" ;
+}
+
+# Get INCLUDE_DIR from environment; use default if not set
+INCLUDE_DIR = [ os.environ INCLUDE_DIR ] ;
+if $(INCLUDE_DIR) = ""
+{
+    INCLUDE_DIR = "$(PREFIX)/include/agentxcpp" ;
+}
+
+# Install things
+install install-libs : src//agentxcpp : <location>$(LIB_DIR) ;
+install install-headers : [ glob src/*.h ] : <location>$(INCLUDE_DIR) ;
+
+

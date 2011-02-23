@@ -1,8 +1,4 @@
 *.swp
-doc/api/
-doc/internals/
 main
-*.o
-*.a
 bin/
-src/bin/
+install-root/

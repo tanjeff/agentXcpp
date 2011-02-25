@@ -4,3 +4,6 @@ doc/internals/
 main
 *.o
 *.a
+*.so
+*.os
+.sconsign.dblite

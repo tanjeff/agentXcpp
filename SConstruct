@@ -17,24 +17,12 @@
 # for more details.
 #
 
-.PHONY: all documentation library clean
-CXXFLAGS += -I src/ -l boost_system -l pthread
-CXXFLAGS += -g
+# Build library and documentation
+SConscript(['src/SConstruct',
+	    'doc/SConstruct'])
 
-
-all: library main
-
-library:
-	make -C src/
-
-
-main : main.cpp library
-	$(CXX) $< -o $@ src/agentxcpp.a $(CXXFLAGS)
-
-
-documentation:
-	make -C doc/
-
-clean:
-	make -C src/ clean
-	make -C doc/ clean
+# Build the test program
+Program('main.cpp',
+	LIBS=['agentxcpp', 'boost_system', 'pthread'],
+	LIBPATH='src/',
+	CPPPATH='src/')

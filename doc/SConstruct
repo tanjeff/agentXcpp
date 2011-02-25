@@ -17,6 +17,9 @@
 # for more details.
 #
 
+
+import os
+
 # Build the API documentation:
 api = Command('api',
     'api.doxyfile',
@@ -33,3 +36,13 @@ internals = Command('internals',
     "doxygen $SOURCE > /dev/null")
 Clean(internals, "internals")
 
+# Fetch prefix from ENV or use default:
+if os.environ.has_key('PREFIX'):
+    prefix = os.environ['PREFIX']
+else:
+    prefix = "/usr/local"
+
+# Install API documentation
+docdir = "#" + prefix + "/share/doc/agentxcpp"
+Install(docdir, api)
+Alias("install", docdir)

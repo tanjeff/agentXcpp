@@ -17,5 +17,26 @@
 # for more details.
 #
 
+import os
+
+
 # Build the library:
-SharedLibrary('agentxcpp', Glob('*.cpp'))
+agentxcpp = SharedLibrary('agentxcpp', Glob('*.cpp'))
+
+
+# Fetch prefix from ENV or use default:
+if os.environ.has_key('PREFIX'):
+    prefix = os.environ['PREFIX']
+else:
+    prefix = "/usr/local"
+
+# Install library (the "#" means: path is relative to
+# top-level build dir)
+libdir = "#" + prefix + "/lib"
+Install(libdir, agentxcpp)
+Alias("install", libdir)
+
+# Install headers
+includedir = "#" + prefix + "/include"
+Install(includedir, Glob('*.h'))
+Alias("install", includedir)

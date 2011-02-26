@@ -18,12 +18,28 @@
 #
 
 
+
+# This is a damn hack to get scons working with doxygen: We use the Command 
+# Builder to define how to invoke doxygen. Now, if scons is invoked from the 
+# parent directory, it will invoke doxygen in that directory, giving it e.g.  
+# doc/api.doxyfile as parameter. Doxygen finds its config, but does not find 
+# the sources (it searches the sources in ../src/, but they are actually in 
+# src/).
+# 
+# So we hack the command accordingly, adding a "cd doc" to it and introducing a 
+# lot of dependencies. If the direcory structure of the agentxcpp project is 
+# ever changed, this scons script will likely break, and it will be a mess to 
+# get it working again... I will care about this later. After all it works this 
+# way.
+
+
 # Get the environment from the SConscript above
 Import('env')
 
 
 
 # API documentation
+
 
 # Build it
 # Note: To find out whether a rebuild is neccessary,
@@ -32,7 +48,7 @@ Import('env')
 #       a HTML file as target
 api = Command('api/html/index.html',
 	      'api.doxyfile',
-	      "doxygen $SOURCE > /dev/null")
+	      "cd doc/ && doxygen api.doxyfile > /dev/null")
 
 # API doc depends on src/ directory
 # Note: although not all files in there are actually
@@ -49,7 +65,7 @@ Depends(api, Glob('*.dox'))
 Clean(api, "api")
 
 # Provide an install target
-Install(env['docdir'], api)
+Install(env['docdir'] + "api", api)
 
 
 
@@ -58,15 +74,13 @@ Install(env['docdir'], api)
 
 internals = Command('internals/html/index.html',
     'internals.doxyfile',
-    "doxygen $SOURCE > /dev/null")
+    "cd doc/ && doxygen internals.doxyfile > /dev/null")
 Depends(internals, Glob('../src/*.cpp') + Glob('../src/*.h'))
 Depends(internals, Glob('*.dox'))
 Clean(internals, "internals")
-Install(env['docdir'], internals)
+Install(env['docdir'] + "internals", internals)
 
 
 # provide an alias for installing
-Alias("install", env['docdir'])
+Alias("install", [env['docdir'] + "api", env['docdir'] + "internals"])
 
-# What to do by default
-#Default(#)

@@ -46,4 +46,4 @@ main = Program('main.cpp',
 # What to build by default
 Default(main)
 
-Alias("doc", "doc/api")
+Alias("doc", ["doc/api", "doc/internals"])

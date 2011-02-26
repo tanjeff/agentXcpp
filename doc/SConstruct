@@ -20,21 +20,43 @@
 
 import os
 
-# Build the API documentation:
-api = Command('api',
-    'api.doxyfile',
-    "doxygen $SOURCE > /dev/null")
+
+# Build the API documentation
+
+# Note: To find out whether a rebuild is neccessary,
+#       Scons looks at the "target". If the target is
+#       a directory, things don't work, thus we use
+#       a HTML file as target
+api = Command('api/html/index.html',
+	      'api.doxyfile',
+	      "doxygen $SOURCE > /dev/null")
+
+# API doc depends on src/ directory
+# Note: although not all files in there are actually
+#       dependencies, we pretend it was so, to avoid forgotten
+#       deps
+Depends(api, Glob('../src/*'))
+
+# API doc also depends on other files
+Depends(api, Glob('*.dox'))
 
 # Scons does not remove directories when invoked with -c,
 # so we explicit request deletion of the api/ directory
 # in those cases:
 Clean(api, "api")
 
+
 # The same for the internal documentation:
-internals = Command('internals',
+
+internals = Command('internals/html/index.html',
     'internals.doxyfile',
     "doxygen $SOURCE > /dev/null")
+Depends(internals, Glob('../src/*'))
+Depends(internals, Glob('*.dox'))
 Clean(internals, "internals")
+
+
+# Provide an install target
 
 # Fetch prefix from ENV or use default:
 if os.environ.has_key('PREFIX'):

@@ -18,11 +18,14 @@
 #
 
 
-import os
+# Get the environment from the SConscript above
+Import('env')
 
 
-# Build the API documentation
 
+# API documentation
+
+# Build it
 # Note: To find out whether a rebuild is neccessary,
 #       Scons looks at the "target". If the target is
 #       a directory, things don't work, thus we use
@@ -35,7 +38,7 @@ api = Command('api/html/index.html',
 # Note: although not all files in there are actually
 #       dependencies, we pretend it was so, to avoid forgotten
 #       deps
-Depends(api, Glob('../src/*'))
+Depends(api, Glob('../src/*.cpp') + Glob('../src/*.h'))
 
 # API doc also depends on other files
 Depends(api, Glob('*.dox'))
@@ -45,26 +48,25 @@ Depends(api, Glob('*.dox'))
 # in those cases:
 Clean(api, "api")
 
+# Provide an install target
+Install(env['docdir'], api)
+
+
+
 
 # The same for the internal documentation:
 
 internals = Command('internals/html/index.html',
     'internals.doxyfile',
     "doxygen $SOURCE > /dev/null")
-Depends(internals, Glob('../src/*'))
+Depends(internals, Glob('../src/*.cpp') + Glob('../src/*.h'))
 Depends(internals, Glob('*.dox'))
 Clean(internals, "internals")
+Install(env['docdir'], internals)
 
 
-# Provide an install target
+# provide an alias for installing
+Alias("install", env['docdir'])
 
-# Fetch prefix from ENV or use default:
-if os.environ.has_key('PREFIX'):
-    prefix = os.environ['PREFIX']
-else:
-    prefix = "/usr/local"
-
-# Install API documentation
-docdir = "#" + prefix + "/share/doc/agentxcpp"
-Install(docdir, api)
-Alias("install", docdir)
+# What to do by default
+#Default(#)

@@ -17,26 +17,23 @@
 # for more details.
 #
 
-import os
+# Get the environment from the SConscript above
+Import('env')
 
 
 # Build the library:
-agentxcpp = SharedLibrary('agentxcpp', Glob('*.cpp'))
+agentxcpp = env.SharedLibrary('agentxcpp', Glob('*.cpp'))
 
-
-# Fetch prefix from ENV or use default:
-if os.environ.has_key('PREFIX'):
-    prefix = os.environ['PREFIX']
-else:
-    prefix = "/usr/local"
 
 # Install library (the "#" means: path is relative to
 # top-level build dir)
-libdir = "#" + prefix + "/lib"
-Install(libdir, agentxcpp)
-Alias("install", libdir)
+Install(env['libdir'], agentxcpp)
+Alias("install", env['libdir'])
 
 # Install headers
-includedir = "#" + prefix + "/include"
-Install(includedir, Glob('*.h'))
-Alias("install", includedir)
+Install(env['includedir'], Glob('*.h'))
+Alias("install", env['includedir'])
+
+
+# What to build by default
+Default(agentxcpp)

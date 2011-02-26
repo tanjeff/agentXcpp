@@ -17,13 +17,33 @@
 # for more details.
 #
 
-# Build library and documentation
-SConscript(['src/SConstruct',
-	    'doc/SConstruct'])
+import os
+
+
+# Define the install prefix
+
+env = DefaultEnvironment()
+
+# Add installation path's to environment
+env['prefix']     = ARGUMENTS.get('prefix', "install-root")
+if env['prefix'][0] != '/':
+    # We need a "#" to refer to /this/ dir from subsidiary SConscripts
+    env['prefix'] = "#" + env['prefix']
+env['libdir']     = env['prefix'] + ARGUMENTS.get('libdir', "/lib")
+env['docdir']     = env['prefix'] + ARGUMENTS.get('docdir', "/share/doc/agentxcpp")
+env['includedir'] = env['prefix'] + ARGUMENTS.get('includedir', "/include")
+
+# Build library and documentation, export the environment
+SConscript(['src/SConscript',
+	    'doc/SConscript'], 'env')
 
 # Build the test program
-Program('main.cpp',
-	LIBS=['agentxcpp', 'boost_system', 'pthread'],
-	LIBPATH='src/',
-	CPPPATH='src/')
+main = Program('main.cpp',
+	       LIBS=['agentxcpp', 'boost_system', 'pthread'],
+	       LIBPATH='src/',
+	       CPPPATH='src/')
 
+# What to build by default
+Default(main)
+
+Alias("doc", "doc/api")

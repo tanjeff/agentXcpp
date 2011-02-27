@@ -65,7 +65,7 @@ Depends(api, Glob('*.dox'))
 Clean(api, "api")
 
 # Provide an install target
-Install(env['docdir'] + "api", api)
+Install(env['docdir'], "api")
 
 
 
@@ -78,9 +78,9 @@ internals = Command('internals/html/index.html',
 Depends(internals, Glob('../src/*.cpp') + Glob('../src/*.h'))
 Depends(internals, Glob('*.dox'))
 Clean(internals, "internals")
-Install(env['docdir'] + "internals", internals)
+Install(env['docdir'], "internals")
 
 
 # provide an alias for installing
-Alias("install", [env['docdir'] + "api", env['docdir'] + "internals"])
+Alias("install", [env['docdir'] + "/api", env['docdir'] + "/internals"])
 

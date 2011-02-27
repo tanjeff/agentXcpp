@@ -43,7 +43,8 @@ main = Program('main.cpp',
 	       LIBPATH='src/',
 	       CPPPATH='src/')
 
-# What to build by default
-Default(main)
-
 Alias("doc", ["doc/api", "doc/internals"])
+
+# What to build by default
+Default(main,"doc")
+

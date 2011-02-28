@@ -17,24 +17,20 @@
  * for more details.
  */
 
-/*! 
+/*!
 
-\mainpage AgentXcpp internals documentation
+\page todo TODO
 
-The AgentXcpp library is intendet to implement SNMP MIB implementation. This is 
-achieved by implementing the AgentX protocol as defined in RFC 2741. The main 
-goals of the library are:
+Essential TODOs:
+-# Add a build system
+-# Provide session management (i.e. a Session class)
+-# Provide possibility to register SNMP variables
+-# Provide GET functionality
+-# Provide SET functionality
+-# Provide NOTIFY (a.k.a. Trap) functionality
+-# Provide support for tables
 
-  - Compliance to RFC 2741
-  - Provide a clean, easy to use API
-  - Provide full documentation of the API
-  - Ensure stable operation
-
-Table of contents
-- \subpage license
-- \subpage documentation
-- \subpage buildsystem
-- \subpage parsing
-- \subpage todo
+Further TODOs:
+- Add unit tests
 
 */

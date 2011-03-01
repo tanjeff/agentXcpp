@@ -46,7 +46,7 @@ To install the library:
   place.
 
 To clean the project directory:
-- type \code scons -c \endcode.
+- type \c scons \c -c \c.
 
 
 \section furtherinformation Further Information
@@ -105,9 +105,9 @@ directories:
 - includedir: where the headers are installed
 - docdir: where the API documentation is installed
 These variables are exported to the subsidiary \c SConscript files. The prefix 
-variable can be set on the command line by adding \code prefix=/preferred/path 
-\endcode the the scons command. The \c SConstruct file also builds the test 
-program, named \c main and invokes the subsidiary \c SConscripts.
+variable can be set on the command line by adding \c prefix=/preferred/path the 
+the scons command. The \c SConstruct file also builds the test program, named 
+\c main and invokes the subsidiary \c SConscripts.
 
 The \c SConscript in src/ builds the library and provides the install target 
 for it.

@@ -23,20 +23,98 @@
 
 \page buildsystem The Build System
 
-Currently, no advanced build system is used for AgentXcpp. Instead, simple 
-Makefiles are used.
 
-The <tt>src/</tt> directory contains a Makefile which compiles each 
-<tt>*.cpp</tt> file into a <tt>*.o</tt> object and finally links all objects 
-into an archive.
+\section quickstart Quick start
 
-The doc/ directory contains a Makefile to build the documentations.
+\note The build system of agentXcpp is not configured perfectly at the
+      moment. However, it should basically work at the moment.
 
-The top level directory contains a Makefile providing the targets 
-<tt>documentation</tt> (build the documentations), <tt>library</tt> (build the 
-library) and <tt>main</tt> (build the hakish test program <tt>main.cpp</tt>).  
-The default target builds the library and the main program.
+Prerequisites:
+- build environment (compiler, linker, etc.)
+- doxygen to build the documentation
+- Scons to control the build process
+- the boost libraries
 
-All Makefiles also support the <tt>clean</tt> target.
+To build agentXcpp:
+- \c cd into the source directory and invoke \c scons. You may add the 
+  \c -j2 switch to parallelize the build. The documentation is build also 
+  and can be found in \c doc/api/ and \c doc/internals/.
+
+To install the library:
+- type \c scons \c install. This will install everything into \c install-root/.  
+  Use \c scons install prefix=/usr/local or the like to install it to another 
+  place.
+
+To clean the project directory:
+- type \c scons \c -c \c.
+
+
+\section furtherinformation Further Information
+
+\subsection whyscons Why Scons?
+
+AgentXcpp is intendet to run on many systems, server systems as well as mobile 
+devices or embedded industry applications. It's up to the user to decide where 
+agentX support is needed.
+
+Building a software in a reasonably portable way is not easy to do. The build 
+system has to deal with different compilers, libraries installed at different 
+locations, and so on. There are several build systems which could be used, with 
+autotools being the most popular. So why did I choose scons?
+
+First of all, I dislike the autotools system for its complexity. Building a 
+simple "hello world" program requires at least 2 files to be written 
+(configure.ac and Makefile.am) and at least 4 tools to be invoked (automake, 
+autoconf, configure, make). The overall design of the systems seems to be 
+overcomplicated. Autotools were for sure an important milestone and a very good 
+tool to work with, and I thank the GNU team for providing it. But this is true 
+for CVS as well (except that CVS is not a GNU software), and many people use 
+git, mercurial or bazaar now, because these are simply better.  I suppose that 
+nowadays there are also better tools available than autoconf.
+
+So I first tried the boost.build system. To build a shared library, only one 
+file (Jamroot) and one tool invokation (bjam) is needed. Unfortunately I failed 
+when it came to doxygen.  Boost.build doesn't know about doxygen, and I was not 
+able to at least tell it how to invoke doxygen. The documentation is badly 
+written and the used programming language (Jam) is unintuitive (although 
+boost.built is currently rewritten in python, as far as I know).  Therefore I 
+gave up using boost.build.
+
+Finally, I started using Scons, which is well documented. Further, it is 
+written in python, and the SConscripts (the Makefile-equivalent of scons) are 
+in fact python scripts also. Building a shared library is as easy as in the 
+boost.build system, and additionally I managed it to invoke doxygen to build 
+the documentation, including dependency checking and I provide an install 
+target.  Scons basically works for me now, and the documentation suggests that 
+a lot more could be done with it. So I will stick to Scons for the time being 
+and not evaluate further build systems.
+
+
+\subsection howitworks How Scons works in agentXcpp
+
+Scons is written in python and controlled via the \c SConstruct and \c 
+SConscript files.  These files are in fact python scripts which call certain 
+Scons functions.  These Scon functions then build agentXcpp. The root directory 
+contains a \c SConstruct file, and each subdirectory has a \c SConscript file 
+to control the build process inside that directory. This a has the side effect 
+that scons only works when invoked in the root directory.
+
+The top-level \c SConstruct file defines the install prefix and the followinf 
+directories:
+- libdir: where the library is installed
+- includedir: where the headers are installed
+- docdir: where the API documentation is installed
+These variables are exported to the subsidiary \c SConscript files. The prefix 
+variable can be set on the command line by adding \c prefix=/preferred/path the 
+the scons command. The \c SConstruct file also builds the test program, named 
+\c main and invokes the subsidiary \c SConscripts.
+
+The \c SConscript in src/ builds the library and provides the install target 
+for it.
+
+The \c SConscript in doc/ builds the doxygen documentations (API and 
+internals). This \c SConscript is hackish, as scons doesn't know about doxygen 
+and it is not easy to get the dependencies and install targets right. But 
+seemingly it works for the time being.
 
 */

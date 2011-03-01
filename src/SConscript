@@ -17,34 +17,23 @@
 # for more details.
 #
 
-OBJS=oid.o \
-     Octet_String.o \
-     Integer.o \
-     varbind.o \
-     Counter32.o \
-     Counter64.o \
-     Gauge32.o \
-     TimeTicks.o \
-     Opaque.o \
-     IpAddress.o \
-     PDU.o \
-     OpenPDU.o \
-     ClosePDU.o \
-     RegisterPDU.o \
-     session.o
-
-CXXFLAGS=-g -O0
-
-agentxcpp.a: $(OBJS)
-	$(AR) -r $@ $(OBJS)
-
-%.o : %.cpp %.h
-	$(CXX) $< -o $@ -c $(CXXFLAGS)
+# Get the environment from the SConscript above
+Import('env')
 
 
+# Build the library:
+agentxcpp = env.SharedLibrary('agentxcpp', Glob('*.cpp'))
 
-. PHONY: clean
 
-clean:
-	rm -f $(OBJS)
-	rm -f agentxcpp.a
+# Install library (the "#" means: path is relative to
+# top-level build dir)
+Install(env['libdir'], agentxcpp)
+Alias("install", env['libdir'])
+
+# Install headers
+Install(env['includedir'], Glob('*.h'))
+Alias("install", env['includedir'])
+
+
+# What to build by default
+Default(agentxcpp)

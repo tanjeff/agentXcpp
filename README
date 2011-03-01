@@ -1,3 +1,31 @@
+About this README
+-----------------
+
+This README gives a short overview of the agentXcpp project, introduces the 
+repository's directory structure and describes how to build the documentation.  
+Further information can then be found in the documentation.
+
+
+About agentXcpp
+---------------
+
+AgentXcpp is a C++ implementation of the AgentX protocol (RFC 2741).
+
+The AgentX protocol is used to implement SNMP MIBs as subagents, which are 
+separate processes connecting to a master agent, which in turn provides a SNMP 
+interface to the outside world.
+
+
+Status of the project
+---------------------
+
+This software is currently NOT USABLE.
+
+It is work in progress.  Unfortunately, the author has little time to work on 
+the software. It is expected that basic functionality is available by end of 
+2011.
+
+
 License
 -------
 
@@ -19,45 +47,22 @@ See the AgentXcpp library license in the LICENSE file of this package
 for more details.
 
 
-About
------
-
-AgentXcpp is a C++ implementation of the AgentX protocol (RFC 2741).
-
-The AgentX protocol is used to implement SNMP MIBs as subagents, which are 
-separate processes connecting to a master agent, which in turn provides a SNMP 
-interface to the outside world. Thus, agentXcpp is used to implement a SNMP 
-MIB.
-
-This README introduces the directory structure and describes how to build the 
-documentation. Further information can be found in the documentation.
-
-
-Status
-------
-
-THIS SOFTWARE IS CURRENTLY NOT USABLE.
-
-It is work in progress.  Unfortunately, the author has little time to work on 
-the software. It is expected that basic functionality is available by end of 
-2011.
-
-
 Directory Structure
 -------------------
 
 The top level directory contains the following elements:
 
-doc/ This directory contains the documentation. Note that the documentation is 
-     created using Doxygen and most of it is contained in the source code.  The 
-     doc/ directory contains the doxygen configs, some additional documentation 
-     files (*.dox) and a SConscript to build the documentation.
+doc/ This directory contains the documentation. The documentation is created
+     using Doxygen and most of the content is contained in the source code.  
+     The doc/ directory contains the doxygen configs, some additional 
+     documentation files (*.dox) and a SConscript to build the documentation.
 
-src/ This directory contains the source code of the library.
+src/ This directory contains the source code of the library and a SConscript to
+     build it.
 
 main.cpp This is very hackish test code, just to try out parts of the library.  
 	 It is not meant to be part of the library and serves as development 
-	 aid only. Hopefully it will be replaced by a test suite.
+	 aid only. Hopefully it will be replaced by a test suite some day.
 
 SConstruct This file provides the possibility to build the library and the
 	   documentation.
@@ -72,7 +77,7 @@ Documentation
 There are two types of HTML documentation. The API documentation describes the 
 AgentXcpp API and is intended for the user of the library. The internals 
 documentation is the complete reference of the library, describing all 
-internals, including other things such as the build system.
+internals, including things such as the build system.
 
 To build the documentation, cd to the top level directory (the one containing 
 this README) and type
@@ -80,16 +85,18 @@ this README) and type
     scons
 
 This builds the library as well as both documentations. You need Scons to be 
-installed, though. To build the documentation without using scons, cd into den 
-doc/ direcory and type either
+installed, though. To build the documentation without using scons, cd into the
+doc/ direcory and type
 
     doxygen api.doxyfile
 
-or
+respectively
     
     doxygen internals.doxyfile
 
 After buidling, the documentation can be displayed by pointing a web browser to 
 doc/api/html/index.html respectively doc/internals/html/index.html.
+
+
 
 Happy hacking :-)

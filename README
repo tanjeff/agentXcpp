@@ -57,18 +57,15 @@ doc/ This directory contains the documentation. The documentation is created
      The doc/ directory contains the doxygen configs, some additional 
      documentation files (*.dox) and a SConscript to build the documentation.
 
+doc/rfc2741_AgentX.txt The RFC describing the AgentX protocol. This is the 
+                       reference for the AgentXcpp implementation.
+
 src/ This directory contains the source code of the library and a SConscript to
      build it.
 
-main.cpp This is very hackish test code, just to try out parts of the library.  
-	 It is not meant to be part of the library and serves as development 
-	 aid only. Hopefully it will be replaced by a test suite some day.
-
-SConstruct This file provides the possibility to build the library and the
-	   documentation.
-
-rfc2741_AgentX.txt The RFC describing the AgentX protocol. This is the 
-		   reference for the AgentXcpp implementation.
+examples/ This is very hackish test code, just to try out parts of the library.
+	      It is not meant to be part of the library and serves as development 
+          aid only. Hopefully it will be replaced by a test suite some day.
 
 
 Documentation
@@ -82,7 +79,7 @@ internals, including things such as the build system.
 To build the documentation, cd to the top level directory (the one containing 
 this README) and type
     
-    scons
+    make doc
 
 This builds the library as well as both documentations. You need Scons to be 
 installed, though. To build the documentation without using scons, cd into the

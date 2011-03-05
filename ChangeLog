@@ -1,0 +1,4 @@
+0.1-alpha-dev:
+    - Added autotools build environment
+
+-- Christian Fromme <kaner@strace.org> Sat Mar  5 00:02:13 CET 2011

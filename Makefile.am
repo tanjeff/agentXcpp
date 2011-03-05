@@ -1,6 +1,6 @@
 # Simple top level Makefile
 
-SUBDIRS = src doc 
+SUBDIRS = src doc examples
 
 EXTRA_DIST = README GPLv3 LICENSE ChangeLog
 

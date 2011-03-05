@@ -19,15 +19,15 @@
 
 #include <iostream>
 #include <fstream>
-#include "agentXcpp/oid.h"
-#include "agentXcpp/Integer.h"
-#include "agentXcpp/Octet_String.h"
-#include "agentXcpp/varbind.h"
-#include "agentXcpp/Counter32.h"
-#include "agentXcpp/Counter64.h"
-#include "agentXcpp/Gauge32.h"
-#include "agentXcpp/session.h"
-#include "agentXcpp/OpenPDU.h"
+#include "oid.h"
+#include "Integer.h"
+#include "Octet_String.h"
+#include "varbind.h"
+#include "Counter32.h"
+#include "Counter64.h"
+#include "Gauge32.h"
+#include "session.h"
+#include "OpenPDU.h"
 
 using namespace agentx;
 using namespace std;

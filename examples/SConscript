@@ -17,16 +17,8 @@
 # for more details.
 #
 
-.PHONY: api-doc internals-doc clean all
-
-all: api-doc internals-doc
-
-api-doc:
-	doxygen api.doxyfile
-
-internals-doc:
-	doxygen internals.doxyfile
-
-clean:
-	rm -fr api
-	rm -fr internals
+# Build the test program
+main = Program('main.cpp',
+	       LIBS=['agentxcpp', 'boost_system', 'pthread'],
+	       LIBPATH='../src/',
+	       CPPPATH='../src/')

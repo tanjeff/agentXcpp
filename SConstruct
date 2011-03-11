@@ -33,18 +33,14 @@ env['libdir']     = env['prefix'] + ARGUMENTS.get('libdir', "/lib")
 env['docdir']     = env['prefix'] + ARGUMENTS.get('docdir', "/share/doc/agentxcpp")
 env['includedir'] = env['prefix'] + ARGUMENTS.get('includedir', "/include")
 
-# Build library and documentation, export the environment
+# Build library, documentation and examples, export the environment
 SConscript(['src/SConscript',
-	    'doc/SConscript'], 'env')
+	    'doc/SConscript',
+	    'examples/SConscript'], 'env')
 
-# Build the test program
-main = Program('main.cpp',
-	       LIBS=['agentxcpp', 'boost_system', 'pthread'],
-	       LIBPATH='src/',
-	       CPPPATH='src/')
 
 Alias("doc", ["doc/api", "doc/internals"])
 
 # What to build by default
-Default(main,"doc")
+Default("examples/main", "doc")
 

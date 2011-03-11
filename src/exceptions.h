@@ -29,4 +29,9 @@ class inval_param { };
 // Received PDU with wrong AgentX protocol version
 class version_mismatch { };
 
+/**
+ * \brief Exception to indicate a disconnected state
+ */
+class disconnected { };
+
 #endif

@@ -26,6 +26,7 @@
 using namespace std;
 
 using namespace agentx;
+using namespace boost;
 
 session::session(std::string filename)
 : socket(io_service),
@@ -33,21 +34,44 @@ session::session(std::string filename)
 {
     cout << filename << endl;
 
+    connect();
+
+}
+
+void session::connect()
+{
     // Connect to endpoint
     socket.connect(endpoint);
     
     // Send OpenPDU
     OpenPDU openpdu;
     data_t buf = openpdu.serialize();
-    socket.send(boost::asio::buffer(buf.c_str(), buf.size()));
+    socket.send(asio::buffer(buf.c_str(), buf.size()));
 
-    // Get response
+    // Wait for response
     PDU* response = PDU::get_pdu(socket);
 
     // Get sessionID
     sessionID = response->get_sessionID();
 
+    // We are now connected
+    connected = true;
+
     cout << "received sessionID " << sessionID << endl;
+}
+
+void session::disconnect()
+{
+    // Send ClosePDU
+    ClosePDU pdu(sessionID, ClosePDU::reasonShutdown);
+    data_t buf = pdu.serialize();
+    socket.send(asio::buffer(buf.c_str(), buf.size()));
+
+    // Close socket
+    socket.close();
+
+    // We are now disconnected
+    connected = false;
 }
 
 session::~session()
@@ -56,6 +80,6 @@ session::~session()
     
     ClosePDU pdu(sessionID, ClosePDU::reasonShutdown);
     data_t buf = pdu.serialize();
-    socket.send(boost::asio::buffer(buf.c_str(), buf.size()));
+    socket.send(asio::buffer(buf.c_str(), buf.size()));
     socket.close();
 }

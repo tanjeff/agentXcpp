@@ -52,6 +52,8 @@ namespace agentx
 	     */
 	    Octet_String(data_t initial_value) : value(initial_value) {}
 
+	    Octet_String(std::string initial_value);
+
 	    /**
 	     * \brief FIXME
 	     */

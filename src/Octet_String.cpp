@@ -23,6 +23,26 @@
 
 using namespace agentx;
 
+Octet_String::Octet_String(std::string v)
+{
+    // Here we convert initial value to a data_t string. We do this in three 
+    // steps:
+    // 1. get the bare data: v.data()
+    // 2. cast the data to the value type of data_t (i.e. byte_t)
+    // 3. calculate the size of the data
+    //    - v.size() gives us the number of characters
+    //    - sizeof(std::string::value_type) gives us the size of an character
+    // 4. Assign v to value, giving it the bare data and its size
+    //
+    // This seems to be goofy, but it ensures that our code works even on a 
+    // machine where a char is not 8 bit wide, i.e. when char has another size 
+    // than byte_t.
+    value.assign(
+	    reinterpret_cast<const data_t::value_type*>( v.data() ),
+	    v.size() * sizeof( std::string::value_type )
+	        );
+}
+
 data_t Octet_String::serialize()
 {
     data_t serialized;

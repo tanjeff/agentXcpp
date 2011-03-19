@@ -5,3 +5,4 @@
   e.g. with leading underscore. Apply it consistently.
 - Check for each (!) function whether all exceptions are catched or documented
   (e.g. exceptions coming from STL, even if they are unlikely)
+- Rename namespace agentx to agentxcpp

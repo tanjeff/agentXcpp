@@ -46,7 +46,7 @@ To install the library:
   place.
 
 To clean the project directory:
-- type \c scons \c -c \c.
+- type \c scons \c -c \c .
 
 
 \section furtherinformation Further Information

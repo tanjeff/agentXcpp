@@ -72,7 +72,7 @@ namespace agentxcpp
 	     * If the type of the variable cannot be determined, inval_param is 
 	     * thrown.
 	     */
-	    varbind(oid*, variable* v) throw(inval_param);
+	    varbind(oid*, variable* v);
 	    
 	    /**
 	     * \brief These values can be used to create a VarBind.
@@ -91,7 +91,7 @@ namespace agentxcpp
 	     * Only the constants defined by varbind::type_t are allowed.  A 
 	     * wrong type will cause an inval_param exception.
 	     */
-	    varbind(oid*, type_t) throw(inval_param);
+	    varbind(oid*, type_t);
 
 	    /**
 	     * \internal
@@ -111,7 +111,7 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    varbind(data_t::const_iterator& pos, bool big_endian=true) throw(parse_error);
+	    varbind(data_t::const_iterator& pos, bool big_endian=true);
 
 	    /**
 	     * \internal

@@ -66,7 +66,7 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Opaque(data_t::const_iterator& pos, bool big_endian=true) throw(parse_error);
+	    Opaque(data_t::const_iterator& pos, bool big_endian=true);
 
 	    Opaque(data_t initial_value) : value(initial_value) {}
 

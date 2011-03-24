@@ -26,6 +26,9 @@
 
 namespace agentxcpp
 {
+    /**
+     * \brief This class represents a Close-PDU.
+     */
     class ClosePDU : public PDU
     {
 	public:
@@ -62,7 +65,7 @@ namespace agentxcpp
 	     */
 	    ClosePDU(uint32_t sessionID,
 		     reason_t reason,
-		     Octet_String* context=0) throw(inval_param);
+		     Octet_String* context=0);
 
 	    /**
 	     * \brief Get the reason
@@ -85,7 +88,7 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    ClosePDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error);
+	    ClosePDU(data_t::const_iterator& pos, bool big_endian);
 
 
 	    /**

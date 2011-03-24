@@ -46,7 +46,9 @@ typedef unsigned char byte_t; // for machines where unsigned char has 8bits
  */
 typedef std::basic_istream<byte_t> input_stream;
 
-// A type representing a contigous byte stream
+/**
+ * \brief A type representing a contigous byte stream
+ */
 class data_t : public std::basic_string<byte_t> { };
 
 inline std::ostream& operator<<(std::ostream& out, const data_t& stream)

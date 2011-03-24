@@ -139,7 +139,7 @@ namespace agentxcpp
 	 * \param big_endian Whether the input stream is in big endian
 	 *                   format
 	 */
-	oid(data_t::const_iterator& pos, bool big_endian=true) throw(parse_error);
+	oid(data_t::const_iterator& pos, bool big_endian=true);
 
 	/**
 	 * \brief The less-than operator

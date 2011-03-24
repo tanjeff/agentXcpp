@@ -55,7 +55,7 @@ enum type_t
 
 
 
-PDU::PDU(Octet_String* _context) throw()
+PDU::PDU(Octet_String* _context)
 {
     packetID = ++packetID_cnt;
     context = _context;
@@ -69,7 +69,7 @@ PDU::PDU(Octet_String* _context) throw()
 
 }
 
-PDU::PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
+PDU::PDU(data_t::const_iterator& pos, bool big_endian)
 {
     // skip protocol version (already checked by get_pdu()) and
     // type field (not needed here)
@@ -108,7 +108,7 @@ PDU::PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
 }
 
 
-PDU* PDU::get_pdu(boost::asio::local::stream_protocol::socket& in) throw(parse_error, version_mismatch)
+PDU* PDU::get_pdu(boost::asio::local::stream_protocol::socket& in)
 {
     data_t buf;	// serialized form of the PDU
     data_t::const_iterator pos;	// needed for parsing

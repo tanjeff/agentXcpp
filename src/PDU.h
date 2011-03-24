@@ -127,7 +127,7 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    PDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error);
+	    PDU(data_t::const_iterator& pos, bool big_endian);
 
 	    /**
 	     * \brief Construct the PDU header and add it to the payload
@@ -162,7 +162,7 @@ namespace agentxcpp
 	     * 
 	     * \param context The PDU context
 	     */
-	    PDU(Octet_String* context=0) throw();
+	    PDU(Octet_String* context=0);
 
 	public:
 	    /**
@@ -224,10 +224,9 @@ namespace agentxcpp
 	     *	       delete the object if it is not longer needed.
 	     */
 	    /*
-	    static PDU* get_pdu(input_stream& in) throw(parse_error, version_mismatch);
+	    static PDU* get_pdu(input_stream& in);
 	    */
-	    static PDU* get_pdu(boost::asio::local::stream_protocol::socket& in)
-		throw(parse_error, version_mismatch);
+	    static PDU* get_pdu(boost::asio::local::stream_protocol::socket& in);
 
     };
 }

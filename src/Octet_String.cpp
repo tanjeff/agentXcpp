@@ -69,7 +69,7 @@ data_t Octet_String::serialize()
 }
 
 
-Octet_String::Octet_String(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
+Octet_String::Octet_String(data_t::const_iterator& pos, bool big_endian)
 {
     uint32_t size;
 

@@ -25,6 +25,9 @@
 
 namespace agentxcpp
 {
+    /**
+     * \brief This class represents a Register-PDU.
+     */
     class RegisterPDU : public PDU
     {
 	private:
@@ -51,7 +54,7 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    RegisterPDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error);
+	    RegisterPDU(data_t::const_iterator& pos, bool big_endian);
 	    
 	    /**
 	     * \brief Serialize the %PDU

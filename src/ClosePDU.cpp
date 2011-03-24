@@ -23,7 +23,7 @@ using namespace agentxcpp;
 
 ClosePDU::ClosePDU(uint32_t _sessionID,
 		   reason_t _reason,
-		   Octet_String* context) throw(inval_param)
+		   Octet_String* context)
 : PDU(context)
 
 {
@@ -41,7 +41,7 @@ ClosePDU::ClosePDU(uint32_t _sessionID,
 }
 
 
-ClosePDU::ClosePDU(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
+ClosePDU::ClosePDU(data_t::const_iterator& pos, bool big_endian)
     : PDU(pos, big_endian)
 {
     // header is parsed by base class constructor

@@ -39,7 +39,7 @@ data_t Counter64::serialize()
 }
 
 
-Counter64::Counter64(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
+Counter64::Counter64(data_t::const_iterator& pos, bool big_endian)
 {
     uint32_t size;
 

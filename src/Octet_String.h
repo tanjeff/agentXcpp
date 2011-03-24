@@ -77,7 +77,7 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Octet_String(data_t::const_iterator& pos, bool big_endian=true) throw(parse_error);
+	    Octet_String(data_t::const_iterator& pos, bool big_endian=true);
 
 	    /**
 	     * \brief Set the current value

@@ -46,7 +46,7 @@ data_t Opaque::serialize()
 }
 
 
-Opaque::Opaque(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
+Opaque::Opaque(data_t::const_iterator& pos, bool big_endian)
 {
     uint32_t size;
 

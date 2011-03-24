@@ -23,7 +23,7 @@ using namespace agentxcpp;
 
 RegisterPDU::RegisterPDU(
 	data_t::const_iterator& pos,
-	bool big_endian) throw(parse_error)
+	bool big_endian)
     :PDU(pos, big_endian)   // parse header
 {
     timeout = read32(pos, big_endian);

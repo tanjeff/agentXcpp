@@ -1,4 +1,3 @@
-- Remove throw specifications, as they are useless
 - Clean up serializing/deserializing:
   Implementation works, but is somewhat ugly.
 - Introduce naming scheme for (private) member variables of classes,

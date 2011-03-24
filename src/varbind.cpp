@@ -51,7 +51,7 @@ data_t varbind::serialize()
 }
 
 
-varbind::varbind(oid* o, variable* v) throw(inval_param)
+varbind::varbind(oid* o, variable* v)
 {
     name = o;
     var = v;
@@ -74,7 +74,7 @@ varbind::varbind(oid* o, variable* v) throw(inval_param)
 }
 
 
-varbind::varbind(oid* o, type_t t) throw(inval_param)
+varbind::varbind(oid* o, type_t t)
 {
     name = o;
 
@@ -94,7 +94,7 @@ varbind::varbind(oid* o, type_t t) throw(inval_param)
     }
 }
 
-varbind::varbind(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
+varbind::varbind(data_t::const_iterator& pos, bool big_endian)
 {
     uint16_t type;
     

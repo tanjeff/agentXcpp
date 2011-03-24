@@ -35,7 +35,7 @@ data_t Gauge32::serialize()
 }
 
 
-Gauge32::Gauge32(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
+Gauge32::Gauge32(data_t::const_iterator& pos, bool big_endian)
 {
     uint32_t size;
 

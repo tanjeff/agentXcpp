@@ -53,7 +53,7 @@ data_t IpAddress::serialize()
 }
 
 
-IpAddress::IpAddress(data_t::const_iterator& pos, bool big_endian) throw(parse_error)
+IpAddress::IpAddress(data_t::const_iterator& pos, bool big_endian)
 {
     uint32_t size;
 

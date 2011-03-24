@@ -72,7 +72,7 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Integer(data_t::const_iterator& pos, bool big_endian=true) throw(parse_error);
+	    Integer(data_t::const_iterator& pos, bool big_endian=true);
     };
 }
 

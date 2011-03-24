@@ -24,7 +24,7 @@
 #include "types.h"
 #include "PDU.h"
 
-namespace agentx
+namespace agentxcpp
 {
     class ClosePDU : public PDU
     {

@@ -19,7 +19,7 @@
 
 #include "Integer.h"
 
-using namespace agentx;
+using namespace agentxcpp;
 
 data_t Integer::serialize()
 {

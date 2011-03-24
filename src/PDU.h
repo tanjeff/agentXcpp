@@ -25,7 +25,7 @@
 #include "Octet_String.h"
 #include <boost/asio.hpp>
 
-namespace agentx
+namespace agentxcpp
 {
     /**
      * \internal

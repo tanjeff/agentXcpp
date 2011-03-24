@@ -24,7 +24,7 @@
 #include "variable.h"
 #include "exceptions.h"
 
-namespace agentx
+namespace agentxcpp
 {
     /**
      * \brief Represents an Integer as descibed in RFC 2741

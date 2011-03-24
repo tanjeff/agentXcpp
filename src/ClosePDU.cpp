@@ -19,7 +19,7 @@
 
 #include "ClosePDU.h"
 
-using namespace agentx;
+using namespace agentxcpp;
 
 ClosePDU::ClosePDU(uint32_t _sessionID,
 		   reason_t _reason,

@@ -26,7 +26,7 @@
 #include "oid.h"
 #include "ClosePDU.h"
 
-namespace agentx
+namespace agentxcpp
 {
     /**
      * \brief This class represents the subagent side of an agentX session.

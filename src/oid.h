@@ -27,7 +27,7 @@
 #include "types.h"
 #include "exceptions.h"
 
-namespace agentx
+namespace agentxcpp
 {
     /**
      * \brief Represents an SNMP object identifier (OID)
@@ -199,7 +199,7 @@ namespace agentx
 	    return o < *this;
 	}
     
-	friend std::ostream& operator<<(std::ostream&, const agentx::oid&);
+	friend std::ostream& operator<<(std::ostream&, const agentxcpp::oid&);
 
     };
     
@@ -215,7 +215,7 @@ namespace agentx
      *
      * The last line will output "LED state OID: 1.3.6.1".
      */
-    std::ostream& operator<<(std::ostream&, const agentx::oid&);
+    std::ostream& operator<<(std::ostream&, const agentxcpp::oid&);
 
 }
 

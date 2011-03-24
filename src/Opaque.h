@@ -23,7 +23,7 @@
 #include "variable.h"
 #include "exceptions.h"
 
-namespace agentx
+namespace agentxcpp
 {
     /**
      * \brief Represents an Opaque obejct as descibed in RFC 2741, section 

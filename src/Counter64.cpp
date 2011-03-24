@@ -19,7 +19,7 @@
 
 #include "Counter64.h"
 
-using namespace agentx;
+using namespace agentxcpp;
 
 data_t Counter64::serialize()
 {

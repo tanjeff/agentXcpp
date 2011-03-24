@@ -23,7 +23,7 @@
 #include "oid.h"
 #include "PDU.h"
 
-namespace agentx
+namespace agentxcpp
 {
     class RegisterPDU : public PDU
     {

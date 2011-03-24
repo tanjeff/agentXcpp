@@ -24,7 +24,7 @@
 #include "variable.h"
 #include "exceptions.h"
 
-namespace agentx
+namespace agentxcpp
 {
     /**
      * \brief Represents an Octet String as descibed in RFC 2741, section 5.3

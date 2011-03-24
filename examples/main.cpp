@@ -29,7 +29,7 @@
 #include "session.h"
 #include "OpenPDU.h"
 
-using namespace agentx;
+using namespace agentxcpp;
 using namespace std;
 
 
@@ -376,8 +376,8 @@ int main()
 
 
     //cout << __FILE__ << ": Line " << __LINE__ << endl;
-    //agentx::agent subagent("socket_test/echo_socket");
-    agentx::session subagent("/var/agentx/master");
+    //agentxcpp::agent subagent("socket_test/echo_socket");
+    agentxcpp::session subagent("/var/agentx/master");
 
 
 

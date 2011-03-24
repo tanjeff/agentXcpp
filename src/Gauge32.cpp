@@ -19,7 +19,7 @@
 
 #include "Gauge32.h"
 
-using namespace agentx;
+using namespace agentxcpp;
 
 data_t Gauge32::serialize()
 {

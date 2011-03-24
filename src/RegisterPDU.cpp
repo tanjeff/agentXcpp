@@ -19,7 +19,7 @@
 #include "RegisterPDU.h"
 #include "helper.h"
 
-using namespace agentx;
+using namespace agentxcpp;
 
 RegisterPDU::RegisterPDU(
 	data_t::const_iterator& pos,

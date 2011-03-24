@@ -19,7 +19,7 @@
 
 #include <iostream>
 #include "oid.h"
-using namespace agentx;
+using namespace agentxcpp;
 
 
 oid::oid(int c1, int c2, int c3, int c4, int c5, int c6,
@@ -60,7 +60,7 @@ oid& oid::operator,(int component)
 
 
 
-std::ostream& agentx::operator<<(std::ostream& out, const oid& o)
+std::ostream& agentxcpp::operator<<(std::ostream& out, const oid& o)
 {
     if(o.identifier.size() == 0)
     {

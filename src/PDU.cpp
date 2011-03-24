@@ -22,7 +22,7 @@
 #include "RegisterPDU.h"
 #include "helper.h"
 
-using namespace agentx;
+using namespace agentxcpp;
 
 
 uint32_t PDU::packetID_cnt = 0;

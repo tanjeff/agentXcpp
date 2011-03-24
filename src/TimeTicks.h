@@ -23,7 +23,7 @@
 #include "variable.h"
 #include "exceptions.h"
 
-namespace agentx
+namespace agentxcpp
 {
     /**
      * \brief Represents an TimeTicks as descibed in RFC 2741

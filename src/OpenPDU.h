@@ -23,7 +23,7 @@
 #include "oid.h"
 #include "Octet_String.h"
 
-namespace agentx
+namespace agentxcpp
 {
     /**
      * \internal

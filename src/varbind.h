@@ -25,7 +25,7 @@
 #include "oid.h"
 #include "variable.h"
 
-namespace agentx
+namespace agentxcpp
 {
     /**
      * \brief Represents a VarBind according to RFC 2741, section 5.4.

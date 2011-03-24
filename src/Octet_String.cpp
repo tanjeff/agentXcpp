@@ -21,7 +21,7 @@
 
 #include "Octet_String.h"
 
-using namespace agentx;
+using namespace agentxcpp;
 
 Octet_String::Octet_String(std::string v)
 {

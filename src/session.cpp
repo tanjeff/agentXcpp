@@ -25,7 +25,7 @@
 #include <iostream>
 using namespace std;
 
-using namespace agentx;
+using namespace agentxcpp;
 using namespace boost;
 
 

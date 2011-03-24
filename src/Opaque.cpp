@@ -19,7 +19,7 @@
 
 #include "Opaque.h"
 
-using namespace agentx;
+using namespace agentxcpp;
 
 data_t Opaque::serialize()
 {

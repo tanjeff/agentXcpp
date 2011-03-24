@@ -28,25 +28,34 @@ using namespace std;
 using namespace agentx;
 using namespace boost;
 
-session::session(std::string filename)
-: socket(io_service),
-    endpoint(filename.c_str())
+
+    
+session::session(std::string descr, byte_t timeout, oid _id, std::string filename) :
+    socket(io_service),
+    endpoint(filename.c_str()),
+    description(descr),
+    default_timeout(timeout),
+    id(_id)
 {
-    cout << filename << endl;
-
     connect();
-
 }
+
 
 void session::connect()
 {
+    if(connected)
+    {
+	// we are already connected -> nothing to do
+	return;
+    }
+
     // Connect to endpoint
     socket.connect(endpoint);
     
     // Send OpenPDU
-    OpenPDU openpdu;
+    OpenPDU openpdu = OpenPDU(Octet_String(), default_timeout, id);
     data_t buf = openpdu.serialize();
-    socket.send(asio::buffer(buf.c_str(), buf.size()));
+    socket.send(asio::buffer(buf.data(), buf.size()));
 
     // Wait for response
     PDU* response = PDU::get_pdu(socket);
@@ -60,12 +69,21 @@ void session::connect()
     cout << "received sessionID " << sessionID << endl;
 }
 
-void session::disconnect()
+void session::disconnect(ClosePDU::reason_t reason)
 {
+    if( !connected )
+    {
+	// we are already disconnected -> nothing to do
+	return;
+    }
+
     // Send ClosePDU
-    ClosePDU pdu(sessionID, ClosePDU::reasonShutdown);
+    ClosePDU pdu(sessionID, reason);
     data_t buf = pdu.serialize();
     socket.send(asio::buffer(buf.c_str(), buf.size()));
+
+    // Wait for response
+    PDU* response = PDU::get_pdu(socket);
 
     // Close socket
     socket.close();
@@ -78,8 +96,5 @@ session::~session()
 {
     cout << "session::~session(): sending ClosePDU" << endl;
     
-    ClosePDU pdu(sessionID, ClosePDU::reasonShutdown);
-    data_t buf = pdu.serialize();
-    socket.send(asio::buffer(buf.c_str(), buf.size()));
-    socket.close();
+    disconnect(ClosePDU::reasonShutdown);
 }

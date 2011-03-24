@@ -20,13 +20,20 @@
 #ifndef __EXCEPTIONS_H__
 #define __EXCEPTIONS_H__
 
-// Exception for parse errors
+/**
+ * \brief Exception for parse errors
+ */
 class parse_error { };
 
-// Invalid parameter.
+/**
+ * \brief Exception for invalid parameter.
+ */
 class inval_param { };
 
-// Received PDU with wrong AgentX protocol version
+/**
+ * \brief Exception is thrown if the master has sent a data packet with a wrong
+ *        AgentX protocol version
+ */
 class version_mismatch { };
 
 /**

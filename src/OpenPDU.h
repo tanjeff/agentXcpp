@@ -72,10 +72,46 @@ namespace agentxcpp
 	     *
 	     * \param ID An Object Identifier that identifies the subagent.
 	     *           Default is an emtpy OID.
+	     *
+	     * \param context The context of the PDU.
 	     */
 	    OpenPDU(Octet_String description=Octet_String(),
 		    byte_t timeout=0,
-		    oid ID=oid());
+		    oid ID=oid(),
+		    Octet_String* context=0);
+
+	    /**
+	     * \brief Get timeout
+	     */
+	    byte_t get_timeout()
+	    {
+		return this->timeout;
+	    }
+
+	    /**
+	     * \brief Set timeout
+	     */
+	    void set_timeout(byte_t timeout)
+	    {
+		this->timeout = timeout;
+	    }
+
+	    /**
+	     * \brief Get ID
+	     */
+	    oid get_id()
+	    {
+		return this->id;
+	    }
+
+	    /**
+	     * \brief Set ID
+	     */
+	    void set_timeout(oid id)
+	    {
+		this->id = id;
+	    }
+
 
 	    /**
 	     * \brief Serialize the %PDU

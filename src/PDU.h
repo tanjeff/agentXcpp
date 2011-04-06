@@ -45,6 +45,7 @@ namespace agentxcpp
      * exceptions are:
      * - The parse contructor fills the packetID from the received %PDU
      * - The ResponsePDU class overwrites the packetID
+     *
      * The mechanism uses a static class member packetID_cnt to store the last 
      * used packetID. The counter wraps at its limit.
      */
@@ -166,6 +167,9 @@ namespace agentxcpp
 	     * 
 	     * \warning The payload must not grow or shrink after a call to
 	     *          this function as its size is encoded into the header.
+	     * \warning The function must not be called twice for the same PDU,
+	     *          because this would add two headers and thus generate a 
+	     *          malformed PDU.
 	     *
 	     * The header is encoded in big endian format.
 	     *
@@ -173,8 +177,8 @@ namespace agentxcpp
 	     *             PDU Header"
 	     *
 	     * \param payload The payload of the PDU, excluding the context.
-	     *		      The header is added to the payload, i.e. the 
-	     *		      payload is altered by this function.
+	     *		      The header is added to the payload, i.e. payload 
+	     *		      is altered by this function.
 	     */
 	    void add_header(type_t type, data_t& payload);
 

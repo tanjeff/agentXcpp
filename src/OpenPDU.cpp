@@ -63,7 +63,7 @@ data_t OpenPDU::serialize()
     serialized += descr.serialize();
 
     // Add header (type for OpenPDU is 1)
-    add_header(1, serialized);
+    add_header(PDU::agentxOpenPDU, serialized);
 
     // return serialized form of PDU
     return serialized;

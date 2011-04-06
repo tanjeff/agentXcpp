@@ -58,7 +58,7 @@ data_t RegisterPDU::serialize()
     }
 
     // Add Header
-    add_header(3, serialized);
+    add_header(PDU::agentxRegisterPDU, serialized);
 
     return serialized;
 

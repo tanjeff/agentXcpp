@@ -69,7 +69,7 @@ data_t ClosePDU::serialize()
     serialized.push_back(0);
 
     // Add Header
-    add_header(2, serialized);
+    add_header(PDU::agentxClosePDU, serialized);
 
     return serialized;
 }

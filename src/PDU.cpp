@@ -27,32 +27,6 @@ using namespace agentxcpp;
 
 uint32_t PDU::packetID_cnt = 0;
 
-/*
- * The PDU types according to RFC 2741, section 6.1 "AgentX PDU Header":
- */
-enum type_t
-{
-    agentxOpenPDU             = 1,
-    agentxClosePDU            = 2,
-    agentxRegisterPDU         = 3,
-    agentxUnregisterPDU       = 4,
-    agentxGetPDU              = 5,
-    agentxGetNextPDU          = 6,
-    agentxGetBulkPDU          = 7,
-    agentxTestSetPDU          = 8,
-    agentxCommitSetPDU        = 9,
-    agentxUndoSetPDU          = 10,
-    agentxCleanupSetPDU       = 11,
-    agentxNotifyPDU           = 12,
-    agentxPingPDU             = 13,
-    agentxIndexAllocatePDU    = 14,
-    agentxIndexDeallocatePDU  = 15,
-    agentxAddAgentCapsPDU     = 16,
-    agentxRemoveAgentCapsPDU  = 17,
-    agentxResponsePDU         = 18
-
-};
-
 
 
 PDU::PDU(Octet_String* _context)
@@ -183,7 +157,7 @@ PDU* PDU::get_pdu(boost::asio::local::stream_protocol::socket& in)
 
 
 
-void PDU::add_header(byte_t type, data_t& payload)
+void PDU::add_header(type_t type, data_t& payload)
 {
     /* Add context to payload, if any */
     if(context)

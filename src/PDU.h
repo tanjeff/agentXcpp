@@ -98,6 +98,34 @@ namespace agentxcpp
 
 	protected:
 	    /**
+	     * \brief The PDU types
+	     *
+	     * According to RFC 2741, section 6.1 "AgentX PDU Header".
+	     */
+	    enum type_t
+	    {
+		agentxOpenPDU             = 1,
+		agentxClosePDU            = 2,
+		agentxRegisterPDU         = 3,
+		agentxUnregisterPDU       = 4,
+		agentxGetPDU              = 5,
+		agentxGetNextPDU          = 6,
+		agentxGetBulkPDU          = 7,
+		agentxTestSetPDU          = 8,
+		agentxCommitSetPDU        = 9,
+		agentxUndoSetPDU          = 10,
+		agentxCleanupSetPDU       = 11,
+		agentxNotifyPDU           = 12,
+		agentxPingPDU             = 13,
+		agentxIndexAllocatePDU    = 14,
+		agentxIndexDeallocatePDU  = 15,
+		agentxAddAgentCapsPDU     = 16,
+		agentxRemoveAgentCapsPDU  = 17,
+		agentxResponsePDU         = 18
+
+	    };
+
+	    /**
 	     * \brief h.packetID field according to RFC 2741, 6.1. "AgentX PDU
 	     *        Header".
 	     * 
@@ -148,7 +176,7 @@ namespace agentxcpp
 	     *		      The header is added to the payload, i.e. the 
 	     *		      payload is altered by this function.
 	     */
-	    void add_header(byte_t type, data_t& payload);
+	    void add_header(type_t type, data_t& payload);
 
 	    /**
 	     * \brief Default constructor

@@ -272,7 +272,7 @@ namespace agentxcpp
 	    static PDU* get_pdu(boost::asio::local::stream_protocol::socket& in);
 
 	    /**
-	     * \Destructor
+	     * \brief Destructor
 	     *
 	     * The destructor deletes the context, if any.
 	     */

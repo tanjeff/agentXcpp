@@ -26,6 +26,8 @@
 namespace agentxcpp
 {
     /**
+     * \internal
+     *
      * \brief This class represents a Register-PDU.
      */
     class RegisterPDU : public PDU

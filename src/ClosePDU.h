@@ -27,6 +27,8 @@
 namespace agentxcpp
 {
     /**
+     * \internal
+     *
      * \brief This class represents a Close-PDU.
      */
     class ClosePDU : public PDU
@@ -60,6 +62,13 @@ namespace agentxcpp
 	     *
 	     * \param reason The reason to session closure. Must be a valid
 	     *               reason.
+	     *
+	     * \param sessionID The session ID of the PDU
+	     *
+	     * \param context The context of the PDU.
+	     *
+	     * \warning The context is deleted by the destructor and must
+	     *          therefore be created using 'new'.
 	     *
 	     * \exception inval_param If the reason value is invalid.
 	     */

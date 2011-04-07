@@ -37,7 +37,7 @@ namespace agentxcpp
      * functionality common to all %PDU types and can be said to represent the 
      * %PDU header. Note, however, that in terms of RFC2741 it does not exactly 
      * represent a %PDU header; for example it takes care of the context field 
-     * of the %PDU's, which is not part of the header (but is common to all 
+     * of the %PDU's, which is not part of the header (but is common to many 
      * %PDU types).
      *
      * This class also provides an automatic packetID generator. Whenever a PDU 
@@ -75,12 +75,12 @@ namespace agentxcpp
 	     * \brief The PDU context
 	     *
 	     * The PDU context, if any. If this field is NULL, the PDU has the 
-	     * default context.
+	     * default context or no context, depending on the %PDU.
 	     *
 	     * When serializing a %PDU, the context (if present) is included.  
 	     * When parsing a %PDU, this field is filled.
 	     *
-	     * TODO: How to handle memory?
+	     * \warning The context is deleted on PDU destruction if not 0.
 	     */
 	    Octet_String* context;
 
@@ -193,6 +193,9 @@ namespace agentxcpp
 	     * false.
 	     * 
 	     * \param context The PDU context
+	     *
+	     * \warning The context is deleted by the desctructor. It must
+	     *          therefore be created using 'new'.
 	     */
 	    PDU(Octet_String* context=0);
 
@@ -229,8 +232,16 @@ namespace agentxcpp
 	    
 	    /**
 	     * \brief Set context
+	     *
+	     * \warning The old context is deleted by this function. The
+	     *          context is also deleted by the desctructor.  It must 
+	     *          therefore be created using 'new'.
 	     */
-	    void set_context(Octet_String* c) { context = c; }
+	    void set_context(Octet_String* c)
+	    {
+		if( context ) delete context;
+		context = c;
+	    }
 
 	    
 	    /**
@@ -260,6 +271,15 @@ namespace agentxcpp
 	    */
 	    static PDU* get_pdu(boost::asio::local::stream_protocol::socket& in);
 
+	    /**
+	     * \Destructor
+	     *
+	     * The destructor deletes the context, if any.
+	     */
+	    ~PDU()
+	    {
+		if( context ) delete context;
+	    }
     };
 }
 

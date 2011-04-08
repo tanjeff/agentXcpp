@@ -120,7 +120,7 @@ namespace agentxcpp
 	     *
 	     * This creates the binary representation of the varbind.
 	     */
-	    data_t serialize();
+	    data_t serialize() const;
 
     };
 

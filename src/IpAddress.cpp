@@ -21,7 +21,7 @@
 
 using namespace agentxcpp;
 
-data_t IpAddress::serialize()
+data_t IpAddress::serialize() const
 {
     data_t serialized;
 

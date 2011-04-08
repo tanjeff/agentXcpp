@@ -70,7 +70,7 @@ namespace agentxcpp
 	     * Note:
 	     * We always use big endian.
 	     */
-	    data_t serialize();
+	    data_t serialize() const;
 
 	    /**
 	     * \brief FIXME

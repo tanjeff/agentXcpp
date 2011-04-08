@@ -21,7 +21,7 @@
 
 using namespace agentxcpp;
 
-data_t Gauge32::serialize()
+data_t Gauge32::serialize() const
 {
     data_t serialized;
 

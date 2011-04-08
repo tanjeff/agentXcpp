@@ -180,7 +180,7 @@ namespace agentxcpp
 	     *		      The header is added to the payload, i.e. payload 
 	     *		      is altered by this function.
 	     */
-	    void add_header(type_t type, data_t& payload);
+	    void add_header(type_t type, data_t& payload) const;
 
 	    /**
 	     * \brief Default constructor

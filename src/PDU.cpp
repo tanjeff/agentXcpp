@@ -157,7 +157,7 @@ PDU* PDU::get_pdu(boost::asio::local::stream_protocol::socket& in)
 
 
 
-void PDU::add_header(type_t type, data_t& payload)
+void PDU::add_header(type_t type, data_t& payload) const
 {
     /* Add context to payload, if any */
     if(context)

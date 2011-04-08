@@ -20,7 +20,7 @@
 
 using namespace agentxcpp;
 
-data_t TimeTicks::serialize()
+data_t TimeTicks::serialize() const
 {
     data_t serialized;
 

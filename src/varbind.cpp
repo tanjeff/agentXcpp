@@ -29,7 +29,7 @@
 using namespace agentxcpp;
 
 
-data_t varbind::serialize()
+data_t varbind::serialize() const
 {
     data_t serialized;
 

@@ -43,7 +43,7 @@ Octet_String::Octet_String(std::string v)
 	        );
 }
 
-data_t Octet_String::serialize()
+data_t Octet_String::serialize() const
 {
     data_t serialized;
 

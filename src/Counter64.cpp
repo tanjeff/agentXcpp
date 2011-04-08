@@ -21,7 +21,7 @@
 
 using namespace agentxcpp;
 
-data_t Counter64::serialize()
+data_t Counter64::serialize() const
 {
     data_t serialized;
 

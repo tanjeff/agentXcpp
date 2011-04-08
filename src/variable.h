@@ -34,7 +34,7 @@ class variable
 	//virtual data_t serialize();
 	
 	// Needed for encoding varbinds
-	virtual data_t serialize() = 0;
+	virtual data_t serialize() const = 0;
 };
 
 

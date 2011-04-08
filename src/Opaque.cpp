@@ -21,7 +21,7 @@
 
 using namespace agentxcpp;
 
-data_t Opaque::serialize()
+data_t Opaque::serialize() const
 {
     data_t serialized;
 

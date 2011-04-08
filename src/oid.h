@@ -119,7 +119,7 @@ namespace agentxcpp
 	 *
 	 * \brief Encode an OID object as described in RFC 2741, section 5.1.
 	 */
-	data_t serialize();
+	data_t serialize() const;
 
 	/**
 	 * \internal

@@ -84,10 +84,17 @@ data_t ResponsePDU::serialize()
 {
     data_t serialized;
 
-    // Encode reason and reserved fields
+    // Encode simple fields
     write32(serialized, this->sysUpTime);
     write16(serialized, this->error); 
-    write16(serialized, this->index); 
+    write16(serialized, this->index);
+
+    // Encode VarBindList
+    vector<varbind>::const_iterator i;
+    for(i = this->varbindlist.begin(); i != this->varbindlist.end(); i++)
+    {
+	serialized += i->serialize();
+    }
 
     // Add Header
     add_header(PDU::agentxClosePDU, serialized);

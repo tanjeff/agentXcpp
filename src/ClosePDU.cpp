@@ -58,7 +58,7 @@ ClosePDU::ClosePDU(data_t::const_iterator& pos, bool big_endian)
 }
 
 
-data_t ClosePDU::serialize()
+data_t ClosePDU::serialize() const
 {
     data_t serialized;
 

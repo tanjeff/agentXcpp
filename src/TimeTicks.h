@@ -71,7 +71,7 @@ namespace agentxcpp
 	     *
 	     * This function uses big endian.
 	     */
-	    virtual data_t serialize();
+	    virtual data_t serialize() const;
     };
 }
 

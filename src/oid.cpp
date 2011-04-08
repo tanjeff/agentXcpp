@@ -82,7 +82,7 @@ std::ostream& agentxcpp::operator<<(std::ostream& out, const oid& o)
 
 
 
-data_t oid::serialize()
+data_t oid::serialize() const
 {
     // The serial representation of an OID is as follows (RFC 2741, section 
     // 5.1):

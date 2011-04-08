@@ -21,7 +21,7 @@
 
 using namespace agentxcpp;
 
-data_t Integer::serialize()
+data_t Integer::serialize() const
 {
     data_t serialized;
 

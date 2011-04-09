@@ -42,16 +42,25 @@ ResponsePDU::ResponsePDU() :
 
 
 
-ResponsePDU::ResponsePDU(data_t::const_iterator& pos, bool big_endian)
+ResponsePDU::ResponsePDU(data_t::const_iterator& pos,
+			 data_t::const_iterator& end,
+			 bool big_endian)
     : PDU(pos, big_endian)
 {
     // header is parsed by base class constructor
 
     uint16_t err;
 
+    // read simple fields
     this->sysUpTime = read32(pos, big_endian);
     err = read16(pos, big_endian);
     this->index = read16(pos, big_endian);
+
+    // read varbindlist if present
+    while(pos != end)
+    {
+	varbindlist.push_back(varbind(pos, big_endian));
+    }
     
     switch(err)
     {

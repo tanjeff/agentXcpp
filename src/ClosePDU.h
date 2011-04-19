@@ -90,6 +90,10 @@ namespace agentxcpp
 	     * \param pos Iterator pointing to the current stream position.
 	     *            The iterator is advanced while reading the header.
 	     *
+	     * \param end Iterator pointing one element past the end of the
+	     *            current stream. This is needed to mark the end of the 
+	     *            buffer.
+	     *
 	     * \param big_endian Whether the serialized form of the %PDU is
 	     *                   in big_endian format.
 	     *
@@ -97,7 +101,9 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    ClosePDU(data_t::const_iterator& pos, bool big_endian);
+	    ClosePDU(data_t::const_iterator& pos,
+		     const data_t::const_iterator& end,
+		     bool big_endian);
 
 
 	    /**

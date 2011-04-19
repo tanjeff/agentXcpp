@@ -25,6 +25,7 @@
 #include "TimeTicks.h"
 #include "Opaque.h"
 #include "IpAddress.h"
+#include "helper.h"
 
 using namespace agentxcpp;
 
@@ -94,57 +95,56 @@ varbind::varbind(oid* o, type_t t)
     }
 }
 
-varbind::varbind(data_t::const_iterator& pos, bool big_endian)
+varbind::varbind(data_t::const_iterator& pos,
+		 const data_t::const_iterator& end,
+		 bool big_endian)
 {
     uint16_t type;
     
+    // Type and reserved field
+    if(end - pos < 4)
+    {
+	throw(parse_error());
+    }
+    
     // Get type
-    if( big_endian )
-    {
-	type |= *pos++ << 8;
-	type |= *pos++ << 0;
-    }
-    else
-    {
-	type |= *pos++ << 0;
-	type |= *pos++ << 8;
-    }
+    type = read16(pos, big_endian);
 
     // skip reserved field
     pos += 2;
     
-    // read OID
-    name = new oid(pos, big_endian);
+    // read OID: no exceptions are catched; they are forwarded to the caller
+    name = new oid(pos, end, big_endian);
 
     // Get data: no exceptions are catched; they are forwarded to the caller
     switch(type)
     {
 	case 2:
-	    var = new Integer(pos, big_endian);
+	    var = new Integer(pos, end, big_endian);
 	    break;
 	case 4:
-	    var = new Octet_String(pos, big_endian);
+	    var = new Octet_String(pos, end, big_endian);
 	    break;
 	case 6:
-	    var = new oid(pos, big_endian);
+	    var = new oid(pos, end, big_endian);
 	    break;
 	case 64:
-	    var = new IpAddress(pos, big_endian);
+	    var = new IpAddress(pos, end, big_endian);
 	    break;
 	case 65:
-	    var = new Counter32(pos, big_endian);
+	    var = new Counter32(pos, end, big_endian);
 	    break;
 	case 66:
-	    var = new Gauge32(pos, big_endian);
+	    var = new Gauge32(pos, end, big_endian);
 	    break;
 	case 67:
-	    var = new TimeTicks(pos, big_endian);
+	    var = new TimeTicks(pos, end, big_endian);
 	    break;
 	case 68:
-	    var = new Opaque(pos, big_endian);
+	    var = new Opaque(pos, end, big_endian);
 	    break;
 	case 70:
-	    var = new Counter64(pos, big_endian);
+	    var = new Counter64(pos, end, big_endian);
 	    break;
 	case 5:	    // Null
 	case 128:   // noSuchObject

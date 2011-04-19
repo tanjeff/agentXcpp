@@ -134,12 +134,20 @@ namespace agentxcpp
 	 * The constructor expects valid data from the stream; if parsing 
 	 * fails, parse_error is thrown. In this case, the iterator 
 	 * position is undefined.
+	 *    
+	 * \param pos Iterator pointing to the current stream position.
+	 *            The iterator is advanced while reading the header.
 	 *
-	 * \param pos iterator pointing into the stream
+	 * \param end Iterator pointing one element past the end of the
+	 *            current stream. This is needed to mark the end of the 
+	 *            buffer.
+	 *
 	 * \param big_endian Whether the input stream is in big endian
 	 *                   format
 	 */
-	oid(data_t::const_iterator& pos, bool big_endian=true);
+	oid(data_t::const_iterator& pos,
+	    const data_t::const_iterator& end,
+	    bool big_endian=true);
 
 	/**
 	 * \brief The less-than operator

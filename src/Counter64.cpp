@@ -39,9 +39,16 @@ data_t Counter64::serialize() const
 }
 
 
-Counter64::Counter64(data_t::const_iterator& pos, bool big_endian)
+Counter64::Counter64(data_t::const_iterator& pos,
+		    const data_t::const_iterator& end,
+		    bool big_endian)
 {
-    uint32_t size;
+    // Are there at least 8 bytes in the buffer?
+    if(end - pos < 8)
+    {
+	throw(parse_error());
+    }
+
 
     // Get value
     if( big_endian )

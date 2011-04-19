@@ -69,9 +69,17 @@ data_t Octet_String::serialize() const
 }
 
 
-Octet_String::Octet_String(data_t::const_iterator& pos, bool big_endian)
+Octet_String::Octet_String(data_t::const_iterator& pos,
+			   const data_t::const_iterator& end,
+			   bool big_endian)
 {
     uint32_t size;
+    
+    // We need 4 bytes for the size
+    if(end - pos < 4)
+    {
+	throw(parse_error());
+    }
 
     // Get size
     if( big_endian )
@@ -95,6 +103,12 @@ Octet_String::Octet_String(data_t::const_iterator& pos, bool big_endian)
 	// nothing left to parse
 	return;
     }
+    
+    // We want to read (size) more bytes
+    if(end - pos < size)
+    {
+	throw(parse_error());
+    }
 
     // Get value
     value.assign(pos, pos+size);
@@ -103,6 +117,10 @@ Octet_String::Octet_String(data_t::const_iterator& pos, bool big_endian)
     // Eat padding bytes
     int padsize = 4 - (size % 4);
     if( padsize == 4 ) padsize = 0;
+    if(end - pos < padsize)
+    {
+	throw(parse_error());
+    }
     while( padsize-- )
     {
 	pos++;

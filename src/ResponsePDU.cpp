@@ -45,7 +45,7 @@ ResponsePDU::ResponsePDU() :
 ResponsePDU::ResponsePDU(data_t::const_iterator& pos,
 			 data_t::const_iterator& end,
 			 bool big_endian)
-    : PDU(pos, big_endian)
+    : PDU(pos, end, big_endian)
 {
     // header is parsed by base class constructor
 
@@ -59,7 +59,7 @@ ResponsePDU::ResponsePDU(data_t::const_iterator& pos,
     // read varbindlist if present
     while(pos != end)
     {
-	varbindlist.push_back(varbind(pos, big_endian));
+	varbindlist.push_back(varbind(pos, end, big_endian));
     }
     
     switch(err)

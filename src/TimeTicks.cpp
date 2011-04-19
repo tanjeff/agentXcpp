@@ -34,9 +34,15 @@ data_t TimeTicks::serialize() const
 }
 
 
-TimeTicks::TimeTicks(data_t::const_iterator& pos, bool big_endian)
+TimeTicks::TimeTicks(data_t::const_iterator& pos,
+		     const data_t::const_iterator& end,
+		     bool big_endian)
 {
-    uint32_t size;
+    // We need 4 bytes
+    if(end - pos < 4)
+    {
+	throw(parse_error());
+    }
 
     // Get value
     if( big_endian )

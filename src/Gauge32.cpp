@@ -35,10 +35,16 @@ data_t Gauge32::serialize() const
 }
 
 
-Gauge32::Gauge32(data_t::const_iterator& pos, bool big_endian)
+Gauge32::Gauge32(data_t::const_iterator& pos,
+		 const data_t::const_iterator& end,
+		 bool big_endian)
 {
-    uint32_t size;
-
+    // Are there at least 4 bytes in the buffer?
+    if(end - pos < 4)
+    {
+	throw(parse_error());
+    }
+    
     // Get value
     if( big_endian )
     {

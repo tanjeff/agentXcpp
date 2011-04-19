@@ -43,8 +43,15 @@ PDU::PDU(Octet_String* _context)
 
 }
 
-PDU::PDU(data_t::const_iterator& pos, bool big_endian)
+PDU::PDU(data_t::const_iterator& pos,
+	 const data_t::const_iterator& end,
+	 bool big_endian)
 {
+    if(end - pos < 20)
+    {
+	throw(parse_error());
+    }
+    
     // skip protocol version (already checked by get_pdu()) and
     // type field (not needed here)
     pos += 2;
@@ -73,7 +80,7 @@ PDU::PDU(data_t::const_iterator& pos, bool big_endian)
     // Read context if present
     if( flags & (1<<3) ) // NON_DEFAULT_CONTEXT set?
     {
-        context = new Octet_String(pos, big_endian);
+        context = new Octet_String(pos, end, big_endian);
     }
     else
     {
@@ -135,16 +142,17 @@ PDU* PDU::get_pdu(boost::asio::local::stream_protocol::socket& in)
     // create PDU
     PDU* pdu;
     pos = buf.begin();
+    const data_t::const_iterator end = buf.end();
     switch(type)
     {
         case agentxOpenPDU:
-            pdu = new OpenPDU(pos, big_endian);
+            pdu = new OpenPDU(pos, end, big_endian);
             break;
 	case agentxClosePDU:
-	    pdu = new ClosePDU(pos, big_endian);
+	    pdu = new ClosePDU(pos, end, big_endian);
 	    break;
 	case agentxResponsePDU:
-	    pdu = new RegisterPDU(pos, big_endian);
+	    pdu = new RegisterPDU(pos, end, big_endian);
 	    break;
 	default:
 	    // type is invalid

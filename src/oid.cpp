@@ -154,8 +154,15 @@ data_t oid::serialize() const
     return serialized_oid;
 }
 
-oid::oid(data_t::const_iterator& pos, bool big_endian)
+oid::oid(data_t::const_iterator& pos,
+	 const data_t::const_iterator& end,
+	 bool big_endian)
 {
+    if(end - pos < 4)
+    {
+	throw(parse_error());
+    }
+    
     // get number of subid's
     int n_subid = *pos++;
 
@@ -188,6 +195,10 @@ oid::oid(data_t::const_iterator& pos, bool big_endian)
     *pos++;
 
     // parse rest of data, subid by subid
+    if(end - pos < n_subid * 4)
+    {
+	throw(parse_error());
+    }
     uint32_t subid;
     for( int i = 0; i < n_subid; i++)
     {

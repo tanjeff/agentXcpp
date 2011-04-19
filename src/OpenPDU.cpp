@@ -22,17 +22,24 @@
 
 using namespace agentxcpp;
 
-OpenPDU::OpenPDU(data_t::const_iterator& pos, bool big_endian)
-    : PDU(pos, big_endian)
+OpenPDU::OpenPDU(data_t::const_iterator& pos,
+		 const data_t::const_iterator& end,
+		 bool big_endian)
+    : PDU(pos, end, big_endian)
 {
+    if(end - pos < 4)
+    {
+	throw(parse_error());
+    }
+
     // header is parsed by base class constructor
     // so we continue with timeout field:
     timeout = *pos++;
     pos += 3;	// skip reserved fields
 
-    id = oid(pos, big_endian);
+    id = oid(pos, end, big_endian);
 
-    descr = Octet_String(pos, big_endian);
+    descr = Octet_String(pos, end, big_endian);
 }
 	    
 

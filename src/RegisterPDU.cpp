@@ -21,22 +21,27 @@
 
 using namespace agentxcpp;
 
-RegisterPDU::RegisterPDU(
-	data_t::const_iterator& pos,
-	bool big_endian)
-    :PDU(pos, big_endian)   // parse header
+RegisterPDU::RegisterPDU(data_t::const_iterator& pos,
+			 const data_t::const_iterator& end,
+			 bool big_endian)
+    :PDU(pos, end, big_endian)   // parse header
 {
-    timeout = read32(pos, big_endian);
-    priority = read32(pos, big_endian);
-    range_subid = read32(pos, big_endian);
+    if(end - pos < 4)
+    {
+	throw(parse_error());
+    }
+
+    timeout = *pos++;
+    priority = *pos++;
+    range_subid = *pos++;
     pos++;  // skip reserved field
 
-    subtree = oid(pos, big_endian);
+    subtree = oid(pos, end, big_endian);
 
     // read r.upper_bound only if r.range_subid is not 0
     if( range_subid )
     {
-	upper_bound = oid(pos, big_endian);
+	upper_bound = oid(pos, end, big_endian);
     }
 }
 

@@ -53,9 +53,17 @@ data_t IpAddress::serialize() const
 }
 
 
-IpAddress::IpAddress(data_t::const_iterator& pos, bool big_endian)
+IpAddress::IpAddress(data_t::const_iterator& pos,
+		     const data_t::const_iterator& end,
+		     bool big_endian)
 {
     uint32_t size;
+    
+    // Are there at least 20 bytes in the buffer?
+    if(end - pos < 20)
+    {
+	throw(parse_error());
+    }
 
     // Get size
     if( big_endian )
@@ -72,7 +80,7 @@ IpAddress::IpAddress(data_t::const_iterator& pos, bool big_endian)
 	size |= *pos++ << 16;
 	size |= *pos++ << 24;
     }
-    if( size != 4 )
+    if( size != 16 )
     {
 	// Parse error; this seems not to be an IpAddress
 	throw parse_error();

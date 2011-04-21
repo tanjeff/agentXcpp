@@ -38,6 +38,9 @@ SConscript(['src/SConscript',
 	    'doc/SConscript',
 	    'examples/SConscript'], 'env')
 
+# Build unit tests with their own environment
+SConscript(['unit_tests/SConscript'])
+
 
 Alias("doc", ["doc/api", "doc/internals"])
 

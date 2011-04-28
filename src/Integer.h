@@ -39,11 +39,25 @@ namespace agentxcpp
 
 	public:
 	    /**
-	     * \brief Create an Integer without initialization.
-	     *
-	     * The value after creation is undefined.
+	     * \brief Create an Integer object
 	     */
-	    Integer() {}
+	    Integer(uint32_t _value) :value(_value) {}
+
+	    /**
+	     * \brief Get the value
+	     */
+	    uint32_t get_value()
+	    {
+		return value;
+	    }
+	    
+	    /**
+	     * \brief Set the value
+	     */
+	    void set_value(uint32_t v)
+	    {
+		value = v;
+	    }
 	    
 	    /**
 	     * \internal
@@ -81,6 +95,12 @@ namespace agentxcpp
 	    Integer(data_t::const_iterator& pos,
 		    const data_t::const_iterator& end,
 		    bool big_endian=true);
+	    
+	private:
+	    /**
+	     * \brief hide default constructor
+	     */
+	    Integer();
     };
 }
 

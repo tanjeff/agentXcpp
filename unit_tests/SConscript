@@ -17,6 +17,10 @@
 # for more details.
 #
 
-Program('testsuite', Glob('*.cpp'), LIBS=['boost_unit_test_framework'])
+Program('testsuite',
+	Glob('*.cpp'),
+	LIBS=['boost_unit_test_framework', 'agentxcpp', 'boost_system'],
+	LIBPATH=['../src/'],
+	CPPPATH=['../src/'])
     
 Default('testsuite')

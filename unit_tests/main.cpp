@@ -18,7 +18,11 @@
  */
 
 
-// Let the test framework generate a main() function:
+// we link the testsuite dynamically
 #define BOOST_TEST_DYN_LINK
+
+// generate a main() function for us
 #define BOOST_TEST_MAIN
+
+// this happens to do all we need :-)
 #include <boost/test/unit_test.hpp>

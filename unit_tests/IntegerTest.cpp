@@ -17,18 +17,43 @@
  * for more details.
  */
 
+// we link the testsuite dynamically (must come before the #include)
 #define BOOST_TEST_DYN_LINK
-//#define BOOST_TEST_MODULE example
+
 #include <boost/test/unit_test.hpp>
+#include <cmath>
+
+#include <Integer.h>
 
 
-BOOST_AUTO_TEST_CASE( parse_constructor )
+
+
+BOOST_AUTO_TEST_CASE( init_constructor_and_get_value )
 {
-    BOOST_CHECK( true /* test assertion */ );
+    agentxcpp::Integer object1(13);
+    BOOST_CHECK_EQUAL( object1.get_value(), 13 );
+    
+    agentxcpp::Integer object2(0);
+    BOOST_CHECK_EQUAL( object2.get_value(), 0 );
+    
+    long long max = std::pow(2,32)-1; // maximum value for uint32_t
+
+    agentxcpp::Integer object3(max); // -1 should wrap to (2^32)-1
+    BOOST_CHECK_EQUAL( object3.get_value(), max);
+    
+    agentxcpp::Integer object4(-1); // -1 should wrap to max!
+    BOOST_CHECK_EQUAL( object4.get_value(), max );
 }
 
-
-BOOST_AUTO_TEST_CASE( default_constructor )
+BOOST_AUTO_TEST_CASE( serialize )
 {
-    BOOST_CHECK( true /* test assertion */ );
+    agentxcpp::Integer object(0x11223344);
+    data_t blob = object.serialize();
+    
+    // We expect big endian!
+    BOOST_CHECK_EQUAL(blob.size(), 4);
+    BOOST_CHECK_EQUAL(blob[0], 0x11);
+    BOOST_CHECK_EQUAL(blob[1], 0x22);
+    BOOST_CHECK_EQUAL(blob[2], 0x33);
+    BOOST_CHECK_EQUAL(blob[3], 0x44);
 }

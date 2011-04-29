@@ -59,6 +59,11 @@ namespace agentxcpp
     {
 	private:
 	    /**
+	     * \brief The socket.
+	     */
+	    boost::asio::local::stream_protocol::socket socket;
+
+	    /**
 	     * \brief The endpoint used fo unix domain sockets.
 	     */
 	    boost::asio::local::stream_protocol::endpoint endpoint;
@@ -69,11 +74,6 @@ namespace agentxcpp
 	     * This object is needed for boost::asio sockets.
 	     */
 	    boost::asio::io_service io_service;
-
-	    /**
-	     * \brief The socket.
-	     */
-	    boost::asio::local::stream_protocol::socket socket;
 
 	    /**
 	     * \brief The session ID of the current session.

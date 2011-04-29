@@ -55,7 +55,7 @@ inline std::ostream& operator<<(std::ostream& out, const data_t& stream)
 {
     out << "+----------+----------+----------+----------+" << std::endl;
     out << "| ";//begin line
-    for(int i = 0; i < stream.size(); i++)
+    for(size_t i = 0; i < stream.size(); i++)
     {
 	out.width(8);// 8 chars per field
 	out << (int)stream[i] << " | ";

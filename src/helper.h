@@ -61,7 +61,7 @@ inline void write32(data_t& serialized, uint32_t value)
 
 inline uint16_t read16(data_t::const_iterator& pos, bool big_endian)
 {
-    uint16_t value;
+    uint16_t value = 0;
     if( big_endian )
     {
 	value |= *pos++ << 8;

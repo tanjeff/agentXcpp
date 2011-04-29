@@ -83,7 +83,7 @@ void session::disconnect(ClosePDU::reason_t reason)
     socket.send(asio::buffer(buf.c_str(), buf.size()));
 
     // Wait for response
-    PDU* response = PDU::get_pdu(socket);
+    //PDU* response = PDU::get_pdu(socket);
 
     // Close socket
     socket.close();

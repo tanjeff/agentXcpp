@@ -82,7 +82,7 @@ Opaque::Opaque(data_t::const_iterator& pos,
     }
 
     // We want to read (size) more bytes
-    if(end - pos < size)
+    if((end - pos) < size)
     {
 	throw(parse_error());
     }

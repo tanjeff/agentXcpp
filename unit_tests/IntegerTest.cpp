@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE( init_constructor_and_get_value )
     
     long long max = std::pow(2,32)-1; // maximum value for uint32_t
 
-    agentxcpp::Integer object_3(max); // -1 should wrap to (2^32)-1
+    agentxcpp::Integer object_3(max);
     BOOST_CHECK_EQUAL( object_3.get_value(), max);
     
     agentxcpp::Integer object_4(-1); // -1 should wrap to max!
@@ -102,4 +102,24 @@ BOOST_AUTO_TEST_CASE( parse_constructor )
     begin = blob.begin() + 5;
     BOOST_CHECK_THROW( agentxcpp::Integer object_5(begin, end),
 		       parse_error )
+}
+
+BOOST_AUTO_TEST_CASE( set_value )
+{
+    // We use this object for the tests
+    agentxcpp::Integer object(0);
+
+    object.set_value(13);
+    BOOST_CHECK_EQUAL( object.get_value(), 13 );
+    
+    object.set_value(0);
+    BOOST_CHECK_EQUAL( object.get_value(), 0 );
+    
+    long long max = std::pow(2,32)-1; // maximum value for uint32_t
+
+    object.set_value(max);
+    BOOST_CHECK_EQUAL( object.get_value(), max);
+    
+    object.set_value(-1); // -1 should wrap to max!
+    BOOST_CHECK_EQUAL( object.get_value(), max );
 }

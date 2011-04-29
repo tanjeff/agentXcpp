@@ -41,6 +41,81 @@ namespace agentxcpp
 
 	public:
 	    /**
+	     * \brief Set the upper_bound.
+	     */
+	    void set_upper_bound(oid upper_bound)
+	    {
+		this->upper_bound = upper_bound;
+	    }
+	    /**
+	     * \brief Get the upper_bound.
+	     */
+	    oid get_upper_bound()
+	    {
+		return this->upper_bound;
+	    }
+
+	    /**
+	     * \brief Set the subtree.
+	     */
+	    void set_subtree(oid subtree)
+	    {
+		this->subtree = subtree;
+	    }
+	    /**
+	     * \brief Get the subtree.
+	     */
+	    oid get_subtree()
+	    {
+		return this->subtree;
+	    }
+
+	    /**
+	     * \brief Set the range_subid.
+	     */
+	    void set_range_subid(byte_t range_subid)
+	    {
+		this->range_subid = range_subid;
+	    }
+	    /**
+	     * \brief Get the range_subid.
+	     */
+	    byte_t get_range_subid()
+	    {
+		return this->range_subid;
+	    }
+
+	    /**
+	     * \brief Set the priority.
+	     */
+	    void set_priority(byte_t priority)
+	    {
+		this->priority = priority;
+	    }
+	    /**
+	     * \brief Get the priority.
+	     */
+	    byte_t get_priority()
+	    {
+		return this->priority;
+	    }
+
+	    /**
+	     * \brief Set the timeout.
+	     */
+	    void set_timeout(byte_t timeout)
+	    {
+		this->timeout = timeout;
+	    }
+	    /**
+	     * \brief Get the timeout.
+	     */
+	    byte_t get_timeout()
+	    {
+		return this->timeout;
+	    }
+
+	    /**
 	     * \brief Parse constructor
 	     *
 	     * Construct the object by parsing a stream. See \ref parsing for 

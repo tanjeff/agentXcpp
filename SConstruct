@@ -17,7 +17,7 @@
 # for more details.
 #
 
-import os
+#import os
 
 
 # Define the install prefix
@@ -45,5 +45,5 @@ SConscript(['unit_tests/SConscript'])
 Alias("doc", ["doc/api", "doc/internals"])
 
 # What to build by default
-Default("examples/main", "doc")
+Default("examples/main", "doc", "unit_tests")
 

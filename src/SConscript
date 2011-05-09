@@ -20,6 +20,10 @@
 # Get the environment from the SConscript above
 Import('env')
 
+# If we are using g++: enable warnings (there is no portable way to enable 
+# warnings, so we enable them only for g++. For development it's enough.)
+if(env["CXX"] == "g++"):
+    env["CPPFLAGS"]="-Wall -Werror"
 
 # Build the library:
 agentxcpp = env.SharedLibrary('agentxcpp', Glob('*.cpp'))

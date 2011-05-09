@@ -113,9 +113,25 @@ namespace agentxcpp
 	    /**
 	     * \brief Set ID
 	     */
-	    void set_timeout(oid id)
+	    void set_id(oid id)
 	    {
 		this->id = id;
+	    }
+	    
+	    /**
+	     * \brief Get descr
+	     */
+	    Octet_String get_descr()
+	    {
+		return this->descr;
+	    }
+
+	    /**
+	     * \brief Set descr
+	     */
+	    void set_descr(Octet_String descr)
+	    {
+		this->descr = descr;
 	    }
 
 

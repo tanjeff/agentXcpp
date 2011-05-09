@@ -79,7 +79,17 @@ namespace agentxcpp
 	    /**
 	     * \brief Get the reason
 	     */
-	    reason_t get_reason() { return reason; }
+	    reason_t get_reason()
+	    {
+		return reason;
+	    }
+	    /**
+	     * \brief Set the reason
+	     */
+	    void set_reason(reason_t reason)
+	    {
+		this->reason = reason;
+	    }
 
 	    /**
 	     * \brief Parse constructor

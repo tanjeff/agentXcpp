@@ -207,14 +207,40 @@ namespace agentxcpp
 
 	public:
 	    /**
+	     * \brief Get instance_registration flag
+	     */
+	    bool get_instance_registration() { return instance_registration; }
+	    /**
+	     * \brief Set instance_registration flag
+	     */
+	    void set_instance_registration(bool ir) { this->instance_registration = ir; }
+	    
+	    /**
+	     * \brief Get new_index flag
+	     */
+	    bool get_new_index() { return new_index; }
+	    /**
+	     * \brief Set new_index flag
+	     */
+	    void set_new_index(bool new_index) { this->new_index = new_index; }
+	    
+	    /**
+	     * \brief Get any_index flag
+	     */
+	    bool get_any_index() { return any_index; }
+	    /**
+	     * \brief Set any_index flag
+	     */
+	    void set_any_index(bool any_index) { this->any_index = any_index; }
+	    
+	    /**
 	     * \brief Get sessionID
 	     */
 	    uint32_t get_sessionID() { return sessionID; }
-	    
 	    /**
 	     * \brief Set sessionID
 	     */
-	    void set_sessionID(uint32_t id) { sessionID = id; }
+	    void set_sessionID(uint32_t id) { this->sessionID = id; }
 
 	    /**
 	     * \brief Get transactionID
@@ -232,10 +258,15 @@ namespace agentxcpp
 	    uint32_t get_packetID() { return packetID; }
 	    
 	    /**
+	     * \brief Set packetID
+	     */
+	    void set_packetID(uint32_t packetID) { this->packetID = packetID; }
+	    
+	    /**
 	     * \brief Get context
 	     */
 	    Octet_String* get_context() { return context; }
-	    
+
 	    /**
 	     * \brief Set context
 	     *

@@ -191,19 +191,17 @@ namespace agentxcpp
 	    /**
 	     * \brief Default constructor
 	     *
-	     * The packetID_cnt is incremented and the packetID is set to the 
-	     * new packetID_cnt value. The sessionID and transactionID are both 
-	     * set to 0. The context is set to the provided value or to 0.
-	     *
-	     * TODO: What to du with the flags? Currently, they are set to 
-	     * false.
-	     * 
-	     * \param context The PDU context
-	     *
-	     * \warning The context is deleted by the desctructor. It must
-	     *          therefore be created using 'new'.
+	     * The members are set as follows:
+	     * - packetID_cnt is incremented and the packetID is set to the new 
+	     *   packetID_cnt value.
+	     * - sessionID = 0
+	     * - transactionID = 0
+	     * - context = 0
+	     * - instance_registration = false
+	     * - new_index = false
+	     * - any_index = false.
 	     */
-	    PDU(Octet_String* context=0);
+	    PDU();
 
 	public:
 	    /**

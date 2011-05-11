@@ -63,28 +63,15 @@ namespace agentxcpp
 		    bool big_endian);
 
 	    /**
-	     * \brief Constructor
+	     * \brief Default Constructor
 	     *
-	     * \param description A string describing the subagent.
-	     *
-	     * \param timeout The length of time, in seconds, that a master
-	     *		      agent should allow to elapse after dispatching a 
-	     *		      message on a session before it regards the 
-	     *		      subagent as not responding. This is the default 
-	     *		      value for the session, and may be overridden by 
-	     *		      values associated with specific registered MIB 
-	     *		      regions.  The default value of 0 indicates that 
-	     *		      there is no session-wide default value.
-	     *
-	     * \param ID An Object Identifier that identifies the subagent.
-	     *           Default is an emtpy OID.
-	     *
-	     * \param context The context of the PDU.
+	     * Sets the state of the object to the defaults as set by the 
+	     * PDU::PDU() constructor, plus the following:
+	     * - timeout = 0
+	     * - oid = null Object Identifier
+	     * - descr = empty string
 	     */
-	    OpenPDU(Octet_String description=Octet_String(),
-		    byte_t timeout=0,
-		    oid ID=oid(),
-		    Octet_String* context=0);
+	    OpenPDU();
 
 	    /**
 	     * \brief Get timeout
@@ -96,6 +83,15 @@ namespace agentxcpp
 
 	    /**
 	     * \brief Set timeout
+	     *
+	     * \param timeout The length of time, in seconds, that a master
+	     *		      agent should allow to elapse after dispatching a 
+	     *		      message on a session before it regards the 
+	     *		      subagent as not responding. This is the default 
+	     *		      value for the session, and may be overridden by 
+	     *		      values associated with specific registered MIB 
+	     *		      regions.  The default value of 0 indicates that 
+	     *		      there is no session-wide default value.
 	     */
 	    void set_timeout(byte_t timeout)
 	    {

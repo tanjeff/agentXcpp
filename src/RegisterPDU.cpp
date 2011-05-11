@@ -68,3 +68,9 @@ data_t RegisterPDU::serialize()
     return serialized;
 
 }
+
+
+RegisterPDU::RegisterPDU()
+    : timeout(0), priority(127), subtree(), range_subid(0), upper_bound()
+{
+}

@@ -20,15 +20,18 @@
 #include "ClosePDU.h"
 
 using namespace agentxcpp;
+	    
+
+ClosePDU::ClosePDU()
+    : reason(reasonOther)
+{
+}
 
 ClosePDU::ClosePDU(uint32_t _sessionID,
-		   reason_t _reason,
-		   Octet_String* context)
-: PDU(context)
-
+		   reason_t _reason)
 {
     // Set sessionID
-    set_sessionID(_sessionID);
+    this->set_sessionID(_sessionID);
 
     // Check parameter
     if( _reason < 1 || _reason > 6 )

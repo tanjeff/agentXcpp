@@ -1,0 +1,47 @@
+/*
+ * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ *
+ * This file is part of the agentXcpp library.
+ *
+ * AgentXcpp is free software: you can redistribute it and/or modify
+ * it under the terms of the AgentXcpp library license, version 1, which 
+ * consists of the GNU General Public License and some additional 
+ * permissions.
+ *
+ * AgentXcpp is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * See the AgentXcpp library license in the LICENSE file of this package 
+ * for more details.
+ */
+
+/*! 
+
+
+\page pdus The PDU Objects
+
+The %PDU objects, such as OpenPDU, RegisterPDU and the like represent the 
+AgentX Protocol Data Units. Each of these classes inherits from the abstract 
+PDU class which can be said to represent the header of a %PDU (although it also 
+manages the 'context', which is not strictly part of the PDU header).  This 
+header is identical for each &PDU.
+
+The concrete %PDU classes mainly serve as data containers, holding the 
+information which is required by RFC 2741 and providing functionality to 
+serialize and deserialize the %PDU. Each field of the class can be manipulated 
+using setters and getters. For example, the OpenPDU class has the set_descr() 
+and get_descr() methods to manipulate the 'descr' field (see RFC 2741, '6.2.1.  
+The agentx-Open-PDU' for an explanation of the field). The PDU class also 
+provides such setters and getters to manipulate the header fields.
+
+Each concrete %PDU class also has a default constructor which initializes the 
+object to its default values. These default constructors also invoke the 
+constructor of the base class, PDU, which initializes the header fields to 
+their default values.
+
+Further information can be found on these pages:
+- \subpage parsing
+
+*/

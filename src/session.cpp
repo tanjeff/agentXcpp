@@ -53,7 +53,9 @@ void session::connect()
     socket.connect(endpoint);
     
     // Send OpenPDU
-    OpenPDU openpdu = OpenPDU(Octet_String(), default_timeout, id);
+    OpenPDU openpdu;
+    openpdu.set_timeout(default_timeout);
+    openpdu.set_id(id);
     data_t buf = openpdu.serialize();
     socket.send(asio::buffer(buf.data(), buf.size()));
 

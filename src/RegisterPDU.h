@@ -35,8 +35,8 @@ namespace agentxcpp
 	private:
 	    byte_t timeout;
 	    byte_t priority;
-	    byte_t range_subid;
 	    oid subtree;
+	    byte_t range_subid;
 	    oid upper_bound;
 
 	public:
@@ -143,6 +143,20 @@ namespace agentxcpp
 	     * \brief Serialize the %PDU
 	     */
 	    data_t serialize();
+	    
+	    /**
+	     * \brief Default Constructor
+	     *
+	     * Sets the state of the object to the defaults as set by the 
+	     * PDU::PDU() constructor, plus the following:
+	     * - timeout = 0
+	     * - priority = 127 (According to RFC 2741, section '6.2.3. The 
+	     *   agentx-Register-PDU')
+	     * - subtree = null Object Identifier
+	     * - range_subid = 0
+	     * - upper_bound = null Object Identifier
+	     */
+	    RegisterPDU();
     };
 }
 #endif

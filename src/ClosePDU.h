@@ -51,12 +51,16 @@ namespace agentxcpp
 	     */
 	    reason_t reason;
 
+	public:
 	    /**
-	     * \brief Hide default constructor
+	     * \brief Default constructor
+	     *
+	     * Sets the state of the object to the defaults as set by the 
+	     * PDU::PDU() constructor, plus the following:
+	     * - reason = reasonOther
 	     */
 	    ClosePDU();
 
-	public:
 	    /**
 	     * \brief Constructor
 	     *
@@ -65,16 +69,10 @@ namespace agentxcpp
 	     *
 	     * \param sessionID The session ID of the PDU
 	     *
-	     * \param context The context of the PDU.
-	     *
-	     * \warning The context is deleted by the destructor and must
-	     *          therefore be created using 'new'.
-	     *
 	     * \exception inval_param If the reason value is invalid.
 	     */
 	    ClosePDU(uint32_t sessionID,
-		     reason_t reason,
-		     Octet_String* context=0);
+		     reason_t reason);
 
 	    /**
 	     * \brief Get the reason

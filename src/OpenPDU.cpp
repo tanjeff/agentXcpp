@@ -43,15 +43,9 @@ OpenPDU::OpenPDU(data_t::const_iterator& pos,
 }
 	    
 
-OpenPDU::OpenPDU(Octet_String _descr,
-		 byte_t _timeout,
-		 oid _id,
-		 Octet_String* context)
-: PDU(context)
+OpenPDU::OpenPDU()
+    : timeout(0), id(), descr("")
 {
-    timeout = _timeout;
-    id = _id;
-    descr = _descr;
 }
 
 

@@ -29,13 +29,13 @@ uint32_t PDU::packetID_cnt = 0;
 
 
 
-PDU::PDU(Octet_String* _context)
+PDU::PDU()
 {
     packetID = ++packetID_cnt;
-    context = _context;
 
     sessionID = 0;
     transactionID = 0;
+    context = 0;
 
     instance_registration=false;
     new_index=false;

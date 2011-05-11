@@ -124,10 +124,12 @@ namespace agentxcpp
 	    /**
 	     * \brief Default Constructor.
 	     *
-	     * The Response-PDU is initialized as follows:
-	     * - res.error is set to noAgentXError
-	     * - res.index is set to 0
-	     * - res.sysUpTime is set to 0
+	     * Sets the state of the object to the defaults as set by the 
+	     * PDU::PDU() constructor, plus the following:
+	     * - sysUpTime = 0
+	     * - error = noAgentXError
+	     * - index = 0
+	     * - varbindlist = <empty>
 	     */
 	    ResponsePDU();
 

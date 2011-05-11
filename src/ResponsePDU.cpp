@@ -32,12 +32,12 @@ void ResponsePDU::set_error(error_t e)
 }
 
 
-ResponsePDU::ResponsePDU() :
-    PDU()
+ResponsePDU::ResponsePDU()
 {
     this->error = noAgentXError;
     this->index = 0;
     this->sysUpTime = 0;
+    // varbindlist is automatically initialized to the empty list
 }
 
 

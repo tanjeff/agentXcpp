@@ -55,7 +55,7 @@ namespace agentxcpp
      */
     // TODO: describe timeout handling
     // TODO: byte ordering is constant for a session. See rfc 2741, 7.1.1
-    class session
+    class master_proxy
     {
 	private:
 	    /**
@@ -140,10 +140,10 @@ namespace agentxcpp
 	     *                           desribed in RFC 2741, section 8.2.1 
 	     *                           "Well-known Values".
 	     */
-	    session(std::string description="",
-		    byte_t default_timeout=0,
-		    oid ID=oid(),
-		    std::string unix_domain_socket="/var/agentx/master");
+	    master_proxy(std::string description="",
+		   byte_t default_timeout=0,
+		   oid ID=oid(),
+		   std::string unix_domain_socket="/var/agentx/master");
 
 	    /**
 	     * \brief Check whether the session is in state connected
@@ -206,7 +206,7 @@ namespace agentxcpp
 	     * The default destructor cleanly shuts down the session (if it is 
 	     * currently established) and destroys the session object.
 	     */
-	    ~session();
+	    ~master_proxy();
 
     };
 }

@@ -16,7 +16,7 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#include "session.h"
+#include "master_proxy.h"
 #include "OpenPDU.h"
 #include "ClosePDU.h"
 #include "helper.h"
@@ -30,7 +30,7 @@ using namespace boost;
 
 
     
-session::session(std::string descr, byte_t timeout, oid _id, std::string filename) :
+master_proxy::master_proxy(std::string descr, byte_t timeout, oid _id, std::string filename) :
     socket(io_service),
     endpoint(filename.c_str()),
     description(descr),
@@ -41,7 +41,7 @@ session::session(std::string descr, byte_t timeout, oid _id, std::string filenam
 }
 
 
-void session::connect()
+void master_proxy::connect()
 {
     if(connected)
     {
@@ -71,7 +71,7 @@ void session::connect()
     cout << "received sessionID " << sessionID << endl;
 }
 
-void session::disconnect(ClosePDU::reason_t reason)
+void master_proxy::disconnect(ClosePDU::reason_t reason)
 {
     if( !connected )
     {
@@ -94,9 +94,9 @@ void session::disconnect(ClosePDU::reason_t reason)
     connected = false;
 }
 
-session::~session()
+master_proxy::~master_proxy()
 {
-    cout << "session::~session(): sending ClosePDU" << endl;
+    cout << "master_proxy::~master_proxy(): sending ClosePDU" << endl;
     
     disconnect(ClosePDU::reasonShutdown);
 }

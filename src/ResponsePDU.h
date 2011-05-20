@@ -129,7 +129,7 @@ namespace agentxcpp
 	     * - sysUpTime = 0
 	     * - error = noAgentXError
 	     * - index = 0
-	     * - varbindlist = <empty>
+	     * - varbindlist = \<empty\>
 	     */
 	    ResponsePDU();
 

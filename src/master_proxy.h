@@ -29,29 +29,31 @@
 namespace agentxcpp
 {
     /**
-     * \brief This class represents the subagent side of an agentX session.
+     * \brief This class represents the master agent in a subagent program.
      *
-     * This class represents the subagent's side of a session between subagent 
-     * and master agent.  It is possible for a subagent to hold multiple 
-     * sessions, even to the same master agent (although this is probably not 
-     * useful).
+     * This class is used on the subagent's side of a connection between 
+     * subagent and master agent. It serves as a proxy which represents the 
+     * master agent. It is possible for a subagent to hold connections to more 
+     * than one master agents. For each connection one master_proxy object is 
+     * created. Multiple connections to the same master agent are possible, too 
+     * (although this is probably not useful), in which case one master_proxy 
+     * per connection is needed.
      *
-     * A session is always in one of the following states:
-     * 
+     * The master_proxy is always in one of the following states:
+     *
      * -# connected
      * -# disconnected
-     * 
-     * The session to the master agent is established when creating a session 
-     * object, thus the object usually starts in connected state. If that 
-     * fails, the object starts in disconnected state. It is possible to 
-     * re-connect with the reconnect() function at any time (even if the 
-     * session is currently established - it will be shut down and 
-     * re-established in this case). When the object is destroyed, the session 
-     * will be cleanly shut down. The connections state can be inspected with 
-     * the is_connected() function.      
      *
-     * Some functions throw a disconnected exception if the session is not 
-     * currently established.
+     * The session to the master agent is established when creating a 
+     * master_proxy object, thus the object usually starts in connected state.  
+     * If that fails, the object will start in disconnected state. It is 
+     * possible to re-connect with the reconnect() function at any time (even 
+     * if the session is currently established - it will be shut down and 
+     * re-established in this case).  When the object is destroyed, the session 
+     * will be cleanly shut down. The connections state can be inspected with 
+     * the is_connected() function. Some functions throw a disconnected 
+     * exception if the session is not currently established.
+     *
      */
     // TODO: describe timeout handling
     // TODO: byte ordering is constant for a session. See rfc 2741, 7.1.1
@@ -102,7 +104,9 @@ namespace agentxcpp
 	    std::string description;
 
 	    /**
-	     * \brief Default timeout of the session (in seconds)
+	     * \brief Default timeout of the session (in seconds).
+	     *
+	     * A value of 0 indicates that there is no session-wide default.
 	     */
 	    byte_t default_timeout;
 
@@ -118,7 +122,7 @@ namespace agentxcpp
 	     *        socket
 	     *
 	     * The constructor tries to connect to the master agent. If that 
-	     * fails, the object is created nevertheless and is in state 
+	     * fails, the object is created nevertheless and will be in state 
 	     * disconnected.
 	     *
 	     * \param description A string describing the subagent. This
@@ -129,8 +133,7 @@ namespace agentxcpp
 	     *                        receiving a message before it regards the 
 	     *                        subagent as not responding. Allowed 
 	     *                        values are 0-255, with 0 meaning "no 
-	     *                        default for this session". 0 is also the 
-	     *                        default.
+	     *                        default for this session".
 	     *
 	     * \param ID An Object Identifier that identifies the subagent.
 	     *           Default is the null OID (no ID).
@@ -150,7 +153,7 @@ namespace agentxcpp
 	     *
 	     * This function reports the last known state. It does not actively 
 	     * check the connection to the master agent. Use the ping() member 
-	     * function to check the connection.
+	     * function to actively check the connection.
 	     *
 	     * \returns true if the session is connected, false otherwise.
 	     */
@@ -178,11 +181,22 @@ namespace agentxcpp
 	     * Disconnect from the master agent. Note that upon destruction of 
 	     * a session object the session is automatically shutdown. If the 
 	     * session is in state "disconnected", the function does nothing.
+	     *
+	     * \param reason The shutdown reason is reported to the master
+	     *               agent during shutdown.
 	     */
 	    void disconnect(ClosePDU::reason_t reason=ClosePDU::reasonShutdown);
 
 	    /**
 	     * \brief Reconnect to the master agent.
+	     *
+	     * Disconnects, then connects to the master agent. If the status is 
+	     * diconnected, the master is reconnected.
+	     *
+	     * \internal
+	     *
+	     * The connected member is inspected to find out whether a 
+	     * disconnect is needed.
 	     */
 	    void reconnect();
 
@@ -193,7 +207,8 @@ namespace agentxcpp
 	     * current state is "disconnected".
 	     *
 	     * \return The session ID of the last established session. If
-	     *         object was never connected to the master, returns 0.
+	     *         object was never connected to the master, 0 is 
+	     *         returned.
 	     */
 	    uint32_t get_sessionID()
 	    {

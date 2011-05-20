@@ -19,9 +19,10 @@
 #ifndef __AGENTX_H__
 #define __AGENTX_H__
 
+#include <boost/asio.hpp>
+
 #include <fstream>
 #include <string>
-#include <boost/asio.hpp>
 #include "types.h"
 #include "oid.h"
 #include "ClosePDU.h"
@@ -85,18 +86,6 @@ namespace agentxcpp
 	    uint32_t sessionID;
 
 	    /**
-	     * \brief The last known connect status.
-	     *
-	     * This member is set to true when a connection is established. It 
-	     * is set to false when a disconnect status is detected.
-	     *
-	     * \warning This member may still be true while the connection was
-	     *          already lost. This can happen if the connection loss 
-	     *          was not yet detected.
-	     */
-	    bool connected;
-
-	    /**
 	     * \brief A string describing the subagent.
 	     *
 	     * Set upon object creation.
@@ -151,15 +140,11 @@ namespace agentxcpp
 	    /**
 	     * \brief Check whether the session is in state connected
 	     *
-	     * This function reports the last known state. It does not actively 
-	     * check the connection to the master agent. Use the ping() member 
-	     * function to actively check the connection.
-	     *
 	     * \returns true if the session is connected, false otherwise.
 	     */
 	    bool is_connected()
 	    {
-		return connected;
+		return socket.is_open();
 	    }
 
 	    /**
@@ -168,10 +153,6 @@ namespace agentxcpp
 	     * Note that upon creation of a session object, the connection is 
 	     * automatically established. If the current state is "connected", 
 	     * the function does nothing.
-	     *
-	     * \internal
-	     *
-	     * Sets connected to true.
 	     */
 	    void connect();
 
@@ -191,12 +172,7 @@ namespace agentxcpp
 	     * \brief Reconnect to the master agent.
 	     *
 	     * Disconnects, then connects to the master agent. If the status is 
-	     * diconnected, the master is reconnected.
-	     *
-	     * \internal
-	     *
-	     * The connected member is inspected to find out whether a 
-	     * disconnect is needed.
+	     * diconnected, the master is connected.
 	     */
 	    void reconnect();
 

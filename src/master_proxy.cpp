@@ -30,7 +30,10 @@ using namespace boost;
 
 
     
-master_proxy::master_proxy(std::string descr, byte_t timeout, oid _id, std::string filename) :
+master_proxy::master_proxy(std::string descr,
+			   byte_t timeout,
+			   oid _id,
+			   std::string filename) :
     socket(io_service),
     endpoint(filename.c_str()),
     description(descr),
@@ -43,7 +46,7 @@ master_proxy::master_proxy(std::string descr, byte_t timeout, oid _id, std::stri
 
 void master_proxy::connect()
 {
-    if(connected)
+    if( is_connected() )
     {
 	// we are already connected -> nothing to do
 	return;
@@ -65,15 +68,12 @@ void master_proxy::connect()
     // Get sessionID
     sessionID = response->get_sessionID();
 
-    // We are now connected
-    connected = true;
-
     cout << "received sessionID " << sessionID << endl;
 }
 
 void master_proxy::disconnect(ClosePDU::reason_t reason)
 {
-    if( !connected )
+    if( !is_connected() )
     {
 	// we are already disconnected -> nothing to do
 	return;
@@ -89,9 +89,6 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
 
     // Close socket
     socket.close();
-
-    // We are now disconnected
-    connected = false;
 }
 
 master_proxy::~master_proxy()

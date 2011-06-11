@@ -17,14 +17,11 @@
 # for more details.
 #
 
-#import os
-
-
-# Define the install prefix
-
+# Our Environment
 env = DefaultEnvironment()
 
-# Add installation path's to environment
+# Define the install prefix
+# Add installation path's to environment:
 env['prefix']     = ARGUMENTS.get('prefix', "install-root")
 if env['prefix'][0] != '/':
     # We need a "#" to refer to /this/ dir from subsidiary SConscripts
@@ -35,16 +32,17 @@ env['includedir'] = env['prefix'] + ARGUMENTS.get('includedir', "/include")
 
 # Build library, documentation and examples, export the environment
 SConscript(['src/SConscript',
-	    'doc/SConscript'], 'env')
+	    'doc/SConscript',
+	    'unit_tests/SConscript'], 'env')
 
-# Build unit tests with their own environment
-SConscript(['unit_tests/SConscript'])
-
-
+# Define aliases for some things which can be built (bug in SCons 2.0.1: the 
+# Default() function does not work properly, using aliases solves the 
+# problem)
 Alias("doc_api", "doc/api")
 Alias("doc_internals", "doc/internals")
 Alias("agentxcpp", "src")
+Alias("unit_tests", "unit_tests/testsuite")
 
 # What to build by default
-Default('agentxcpp', 'doc_api')
+Default('agentxcpp', 'unit_tests', 'doc_api', 'doc_internals')
 

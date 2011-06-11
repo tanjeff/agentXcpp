@@ -32,5 +32,11 @@ Essential TODOs:
 
 Further TODOs:
 - Add unit tests
+- Clean up serializing/deserializing: Implementation works, but is somewhat  
+  ugly.
+- Introduce naming scheme for (private) member variables of classes, e.g. with 
+  leading underscore. Apply it consistently.
+- Check for each (!) function whether all exceptions are catched or documented   
+  (e.g. exceptions coming from STL, even if they are unlikely)
 
 */

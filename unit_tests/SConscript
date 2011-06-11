@@ -17,8 +17,10 @@
 # for more details.
 #
 
-# Build the test program
-main = Program('main.cpp',
-	       LIBS=['agentxcpp', 'boost_system', 'pthread'],
-	       LIBPATH='../src/',
-	       CPPPATH='../src/')
+Program('testsuite',
+	Glob('*.cpp'),
+	LIBS=['boost_unit_test_framework', 'agentxcpp', 'boost_system'],
+	LIBPATH=['../src/'],
+	CPPPATH=['../src/'])
+    
+Default('testsuite')

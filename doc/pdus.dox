@@ -23,11 +23,11 @@
 
 \page pdus The PDU Objects
 
-The %PDU objects, such as OpenPDU, RegisterPDU and the like represent the 
-AgentX Protocol Data Units. Each of these classes inherits from the abstract 
-PDU class which can be said to represent the header of a %PDU (although it also 
-manages the 'context', which is not strictly part of the PDU header).  This 
-header is identical for each &PDU.
+The %PDU objects, such as OpenPDU, RegisterPDU and so on represent the AgentX 
+Protocol Data Units. Each of these classes inherits from the abstract PDU class 
+which can be said to represent the header of a %PDU (although it also manages 
+the 'context', which is not strictly part of the PDU header).  The header is 
+identical for each %PDU.
 
 The concrete %PDU classes mainly serve as data containers, holding the 
 information which is required by RFC 2741 and providing functionality to 

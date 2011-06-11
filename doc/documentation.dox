@@ -30,18 +30,19 @@ documentation while the latter is used for the internals documentation.
 
 The source of documentation is (nearly) identical for both documentations.  
 Classes, members, functions, etc. are documented directly in the C++ source 
-files. The <tt>doc/</tt> directory contains the mainpages 
-(<tt>api.mainpage</tt> and <tt>internals.doxyfile</tt>), which are different 
-for the API and the internals documentation. The <tt>*.dox</tt> files provide 
-subpages explaining the concepts used in the library (e.g. the source of this 
-page is <tt>doc/documentation.dox</tt>).
+files, using the <tt>\\internal</tt> keyword mark internal-only content. The 
+<tt>doc/</tt> directory contains the mainpages (<tt>api.mainpage</tt> and 
+<tt>%internals.mainpage</tt>), which are different for the API and the 
+internals documentation. The <tt>*.dox</tt> files provide subpages explaining 
+the concepts used in the library (e.g. the source of this page is 
+<tt>doc/documentation.dox</tt>).
 
 Documentation blocks marked with the <tt>\\internal</tt> keyword are included 
 only in the internals documentation (the <tt>INTERNAL_DOCS</tt> configuration 
 item is set to <tt>YES</tt> for the internals documentation, but to <tt>NO</tt> 
 for the API documentation).  The API documentation contains only documentation 
 blocks which are not marked with <tt>\\internal</tt>. This is also true for the 
-codeblocks in <tt>*.dox</tt> files (e.g. this page is not contained in the API 
+codeblocks in <tt>*.dox</tt> files (e.g. this page is not included in the API 
 documentation).
 
 If you are developing for AgentXcpp, consider the following conventions:
@@ -49,10 +50,11 @@ If you are developing for AgentXcpp, consider the following conventions:
   <em>not</em> appear in the API documentation. If only a part of the 
   documentation block should be excluded, surround the part to be excluded with 
   <tt>\\internal</tt> and <tt>\\endinternal</tt>.
-- Include a <tt>\\brief</tt> command for every documented item
 - Document each and every item, such as classes, class members, functions, 
   global variables, etc.
-- Include a subpage (i.e. a <tt>*.dox</tt> file) for each abstract concept.
+- Include a <tt>\\brief</tt> command for every documented item.
+- Include a subpage (i.e. a <tt>*.dox</tt> file) for each abstract concept.  
+  Add links to that pages to the appropriate mainpage(s).
 
 
 */

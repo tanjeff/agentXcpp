@@ -53,7 +53,7 @@ as she either don't give her code away or she licenses her code under the terms
 of the GPL.  The author of agentXcpp considers "using a library" to not create 
 a derivative or combined work. Using the library should not restrict the user's 
 choice of how to license her own work - its up to the creator of \em that 
-program to choose a license..
+program to choose a license.
 
 The Lesser General Public License (LGPL) would have been an alternative to the 
 GPL, but it imposes some requirements to the user to be compliant to the 
@@ -72,8 +72,11 @@ The authour could have choosen one of them. This would have made agentXcpp a
 free software, but these licenses do not ensure that the software remains free.  
 For the author, it was not an option that users (especially companies) could 
 benefit from their improvements to free software while not giving them back to 
-the community.  In the authors opinion it is acceptable that changes to a 
-freesoftware are made available to other users, even for companies.
+the community. The agentXcpp library may still be modified, even by companies, 
+and it is explicitly allowed to distribute the modified version, e.g. to 
+customers, as long this is done under the terms of the GPL.
+
+
 
 
 

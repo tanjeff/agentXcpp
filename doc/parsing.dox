@@ -50,9 +50,8 @@ buffer is completely parsed.
 The 'end' iterator seen in the above constructor prototype is needed to know 
 the end of the buffer. Parse constructors use it to detect missing data at the 
 end of the buffer. For example, the serialized form of an Integer is 4 bytes in 
-size; if pos points to the last bytes in the buffer, the integer is corrupted.  
-This can be detected using the 'end' iterator (this also avoids a crash in case 
-of parsing corrupted PDUs).
+size; if pos points to the last byte in the buffer, the integer is corrupted.  
+This can be detected using the 'end' iterator.
 
 Reading a PDU is initiated by calling the static class member 
 agentxcpp::PDU::get_pdu(input_stream & in). The input stream can be a file, a 

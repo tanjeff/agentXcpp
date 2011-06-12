@@ -20,6 +20,7 @@
 #include "OpenPDU.h"
 #include "ClosePDU.h"
 #include "RegisterPDU.h"
+#include "UnregisterPDU.h"
 #include "helper.h"
 
 using namespace agentxcpp;
@@ -150,6 +151,12 @@ PDU* PDU::get_pdu(boost::asio::local::stream_protocol::socket& in)
             break;
 	case agentxClosePDU:
 	    pdu = new ClosePDU(pos, end, big_endian);
+	    break;
+	case agentxRegisterPDU:
+	    pdu = new RegisterPDU(pos, end, big_endian);
+	    break;
+	case agentxUnregisterPDU:
+	    pdu = new UnregisterPDU(pos, end, big_endian);
 	    break;
 	case agentxResponsePDU:
 	    pdu = new RegisterPDU(pos, end, big_endian);

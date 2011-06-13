@@ -43,6 +43,7 @@ constructor of the base class, PDU, which initializes the header fields to
 their default values.
 
 Further information can be found on these pages:
+- \subpage serializing
 - \subpage parsing
 
 */

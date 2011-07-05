@@ -31,6 +31,7 @@ GetPDU::GetPDU(data_t::const_iterator& pos,
     while( pos < end )
     {
 	sr.push_back(oid(pos, end, big_endian));
+	pos += 4;   // ignore empty "end" oid
     }
 }
 	    

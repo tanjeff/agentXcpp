@@ -17,7 +17,7 @@
  * for more details.
  */
 
-#include "IpAddress.h"
+#include "IpAddress.hpp"
 
 using namespace agentxcpp;
 

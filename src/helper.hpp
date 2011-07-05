@@ -20,7 +20,7 @@
 #ifndef __HELPER_H__
 #define __HELPER_H__
 
-#include "types.h"
+#include "types.hpp"
 
 inline uint32_t read32(data_t::const_iterator& pos, bool big_endian)
 {

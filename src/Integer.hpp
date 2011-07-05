@@ -17,47 +17,56 @@
  * for more details.
  */
 
-#ifndef _OCTET_STRING_H_
-#define _OCTET_STRING_H_
+#ifndef _INTEGER_H_
+#define _INTEGER_H_
 
-#include "types.h"
-#include "variable.h"
-#include "exceptions.h"
+#include "types.hpp"
+#include "variable.hpp"
+#include "exceptions.hpp"
 
 namespace agentxcpp
 {
     /**
-     * \brief Represents an Octet String as descibed in RFC 2741, section 5.3
+     * \brief Represents an Integer as descibed in RFC 2741
      */
-    class Octet_String : public variable
+    class Integer : public variable
     {
 	protected:
-	    // We use data_t here although it was not invented for this.
-	    // TODO: Is this a problem?
-	    data_t value;
+	    /**
+	     * \brief The Integer value
+	     */
+	    uint32_t value;
 
 	public:
 	    /**
+	     * \brief Create an Integer object
+	     */
+	    Integer(uint32_t _value) :value(_value) {}
+
+	    /**
+	     * \brief Get the value
+	     */
+	    uint32_t get_value()
+	    {
+		return value;
+	    }
+	    
+	    /**
+	     * \brief Set the value
+	     */
+	    void set_value(uint32_t v)
+	    {
+		value = v;
+	    }
+	    
+	    /**
 	     * \internal
 	     *
-	     * \brief Encode the object as described in RFC 2741, section 5.3
+	     * \brief Encode the object as described in RFC 2741, section 5.4
 	     *
-	     * Note:
-	     * We always use big endian.
+	     * This function uses big endian.
 	     */
-	    data_t serialize() const;
-
-	    /**
-	     * \brief FIXME
-	     */
-	    Octet_String(data_t initial_value) : value(initial_value) {}
-
-	    Octet_String(std::string initial_value);
-
-	    /**
-	     * \brief FIXME
-	     */
-	    Octet_String() { }
+	    virtual data_t serialize() const;
 	    
 	    /**
 	     * \internal
@@ -83,19 +92,15 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Octet_String(data_t::const_iterator& pos,
-		         const data_t::const_iterator& end,
-			 bool big_endian=true);
-
+	    Integer(data_t::const_iterator& pos,
+		    const data_t::const_iterator& end,
+		    bool big_endian=true);
+	    
+	private:
 	    /**
-	     * \brief Set the current value
+	     * \brief hide default constructor
 	     */
-	    void set_value(data_t new_value) { value = new_value; }
-
-	    /**
-	     * \brief get the current value
-	     */
-	    data_t get_value() { return value; }
+	    Integer();
     };
 }
 

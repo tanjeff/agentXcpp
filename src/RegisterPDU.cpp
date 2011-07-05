@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#include "RegisterPDU.h"
-#include "helper.h"
+#include "RegisterPDU.hpp"
+#include "helper.hpp"
 
 using namespace agentxcpp;
 

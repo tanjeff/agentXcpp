@@ -21,9 +21,9 @@
 
 #include <istream>
 
-#include "types.h"
-#include "oid.h"
-#include "variable.h"
+#include "types.hpp"
+#include "oid.hpp"
+#include "variable.hpp"
 
 namespace agentxcpp
 {

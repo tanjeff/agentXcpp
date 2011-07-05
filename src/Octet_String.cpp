@@ -19,7 +19,7 @@
 
 #include <iterator>
 
-#include "Octet_String.h"
+#include "Octet_String.hpp"
 
 using namespace agentxcpp;
 

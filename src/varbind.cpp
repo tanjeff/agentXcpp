@@ -16,16 +16,16 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#include "varbind.h"
-#include "Octet_String.h"
-#include "Integer.h"
-#include "Counter32.h"
-#include "Counter64.h"
-#include "Gauge32.h"
-#include "TimeTicks.h"
-#include "Opaque.h"
-#include "IpAddress.h"
-#include "helper.h"
+#include "varbind.hpp"
+#include "Octet_String.hpp"
+#include "Integer.hpp"
+#include "Counter32.hpp"
+#include "Counter64.hpp"
+#include "Gauge32.hpp"
+#include "TimeTicks.hpp"
+#include "Opaque.hpp"
+#include "IpAddress.hpp"
+#include "helper.hpp"
 
 using namespace agentxcpp;
 

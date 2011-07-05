@@ -16,34 +16,37 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
+#ifndef _OPAQUE_H_
+#define _OPAQUE_H_
 
-#ifndef _COUNTER32_H_
-#define _COUNTER32_H_
-
-#include "types.h"
-#include "variable.h"
-#include "exceptions.h"
+#include "types.hpp"
+#include "variable.hpp"
+#include "exceptions.hpp"
 
 namespace agentxcpp
 {
     /**
-     * \brief Represents an Integer as descibed in RFC 2741
+     * \brief Represents an Opaque obejct as descibed in RFC 2741, section 
+     * 5.4
      */
-    class Counter32 : public variable
+    class Opaque : public variable
     {
 	protected:
-	    /**
-	     * \brief The counter value
-	     */
-	    uint32_t value;
+	    // We use data_t here although it was not invented for this.
+	    // TODO: Is this a problem?
+	    data_t value;
 
 	public:
 	    /**
-	     * \brief Create a counter without initialization.
+	     * \internal
 	     *
-	     * The value after creation is undefined.
+	     * \brief Encode the object as described in RFC 2741, section 5.4 / 
+	     * 5.3
+	     *
+	     * Note:
+	     * We always use big endian.
 	     */
-	    Counter32() {}
+	    data_t serialize() const;
 	    
 	    /**
 	     * \internal
@@ -69,19 +72,13 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Counter32(data_t::const_iterator& pos,
-		      const data_t::const_iterator& end,
-		      bool big_endian=true);
-	    
-	    /**
-	     * \internal
-	     *
-	     * \brief Encode the object as described in RFC 2741, section 5.4
-	     *
-	     * This function uses big endian.
-	     */
-	    virtual data_t serialize() const;
-	    
+	    Opaque(data_t::const_iterator& pos,
+		   const data_t::const_iterator& end,
+		   bool big_endian=true);
+
+	    Opaque(data_t initial_value) : value(initial_value) {}
+
+	    Opaque() { }
     };
 }
 

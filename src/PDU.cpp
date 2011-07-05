@@ -16,12 +16,12 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#include "PDU.h"
-#include "OpenPDU.h"
-#include "ClosePDU.h"
-#include "RegisterPDU.h"
-#include "UnregisterPDU.h"
-#include "helper.h"
+#include "PDU.hpp"
+#include "OpenPDU.hpp"
+#include "ClosePDU.hpp"
+#include "RegisterPDU.hpp"
+#include "UnregisterPDU.hpp"
+#include "helper.hpp"
 
 using namespace agentxcpp;
 

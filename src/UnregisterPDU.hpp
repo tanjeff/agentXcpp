@@ -16,27 +16,25 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __REGISTERPDU_H__
-#define __REGISTERPDU_H__
+#ifndef __UNREGISTERPDU_H__
+#define __UNREGISTERPDU_H__
 
-#include "types.h"
-#include "oid.h"
-#include "PDU.h"
+#include "PDU.hpp"
+#include "oid.hpp"
 
 namespace agentxcpp
 {
     /**
      * \internal
      *
-     * \brief This class represents a Register-PDU.
+     * \brief This class represents an Unregister-PDU.
      */
-    class RegisterPDU : public PDU
+    class UnregisterPDU : public PDU
     {
 	private:
-	    byte_t timeout;
 	    byte_t priority;
-	    oid subtree;
 	    byte_t range_subid;
+	    oid subtree;
 	    oid upper_bound;
 
 	public:
@@ -101,21 +99,6 @@ namespace agentxcpp
 	    }
 
 	    /**
-	     * \brief Set the timeout.
-	     */
-	    void set_timeout(byte_t timeout)
-	    {
-		this->timeout = timeout;
-	    }
-	    /**
-	     * \brief Get the timeout.
-	     */
-	    byte_t get_timeout()
-	    {
-		return this->timeout;
-	    }
-
-	    /**
 	     * \brief Parse constructor
 	     *
 	     * Construct the object by parsing a stream. See \ref parsing for 
@@ -135,9 +118,9 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    RegisterPDU(data_t::const_iterator& pos,
-			const data_t::const_iterator& end,
-			bool big_endian);
+	    UnregisterPDU(data_t::const_iterator& pos,
+			  const data_t::const_iterator& end,
+			  bool big_endian);
 	    
 	    /**
 	     * \brief Serialize the %PDU
@@ -149,14 +132,14 @@ namespace agentxcpp
 	     *
 	     * Sets the state of the object to the defaults as set by the 
 	     * PDU::PDU() constructor, plus the following:
-	     * - timeout = 0
-	     * - priority = 127 (According to RFC 2741, section '6.2.3. The 
+	     * - priority = 127 (The default when registering an object 
+	     *   according to RFC 2741, section '6.2.3.  The   
 	     *   agentx-Register-PDU')
 	     * - subtree = null Object Identifier
 	     * - range_subid = 0
 	     * - upper_bound = null Object Identifier
 	     */
-	    RegisterPDU();
+	    UnregisterPDU();
     };
 }
 #endif

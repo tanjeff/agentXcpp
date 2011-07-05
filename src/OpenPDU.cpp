@@ -17,7 +17,7 @@
  * for more details.
  */
 
-#include "OpenPDU.h"
+#include "OpenPDU.hpp"
 
 
 using namespace agentxcpp;

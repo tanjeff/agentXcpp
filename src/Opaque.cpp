@@ -17,7 +17,7 @@
  * for more details.
  */
 
-#include "Opaque.h"
+#include "Opaque.hpp"
 
 using namespace agentxcpp;
 

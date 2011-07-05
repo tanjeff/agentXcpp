@@ -17,7 +17,7 @@
  * for more details.
  */
 
-#include "GetPDU.h"
+#include "GetPDU.hpp"
 
 
 using namespace agentxcpp;

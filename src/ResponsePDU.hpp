@@ -23,10 +23,10 @@
 #include <vector>
 using std::vector;
 
-#include "PDU.h"
-#include "oid.h"
-#include "Octet_String.h"
-#include "varbind.h"
+#include "PDU.hpp"
+#include "oid.hpp"
+#include "Octet_String.hpp"
+#include "varbind.hpp"
 
 
 namespace agentxcpp

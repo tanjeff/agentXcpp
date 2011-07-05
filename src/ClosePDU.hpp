@@ -20,9 +20,9 @@
 #ifndef __CLOSEPDU_H__
 #define __CLOSEPDU_H__
 
-#include "exceptions.h"
-#include "types.h"
-#include "PDU.h"
+#include "exceptions.hpp"
+#include "types.hpp"
+#include "PDU.hpp"
 
 namespace agentxcpp
 {

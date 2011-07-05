@@ -19,7 +19,7 @@
 #ifndef _VARIABLE_H_
 #define _VARIABLE_H_
 
-#include "types.h"
+#include "types.hpp"
 
 /**
  * \internal

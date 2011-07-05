@@ -23,9 +23,9 @@
 #include <vector>
 #include <ostream>
 #include <string>
-#include "variable.h"
-#include "types.h"
-#include "exceptions.h"
+#include "variable.hpp"
+#include "types.hpp"
+#include "exceptions.hpp"
 
 namespace agentxcpp
 {

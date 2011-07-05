@@ -1,5 +1,5 @@
-#include "ResponsePDU.h"
-#include "helper.h"
+#include "ResponsePDU.hpp"
+#include "helper.hpp"
 
 using namespace agentxcpp;
 

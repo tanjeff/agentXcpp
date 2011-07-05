@@ -20,9 +20,9 @@
 #ifndef _GAUGE32_H_
 #define _GAUGE32_H_
 
-#include "types.h"
-#include "variable.h"
-#include "exceptions.h"
+#include "types.hpp"
+#include "variable.hpp"
+#include "exceptions.hpp"
 
 namespace agentxcpp
 {

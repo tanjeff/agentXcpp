@@ -16,7 +16,7 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#include "TimeTicks.h"
+#include "TimeTicks.hpp"
 
 using namespace agentxcpp;
 

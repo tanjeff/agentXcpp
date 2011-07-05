@@ -16,34 +16,33 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
+#ifndef _TIMETICKS_H_
+#define _TIMETICKS_H_
 
-#ifndef _COUNTER64_H_
-#define _COUNTER64_H_
-
-#include "types.h"
-#include "variable.h"
-#include "exceptions.h"
+#include "types.hpp"
+#include "variable.hpp"
+#include "exceptions.hpp"
 
 namespace agentxcpp
 {
     /**
-     * \brief Represents an Integer as descibed in RFC 2741
+     * \brief Represents an TimeTicks as descibed in RFC 2741
      */
-    class Counter64 : public variable
+    class TimeTicks : public variable
     {
 	protected:
 	    /**
-	     * \brief The counter value
+	     * \brief The TimeTicks value
 	     */
-	    uint64_t value;
+	    uint32_t value;
 
 	public:
 	    /**
-	     * \brief Create a counter without initialization.
+	     * \brief Create an TimeTicks without initialization.
 	     *
 	     * The value after creation is undefined.
 	     */
-	    Counter64() {}
+	    TimeTicks() {}
 	    
 	    /**
 	     * \internal
@@ -69,7 +68,7 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Counter64(data_t::const_iterator& pos,
+	    TimeTicks(data_t::const_iterator& pos,
 		      const data_t::const_iterator& end,
 		      bool big_endian=true);
 	    

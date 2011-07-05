@@ -17,57 +17,30 @@
  * for more details.
  */
 
-#ifndef _INTEGER_H_
-#define _INTEGER_H_
+#ifndef _IPADDRESS_H_
+#define _IPADDRESS_H_
 
-#include "types.h"
-#include "variable.h"
-#include "exceptions.h"
+#include "types.hpp"
+#include "variable.hpp"
+#include "exceptions.hpp"
 
 namespace agentxcpp
 {
     /**
-     * \brief Represents an Integer as descibed in RFC 2741
+     * \brief Represents an IP address as descibed in RFC 2741, section 5.4
      */
-    class Integer : public variable
+    class IpAddress : public variable
     {
-	protected:
+	private:
 	    /**
-	     * \brief The Integer value
+	     * \brief Hide default constructor
 	     */
-	    uint32_t value;
+	    IpAddress();
+
+	protected:
+	    uint32_t address[4]; // only IPv4
 
 	public:
-	    /**
-	     * \brief Create an Integer object
-	     */
-	    Integer(uint32_t _value) :value(_value) {}
-
-	    /**
-	     * \brief Get the value
-	     */
-	    uint32_t get_value()
-	    {
-		return value;
-	    }
-	    
-	    /**
-	     * \brief Set the value
-	     */
-	    void set_value(uint32_t v)
-	    {
-		value = v;
-	    }
-	    
-	    /**
-	     * \internal
-	     *
-	     * \brief Encode the object as described in RFC 2741, section 5.4
-	     *
-	     * This function uses big endian.
-	     */
-	    virtual data_t serialize() const;
-	    
 	    /**
 	     * \internal
 	     *
@@ -92,15 +65,34 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Integer(data_t::const_iterator& pos,
-		    const data_t::const_iterator& end,
-		    bool big_endian=true);
-	    
-	private:
+	    IpAddress(data_t::const_iterator& pos,
+		      const data_t::const_iterator& end,
+		      bool big_endian=true);
+
 	    /**
-	     * \brief hide default constructor
+	     * \internal
+	     *
+	     * \brief Encode the object as described in RFC 2741, section 5.4 / 
+	     * 5.3
+	     *
+	     * Note:
+	     * We always use big endian.
 	     */
-	    Integer();
+	    data_t serialize() const;
+
+	    /**
+	     * \brief FIXME
+	     */
+	    IpAddress(uint32_t a,
+		    uint32_t b,
+		    uint32_t c,
+		    uint32_t d)
+	    {
+		address[0] = a;
+		address[1] = b;
+		address[2] = c;
+		address[3] = d;
+	    }
     };
 }
 

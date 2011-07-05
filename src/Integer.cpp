@@ -17,7 +17,7 @@
  * for more details.
  */
 
-#include "Integer.h"
+#include "Integer.hpp"
 
 using namespace agentxcpp;
 

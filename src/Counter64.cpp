@@ -17,7 +17,7 @@
  * for more details.
  */
 
-#include "Counter64.h"
+#include "Counter64.hpp"
 
 using namespace agentxcpp;
 

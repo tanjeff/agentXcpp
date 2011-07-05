@@ -20,9 +20,9 @@
 #ifndef __PDU_H__
 #define __PDU_H__
 
-#include "types.h"
-#include "exceptions.h"
-#include "Octet_String.h"
+#include "types.hpp"
+#include "exceptions.hpp"
+#include "Octet_String.hpp"
 #include <boost/asio.hpp>
 
 namespace agentxcpp

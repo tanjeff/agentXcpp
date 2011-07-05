@@ -23,7 +23,7 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 
-#include <Integer.h>
+#include <Integer.hpp>
 
 
 

@@ -23,9 +23,9 @@
 
 #include <fstream>
 #include <string>
-#include "types.h"
-#include "oid.h"
-#include "ClosePDU.h"
+#include "types.hpp"
+#include "oid.hpp"
+#include "ClosePDU.hpp"
 
 namespace agentxcpp
 {

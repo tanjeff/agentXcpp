@@ -17,7 +17,7 @@
  * for more details.
  */
 
-#include "Gauge32.h"
+#include "Gauge32.hpp"
 
 using namespace agentxcpp;
 

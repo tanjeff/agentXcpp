@@ -17,7 +17,7 @@
  * for more details.
  */
 
-#include "ClosePDU.h"
+#include "ClosePDU.hpp"
 
 using namespace agentxcpp;
 	    

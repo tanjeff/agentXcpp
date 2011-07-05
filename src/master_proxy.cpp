@@ -16,11 +16,11 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#include "master_proxy.h"
-#include "OpenPDU.h"
-#include "ClosePDU.h"
-#include "helper.h"
-#include "types.h"
+#include "master_proxy.hpp"
+#include "OpenPDU.hpp"
+#include "ClosePDU.hpp"
+#include "helper.hpp"
+#include "types.hpp"
 
 #include <iostream>
 using namespace std;

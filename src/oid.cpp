@@ -18,7 +18,7 @@
  */
 
 #include <iostream>
-#include "oid.h"
+#include "oid.hpp"
 using namespace agentxcpp;
 
 

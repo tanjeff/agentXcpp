@@ -16,26 +16,33 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __OPENPDU_H__
-#define __OPENPDU_H__
+#ifndef __GETPDU_H__
+#define __GETPDU_H__
 
-#include "PDU.h"
-#include "oid.h"
-#include "Octet_String.h"
+#include <vector>
+using std::vector;
+
+#include "PDU.hpp"
+#include "oid.hpp"
 
 namespace agentxcpp
 {
     /**
      * \internal
      *
-     * \brief Represents an Open-PDU
+     * \brief Represents an Get-PDU
      */
-    class OpenPDU : public PDU
+    class GetPDU : public PDU
     {
 	private:
-	    byte_t timeout;
-	    oid id;
-	    Octet_String descr;
+	    /**
+	     * \brief The SearchRange list
+	     *
+	     * A SearchRange consists of two OID's, but for GetPDU's the second 
+	     * OID is always the null OID. We simply store the OID's for the 
+	     * getPDU into a vector<>.
+	     */
+	    vector<oid> sr;
 
 	public:
 	    /**
@@ -58,78 +65,31 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    OpenPDU(data_t::const_iterator& pos,
-		    const data_t::const_iterator& end,
-		    bool big_endian);
+	    GetPDU(data_t::const_iterator& pos,
+		   const data_t::const_iterator& end,
+		   bool big_endian);
 
 	    /**
 	     * \brief Default Constructor
 	     *
 	     * Sets the state of the object to the defaults as set by the 
-	     * PDU::PDU() constructor, plus the following:
-	     * - timeout = 0
-	     * - oid = null Object Identifier
-	     * - descr = empty string
+	     * PDU::PDU() constructor, and initializes sr to be empty.
 	     */
-	    OpenPDU();
-
-	    /**
-	     * \brief Get timeout
-	     */
-	    byte_t get_timeout()
-	    {
-		return this->timeout;
-	    }
-
-	    /**
-	     * \brief Set timeout
-	     *
-	     * \param timeout The length of time, in seconds, that a master
-	     *		      agent should allow to elapse after dispatching a 
-	     *		      message on a session before it regards the 
-	     *		      subagent as not responding. This is the default 
-	     *		      value for the session, and may be overridden by 
-	     *		      values associated with specific registered MIB 
-	     *		      regions.  The default value of 0 indicates that 
-	     *		      there is no session-wide default value.
-	     */
-	    void set_timeout(byte_t timeout)
-	    {
-		this->timeout = timeout;
-	    }
-
-	    /**
-	     * \brief Get ID
-	     */
-	    oid get_id()
-	    {
-		return this->id;
-	    }
-
-	    /**
-	     * \brief Set ID
-	     */
-	    void set_id(oid id)
-	    {
-		this->id = id;
-	    }
+	    GetPDU() { }
 	    
 	    /**
-	     * \brief Get descr
+	     * \brief Get the SearchRange list
+	     *
+	     * This function returns a reference to the internal SearchRange 
+	     * list, which can then be modified in place.
+	     *
+	     * \note There is no set_sr() function, because the SearchRange
+	     *       list can be modified in place.
 	     */
-	    Octet_String get_descr()
+	    vector<oid>& get_sr()
 	    {
-		return this->descr;
+		return this->sr;
 	    }
-
-	    /**
-	     * \brief Set descr
-	     */
-	    void set_descr(Octet_String descr)
-	    {
-		this->descr = descr;
-	    }
-
 
 	    /**
 	     * \brief Serialize the %PDU

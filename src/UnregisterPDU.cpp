@@ -24,7 +24,7 @@ using namespace agentxcpp;
 UnregisterPDU::UnregisterPDU(data_t::const_iterator& pos,
 			     const data_t::const_iterator& end,
 			     bool big_endian)
-    :PDU(pos, end, big_endian)   // parse header
+    :PDUwithContext(pos, end, big_endian)   // parse header
 {
     if(end - pos < 4)
     {

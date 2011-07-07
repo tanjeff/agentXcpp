@@ -22,7 +22,7 @@
 #include <vector>
 using std::vector;
 
-#include "PDU.hpp"
+#include "PDUwithContext.hpp"
 #include "oid.hpp"
 
 namespace agentxcpp
@@ -32,7 +32,7 @@ namespace agentxcpp
      *
      * \brief Represents an Get-PDU
      */
-    class GetPDU : public PDU
+    class GetPDU : public PDUwithContext
     {
 	private:
 	    /**

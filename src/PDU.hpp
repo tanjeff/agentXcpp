@@ -22,7 +22,6 @@
 
 #include "types.hpp"
 #include "exceptions.hpp"
-#include "Octet_String.hpp"
 #include <boost/asio.hpp>
 
 namespace agentxcpp
@@ -33,16 +32,14 @@ namespace agentxcpp
      * \brief The base class of all PDU's
      *
      * This class is never instantiated itself, but serves as the base class 
-     * for all concrete %PDU classes (e.g.  OpenPDU). It contains data and 
-     * functionality common to all %PDU types and can be said to represent the 
-     * %PDU header. Note, however, that in terms of RFC2741 it does not exactly 
-     * represent a %PDU header; for example it takes care of the context field 
-     * of the %PDU's, which is not part of the header (but is common to many 
-     * %PDU types).
-     *
-     * This class also provides an automatic packetID generator. Whenever a PDU 
-     * object is created, the packetID is automatically incremented. The two 
-     * exceptions are:
+     * for concrete %PDU classes which don't have a context field (e.g.  
+     * OpenPDU). For concrete %PDU's with context field, the class 
+     * PDUwithContext is used.
+     * 
+     * This class represents the %PDU header and contains data and 
+     * functionality common to all %PDU types. It provides an automatic 
+     * packetID generator. Whenever a PDU object is created, the packetID is 
+     * automatically incremented. The two exceptions are:
      * - The parse contructor fills the packetID from the received %PDU
      * - The ResponsePDU class overwrites the packetID
      *
@@ -52,11 +49,22 @@ namespace agentxcpp
     class PDU
     {
 	private:
-	    // header flags
+
+	    /**
+	     * \brief the instance_registration flag
+	     */
 	    bool instance_registration;
+
+	    /**
+	     * \brief the new_index flag
+	     */
 	    bool new_index;
+
+	    /**
+	     * \brief the any_index flag
+	     */
 	    bool any_index;
-	    
+
 	    /**
 	     * \brief h.sessionID field
 	     *
@@ -72,19 +80,6 @@ namespace agentxcpp
 	    uint32_t transactionID;
 	    
 	    /**
-	     * \brief The PDU context
-	     *
-	     * The PDU context, if any. If this field is NULL, the PDU has the 
-	     * default context or no context, depending on the %PDU.
-	     *
-	     * When serializing a %PDU, the context (if present) is included.  
-	     * When parsing a %PDU, this field is filled.
-	     *
-	     * \warning The context is deleted on PDU destruction if not 0.
-	     */
-	    Octet_String* context;
-
-	    /**
 	     * \brief Counter for automatic packetID generator
 	     *
 	     * The packetID member is set automatically by the constructors; 
@@ -98,6 +93,15 @@ namespace agentxcpp
 	    
 
 	protected:
+	    /**
+	     * \brief Whether the PDU has a non-default context
+	     *
+	     * This field is only meaningful for certain PDU's (see RFC 2741, 
+	     * section 6.1.1 "Context" for a description). 
+	     * 
+	     */
+	    bool non_default_context;
+
 	    /**
 	     * \brief The PDU types
 	     *
@@ -167,9 +171,8 @@ namespace agentxcpp
 	    /**
 	     * \brief Construct the PDU header and add it to the payload
 	     *
-	     * Add the PDU header to the payload. This also adds the context, 
-	     * although it is not strictly part of the header. Called by 
-	     * derived classes during serialization.
+	     * Add the PDU header to the payload. Called by derived classes 
+	     * during serialization.
 	     * 
 	     * \warning The payload must not grow or shrink after a call to
 	     *          this function as its size is encoded into the header.
@@ -180,11 +183,11 @@ namespace agentxcpp
 	     * The header is encoded in big endian format.
 	     *
 	     * \param type The PDU type, according to RFC 2741, 6.1. "AgentX
-	     *             PDU Header"
+	     *             PDU Header".
 	     *
-	     * \param payload The payload of the PDU, excluding the context.
-	     *		      The header is added to the payload, i.e. payload 
-	     *		      is altered by this function.
+	     * \param payload The payload of the PDU. The header is added to
+	     *                the payload, i.e. payload is altered by this 
+	     *                function.
 	     */
 	    void add_header(type_t type, data_t& payload) const;
 
@@ -196,10 +199,10 @@ namespace agentxcpp
 	     *   packetID_cnt value.
 	     * - sessionID = 0
 	     * - transactionID = 0
-	     * - context = 0
 	     * - instance_registration = false
 	     * - new_index = false
-	     * - any_index = false.
+	     * - any_index = false
+	     * - non_default_context = false
 	     */
 	    PDU();
 
@@ -261,25 +264,6 @@ namespace agentxcpp
 	    void set_packetID(uint32_t packetID) { this->packetID = packetID; }
 	    
 	    /**
-	     * \brief Get context
-	     */
-	    Octet_String* get_context() { return context; }
-
-	    /**
-	     * \brief Set context
-	     *
-	     * \warning The old context is deleted by this function. The
-	     *          context is also deleted by the desctructor.  It must 
-	     *          therefore be created using 'new'.
-	     */
-	    void set_context(Octet_String* c)
-	    {
-		if( context ) delete context;
-		context = c;
-	    }
-
-	    
-	    /**
 	     * \brief Parse a %PDU from an input stream
 	     *
 	     * Read the %PDU into a buffer, then create a %PDU of the according 
@@ -301,20 +285,12 @@ namespace agentxcpp
 	     * \return Pointer to PDU object of according type; the user must
 	     *	       delete the object if it is not longer needed.
 	     */
-	    /*
-	    static PDU* get_pdu(input_stream& in);
-	    */
 	    static PDU* get_pdu(boost::asio::local::stream_protocol::socket& in);
-
-	    /**
-	     * \brief Destructor
+	    /* TODO: I originally wanted to use this one to be more flexible 
+	     * (e.g.  read from cin, write to cout):
 	     *
-	     * The destructor deletes the context, if any.
+	     * static PDU* get_pdu(input_stream& in);
 	     */
-	    ~PDU()
-	    {
-		if( context ) delete context;
-	    }
     };
 }
 

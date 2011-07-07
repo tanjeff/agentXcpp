@@ -43,7 +43,7 @@ ResponsePDU::ResponsePDU()
 
 
 ResponsePDU::ResponsePDU(data_t::const_iterator& pos,
-			 data_t::const_iterator& end,
+			 const data_t::const_iterator& end,
 			 bool big_endian)
     : PDU(pos, end, big_endian)
 {

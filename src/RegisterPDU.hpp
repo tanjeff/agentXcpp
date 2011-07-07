@@ -21,7 +21,7 @@
 
 #include "types.hpp"
 #include "oid.hpp"
-#include "PDU.hpp"
+#include "PDUwithContext.hpp"
 
 namespace agentxcpp
 {
@@ -30,7 +30,7 @@ namespace agentxcpp
      *
      * \brief This class represents a Register-PDU.
      */
-    class RegisterPDU : public PDU
+    class RegisterPDU : public PDUwithContext
     {
 	private:
 	    byte_t timeout;

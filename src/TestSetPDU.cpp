@@ -25,7 +25,7 @@ using namespace agentxcpp;
 TestSetPDU::TestSetPDU(data_t::const_iterator& pos,
 			  const data_t::const_iterator& end,
 			  bool big_endian)
-    : PDU(pos, end, big_endian)
+    : PDUwithContext(pos, end, big_endian)
 {
     // Get VarBind's until the PDU is completely parsed
     while( pos < end )

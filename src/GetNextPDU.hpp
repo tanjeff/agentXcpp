@@ -25,7 +25,7 @@
 using std::vector;
 using std::pair;
 
-#include "PDU.hpp"
+#include "PDUwithContext.hpp"
 #include "oid.hpp"
 
 namespace agentxcpp
@@ -35,7 +35,7 @@ namespace agentxcpp
      *
      * \brief Represents an GetNext-PDU
      */
-    class GetNextPDU : public PDU
+    class GetNextPDU : public PDUwithContext
     {
 	private:
 	    /**

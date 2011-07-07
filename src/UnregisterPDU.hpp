@@ -19,7 +19,7 @@
 #ifndef __UNREGISTERPDU_H__
 #define __UNREGISTERPDU_H__
 
-#include "PDU.hpp"
+#include "PDUwithContext.hpp"
 #include "oid.hpp"
 
 namespace agentxcpp
@@ -29,7 +29,7 @@ namespace agentxcpp
      *
      * \brief This class represents an Unregister-PDU.
      */
-    class UnregisterPDU : public PDU
+    class UnregisterPDU : public PDUwithContext
     {
 	private:
 	    byte_t priority;

@@ -22,7 +22,7 @@
 #include <vector>
 using std::vector;
 
-#include "PDU.hpp"
+#include "PDUwithContext.hpp"
 #include "varbind.hpp"
 
 namespace agentxcpp
@@ -32,7 +32,7 @@ namespace agentxcpp
      *
      * \brief Represents an TestSet-PDU
      */
-    class TestSetPDU : public PDU
+    class TestSetPDU : public PDUwithContext
     {
 	private:
 	    /**

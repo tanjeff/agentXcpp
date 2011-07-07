@@ -21,6 +21,7 @@
 #include "ClosePDU.hpp"
 #include "RegisterPDU.hpp"
 #include "UnregisterPDU.hpp"
+#include "ResponsePDU.hpp"
 #include "helper.hpp"
 
 using namespace agentxcpp;
@@ -36,11 +37,11 @@ PDU::PDU()
 
     sessionID = 0;
     transactionID = 0;
-    context = 0;
 
     instance_registration=false;
     new_index=false;
     any_index=false;
+    non_default_context = false;
 
 }
 
@@ -62,31 +63,22 @@ PDU::PDU(data_t::const_iterator& pos,
     instance_registration    = ( flags & (1<<0) ) ? true : false;
     new_index                = ( flags & (1<<1) ) ? true : false;
     any_index                = ( flags & (1<<2) ) ? true : false;
+    non_default_context      = ( flags & (1<<3) ) ? true : false;
 
     // skip reserved field
     pos++;
 
-    // sessionID
+    // read sessionID
     sessionID = read32(pos, big_endian);
 
-    // transactionID
+    // read transactionID
     transactionID = read32(pos, big_endian);
 
-    // packetID
+    // read packetID
     packetID = read32(pos, big_endian);
 
     // skip payload length (not needed here)
     pos += 4;
-
-    // Read context if present
-    if( flags & (1<<3) ) // NON_DEFAULT_CONTEXT set?
-    {
-        context = new Octet_String(pos, end, big_endian);
-    }
-    else
-    {
-        context = 0;	// no context in PDU
-    }
 }
 
 
@@ -140,7 +132,7 @@ PDU* PDU::get_pdu(boost::asio::local::stream_protocol::socket& in)
     // read type
     byte_t type = buf[1];
 
-    // create PDU
+    // create PDU (TODO: complete the list!)
     PDU* pdu;
     pos = buf.begin();
     const data_t::const_iterator end = buf.end();
@@ -159,7 +151,7 @@ PDU* PDU::get_pdu(boost::asio::local::stream_protocol::socket& in)
 	    pdu = new UnregisterPDU(pos, end, big_endian);
 	    break;
 	case agentxResponsePDU:
-	    pdu = new RegisterPDU(pos, end, big_endian);
+	    pdu = new ResponsePDU(pos, end, big_endian);
 	    break;
 	default:
 	    // type is invalid
@@ -174,13 +166,6 @@ PDU* PDU::get_pdu(boost::asio::local::stream_protocol::socket& in)
 
 void PDU::add_header(type_t type, data_t& payload) const
 {
-    /* Add context to payload, if any */
-    if(context)
-    {
-	// insert serialized context at position 0:
-	payload.insert(0, context->serialize());
-    }
-    
     /* Construct header */
     data_t header;
 
@@ -195,7 +180,7 @@ void PDU::add_header(type_t type, data_t& payload) const
     if(instance_registration) flags |= (1<<0);
     if(new_index)             flags |= (1<<1);
     if(any_index)             flags |= (1<<2);
-    if(context)               flags |= (1<<3);  // NON_DEFAULT_INDEX
+    if(non_default_context)   flags |= (1<<3);
 		              flags |= (1<<4);	// We always use big endian
     header.push_back(flags);
 

@@ -22,6 +22,14 @@
 #include "RegisterPDU.hpp"
 #include "UnregisterPDU.hpp"
 #include "ResponsePDU.hpp"
+#include "CommitSetPDU.hpp"
+#include "UndoSetPDU.hpp"
+#include "TestSetPDU.hpp"
+#include "CommitSetPDU.hpp"
+#include "CleanupSetPDU.hpp"
+#include "GetPDU.hpp"
+#include "GetNextPDU.hpp"
+#include "GetBulkPDU.hpp"
 #include "helper.hpp"
 
 using namespace agentxcpp;
@@ -152,6 +160,27 @@ PDU* PDU::get_pdu(boost::asio::local::stream_protocol::socket& in)
 	    break;
 	case agentxResponsePDU:
 	    pdu = new ResponsePDU(pos, end, big_endian);
+	    break;
+	case agentxCommitSetPDU:
+	    pdu = new CommitSetPDU(pos, end, big_endian);
+	    break;
+	case agentxUndoSetPDU:
+	    pdu = new UndoSetPDU(pos, end, big_endian);
+	    break;
+	case agentxTestSetPDU:
+	    pdu = new TestSetPDU(pos, end, big_endian);
+	    break;
+	case agentxCleanupSetPDU:
+	    pdu = new CleanupSetPDU(pos, end, big_endian);
+	    break;
+	case agentxGetPDU:
+	    pdu = new GetPDU(pos, end, big_endian);
+	    break;
+	case agentxGetNextPDU:
+	    pdu = new GetNextPDU(pos, end, big_endian);
+	    break;
+	case agentxGetBulkPDU:
+	    pdu = new GetBulkPDU(pos, end, big_endian);
 	    break;
 	default:
 	    // type is invalid

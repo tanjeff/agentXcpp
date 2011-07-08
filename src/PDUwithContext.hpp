@@ -153,8 +153,8 @@ namespace agentxcpp
 	     * \brief Set the PDU's context
 	     *
 	     * \param value The new context. The given value may be the empty
-	     *              string, which does \emph{not} delete the context, 
-	     *              but set the empty string as context. To remove the 
+	     *              string, which does \em not delete the context, but 
+	     *              set the empty string as context. To remove the 
 	     *              context from the PDU, use remove_context().
 	     */
 	    void set_context(Octet_String value)

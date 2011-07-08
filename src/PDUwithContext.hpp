@@ -117,6 +117,13 @@ namespace agentxcpp
 		PDU::add_header(type, payload);
 	    }
 
+	    /**
+	     * \brief Default Constructor
+	     *
+	     * Sets the state of the object to the defaults as set by the 
+	     * PDU::PDU() constructor. The non_default_context flag is set to 
+	     * false by default, which means that the object has no context.
+	     */
 	    PDUwithContext() {}
 	    
 	public:

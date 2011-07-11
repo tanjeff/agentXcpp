@@ -30,6 +30,7 @@
 #include "GetPDU.hpp"
 #include "GetNextPDU.hpp"
 #include "GetBulkPDU.hpp"
+#include "NotifyPDU.hpp"
 #include "helper.hpp"
 
 using namespace agentxcpp;
@@ -181,6 +182,9 @@ PDU* PDU::get_pdu(boost::asio::local::stream_protocol::socket& in)
 	    break;
 	case agentxGetBulkPDU:
 	    pdu = new GetBulkPDU(pos, end, big_endian);
+	    break;
+	case agentxNotifyPDU:
+	    pdu = new NotifyPDU(pos, end, big_endian);
 	    break;
 	default:
 	    // type is invalid

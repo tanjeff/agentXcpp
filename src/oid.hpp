@@ -54,43 +54,45 @@ namespace agentxcpp
 	    int c19=0, int c20=0 );
 	
 	/**
-	 * \brief Append integers to an oid object.
-	 *
-	 * The ',' operator is provided to append integers to an oid object.  
-	 * The following example will create the oid 1.3.6.1:
-	 *
-	 * \code
-	 * oid led_state(1);
-	 * led_state = led_state, 3;
-	 * led_state = led_state, 6;
-	 * led_state = led_state, 1;
-	 * \endcode
-	 * 
-	 * A more useful example would be:
-	 * 
-	 * \code
-	 * oid led_state;
-	 * led_state = 1, 3, 6, 1;
-	 * \endcode
-	 * 
-	 * In the last example, the assignment is evaluated before the ',' 
-	 * operators (due to the C++ operator precedence rules). Therefore the 
-	 * literal 1 is converted to an oid object which is then assigned to 
-	 * led_state. After that the ',' is invoked on led_state several times.
-	 *
-	 * Note that the following will NOT work:
-	 * 
-	 * \code
-	 * oid led_state = 1, 3, 6, 1;
-	 * \endcode
-	 *
-	 * To understand why it does not work, consider this code:
-	 *
-	 * \code
-	 * oid led_state = 1, fan_speed = 3, cpu_usage = 6, hdd_temp = 1;
-	 * \endcode
+	 * \brief Append an integer to the oid
 	 */
-	oid& operator,(int);
+	oid operator+(int) const;
+	 */
+	// Why no use operator,() ? Well, I tried, but there are two +	// problems.
+	//
+	// First, the operator does not work in every context. Look at this 
+	// piece of code:
+	//
+	//   int a, b, c;
+	//   oid led_state = 1, 3, 6;
+	//
+	// Both examples try to create three objects. In the second case, these 
+	// objects are named 1, 3 and 6 (which are not valid names, of course).  
+	// The comma-operator is not called here, even if it was overloaded for 
+	// the oid class. A similar problem occurs in function calls:
+	//
+	//   oid led_state;
+	//   /* set led_state to 1,3,6 */
+	//   print_oid(led_state, 3);
+	//
+	// Here, we expect that the oid 1,3,6,3 is printed, but instead the 
+	// compiler will complain about the second parameter. Again, the 
+	// comma-operator doesn't word as expected.
+	//
+	// Second, the comma-operator is evaluated _after_ an assignment:
+	//
+	//   led_state = 1, 3, 6;
+	//
+	// At the beginning, 1 is assigned to led_state (which works if an 
+	// appropriate assignment operator is provided), then 
+	// led_state.operator,(3) is called. Finally, led_state.operator,(6) is 
+	// called. This only works if the comma-operator modifies led_state. If 
+	// led_state were const, this construct is not possible. The following 
+	// may work:
+	//
+	//   const oid led_state = ( oid(1), 3, 6 );
+	//
+	// But this seems rather counter-intuitive.
 
 	/**
 	 * \brief get the current include value
@@ -169,7 +171,7 @@ namespace agentxcpp
 	 *
 	 * However, \n
 	 * 1.3.6.1.4.1.42.3.3.1 \n
-	 * is greater less than \n
+	 * is greater than \n
 	 * 1.3.6.1.4.1.42.3.2.1.1 \n
 	 * because the 9th number is greater (although the first OID has less 
 	 * numbers than the second).

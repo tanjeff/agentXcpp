@@ -53,10 +53,11 @@ oid::oid(int c1, int c2, int c3, int c4, int c5, int c6,
     if(c20) identifier.push_back(c20); else return;
 }
 
-oid& oid::operator,(int component)
+oid oid::operator+(int component) const
 {
-    identifier.push_back(component);
-    return *this;
+    oid new_oid = *this;
+    new_oid.identifier.push_back(component);
+    return new_oid;
 }
 
 

@@ -17,98 +17,93 @@
  * for more details.
  */
 
-#include <iostream>
+//#include <iostream>
 #include "oid.hpp"
+#include "exceptions.hpp"
+
+
 using namespace agentxcpp;
 
 
-oid::oid(int c1, int c2, int c3, int c4, int c5, int c6,
-	 int c7, int c8, int c9, int c10, int c11, int c12,
-	 int c13, int c14, int c15, int c16, int c17, int c18,
-	 int c19, int c20)
+oid::oid(uint32_t  c1, uint32_t  c2, uint32_t  c3,
+	 uint32_t  c4, uint32_t  c5, uint32_t  c6,
+	 uint32_t  c7, uint32_t  c8, uint32_t  c9,
+	 uint32_t c10, uint32_t c11, uint32_t c12,
+	 uint32_t c13, uint32_t c14, uint32_t c15,
+	 uint32_t c16, uint32_t c17, uint32_t c18,
+	 uint32_t c19, uint32_t c20)
 {
     include = false;
 
-    if(c1) identifier.push_back(c1); else return;
-    if(c2) identifier.push_back(c2); else return;
-    if(c3) identifier.push_back(c3); else return;
-    if(c4) identifier.push_back(c4); else return;
-    if(c5) identifier.push_back(c5); else return;
-    if(c6) identifier.push_back(c6); else return;
-    if(c7) identifier.push_back(c7); else return;
-    if(c8) identifier.push_back(c8); else return;
-    if(c9) identifier.push_back(c9); else return;
+    if(c1) push_back(c1); else return;
+    if(c2) push_back(c2); else return;
+    if(c3) push_back(c3); else return;
+    if(c4) push_back(c4); else return;
+    if(c5) push_back(c5); else return;
+    if(c6) push_back(c6); else return;
+    if(c7) push_back(c7); else return;
+    if(c8) push_back(c8); else return;
+    if(c9) push_back(c9); else return;
     
-    if(c10) identifier.push_back(c10); else return;
-    if(c11) identifier.push_back(c11); else return;
-    if(c12) identifier.push_back(c12); else return;
-    if(c13) identifier.push_back(c13); else return;
-    if(c14) identifier.push_back(c14); else return;
-    if(c15) identifier.push_back(c15); else return;
-    if(c16) identifier.push_back(c16); else return;
-    if(c17) identifier.push_back(c17); else return;
-    if(c18) identifier.push_back(c18); else return;
-    if(c19) identifier.push_back(c19); else return;
+    if(c10) push_back(c10); else return;
+    if(c11) push_back(c11); else return;
+    if(c12) push_back(c12); else return;
+    if(c13) push_back(c13); else return;
+    if(c14) push_back(c14); else return;
+    if(c15) push_back(c15); else return;
+    if(c16) push_back(c16); else return;
+    if(c17) push_back(c17); else return;
+    if(c18) push_back(c18); else return;
+    if(c19) push_back(c19); else return;
     
-    if(c20) identifier.push_back(c20); else return;
+    if(c20) push_back(c20); else return;
 }
 
 
 oid::oid(const oid& o,
-	 int c1, int c2, int c3, int c4, int c5, int c6,
-	 int c7, int c8, int c9, int c10, int c11, int c12,
-	 int c13, int c14, int c15, int c16, int c17, int c18,
-	 int c19)
+	 uint32_t c1, uint32_t c2, uint32_t c3, uint32_t c4, uint32_t c5, uint32_t c6,
+	 uint32_t c7, uint32_t c8, uint32_t c9, uint32_t c10, uint32_t c11, uint32_t c12,
+	 uint32_t c13, uint32_t c14, uint32_t c15, uint32_t c16, uint32_t c17, uint32_t c18,
+	 uint32_t c19)
 {
-    include = false;
-    
     // start with o
-    this->identifier = o.identifier;
+    *this = o;
 
-    if(c1) identifier.push_back(c1); else return;
-    if(c2) identifier.push_back(c2); else return;
-    if(c3) identifier.push_back(c3); else return;
-    if(c4) identifier.push_back(c4); else return;
-    if(c5) identifier.push_back(c5); else return;
-    if(c6) identifier.push_back(c6); else return;
-    if(c7) identifier.push_back(c7); else return;
-    if(c8) identifier.push_back(c8); else return;
-    if(c9) identifier.push_back(c9); else return;
+    if(c1) push_back(c1); else return;
+    if(c2) push_back(c2); else return;
+    if(c3) push_back(c3); else return;
+    if(c4) push_back(c4); else return;
+    if(c5) push_back(c5); else return;
+    if(c6) push_back(c6); else return;
+    if(c7) push_back(c7); else return;
+    if(c8) push_back(c8); else return;
+    if(c9) push_back(c9); else return;
     
-    if(c10) identifier.push_back(c10); else return;
-    if(c11) identifier.push_back(c11); else return;
-    if(c12) identifier.push_back(c12); else return;
-    if(c13) identifier.push_back(c13); else return;
-    if(c14) identifier.push_back(c14); else return;
-    if(c15) identifier.push_back(c15); else return;
-    if(c16) identifier.push_back(c16); else return;
-    if(c17) identifier.push_back(c17); else return;
-    if(c18) identifier.push_back(c18); else return;
-    if(c19) identifier.push_back(c19); else return;
+    if(c10) push_back(c10); else return;
+    if(c11) push_back(c11); else return;
+    if(c12) push_back(c12); else return;
+    if(c13) push_back(c13); else return;
+    if(c14) push_back(c14); else return;
+    if(c15) push_back(c15); else return;
+    if(c16) push_back(c16); else return;
+    if(c17) push_back(c17); else return;
+    if(c18) push_back(c18); else return;
+    if(c19) push_back(c19); else return;
 }
-
-oid oid::operator+(int component) const
-{
-    oid new_oid = *this;
-    new_oid.identifier.push_back(component);
-    return new_oid;
-}
-
 
 
 std::ostream& agentxcpp::operator<<(std::ostream& out, const oid& o)
 {
-    if(o.identifier.size() == 0)
+    if(o.size() == 0)
     {
 	return out;
     }
-    std::vector<uint32_t>::const_iterator it;
-    it = o.identifier.begin();
+    oid::const_iterator it = o.begin();
 
     out << *it;
     it++;
 
-    while(it != o.identifier.end())
+    while(it != o.end())
     {
 	out << "." << *it;
 	it++;
@@ -140,54 +135,53 @@ data_t oid::serialize() const
     const int reserved_idx = 2;
 
     // This is our binary data:
-    data_t serialized_oid;
-    serialized_oid.resize(4);	// we will need at least the header
+    data_t serialized;
+    serialized.resize(4);	// we will need at least the header
 
     // Set reserved field to 0
-    serialized_oid[reserved_idx] = 0;
+    serialized[reserved_idx] = 0;
 
     // Set include field
-    serialized_oid[include_idx] = include ? 1 : 0;
+    serialized[include_idx] = include ? 1 : 0;
 
     // Iterator for the subid's
-    std::vector<uint32_t>::const_iterator subid = identifier.begin();
+    oid::const_iterator subid = this->begin();
 
     // Check whether we can use the prefix (RFC 2741, section 5.1)
-    if( identifier.size() >= 5 &&
-	identifier[0] == 1 &&
-	identifier[1] == 3 &&
-	identifier[2] == 6 &&
-	identifier[3] == 1 &&
-	identifier[4] <= 0xff)	// we have only one byte for the prefix!
+    if( this->size() >= 5 &&
+	(*this)[0] == 1 &&
+	(*this)[1] == 3 &&
+	(*this)[2] == 6 &&
+	(*this)[3] == 1 &&
+	(*this)[4] <= 0xff)	// we have only one byte for the prefix!
     {
 	// store the first integer after 1.3.6.1 to prefix field
-	serialized_oid[prefix_idx] = identifier[4];
+	serialized[prefix_idx] = (*this)[4];
 	subid += 5; // point to the subid behind prefix
 
 	// 5 elements are represented by prefix
-	serialized_oid[n_subid_idx] = identifier.size() - 5;
-
+	serialized[n_subid_idx] = this->size() - 5;
     }
     else
     {
 	// don't use prefix field
-	serialized_oid[prefix_idx] = 0;
+	serialized[prefix_idx] = 0;
 
 	// All subid's are stored in the stream explicitly
-	serialized_oid[n_subid_idx] = identifier.size();
+	serialized[n_subid_idx] = this->size();
     }
 
-    // copy subids to serialized_oid
-    while( subid != identifier.end() )
+    // copy subids to serialized
+    while( subid != this->end() )
     {
-	serialized_oid.push_back( (*subid) << 24 & 0xff );
-	serialized_oid.push_back( (*subid) << 16 & 0xff );
-	serialized_oid.push_back( (*subid) << 8 & 0xff );
-	serialized_oid.push_back( (*subid) << 0 & 0xff );
+	serialized.push_back( (*subid) << 24 & 0xff );
+	serialized.push_back( (*subid) << 16 & 0xff );
+	serialized.push_back( (*subid) << 8 & 0xff );
+	serialized.push_back( (*subid) << 0 & 0xff );
 	subid++;
     }
 
-    return serialized_oid;
+    return serialized;
 }
 
 oid::oid(data_t::const_iterator& pos,
@@ -206,11 +200,11 @@ oid::oid(data_t::const_iterator& pos,
     int prefix = *pos++;
     if( prefix != 0 )
     {
-	identifier.push_back(1);
-	identifier.push_back(3);
-	identifier.push_back(6);
-	identifier.push_back(1);
-	identifier.push_back(prefix);
+	this->push_back(1);
+	this->push_back(3);
+	this->push_back(6);
+	this->push_back(1);
+	this->push_back(prefix);
     }
 
     // parse include field
@@ -254,20 +248,20 @@ oid::oid(data_t::const_iterator& pos,
 	    subid |= *pos++ << 16;
 	    subid |= *pos++ << 24;
 	}
-	identifier.push_back(subid);
+	this->push_back(subid);
     }
 }
 
 
 bool oid::operator<(const oid& o) const
 {
-    std::vector<uint32_t>::const_iterator mine, yours;
-    mine = this->identifier.begin();
-    yours = o.identifier.begin();
+    oid::const_iterator mine, yours;
+    mine = this->begin();
+    yours = o.begin();
 
     // Test as many parts as the shorter OID has:
-    while( mine != this->identifier.end()
-	    && yours != o.identifier.end() )
+    while( mine != this->end()
+	    && yours != o.end() )
     {
 	if( *mine < *yours )
 	{
@@ -280,7 +274,7 @@ bool oid::operator<(const oid& o) const
 	    return false;
 	}
 
-	// our parts are identical; test next art.:
+	// our parts are identical; test next part:
 	mine++;
 	yours++;
     }
@@ -288,7 +282,7 @@ bool oid::operator<(const oid& o) const
     // Ok, either you and I have different length (where the one with fewer 
     // parts is less than the other) or we have the same number of parts (in 
     // which case we are identical).
-    if( this->identifier.size() < o.identifier.size() )
+    if( this->size() < o.size() )
     {
 	// I have less parts than you, so I am less than you:
 	return true;
@@ -300,22 +294,24 @@ bool oid::operator<(const oid& o) const
     }
 }
 
+
+
 bool oid::operator==(const oid& o) const
 {
     // Quick test: if the oids have different number of parts, they are not 
     // equal:
-    if( this->identifier.size() != o.identifier.size() )
+    if( this->size() != o.size() )
     {
 	return false;
     }
     
     // Test all parts:
-    std::vector<uint32_t>::const_iterator mine, yours;
-    mine = this->identifier.begin();
-    yours = o.identifier.begin();
+    oid::const_iterator mine, yours;
+    mine = this->begin();
+    yours = o.begin();
 
-    while( mine != this->identifier.end()
-	    && yours != o.identifier.end() )
+    while( mine != this->end()
+	    && yours != o.end() )
     {
 	if( *mine != *yours )
 	{
@@ -332,3 +328,4 @@ bool oid::operator==(const oid& o) const
     // same number of parts, thus they are equal.
     return true;
 }
+

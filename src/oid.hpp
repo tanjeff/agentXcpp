@@ -44,18 +44,31 @@ namespace agentxcpp
 	 * intergers.
 	 *
 	 * This constructor takes up to 20 integers which forms up the object 
-	 * identifier. If you need more than 20 components, use 
-	 * oid::operator,() .
+	 * identifier.
 	 */
 	// TODO: How wide are the integers for OIDs?
 	oid(int c1=0, int c2=0, int c3=0, int c4=0, int c5=0, int c6=0,
 	    int c7=0, int c8=0, int c9=0, int c10=0, int c11=0, int c12=0,
 	    int c13=0, int c14=0, int c15=0, int c16=0, int c17=0, int c18=0,
 	    int c19=0, int c20=0 );
+
+	/**
+	 * \brief Initialize an oid object with another oid plus a sequence of 
+	 * up to 19 intergers.
+	 *
+	 * This constructor takes an oid object plus up to 19 integers which 
+	 * forms up the object identifier.
+	 */
+	oid(const oid& o,
+	    int c1=0, int c2=0, int c3=0, int c4=0, int c5=0, int c6=0,
+	    int c7=0, int c8=0, int c9=0, int c10=0, int c11=0, int c12=0,
+	    int c13=0, int c14=0, int c15=0, int c16=0, int c17=0, int c18=0,
+	    int c19=0 );
 	
 	/**
 	 * \brief Append an integer to the oid
 	 */
+	// TODO: inherit from vector<> instead of using a member variable
 	oid operator+(int) const;
 	 */
 	// Why no use operator,() ? Well, I tried, but there are two +	// problems.

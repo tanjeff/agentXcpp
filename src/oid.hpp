@@ -64,7 +64,10 @@ namespace agentxcpp
 	     * intergers.
 	     *
 	     * This constructor takes up to 20 integers which forms up the 
-	     * object identifier. The include field is initialized to 'false'.
+	     * object identifier. The include field is initialized to 
+	     * 'false'.
+	     *
+	     * This is also the default constructor.
 	     *
 	     * \note Null is not allowed for a component.
 	     */
@@ -82,6 +85,8 @@ namespace agentxcpp
 	     *
 	     * The 'include' field is copied from o.
 	     *
+	     * This is also the copy constructor.
+	     *
 	     * \note Null is not allowed for a component.
 	     */
 	    oid(const oid& o,
@@ -92,6 +97,12 @@ namespace agentxcpp
 		uint32_t c13=0, uint32_t c14=0, uint32_t c15=0,
 		uint32_t c16=0, uint32_t c17=0, uint32_t c18=0,
 		uint32_t c19=0 );
+
+	    /**
+	     * \brief Assignment operator
+	     */
+	    oid& operator=(const oid& oid);
+
 
 	    /**
 	     * \brief get the current include value

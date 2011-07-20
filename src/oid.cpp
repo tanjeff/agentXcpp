@@ -329,3 +329,16 @@ bool oid::operator==(const oid& o) const
     return true;
 }
 
+
+oid& oid::operator=(const oid& other)
+{
+    // copy our own members
+    this->include = other.include;
+
+    // copy inherited stuff
+    vector<uint32_t>::operator=(other);
+    variable::operator=(other);
+    
+    // Return reference to us
+    return *this;
+}

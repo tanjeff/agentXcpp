@@ -48,7 +48,7 @@ namespace agentxcpp
      * oid myObject = oid(internet,4,1,41,13);
      * \endcode
      */
-    class oid: public variable, std::vector<uint32_t>
+    class oid: public variable, public std::vector<uint32_t>
     {
 	private:
 

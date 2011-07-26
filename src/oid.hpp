@@ -234,11 +234,11 @@ namespace agentxcpp
      * Object identifiers (oid objects) can be output as follows:
      * 
      * \code
-     * oid led_state(1,3,6,1);
+     * oid led_state(enterprise,1,3,3,1);
      * cout << "LED state OID: " << led_state << endl;
      * \endcode
      *
-     * The last line will output "LED state OID: 1.3.6.1".
+     * The last line will output "LED state OID:  .1.3.6.1.4.1.3.3.1".
      */
     std::ostream& operator<<(std::ostream&, const agentxcpp::oid&);
 

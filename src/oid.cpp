@@ -94,20 +94,30 @@ oid::oid(const oid& o,
 
 std::ostream& agentxcpp::operator<<(std::ostream& out, const oid& o)
 {
+    // Leading dot
+    out << ".";
+
+    // If no subidentifiers are present, we are done
     if(o.size() == 0)
     {
 	return out;
     }
+
+    // Get iterator to first subidentifier
     oid::const_iterator it = o.begin();
 
+    // Print first subidentifier
     out << *it;
     it++;
 
+    // Output remaining subidentifiers, each prepended with a dot
     while(it != o.end())
     {
 	out << "." << *it;
 	it++;
     }
+
+    // Done, return
     return out;
 }
 

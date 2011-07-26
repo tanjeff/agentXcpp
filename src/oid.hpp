@@ -31,21 +31,28 @@ namespace agentxcpp
      * \brief Represents an SNMP object identifier (OID)
      *
      * This class represents an OID. OID's are sequences of integers. This 
-     * class inherits from std:vector<>, which means that the user can 
-     * manipulate an oid object the same way as a std::vector<> can be 
-     * manipulated.
+     * class inherits from std:vector<>, which means that an oid object can be 
+     * manipulated much the same way as a std::vector<> can be manipulated.
      *
      * In addition, the OID class provides constructors taking a number of 
-     * integers to ease creatng such objects. For example, you can write:
+     * integers to ease creatng such objects. For example, this works:
      *
      * \code
-     * oid internet = oid(1,3,6,1);
+     * oid myCompany = oid(1,3,6,1,4,1,355);
      * \endcode
      *
-     * or
+     * Also a constructor is provided which takes an oid and a number of 
+     * integers, so this works also:
      *
      * \code
-     * oid myObject = oid(internet,4,1,41,13);
+     * oid myObject = oid(myCompany,1,1,3,42);
+     * \endcode
+     *
+     * In addition, some common oid's are provided as constants, e.g. 
+     * 'enterprises', so the following will also work:
+     *
+     * \code
+     * oid myCompany = oid(enterprises,355);
      * \endcode
      */
     class oid: public variable, public std::vector<uint32_t>
@@ -53,23 +60,27 @@ namespace agentxcpp
 	private:
 
 	    /**
-	     * \brief the include field.
+	     * \brief the 'include' field.
 	     */
 	    bool include;
 
 	public:
 
 	    /**
-	     * \brief Initialize an oid object with a sequence of up to 20 
-	     * intergers.
+	     * \brief Initialize an oid object with a sequence of up to 20
+	     *        subidentifiers.
 	     *
-	     * This constructor takes up to 20 integers which forms up the 
-	     * object identifier. The include field is initialized to 
-	     * 'false'.
+	     * This constructor takes up to 20 subidentifiers which forms up 
+	     * the object identifier. More subidentifiers can be added using 
+	     * functions from the vector<> class.
+	     *
+	     * The 'include' field is initialized to 'false'.
 	     *
 	     * This is also the default constructor.
 	     *
-	     * \note Null is not allowed for a component.
+	     * \note Zero (0) is not allowed for a subidentifier, i.e. the
+	     *       first subidentifier with value 0 and all its successors 
+	     *       are ignored.
 	     */
 	    oid(uint32_t  c1=0, uint32_t  c2=0, uint32_t  c3=0,
 		uint32_t  c4=0,	uint32_t  c5=0, uint32_t  c6=0,
@@ -81,13 +92,15 @@ namespace agentxcpp
 
 	    /**
 	     * \brief Initialize an oid object with another oid plus a sequence 
-	     * of up to 19 intergers.
+	     * of up to 19 subidentifiers.
 	     *
 	     * The 'include' field is copied from o.
 	     *
 	     * This is also the copy constructor.
 	     *
-	     * \note Null is not allowed for a component.
+	     * \note Zero (0) is not allowed for a subidentifier, i.e. the
+	     *       first subidentifier with value 0 and all its successors 
+	     *       are ignored.
 	     */
 	    oid(const oid& o,
 		uint32_t  c1=0, uint32_t  c2=0, uint32_t  c3=0,
@@ -105,6 +118,8 @@ namespace agentxcpp
 
 
 	    /**
+	     * \internal
+	     *
 	     * \brief get the current include value
 	     *
 	     * The include value is present in the serialized form of an OID. If an 
@@ -119,6 +134,8 @@ namespace agentxcpp
 	    }
 
 	    /**
+	     * \internal
+	     *
 	     * \brief set the include value
 	     *
 	     * The include value is present in the serialized form of an OID. If an 
@@ -148,11 +165,11 @@ namespace agentxcpp
 	     * It takes an iterator, starts parsing at the position of the 
 	     * iterator and advances the iterator to the position right behind 
 	     * the object.
-	     * 
+	     *
 	     * The constructor expects valid data from the stream; if parsing 
-	     * fails, parse_error is thrown. In this case, the iterator 
-	     * position is undefined.
-	     *    
+	     * fails, parse_error is thrown. In this case, the iterator is left 
+	     * at an undefined position.
+	     *
 	     * \param pos Iterator pointing to the current stream position.
 	     *            The iterator is advanced while reading the header.
 	     *
@@ -162,6 +179,10 @@ namespace agentxcpp
 	     *
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
+	     *
+	     * \exception parse_error If parsing fails. In this case, the
+	     *                        iterator is left at an undefined 
+	     *                        position.
 	     */
 	    oid(data_t::const_iterator& pos,
 		const data_t::const_iterator& end,
@@ -170,8 +191,9 @@ namespace agentxcpp
 	    /**
 	     * \brief The less-than operator
 	     *
-	     * An OID is less than another OID if the first not-identical part is 
-	     * lesser or, if all parts are identical, it has lesser parts.
+	     * An OID is less than another OID if either the first 
+	     * not-identical part is lesser or if all parts are identical and 
+	     * it has lesser parts.
 	     *
 	     * Example:\n
 	     * 1.3.6.1.4.1.42.3.3.1 \n

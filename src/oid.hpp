@@ -265,6 +265,19 @@ namespace agentxcpp
     std::ostream& operator<<(std::ostream&, const agentxcpp::oid&);
 
 
+    // Some oid's according to RFC 1155:
+    const oid iso(1);
+    const oid ccitt(0);
+    const oid joint_iso_ccitt(2);
+    const oid org(iso,3);
+    const oid dod(org,6);
+    const oid internet(dod,1);
+    const oid directory(internet,1);
+    const oid mgmt(internet,2);
+    const oid experimental(internet,3);
+    // 'private' is a C++ keyword, thus we use private_:
+    const oid private_(internet,4);
+    const oid enterprises(private_, 1);
 }
 
 

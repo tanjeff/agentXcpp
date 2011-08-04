@@ -71,14 +71,14 @@ namespace agentxcpp
 	     * According to RFC 2741, 6.1. "AgentX PDU Header"
 	     */
 	    uint32_t sessionID;
-	    
+ 
 	    /**
 	     * \brief h.transactionID field
 	     *
 	     * According to RFC 2741, 6.1. "AgentX PDU Header"
 	     */
 	    uint32_t transactionID;
-	    
+
 	    /**
 	     * \brief Counter for automatic packetID generator
 	     *
@@ -90,7 +90,7 @@ namespace agentxcpp
 	     * the packetID from a stream.
 	     */
 	    static uint32_t packetID_cnt;
-	    
+
 
 	protected:
 	    /**
@@ -142,7 +142,7 @@ namespace agentxcpp
 	     * alter it.
 	     */
 	    uint32_t packetID;
-	    
+
 	    /**
 	     * \brief Parse constructor
 	     *
@@ -214,8 +214,11 @@ namespace agentxcpp
 	    /**
 	     * \brief Set instance_registration flag
 	     */
-	    void set_instance_registration(bool ir) { this->instance_registration = ir; }
-	    
+	    void set_instance_registration(bool ir)
+	    {
+		this->instance_registration = ir;
+	    }
+
 	    /**
 	     * \brief Get new_index flag
 	     */
@@ -224,7 +227,7 @@ namespace agentxcpp
 	     * \brief Set new_index flag
 	     */
 	    void set_new_index(bool new_index) { this->new_index = new_index; }
-	    
+
 	    /**
 	     * \brief Get any_index flag
 	     */
@@ -233,7 +236,7 @@ namespace agentxcpp
 	     * \brief Set any_index flag
 	     */
 	    void set_any_index(bool any_index) { this->any_index = any_index; }
-	    
+
 	    /**
 	     * \brief Get sessionID
 	     */
@@ -247,22 +250,22 @@ namespace agentxcpp
 	     * \brief Get transactionID
 	     */
 	    uint32_t get_transactionID() { return transactionID; }
-	    
+
 	    /**
 	     * \brief Set transactionID
 	     */
 	    void set_transactionID(uint32_t id) { transactionID = id; }
-	    
+ 
 	    /**
 	     * \brief Get packetID
 	     */
 	    uint32_t get_packetID() { return packetID; }
-	    
+ 
 	    /**
 	     * \brief Set packetID
 	     */
 	    void set_packetID(uint32_t packetID) { this->packetID = packetID; }
-	    
+ 
 	    /**
 	     * \brief Parse a %PDU from an input stream
 	     *

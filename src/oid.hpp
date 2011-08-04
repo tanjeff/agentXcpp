@@ -122,9 +122,9 @@ namespace agentxcpp
 	     *
 	     * \brief get the current include value
 	     *
-	     * The include value is present in the serialized form of an OID. If an 
-	     * OID object is created by parsing a AgentX message, the 'include' 
-	     * member is set accordingly.
+	     * The include value is present in the serialized form of an OID.  
+	     * If an OID object is created by parsing a AgentX message, the 
+	     * 'include' member is set accordingly.
 	     *
 	     * See RFC 2741, sections 5.1 and 5.2 for details.
 	     */
@@ -138,9 +138,9 @@ namespace agentxcpp
 	     *
 	     * \brief set the include value
 	     *
-	     * The include value is present in the serialized form of an OID. If an 
-	     * OID object is serialized, the include field is encoded into the 
-	     * stream.
+	     * The include value is present in the serialized form of an OID.  
+	     * If an OID object is serialized, the include field is encoded 
+	     * into the stream.
 	     *
 	     * See RFC 2741, sections 5.1 and 5.2 for details.
 	     */
@@ -152,7 +152,8 @@ namespace agentxcpp
 	    /**
 	     * \internal
 	     *
-	     * \brief Encode an OID object as described in RFC 2741, section 5.1.
+	     * \brief Encode an OID object as described in RFC 2741,
+	     *        section 5.1.
 	     */
 	    data_t serialize() const;
 
@@ -211,8 +212,8 @@ namespace agentxcpp
 	     * 1.3.6.1.4.1.42.3.3.1 \n
 	     * is greater than \n
 	     * 1.3.6.1.4.1.42.3.2.1.1 \n
-	     * because the 9th number is greater (although the first OID has less 
-	     * numbers than the second).
+	     * because the 9th number is greater (although the first OID has 
+	     * less numbers than the second).
 	     */
 	    bool operator<(const oid& o) const;
 
@@ -247,7 +248,8 @@ namespace agentxcpp
 		return o < *this;
 	    }
 
-	    friend std::ostream& operator<<(std::ostream&, const agentxcpp::oid&);
+	    friend std::ostream& operator<<(std::ostream&,
+					    const agentxcpp::oid&);
     };
 
     /**

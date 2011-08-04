@@ -61,10 +61,10 @@ oid::oid(uint32_t  c1, uint32_t  c2, uint32_t  c3,
 
 
 oid::oid(const oid& o,
-	 uint32_t c1, uint32_t c2, uint32_t c3, uint32_t c4, uint32_t c5, uint32_t c6,
-	 uint32_t c7, uint32_t c8, uint32_t c9, uint32_t c10, uint32_t c11, uint32_t c12,
-	 uint32_t c13, uint32_t c14, uint32_t c15, uint32_t c16, uint32_t c17, uint32_t c18,
-	 uint32_t c19)
+	 uint32_t c1, uint32_t c2, uint32_t c3, uint32_t c4, uint32_t c5,
+	 uint32_t c6, uint32_t c7, uint32_t c8, uint32_t c9, uint32_t c10,
+	 uint32_t c11, uint32_t c12, uint32_t c13, uint32_t c14, uint32_t c15,
+	 uint32_t c16, uint32_t c17, uint32_t c18, uint32_t c19)
 {
     // start with o
     *this = o;

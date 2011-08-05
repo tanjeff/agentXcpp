@@ -28,5 +28,9 @@
   leading underscore. Apply it consistently.
 - Check for each (!) function whether all exceptions are catched or documented   
   (e.g. exceptions coming from STL, even if they are unlikely)
-
+- Better handling of documentation building (use scons Doxygen builder)
+- Check code for memory leaks
+- Consider providing the endianess choice for serializing (currently always big 
+  endian is used for serializing)
+- Cleanup helper.hpp and types.hpp
 */

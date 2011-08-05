@@ -101,6 +101,56 @@ namespace agentxcpp
 	     * \brief Serialize the %PDU
 	     */
 	    data_t serialize();
+
+	    /**
+	     * \brief The allowed values for specific-trap.
+	     *
+	     * According to RFC 1157, these values can be used for the 
+	     * generic-trap field in SNMPv1 Traps.
+	     */
+	    enum generic_trap_t
+	    {
+		coldStart=0,
+		warmStart=1,
+		linkDown=2,
+		linkUp=3,
+		authenticationFailure=4,
+		egpNeighborLoss=5,
+		enterpriseSpecific=6
+	    };
+
+	    /**
+	     * \brief Create snmpTrapOID.0 from SNMPv1 Trap data
+	     *
+	     * Each notification must have an snmpTrapOID.0 object. In SNMPv1 
+	     * no notifications were available; instead Traps were used.  This 
+	     * function takes parameters which would be present in an SNMPv1 
+	     * Trap and converts them to an snmpTrapOID.0 object. The result is 
+	     * a varbind of the form "snmpTrapOID.0 = <calculated value>".  
+	     * Note that the master will convert the snmpTrapOID.0 value back  
+	     * when sending SNMPv1 traps; nevertheless the AgentX protocol 
+	     * requires the snmpTrapOID.0 object.
+	     *
+	     * The conversion is done according to RFC 1908,
+	     * 3.1.2 "SNMPv1 -> SNMPv2".
+	     *
+	     * \param enterprise Type of object generating trap, see RFC 1155
+	     *
+	     * \param generic_trap
+	     *
+	     * \param specific_trap
+	     *
+	     * \return A varbind for the snmpTrapOID.0 object to be added to
+	     *         the VarBind list. Both the OID and the value of the 
+	     *         varbind are allocated with new, and the user is 
+	     *         responsible for calling delete for them.
+	     *
+	     * \exception inval_param If the generic_trap parameter has an
+	     *                        invalid value.
+	     */
+	    varbind trapToNotification(oid enterprise,
+				       generic_trap_t generic_trap,
+				       uint32_t specific_trap);
     };
 }
 

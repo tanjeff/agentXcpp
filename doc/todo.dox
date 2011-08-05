@@ -21,16 +21,6 @@
 
 \page todo TODO
 
-Essential TODOs:
--# Add a build system
--# Provide session management (i.e. a Session class)
--# Provide possibility to register SNMP variables
--# Provide GET functionality
--# Provide SET functionality
--# Provide NOTIFY (a.k.a. Trap) functionality
--# Provide support for tables
-
-Further TODOs:
 - Add unit tests
 - Clean up serializing/deserializing: Implementation works, but is somewhat  
   ugly.

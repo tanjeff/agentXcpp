@@ -22,8 +22,18 @@ Status of the project
 This software is currently NOT USABLE.
 
 It is work in progress.  Unfortunately, the author has little time to work on 
-the software. It is expected that basic functionality is available by end of 
-2011.
+the software. Here is the release plan. Note that this plan may change.
+ 
+  Version 0.1 (by end of 2011)
+    GET functionality working, source code and build system are cleaned up, 
+    complete documentation of implementation internals is available.
+ 
+  Version 0.2
+    SET functionality and Notifications/Traps working.
+ 
+  Version 0.3 (latest by end of 2012)
+    Tables are working. User documentation (including full API documentation) 
+    is available.
 
 
 License

@@ -18,7 +18,7 @@
 #
 
 # Our Environment
-env = DefaultEnvironment()
+env = Environment(tools = ['default', 'doxygen'])
 
 # Define the install prefix
 # Add installation path's to environment:
@@ -31,18 +31,20 @@ env['docdir']     = env['prefix'] + ARGUMENTS.get('docdir', "/share/doc/agentxcp
 env['includedir'] = env['prefix'] + ARGUMENTS.get('includedir', "/include")
 
 # Build library, documentation and examples, export the environment
-SConscript(['src/SConscript',
-	    'doc/SConscript',
-	    'unit_tests/SConscript'], 'env')
+env.SConscript(['src/SConscript',
+		'doc/SConscript',
+	        'unit_tests/SConscript'], 'env')
 
-# Define aliases for some things which can be built (bug in SCons 2.0.1: the 
-# Default() function does not work properly, using aliases solves the 
-# problem)
+
+# Define aliases for some things which can be built (bug in SCons 
+# 2.0.1: the Default() function does not work properly, using aliases 
+# solves the problem)
 Alias("doc_api", "doc/api")
 Alias("doc_internals", "doc/internals")
 Alias("agentxcpp", "src")
 Alias("unit_tests", "unit_tests/testsuite")
 
+
 # What to build by default
-Default('agentxcpp', 'unit_tests', 'doc_api', 'doc_internals')
+Default('agentxcpp', 'unit_tests')
 

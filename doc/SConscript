@@ -46,38 +46,20 @@ Import('env')
 #       Scons looks at the "target". If the target is
 #       a directory, things don't work, thus we use
 #       a HTML file as target
-api = Command('api/html/index.html',
-	      'api.doxyfile',
-	      "cd doc/ && doxygen api.doxyfile > /dev/null")
+api = env.Doxygen('api.doxyfile')
 
-# API doc depends on src/ directory
-# Note: although not all files in there are actually
-#       dependencies, we pretend it was so, to avoid forgotten
-#       deps
-Depends(api, Glob('../src/*.cpp') + Glob('../src/*.h'))
 
-# API doc also depends on other files
-Depends(api, Glob('*.dox'))
 
-# Scons does not remove directories when invoked with -c,
-# so we explicit request deletion of the api/ directory
-# in those cases:
-Clean(api, "api")
 
 # Provide an install target
-Install(env['docdir'], "api")
+env.Install(env['docdir'], "api")
 
 
 
 
 # The same for the internal documentation:
 
-internals = Command('internals/html/index.html',
-    'internals.doxyfile',
-    "cd doc/ && doxygen internals.doxyfile > /dev/null")
-Depends(internals, Glob('../src/*.cpp') + Glob('../src/*.h'))
-Depends(internals, Glob('*.dox'))
-Clean(internals, "internals")
+internals = env.Doxygen('internals.doxyfile')
 
 
 # provide an alias for installing

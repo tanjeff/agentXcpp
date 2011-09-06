@@ -17,24 +17,62 @@
 # for more details.
 #
 
-# Our Environment
+
+#################################################
+## Our Environment
 env = Environment(tools = ['default', 'doxygen'])
 
-# Define the install prefix
-# Add installation path's to environment:
-env['prefix']     = ARGUMENTS.get('prefix', "install-root")
-if env['prefix'][0] != '/':
-    # We need a "#" to refer to /this/ dir from subsidiary SConscripts
-    env['prefix'] = "#" + env['prefix']
-env['libdir']     = env['prefix'] + ARGUMENTS.get('libdir', "/lib")
-env['docdir']     = env['prefix'] + ARGUMENTS.get('docdir', "/share/doc/agentxcpp")
-env['includedir'] = env['prefix'] + ARGUMENTS.get('includedir', "/include")
 
-# Build library, documentation and examples, export the environment
+#################################################
+## Command-line magic
+
+# --prefix magic
+default_prefix = 'install-root'
+AddOption('--prefix', nargs=1, action='store', dest='prefix', type='string',
+	  help='installation prefix (default: ' + default_prefix + ')',
+	  default=default_prefix)
+env['prefix'] = GetOption('prefix')
+# Make relative path absolute
+if env['prefix'][0] != '/':
+    env['prefix'] = GetLaunchDir() + '/' + env['prefix']
+
+# --libdir magic
+AddOption('--libdir', nargs=1, action='store', dest='libdir', type='string',
+	  help='installation directory for libraries ' +
+	  '(default: <PREFIX>/lib)',
+	  default=env['prefix'] + '/lib')
+env['libdir'] = GetOption('libdir')
+# Make relative path absolute
+if env['libdir'][0] != '/':
+    env['libdir'] = GetLaunchDir() + '/' + env['libdir']
+
+# --docdir magic
+AddOption('--docdir', nargs=1, action='store', dest='docdir', type='string',
+	  help='installation directory for documentation ' +
+	  '(default: <PREFIX>/share/doc/agentxcpp)',
+	  default=env['prefix'] + '/share/doc/agentxcpp')
+env['docdir'] = GetOption('docdir')
+# Make relative path absolute
+if env['docdir'][0] != '/':
+    env['docdir'] = GetLaunchDir() + "/" + env['docdir']
+
+# --includedir magic
+AddOption('--includedir', nargs=1, action='store', dest='includedir', 
+	type='string',
+	  help='installation directory for header files ' +
+	  '(default: <PREFIX>/include)',
+	  default=env['prefix'] + '/include')
+env['includedir'] = GetOption('includedir')
+# Make relative path absolute
+if env['includedir'][0] != '/':
+    env['includedir'] = GetLaunchDir() + "/" + env['includedir']
+
+
+#################################################
+## Include SCronscripts from subdirectories
+
+# (export env to them):
 env.SConscript(['src/SConscript',
 		'doc/SConscript',
 	        'unit_tests/SConscript'], 'env')
-
-
-
 

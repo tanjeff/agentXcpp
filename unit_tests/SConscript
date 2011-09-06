@@ -26,4 +26,5 @@ env.Program('testsuite',
 	    LIBPATH=['../src/'],
 	    CPPPATH=['../src/'])
     
-env.Default('testsuite')
+
+# Note: testsuite is not built by default

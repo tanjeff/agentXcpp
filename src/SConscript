@@ -29,8 +29,7 @@ if(env["CXX"] == "g++"):
 agentxcpp = env.SharedLibrary('agentxcpp', Glob('*.cpp'))
 
 
-# Install library (the "#" means: path is relative to
-# top-level build dir)
+# Install library
 Install(env['libdir'], agentxcpp)
 Alias("install", env['libdir'])
 

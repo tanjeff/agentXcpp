@@ -65,3 +65,5 @@ internals = env.Doxygen('internals.doxyfile')
 # provide an alias for installing
 Alias("install", env['docdir'] + "/api")
 
+# Build complete documentation by default
+Default(api, internals)

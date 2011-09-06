@@ -29,16 +29,15 @@
 # So we hack the command accordingly, adding a "cd doc" to it and introducing a 
 # lot of dependencies. If the direcory structure of the agentxcpp project is 
 # ever changed, this scons script will likely break, and it will be a mess to 
-# get it working again... I will care about this later. After all it works this 
-# way.
+# get it working again... I will care about this later. After all it works.
 
 
 # Get the environment from the SConscript above
 Import('env')
 
 
-
-# API documentation
+#################################################
+## API documentation
 
 
 # Build it
@@ -46,24 +45,46 @@ Import('env')
 #       Scons looks at the "target". If the target is
 #       a directory, things don't work, thus we use
 #       a HTML file as target
-api = env.Doxygen('api.doxyfile')
+api = Command('api/html/index.html',
+	      'api.doxyfile',
+	      "cd doc/ && doxygen api.doxyfile > /dev/null")
 
+# API doc depends on src/ directory
+# Note: although not all files in there are actually
+#       dependencies, we pretend it was so, to avoid forgotten
+#       deps
+Depends(api, Glob('../src/*.cpp') + Glob('../src/*.hpp'))
 
+# API doc also depends on other files
+Depends(api, Glob('*.dox'))
 
+# Scons does not remove directories when invoked with -c,
+# so we explicit request deletion of the api/ directory
+# in those cases:
+Clean(api, "api")
 
 # Provide an install target
-env.Install(env['docdir'], "api")
+Install(env['docdir'], "api")
 
 
 
 
-# The same for the internal documentation:
+#################################################
+## The same for the internal documentation:
 
-internals = env.Doxygen('internals.doxyfile')
+internals = Command('internals/html/index.html',
+    'internals.doxyfile',
+    "cd doc/ && doxygen internals.doxyfile > /dev/null")
+Depends(internals, Glob('../src/*.cpp') + Glob('../src/*.hpp'))
+Depends(internals, Glob('*.dox'))
+Clean(internals, "internals")
 
 
 # provide an alias for installing
 Alias("install", env['docdir'] + "/api")
 
-# Build complete documentation by default
+
+#################################################
+## The default targets for this directory
 Default(api, internals)
+

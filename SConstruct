@@ -20,7 +20,7 @@
 
 #################################################
 ## Our Environment
-env = Environment(tools = ['default', 'doxygen'])
+env = DefaultEnvironment()
 
 
 #################################################

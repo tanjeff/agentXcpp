@@ -29,13 +29,10 @@ if(env["CXX"] == "g++"):
 agentxcpp = env.SharedLibrary('agentxcpp', Glob('*.cpp'))
 
 
-# Install library
+# Install Targets
 Install(env['libdir'], agentxcpp)
-Alias("install", env['libdir'])
-
-# Install headers
-Install(env['includedir'], Glob('*.h'))
-Alias("install", env['includedir'])
+Install(env['includedir'], Glob('*.hpp'))
+Alias("install", [env['libdir'], env['includedir']])
 
 
 # What to build by default

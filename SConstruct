@@ -27,13 +27,13 @@ env = DefaultEnvironment()
 ## Command-line magic
 
 # --prefix magic
-default_prefix = 'install-root'
+default_prefix = '#install-root'
 AddOption('--prefix', nargs=1, action='store', dest='prefix', type='string',
 	  help='installation prefix (default: ' + default_prefix + ')',
 	  default=default_prefix)
 env['prefix'] = GetOption('prefix')
 # Make relative path absolute
-if env['prefix'][0] != '/':
+if env['prefix'][0] != '/' and env['prefix'][0] != '#':
     env['prefix'] = GetLaunchDir() + '/' + env['prefix']
 
 # --libdir magic
@@ -43,7 +43,7 @@ AddOption('--libdir', nargs=1, action='store', dest='libdir', type='string',
 	  default=env['prefix'] + '/lib')
 env['libdir'] = GetOption('libdir')
 # Make relative path absolute
-if env['libdir'][0] != '/':
+if env['libdir'][0] != '/' and env['libdir'][0] != '#':
     env['libdir'] = GetLaunchDir() + '/' + env['libdir']
 
 # --docdir magic
@@ -53,7 +53,7 @@ AddOption('--docdir', nargs=1, action='store', dest='docdir', type='string',
 	  default=env['prefix'] + '/share/doc/agentxcpp')
 env['docdir'] = GetOption('docdir')
 # Make relative path absolute
-if env['docdir'][0] != '/':
+if env['docdir'][0] != '/' and env['docdir'][0] != '#':
     env['docdir'] = GetLaunchDir() + "/" + env['docdir']
 
 # --includedir magic
@@ -64,7 +64,7 @@ AddOption('--includedir', nargs=1, action='store', dest='includedir',
 	  default=env['prefix'] + '/include')
 env['includedir'] = GetOption('includedir')
 # Make relative path absolute
-if env['includedir'][0] != '/':
+if env['includedir'][0] != '/' and env['includedir'][0] != '#':
     env['includedir'] = GetLaunchDir() + "/" + env['includedir']
 
 

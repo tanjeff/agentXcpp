@@ -73,15 +73,15 @@ Install(env['docdir'], "api")
 ## The same for the internal documentation:
 
 internals = Command('internals/html/index.html',
-    'internals.doxyfile',
-    "cd doc/ && doxygen internals.doxyfile > /dev/null")
+                    'internals.doxyfile',
+                    "cd doc/ && doxygen internals.doxyfile > /dev/null")
 Depends(internals, Glob('../src/*.cpp') + Glob('../src/*.hpp'))
 Depends(internals, Glob('*.dox'))
 Clean(internals, "internals")
 
 
 # provide an alias for installing
-Alias("install", env['docdir'] + "/api")
+Alias("install", env['docdir'])
 
 
 #################################################

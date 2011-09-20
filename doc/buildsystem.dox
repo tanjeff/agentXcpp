@@ -23,97 +23,173 @@
 
 \page buildsystem The Build System
 
+AgentXcpp uses <a href="http://www.scons.org">SCons</a> as an easy-to-use build 
+system. Building agentXcpp is a one-step operation: simply invoke \c scons at 
+the command line, and the library will be built. In addition, SCons provides 
+operations to clean up the build directory, make parallel builds and others.  
+Read the SCons documentation to learn more.
 
-\section quickstart Quick start
+Installing the components of the agentXcpp library (header files, API 
+documentation and the library itself) is as easy as invoking <tt>scons 
+install</tt>. It is expected that agentXcpp is built by a package maintainer, 
+not by an end user.  Therefore, SCons is set up to install the library into the 
+<tt>./install-root/</tt> directory by default, from where a package maintainer 
+may pick it up for his package (e.g. a Redhat RPM package). The directories in 
+which the files are installed are configurable for flexibility. Therefore, it 
+is also possible to install agentXcpp right into a system.
 
-\note The build system of agentXcpp is not configured perfectly at the
-      moment. However, it should basically work.
+This section explains how AgentXcpp is built and how SCons is used by agentXccp 
+internally.
 
-Prerequisites:
-- build environment (compiler, linker, etc.)
-- doxygen to build the documentation
-- Scons to control the build process
-- the boost libraries
+\section hotobuild How to build AgentXcpp
 
-To build agentXcpp:
-- Type \c scons. You may add the \c -j2 switch to parallelize the build.  The 
-  documentation is build also and can be found in \c doc/api/ and \c 
-  doc/internals/.
+\subsection prerequisites Prerequisites
 
-To install the library:
-- Type \c scons \c install. This will install everything into \c install-root/.  
-  Type <tt>scons  install prefix=/usr/local</tt> or the like to install it to 
-  another place.
-
-To clean the project directory:
-- type \c scons \c -c.
-
-
-\section furtherinformation Further Information
-
-\subsection whyscons Why Scons?
-
-AgentXcpp is intended to run on many systems, server systems as well as mobile 
-devices or embedded industry applications. It's up to the user to decide where 
-agentX support is needed.
-
-Building a software in a reasonably portable way is not easy to do. The build 
-system has to deal with different compilers, libraries installed at different 
-locations, and so on. There are several build systems which could be used, with 
-autotools being the most popular. So why did I choose scons?
-
-The autotools are very popular, and seem to be a good choice. However, I 
-dislike the autotools system for its complexity.  Building a simple "hello 
-world" program requires at least 2 files to be written (configure.ac and 
-Makefile.am) and at least 4 tools to be invoked (automake, autoconf, configure, 
-make). Autotools were for sure an important milestone and a very good tool to 
-work with. But this is true for CVS as well, and many people use git, mercurial 
-or bazaar now, because these are simply better.  I suppose that nowadays there 
-are also better tools available than autoconf.
-
-So I first tried the boost.build system. To build a shared library, only one 
-file (Jamroot) and one tool invokation (bjam) is needed. Unfortunately I failed 
-when it came to doxygen.  Boost.build doesn't know about doxygen, and I was not 
-able to at least tell it how to invoke doxygen. The documentation is badly 
-written and the used programming language (Jam) is unintuitive (although 
-boost.built is currently rewritten in python, as far as I know).  Therefore I 
-gave up using boost.build.
-
-Finally, I started using Scons, which is well documented. Further, it is 
-written in python, and the SConscripts (the Makefile-equivalent of Scons) are 
-in fact python scripts also. Building a shared library is as easy as in the 
-boost.build system, and additionally I managed it to invoke doxygen to build 
-the documentation, including dependency checking and I can provide an install 
-target.  Scons basically works for me now, and the documentation suggests that 
-a lot more could be done with it. So I will stick to Scons for the time being 
-and not evaluate further build systems (also there may be even better ones).
+The following software is needed to build agentXcpp, simply use the versions 
+which are easily available for your system:
+- Standard build environment (compiler, linker, etc.)
+- Doxygen, to build the documentation
+- SCons, to control the build process
+- The boost libraries
 
 
-\subsection howitworks How Scons works in agentXcpp
 
-Scons is written in python and controlled via the \c SConstruct and \c 
-SConscript files.  These files are in fact python scripts which call certain 
-Scons functions.  These Scon functions then build agentXcpp. The root directory 
-contains a \c SConstruct file, and each subdirectory has a \c SConscript file 
-to control the build process inside that directory.
+\subsection building Building
+
+To build agentXcpp, simply type
+
+<tt>scons</tt>
+
+You may add the \c -j switch to parallelize the build (e.g.  <tt>-j2</tt>).  
+The doxygen documentation will also be build and can then be found in 
+<tt>doc/api/</tt> and <tt>doc/internals/</tt>.
+
+\subsection installing Installing
+
+To install the library to the default location (which is 
+<tt>'install-root/'</tt> in the top-level directory), type
+
+<tt>scons install</tt>
+
+The install directories can be specified by various command-line switches.  
+Example:
+
+<tt>scons --prefix=/usr/local install</tt>
+
+This will install all files in subdirectories of <tt>/usr/local/</tt>. Another 
+example:
+
+<tt>scons --libdir=/lib --docdir=/usr/share/doc/ --includedir=/usr/include 
+install</tt>
+
+This installs the shared object into <tt>/lib</tt>, the doxygen documentation 
+into <tt>/usr/share/doc/</tt> and the header files into <tt>/usr/include/</tt>.  
+An added <tt>--prefix</tt> option would do nothing in this example, because the 
+prefix is only used to calculate libdir, includedir and docdir. The following 
+example will do the same as the previous one:
+
+<tt>scons --prefix=/usr/ --libdir=/lib install</tt>
+
+The build system will choose PREFIX/include (which is <tt>/usr/include</tt> in 
+the example) as includedir and PREFIX/share/doc (which is 
+<tt>/usr/share/doc</tt> in the example) as docdir. The default directories can 
+be shown with <tt>scons -h</tt>.
+
+\subsection unit_tests Building the Unit Tests
+
+The unit tests can be build with
+
+<tt>scons testsuite</tt>
+
+\subsection cleaning Cleaning
+
+To clean the project directory, type:
+
+<tt>scons -c</tt>
+
+This doesn't clean any files installed with <tt>scons install</tt>.
+  
+
+
+\section howitworks How Scons works in agentXcpp
+
+Scons is controlled via the \c SConstruct and \c SConscript files (the 
+"Makefiles" of SCons).  These files are in fact python scripts which call 
+certain Scons functions.  These Scons functions then build agentXcpp. The root 
+directory contains an \c SConstruct file, and each subdirectory has a \c 
+SConscript file to control the build process inside that directory.
+
+
+\subsection sconstruct The top-level SConstruct
 
 The top-level \c SConstruct file defines the install prefix and the following 
 directories:
 - libdir: where the library is installed
 - includedir: where the headers are installed
 - docdir: where the API documentation is installed
-These variables are exported to the subsidiary \c SConscript files. The prefix 
-variable can be set on the command line by adding 
-<tt>prefix=/preferred/path</tt> to the scons command.
+
+For each of them, a command-line option is added using the <tt>AddOption()</tt> 
+function, providing a description (for the <tt>-h</tt> switch) and a default 
+value.  Then, the given options are read from the command line with 
+<tt>GetOption()</tt> and added to the build environment. When a relative path 
+is given, it is converted to an absolute path, because SCons functions are 
+always invoked from the top-level directory, while the \c scons invocation may 
+happen in a subsidiary directory.  The following command-line options are 
+provided:
+- <tt>--prefix=PREFIX</tt>
+- <tt>--libdir=LIBDIR</tt>
+- <tt>--includedir=INCLUDEDIR</tt>
+- <tt>--docdir=DOCDIR</tt>
+
+Finally, the subsidiary SConscript's are invoked, exporting the environment.
+
+\subsection src_sconscript src/SConscript
 
 The \c SConscript in src/ builds the library and provides the install target 
-for it.
+for it. Further, the library is defined as one of the default targets.
+
+If g++ is detected, the SConscript also adds some compiler flags to get more 
+warnings.
+
+
+\subsection doc_sconscript doc/SConscript
 
 The \c SConscript in doc/ builds the doxygen documentations (API and 
-internals). This \c SConscript is hackish, as scons doesn't know about doxygen 
-and it is not easy to get the dependencies and install targets right. But 
-seemingly it works for the time being.
+internals). This \c SConscript is hackish, as scons doesn't know about doxygen, 
+and there is currently no working Doxygen builder available for it.
 
-The \c SConscript in unit_tests/ builds the unit tests for agentXcpp.
+First, the SConscript defines how to build the API documentation, using the 
+SCons <tt>Command()</tt> function. As target, the generated 
+'api/html/index.html' file is used (although many other files are generated 
+alongside), and 'api.doxyfile', the doxygen configuration file for the API 
+docs, is defined as primary source for the build. The command for building 
+begins with '<tt>cd doc/</tt>', because the build is always started from the 
+top-level directory, but Doxygen must be invoked in the doc directory in order 
+to find its files.
+
+Second, the dependencies are defined. If any dependency changes, the 
+documentation must be rebuild. To keep things easy, all <tt>*.cpp</tt> and 
+<tt>*.hpp</tt> files in <tt>src/</tt> as well as all <tt>*.dox</tt> files are 
+defined to be dependencies.
+
+For completeness, SCons is told how to remove the built files using the 
+<tt>Clean()</tt> function to provide proper <tt>scons -c</tt> operation and an 
+install target for the API documentation is defined using <tt>Install()</tt>.
+
+These steps are then repeated for the internal documentation, except that no 
+install target is defined for it. Finally, the API and internals documentations 
+are defined as default targets.
+
+A more appropriate implementation would scan the Doxygen configuration files 
+for the input and output file patterns and define more accurate SCons 
+dependencies.  However, the current implementation will work until a good 
+Doxygen builder becomes available.
+
+
+\subsection unit_tests_sconscript unit_tests/SConscript
+
+The \c SConscript in unit_tests/ builds the unit tests for agentXcpp. An 
+install target is not provided, as unit tests are of course not installed on 
+the target system. Also, the unit tests are not defined as a default target.
 
 */

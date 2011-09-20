@@ -34,6 +34,7 @@ master_proxy::master_proxy(std::string descr,
 			   byte_t timeout,
 			   oid _id,
 			   std::string filename) :
+    io_service(),
     socket(io_service),
     endpoint(filename.c_str()),
     description(descr),

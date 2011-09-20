@@ -61,6 +61,14 @@ namespace agentxcpp
     class master_proxy
     {
 	private:
+
+	    /**
+	     * \brief The mandatory io_service object.
+	     *
+	     * This object is needed for boost::asio sockets.
+	     */
+	    boost::asio::io_service io_service;
+	    
 	    /**
 	     * \brief The socket.
 	     */
@@ -70,13 +78,6 @@ namespace agentxcpp
 	     * \brief The endpoint used fo unix domain sockets.
 	     */
 	    boost::asio::local::stream_protocol::endpoint endpoint;
-	    
-	    /**
-	     * \brief The mandatory io_service object.
-	     *
-	     * This object is needed for boost::asio sockets.
-	     */
-	    boost::asio::io_service io_service;
 
 	    /**
 	     * \brief The session ID of the current session.

@@ -20,11 +20,13 @@
 # Get the environment from the SConscript above
 Import('env')
 
-env.Program('testsuite',
-	    Glob('*.cpp'),
-	    LIBS=['boost_unit_test_framework', 'agentxcpp', 'boost_system'],
-	    LIBPATH=['../src/'],
-	    CPPPATH=['../src/'])
-    
+testsuite = env.Program('testsuite',
+	                Glob('*.cpp'),
+	                LIBS=['boost_unit_test_framework',
+			      'agentxcpp',
+			      'boost_system'],
+	                LIBPATH=['../src/'],
+	                CPPPATH=['../src/'])
+Alias('testsuite', testsuite)
 
 # Note: testsuite is not built by default

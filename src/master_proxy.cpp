@@ -54,7 +54,23 @@ void master_proxy::connect()
     }
 
     // Connect to endpoint
-    socket.connect(endpoint);
+    try
+    {
+	socket.connect(endpoint);
+    }
+    catch(boost::system::system_error)
+    {
+	// Could not connect -> close the socket
+	try
+	{
+	    socket.close();
+	}
+	catch(...)
+	{
+	    // ignore errors from close
+	}
+	return;
+    }
     
     // Send OpenPDU
     OpenPDU openpdu;

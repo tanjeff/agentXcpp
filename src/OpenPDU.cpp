@@ -49,7 +49,7 @@ OpenPDU::OpenPDU()
 }
 
 
-data_t OpenPDU::serialize()
+data_t OpenPDU::serialize() const
 {
     data_t serialized;
 

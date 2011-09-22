@@ -47,7 +47,7 @@ GetBulkPDU::GetBulkPDU(data_t::const_iterator& pos,
 
 
 
-data_t GetBulkPDU::serialize()
+data_t GetBulkPDU::serialize() const
 {
     data_t serialized;
 

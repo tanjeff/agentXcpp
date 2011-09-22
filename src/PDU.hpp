@@ -294,6 +294,11 @@ namespace agentxcpp
 	     *
 	     * static PDU* get_pdu(input_stream& in);
 	     */
+
+	    /**
+	     * \brief Serialize function for concrete PDUs.
+	     */
+	    virtual data_t serialize() const =0;
     };
 }
 

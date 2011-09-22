@@ -100,7 +100,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    data_t serialize();
+	    virtual data_t serialize() const;
 
 	    /**
 	     * \brief The allowed values for specific-trap.

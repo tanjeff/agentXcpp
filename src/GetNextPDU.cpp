@@ -40,7 +40,7 @@ GetNextPDU::GetNextPDU(data_t::const_iterator& pos,
 
 
 
-data_t GetNextPDU::serialize()
+data_t GetNextPDU::serialize() const
 {
     data_t serialized;
 

@@ -45,7 +45,7 @@ UnregisterPDU::UnregisterPDU(data_t::const_iterator& pos,
 }
 
 
-data_t UnregisterPDU::serialize()
+data_t UnregisterPDU::serialize() const
 {
     data_t serialized;
 

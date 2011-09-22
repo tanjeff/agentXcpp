@@ -37,7 +37,7 @@ TestSetPDU::TestSetPDU(data_t::const_iterator& pos,
 
 
 
-data_t TestSetPDU::serialize()
+data_t TestSetPDU::serialize() const
 {
     data_t serialized;
 

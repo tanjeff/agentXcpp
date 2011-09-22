@@ -61,7 +61,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    data_t serialize()
+	    virtual data_t serialize() const
 	    {
 		data_t serialized;
     

@@ -37,7 +37,7 @@ NotifyPDU::NotifyPDU(data_t::const_iterator& pos,
 
 
 
-data_t NotifyPDU::serialize()
+data_t NotifyPDU::serialize() const
 {
     data_t serialized;
 

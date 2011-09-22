@@ -89,7 +89,7 @@ ResponsePDU::ResponsePDU(data_t::const_iterator& pos,
 
 
 
-data_t ResponsePDU::serialize()
+data_t ResponsePDU::serialize() const
 {
     data_t serialized;
 

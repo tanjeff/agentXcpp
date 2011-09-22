@@ -46,7 +46,7 @@ RegisterPDU::RegisterPDU(data_t::const_iterator& pos,
 }
 
 
-data_t RegisterPDU::serialize()
+data_t RegisterPDU::serialize() const
 {
     data_t serialized;
 

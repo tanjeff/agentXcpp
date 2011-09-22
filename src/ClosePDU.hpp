@@ -117,7 +117,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    data_t serialize() const;
+	    virtual data_t serialize() const;
     };
 }
 

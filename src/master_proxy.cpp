@@ -19,6 +19,7 @@
 #include "master_proxy.hpp"
 #include "OpenPDU.hpp"
 #include "ClosePDU.hpp"
+#include "ResponsePDU.hpp"
 #include "helper.hpp"
 #include "types.hpp"
 
@@ -41,13 +42,14 @@ master_proxy::master_proxy(std::string descr,
     default_timeout(timeout),
     id(_id)
 {
+    // Try to connect
     connect();
 }
 
 
 void master_proxy::connect()
 {
-    if( is_connected() )
+    if( this->is_connected() )
     {
 	// we are already connected -> nothing to do
 	return;
@@ -67,7 +69,6 @@ void master_proxy::connect()
 	}
 	catch(...)
 	{
-	    // ignore errors from close
 	}
 	return;
     }
@@ -80,12 +81,44 @@ void master_proxy::connect()
     socket.send(asio::buffer(buf.data(), buf.size()));
 
     // Wait for response
-    PDU* response = PDU::get_pdu(socket);
+    ResponsePDU* response;
+    try
+    {
+	response = dynamic_cast<ResponsePDU*>(PDU::get_pdu(socket));
+    }
+    catch(...)
+    {
+	// ignore errors from PDU::get_pdu()
+    }
 
-    // Get sessionID
-    sessionID = response->get_sessionID();
+    // Check for errors
+    if(response == 0)
+    {
+	// Expected ResponsePDU, but received other PDU
+	try
+	{
+	    socket.close();
+	}
+	catch(...)
+	{
+	}
+	return;
+    }
+    if(response->get_error() != ResponsePDU::noAgentXError)
+    {
+	// Some error occured, disconnect
+	try
+	{
+	    socket.close();
+	}
+	catch(...)
+	{
+	}
+	return;
+    }
 
-    cout << "received sessionID " << sessionID << endl;
+    // If it worked: get sessionID
+    this->sessionID = response->get_sessionID();
 }
 
 void master_proxy::disconnect(ClosePDU::reason_t reason)

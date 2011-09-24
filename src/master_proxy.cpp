@@ -123,11 +123,15 @@ void master_proxy::connect()
 
 void master_proxy::disconnect(ClosePDU::reason_t reason)
 {
-    if( !is_connected() )
+    if( !this->is_connected() )
     {
 	// we are already disconnected -> nothing to do
 	return;
     }
+
+    // According to RFC 2741, 7.1.8. "Processing the agentx-Close-PDU", the 
+    // master agent unregisters all MIB regions, frees all index values and all 
+    // sysORID are removed. Thus no need to clean up before ClosePDU is sent.
 
     // Send ClosePDU
     ClosePDU pdu(sessionID, reason);
@@ -135,7 +139,30 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
     socket.send(asio::buffer(buf.c_str(), buf.size()));
 
     // Wait for response
-    //PDU* response = PDU::get_pdu(socket);
+    ResponsePDU* response;
+    try
+    {
+	response = dynamic_cast<ResponsePDU*>(PDU::get_pdu(socket));
+    }
+    catch(...)
+    {
+	// ignore errors from PDU::get_pdu()
+    }
+    
+    // Check for errors
+    if(response != 0
+       && response->get_error() != ResponsePDU::noAgentXError)
+    {
+	// Some error occured, disconnect
+	try
+	{
+	    socket.close();
+	}
+	catch(...)
+	{
+	}
+	return;
+    }
 
     // Close socket
     socket.close();
@@ -143,7 +170,5 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
 
 master_proxy::~master_proxy()
 {
-    cout << "master_proxy::~master_proxy(): sending ClosePDU" << endl;
-    
     disconnect(ClosePDU::reasonShutdown);
 }

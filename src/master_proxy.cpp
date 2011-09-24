@@ -31,15 +31,35 @@ using namespace boost;
 
 
     
-master_proxy::master_proxy(std::string descr,
-			   byte_t timeout,
+master_proxy::master_proxy(boost::asio::io_service* _io_service,
+			   std::string _description,
+			   byte_t _default_timeout,
 			   oid _id,
-			   std::string filename) :
-    io_service(),
-    socket(io_service),
-    endpoint(filename.c_str()),
-    description(descr),
-    default_timeout(timeout),
+			   std::string _filename) :
+    io_service(_io_service),
+    io_service_by_user(true),
+    socket(*io_service),
+    endpoint(_filename.c_str()),
+    description(_description),
+    default_timeout(_default_timeout),
+    id(_id)
+{
+    // Try to connect
+    connect();
+}
+
+
+
+master_proxy::master_proxy(std::string _description,
+			   byte_t _default_timeout,
+			   oid _id,
+			   std::string _filename) :
+    io_service(new boost::asio::io_service()),
+    io_service_by_user(false),
+    socket(*io_service),
+    endpoint(_filename.c_str()),
+    description(_description),
+    default_timeout(_default_timeout),
     id(_id)
 {
     // Try to connect
@@ -170,5 +190,12 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
 
 master_proxy::~master_proxy()
 {
+    // Disconnect from master agent
     disconnect(ClosePDU::reasonShutdown);
+
+    // Destroy io_service object if needed
+    if( ! this->io_service_by_user )
+    {
+	delete this->io_service;
+    }
 }

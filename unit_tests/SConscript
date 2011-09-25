@@ -20,13 +20,19 @@
 # Get the environment from the SConscript above
 Import('env')
 
-testsuite = env.Program('testsuite',
+test_env = env.Clone()
+
+# Only for gcc: make executable usable in this directory
+if(test_env["CXX"] == "g++"):
+    test_env.Append(LINKFLAGS = ['-Wl,-rpath,../src/'])
+
+testsuite = test_env.Program('testsuite',
 	                Glob('*.cpp'),
 	                LIBS=['boost_unit_test_framework',
 			      'agentxcpp',
 			      'boost_system'],
 	                LIBPATH=['../src/'],
 	                CPPPATH=['../src/'])
-Alias('testsuite', testsuite)
+env.Alias('testsuite', testsuite)
 
 # Note: testsuite is not built by default

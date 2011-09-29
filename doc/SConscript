@@ -56,7 +56,7 @@ api = Command('api/html/index.html',
 Depends(api, Glob('../src/*.cpp') + Glob('../src/*.hpp'))
 
 # API doc also depends on other files
-Depends(api, Glob('*.dox'))
+Depends(api, Glob('*.dox') + Glob('api.mainpage'))
 
 # Scons does not remove directories when invoked with -c,
 # so we explicit request deletion of the api/ directory
@@ -76,7 +76,7 @@ internals = Command('internals/html/index.html',
                     'internals.doxyfile',
                     "cd doc/ && doxygen internals.doxyfile > /dev/null")
 Depends(internals, Glob('../src/*.cpp') + Glob('../src/*.hpp'))
-Depends(internals, Glob('*.dox'))
+Depends(internals, Glob('*.dox') + Glob('internals.mainpage'))
 Clean(internals, "internals")
 
 

@@ -41,4 +41,14 @@ class version_mismatch { };
  */
 class disconnected { };
 
+/**
+ * \brief Exception to indicate a timeout
+ */
+class timeout_exception { };
+
+/**
+ * \brief Exception to indicate a network error
+ */
+class network { };
+
 #endif

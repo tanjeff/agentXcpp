@@ -16,6 +16,11 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
+
+
+#include <boost/bind.hpp>
+
+
 #include "PDU.hpp"
 #include "OpenPDU.hpp"
 #include "ClosePDU.hpp"
@@ -62,7 +67,7 @@ PDU::PDU(data_t::const_iterator& pos,
     {
 	throw(parse_error());
     }
-    
+
     // skip protocol version (already checked by get_pdu()) and
     // type field (not needed here)
     pos += 2;
@@ -91,52 +96,213 @@ PDU::PDU(data_t::const_iterator& pos,
 }
 
 
-PDU* PDU::get_pdu(boost::asio::local::stream_protocol::socket& in)
+// Helper type for PDU::get_pdu(). See there for an explanation.
+enum status_t {
+    in_progress = 0,
+    success     = 1,
+    fail        = 2
+};
+
+
+// Helper function for PDU::get_pdu(). See there for an explanation.
+static void callback_for_get_pdu(const boost::system::error_code& result,
+                                 status_t* retval)
 {
-    data_t buf;	// serialized form of the PDU
-    data_t::const_iterator pos;	// needed for parsing
+    if( result.value() == 0 )
+    {
+	// success
+	*retval = success;
+    }
+    else
+    {
+	// error
+	*retval = fail;
+    }
+}
+
+/*
+ * Timeout handling:
+ * 
+ * To realize a read opration with a timeout using boost::asio, a callback 
+ * function is utilized. First a timer is started, then an asyncronous read 
+ * operation is invoked (in fact, two reads are involved: first one for the PDU 
+ * header (to know the PDU size), second one for the remaining PDU data). Both, 
+ * the timer and the read operation, are set up to invoke the 
+ * callback_for_get_pdu() function when they finish. This callback function 
+ * writes the result into a variable which was handed over as a pointer, making 
+ * the result accessible to the get_pdu() function (different variables are 
+ * used for the timer and the read).
+ *
+ * The variables holding the result are of type status_t and are initialized to 
+ * 'in_progress'.
+ * 
+ * After setting up the timer and the read operation, the io_service.run_one() 
+ * function is invoked repeatedly until either the timer or the read finishes.  
+ * Note that io_service.run_one() may service other asynchronous operations 
+ * first, e.g.  a get request.
+ *
+ * After that, the results of the timer and the read are inspected. A failure 
+ * (e.g. timer expired sucessfully or read failed) leads to an exception.
+ */
+PDU* PDU::get_pdu(boost::asio::local::stream_protocol::socket& in,
+		  unsigned timeout)
+{
+    // serialized form of the PDU
+    data_t buf;
+
+    // needed for parsing
+    data_t::const_iterator pos;
+
+    // Start timeout timer
+    boost::asio::deadline_timer timer(in.get_io_service());
+    status_t timer_result = in_progress;
+    timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
+    timer.async_wait( boost::bind(callback_for_get_pdu,
+				  boost::asio::placeholders::error,
+				  &timer_result) );
 
     // read header
-    const int header_size = 20;
-    byte_t header[header_size];
-    in.receive(boost::asio::buffer(header, header_size));
-    //if( !in )
-    //{
-    //    throw( parse_error() );
-    //}
-    buf.append(header, header_size);
+    {
+	// Temporary buffer
+	const int header_size = 20;
+	byte_t header[header_size];
+
+	// Start read
+	status_t read_result = in_progress;
+	async_read(in,
+		   boost::asio::buffer(header, header_size),
+		   boost::bind(callback_for_get_pdu,
+			       boost::asio::placeholders::error,
+			       &read_result));
+
+	// process asio events until read succeeds or timeout expires
+	do
+	{
+	    in.get_io_service().run_one();
+	}
+	while(read_result == in_progress && timer_result == in_progress);
+
+	// Check result
+	if (read_result == success )
+	{
+	    // Read succeeded: OK
+
+	    // read succeeded: store received data
+	    buf.append(header, header_size);
+
+	    // Don't stop timer: the payload has to be read
+	    goto header_was_read;
+	}
+	if (read_result == fail)
+	{
+	    // read failed: cancel timer, throw exception
+	    timer.cancel();
+	    throw( network() );
+	}
+	if (read_result == in_progress && timer_result == success)
+	{
+	    // timer fired while reading
+	    // cancel read, throw exception
+	    in.cancel();
+	    throw( timeout_exception() );
+	}
+	if (read_result == in_progress && timer_result == fail)
+	{
+	    // timer failed while reading
+	    // what now?
+	    // I think we should fail with a network error
+	    in.cancel();
+	    throw( network() );
+	}
+    }
+
+header_was_read:
 
     // check protocol version
     byte_t version = buf[0];
     if( version != 1 )
     {
+	// Wrong protocol:
+	// cancel timer and throw exception
+	timer.cancel();
 	throw( version_mismatch() );
     }
-    
+
     // read endianess flag
     byte_t flags = buf[2];
     bool big_endian = ( flags & (1<<4) ) ? true : false;
-    
+
     // read payload length
     uint32_t payload_length;
     pos = buf.begin() + 16;
     payload_length = read32(pos, big_endian);
-    if( payload_length%4 != 0 )
+    if( payload_length % 4 != 0 )
     {
 	// payload length must be a multiple of 4!
 	// See RFC 2741, 6.1. "AgentX PDU Header"
+	// -> cancel timer, throw exception
+	timer.cancel();
 	throw( parse_error() );
     }
 
     // read payload
-    byte_t* payload = new byte_t[payload_length];
-    in.receive(boost::asio::buffer(payload, payload_length));
-    //if( !in )
-    //{
-    //    throw( parse_error() );
-    //}
-    buf.append(payload, payload_length);
-    delete[] payload;
+    {
+	// Temporary buffer
+	byte_t* payload = new byte_t[payload_length];
+
+	// Start read
+	status_t read_result = in_progress;
+	async_read(in,
+		   boost::asio::buffer(payload, payload_length),
+		   boost::bind(callback_for_get_pdu, boost::asio::placeholders::error,
+			       &read_result));
+
+	// process asio events until read succeeds or timeout expires
+	do
+	{
+	    in.get_io_service().run_one();
+	}
+	while(read_result == in_progress && timer_result == in_progress);
+
+	// Check result
+	if (read_result == success )
+	{
+	    // Read succeeded:
+	    // cancel timer, store received data, delete temporary buffer
+	    timer.cancel();
+	    buf.append(payload, payload_length);
+	    delete[] payload;
+
+	    goto payload_was_read;
+	}
+	if (read_result == fail)
+	{
+	    // read failed:
+	    // cancel timer, delete temporary buffer, throw exception
+	    timer.cancel();
+	    delete[] payload;
+	    throw( network() );
+	}
+	if (read_result == in_progress && timer_result == success)
+	{
+	    // timer fired while reading:
+	    // cancel timer, delete temporary buffer, throw exception
+	    in.cancel();
+	    delete[] payload;
+	    throw( timeout_exception() );
+	}
+	if (read_result == in_progress && timer_result == fail)
+	{
+	    // timer failed while reading
+	    // what now?
+	    // I think we should fail with a network error
+	    in.cancel();
+	    delete[] payload;
+	    throw( network() );
+	}
+    }
+
+payload_was_read:
 
     // read type
     byte_t type = buf[1];
@@ -225,7 +391,7 @@ void PDU::add_header(type_t type, data_t& payload) const
     write32(header, transactionID);
     write32(header, packetID);
     write32(header, payload.size());	// payload length
-    
+
     // Add header to payload
     payload.insert(0, header);
 }

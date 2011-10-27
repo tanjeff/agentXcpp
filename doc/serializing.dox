@@ -44,7 +44,7 @@ contained objects, receive a data_t object from that object and append it to
 their own data_t object. Finally, PDU::add_header() is called to add the 
 header.
 
-Let's take an example. When a OpenPDU is serialized, the OpenPDU::serialize() 
+Let's take an example. When an OpenPDU is serialized, the OpenPDU::serialize() 
 function starts by creating an empty data_t object, named 'serialized':
 \code
     data_t serialized;
@@ -57,12 +57,12 @@ Then the timeout field and 3 reserved fields are appended like this:
     serialized.push_back(0);
 \endcode
 Next, the ID field is appended which is an oid object. The oid class provides a 
-serialized() function which is used to serialize the OID object:
+serialize() function which is used to serialize the OID object:
 \code
     serialized += id.serialize();
 \endcode
 Then the description field is added, which is an Octet_String object. Again, 
-the Octet_String class provides a serialize() member:
+the Octet_String class provides a serialize() function:
 \code
     serialized += descr.serialize();
 \endcode

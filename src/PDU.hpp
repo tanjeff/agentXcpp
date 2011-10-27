@@ -270,25 +270,43 @@ namespace agentxcpp
 	     * \brief Parse a %PDU from an input stream
 	     *
 	     * Read the %PDU into a buffer, then create a %PDU of the according 
-	     * type (e.g. OpenPDU) from that buffer. See \ref parsing for 
-	     * details about %PDU parsing.
+	     * type (e.g. OpenPDU) from that buffer. If no data is received 
+	     * after a timeout period, an exception is thrown. See \ref parsing 
+	     * for details about %PDU parsing.
 	     *
-	     * \exception parse_error If parsing fails, for example because
-	     *			      reading the stream fails or the PDU is 
-	     *			      malformed. The stream position is 
-	     *			      undefined after this error.
+	     * \exception network If reading fails before the timeout expires.
+	     *                    The socket is left in an undefined state 
+	     *                    after this error (i.e. maybe some data was 
+	     *                    read before further reading failed).
+	     *
+	     * \exception timeout_exception If the timeout expires before
+	     *                              reading the data succeeded. The 
+	     *                              socket is left in an undefined 
+	     *                              state after this error (i.e.  maybe 
+	     *                              some data was read before the 
+	     *                              timeout expired).
+	     *
+	     * \exception parse_error If parsing fails, because the PDU is
+	     *                        malformed. The socketis is left in an 
+	     *                        undefined state after this error.
 	     * 
 	     * \exception version_mismatch If the AgentX version of the %PDU
-	     *                             in the stream is not 1.  The stream 
-	     *                             position is undefined after this 
-	     *                             error.
+	     *                             in the stream is not 1.  The socket 
+	     *                             is left in an undefined state after 
+	     *                             this error.
 	     *
-	     * \param in The input stream to read from.
+	     * \exception timeout If the timeout expires without receiving
+	     *                    data.
+	     *
+	     * \param in The socket to read from.
+	     *
+	     * \param timeout The timeout in milliseconds.
 	     *
 	     * \return Pointer to PDU object of according type; the user must
 	     *	       delete the object if it is not longer needed.
 	     */
-	    static PDU* get_pdu(boost::asio::local::stream_protocol::socket& in);
+	    static PDU* get_pdu(boost::asio::local::stream_protocol::socket& in,
+				unsigned timeout=1000);
 	    /* TODO: I originally wanted to use this one to be more flexible 
 	     * (e.g.  read from cin, write to cout):
 	     *

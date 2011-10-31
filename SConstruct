@@ -17,32 +17,62 @@
 # for more details.
 #
 
-# Our Environment
+
+#################################################
+## Our Environment
 env = DefaultEnvironment()
 
-# Define the install prefix
-# Add installation path's to environment:
-env['prefix']     = ARGUMENTS.get('prefix', "install-root")
-if env['prefix'][0] != '/':
-    # We need a "#" to refer to /this/ dir from subsidiary SConscripts
-    env['prefix'] = "#" + env['prefix']
-env['libdir']     = env['prefix'] + ARGUMENTS.get('libdir', "/lib")
-env['docdir']     = env['prefix'] + ARGUMENTS.get('docdir', "/share/doc/agentxcpp")
-env['includedir'] = env['prefix'] + ARGUMENTS.get('includedir', "/include")
 
-# Build library, documentation and examples, export the environment
-SConscript(['src/SConscript',
-	    'doc/SConscript',
-	    'unit_tests/SConscript'], 'env')
+#################################################
+## Command-line magic
 
-# Define aliases for some things which can be built (bug in SCons 2.0.1: the 
-# Default() function does not work properly, using aliases solves the 
-# problem)
-Alias("doc_api", "doc/api")
-Alias("doc_internals", "doc/internals")
-Alias("agentxcpp", "src")
-Alias("unit_tests", "unit_tests/testsuite")
+# --prefix magic
+default_prefix = '#install-root'
+AddOption('--prefix', nargs=1, action='store', dest='prefix', type='string',
+	  help='installation prefix (default: ' + default_prefix + ')',
+	  default=default_prefix)
+env['prefix'] = GetOption('prefix')
+# Make relative path absolute
+if env['prefix'][0] != '/' and env['prefix'][0] != '#':
+    env['prefix'] = GetLaunchDir() + '/' + env['prefix']
 
-# What to build by default
-Default('agentxcpp', 'unit_tests', 'doc_api', 'doc_internals')
+# --libdir magic
+AddOption('--libdir', nargs=1, action='store', dest='libdir', type='string',
+	  help='installation directory for libraries ' +
+	  '(default: <PREFIX>/lib)',
+	  default=env['prefix'] + '/lib')
+env['libdir'] = GetOption('libdir')
+# Make relative path absolute
+if env['libdir'][0] != '/' and env['libdir'][0] != '#':
+    env['libdir'] = GetLaunchDir() + '/' + env['libdir']
+
+# --docdir magic
+AddOption('--docdir', nargs=1, action='store', dest='docdir', type='string',
+	  help='installation directory for documentation ' +
+	  '(default: <PREFIX>/share/doc/agentxcpp)',
+	  default=env['prefix'] + '/share/doc/agentxcpp')
+env['docdir'] = GetOption('docdir')
+# Make relative path absolute
+if env['docdir'][0] != '/' and env['docdir'][0] != '#':
+    env['docdir'] = GetLaunchDir() + "/" + env['docdir']
+
+# --includedir magic
+AddOption('--includedir', nargs=1, action='store', dest='includedir', 
+	type='string',
+	  help='installation directory for header files ' +
+	  '(default: <PREFIX>/include)',
+	  default=env['prefix'] + '/include')
+env['includedir'] = GetOption('includedir')
+# Make relative path absolute
+if env['includedir'][0] != '/' and env['includedir'][0] != '#':
+    env['includedir'] = GetLaunchDir() + "/" + env['includedir']
+
+
+#################################################
+## Include SCronscripts from subdirectories
+
+# (export env to them):
+env.SConscript(['src/SConscript',
+		'doc/SConscript',
+	        'unit_tests/SConscript'], 'env')
 

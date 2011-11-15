@@ -362,6 +362,94 @@ payload_was_read:
 }
 
 
+std::auto_ptr<PDU> PDU::parse_pdu(data_t buf)
+{
+    // needed for parsing
+    data_t::const_iterator pos;
+
+    // check protocol version
+    byte_t version = buf[0];
+    if( version != 1 )
+    {
+	// Wrong protocol:
+	// throw exception
+	throw( version_mismatch() );
+    }
+
+    // read endianess flag
+    byte_t flags = buf[2];
+    bool big_endian = ( flags & (1<<4) ) ? true : false;
+
+    // read payload length
+    uint32_t payload_length;
+    pos = buf.begin() + 16;
+    payload_length = read32(pos, big_endian);
+    if( payload_length % 4 != 0 )
+    {
+	// payload length must be a multiple of 4!
+	// See RFC 2741, 6.1. "AgentX PDU Header"
+	// -> throw exception
+	throw( parse_error() );
+    }
+
+    // read PDU type
+    byte_t type = buf[1];
+
+    // create PDU (TODO: complete the list!)
+    std::auto_ptr<PDU> pdu;
+    pos = buf.begin();
+    const data_t::const_iterator end = buf.end();
+    switch(type)
+    {
+	case agentxOpenPDU:
+	    pdu.reset(new OpenPDU(pos, end, big_endian));
+	    break;
+	case agentxClosePDU:
+	    pdu.reset(new ClosePDU(pos, end, big_endian));
+	    break;
+	case agentxRegisterPDU:
+	    pdu.reset(new RegisterPDU(pos, end, big_endian));
+	    break;
+	case agentxUnregisterPDU:
+	    pdu.reset(new UnregisterPDU(pos, end, big_endian));
+	    break;
+	case agentxResponsePDU:
+	    pdu.reset(new ResponsePDU(pos, end, big_endian));
+	    break;
+	case agentxCommitSetPDU:
+	    pdu.reset(new CommitSetPDU(pos, end, big_endian));
+	    break;
+	case agentxUndoSetPDU:
+	    pdu.reset(new UndoSetPDU(pos, end, big_endian));
+	    break;
+	case agentxTestSetPDU:
+	    pdu.reset(new TestSetPDU(pos, end, big_endian));
+	    break;
+	case agentxCleanupSetPDU:
+	    pdu.reset(new CleanupSetPDU(pos, end, big_endian));
+	    break;
+	case agentxGetPDU:
+	    pdu.reset(new GetPDU(pos, end, big_endian));
+	    break;
+	case agentxGetNextPDU:
+	    pdu.reset(new GetNextPDU(pos, end, big_endian));
+	    break;
+	case agentxGetBulkPDU:
+	    pdu.reset(new GetBulkPDU(pos, end, big_endian));
+	    break;
+	case agentxNotifyPDU:
+	    pdu.reset(new NotifyPDU(pos, end, big_endian));
+	    break;
+	default:
+	    // type is invalid
+	    throw(parse_error());
+    }
+
+    // return created PDU
+    return pdu;
+}
+
+
 
 void PDU::add_header(type_t type, data_t& payload) const
 {

@@ -23,6 +23,7 @@
 #include "types.hpp"
 #include "exceptions.hpp"
 #include <boost/asio.hpp>
+#include <memory>
 
 namespace agentxcpp
 {
@@ -312,6 +313,23 @@ namespace agentxcpp
 	     *
 	     * static PDU* get_pdu(input_stream& in);
 	     */
+
+	    /**
+	     * \brief Parse a %PDU from a buffer
+	     *
+	     * Create a %PDU of the according type (e.g.  ResponsePDU) from the 
+	     * given buffer. See \ref parsing for details about %PDU parsing.
+	     *
+	     * \param buf The buffer containing exactly one PDU in serialized
+	     *            form.
+	     *
+	     * \exception parse_error If parsing fails, because the PDU is
+	     *                        malformed.
+	     *
+	     * \exception version_mismatch If the AgentX version of the %PDU
+	     *                             is not 1.
+	     */
+	    static std::auto_ptr<PDU> parse_pdu(data_t buf);
 
 	    /**
 	     * \brief Serialize function for concrete PDUs.

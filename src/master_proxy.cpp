@@ -16,6 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
+#include <boost/bind.hpp>
+
 #include "master_proxy.hpp"
 #include "OpenPDU.hpp"
 #include "ClosePDU.hpp"
@@ -104,6 +106,7 @@ void master_proxy::connect()
     ResponsePDU* response;
     try
     {
+	// TODO: memory leak!
 	response = dynamic_cast<ResponsePDU*>(PDU::get_pdu(socket));
     }
     catch(...)
@@ -139,6 +142,14 @@ void master_proxy::connect()
 
     // If it worked: get sessionID
     this->sessionID = response->get_sessionID();
+
+    // Finally: start receiving (the callback will call async_read() to 
+    // continue receiving)
+    async_read(this->socket,
+	       boost::asio::buffer(this->header_buf, 20),
+	       boost::bind(&master_proxy::receive,
+			   this,
+			   boost::asio::placeholders::error));
 }
 
 void master_proxy::disconnect(ClosePDU::reason_t reason)
@@ -198,4 +209,74 @@ master_proxy::~master_proxy()
     {
 	delete this->io_service;
     }
+}
+
+void master_proxy::receive(const boost::system::error_code& result)
+{
+    // Check for network errors
+    if( result.value() != 0 )
+    {
+	// async read operation failed
+	// -> close socket (without notifying the master agent)
+	try { this->socket.close(); } catch(...) { }
+
+	// Nothing left to do
+	return;
+    }
+
+    // Copy header into PDU buffer
+    data_t buf;
+    buf.append(this->header_buf, 20);
+
+    // read endianess flag
+    bool big_endian = ( this->header_buf[2] & (1<<4) ) ? true : false;
+
+    // read payload length
+    uint32_t payload_length;
+    data_t::const_iterator pos = buf.begin() + 16;
+    payload_length = read32(pos, big_endian);
+    if( payload_length % 4 != 0 )
+    {
+	// payload length must be a multiple of 4!
+	// See RFC 2741, 6.1. "AgentX PDU Header"
+	// -> close socket
+	try { this->socket.close(); } catch(...) { }
+    }
+
+    // Read the payload (TODO: can we avoid the new() operator?)
+    byte_t* payload = new byte_t[payload_length];
+    boost::asio::read(this->socket,
+		      boost::asio::buffer(payload, payload_length));
+    buf.append(payload, payload_length);
+    delete[] payload;
+
+    // Parse PDU
+    bool dispatch_pdu = true; // some PDUs are discarded
+    try
+    {
+	auto_ptr<PDU> pdu = PDU::parse_pdu(buf);
+    }
+    catch(version_mismatch)
+    {
+	// discard PDU with wrong version
+	dispatch_pdu = false;
+    }
+    catch(parse_error)
+    {
+	// Close socket
+	try { this->socket.close(); } catch(...) { }
+    }
+
+    // Dispatch!
+    if( dispatch_pdu )
+    {
+	// TODO: add dispatcher code here!
+    }
+
+    // Set up socket for next read access
+    async_read(this->socket,
+	       boost::asio::buffer(this->header_buf, 20),
+	       boost::bind(&master_proxy::receive,
+			   this,
+			   boost::asio::placeholders::error));
 }

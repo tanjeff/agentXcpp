@@ -23,9 +23,12 @@
 
 #include <fstream>
 #include <string>
+#include <map>
+#include <boost/shared_ptr.hpp>
 #include "types.hpp"
 #include "oid.hpp"
 #include "ClosePDU.hpp"
+#include "ResponsePDU.hpp"
 
 namespace agentxcpp
 {
@@ -161,6 +164,14 @@ namespace agentxcpp
 	     * async read operation, so that it is called again for new data.
 	     */
 	    void receive(const boost::system::error_code& result);
+
+	    /**
+	     * \brief The received, yet unprocessed reponses.
+	     *
+	     * The responses received asynchronously by the receive() function 
+	     * are stored in this map. The key is their packetID.
+	     */
+	    std::map< uint32_t, boost::shared_ptr<ResponsePDU> > responses;
 
 	public:
 	    /**

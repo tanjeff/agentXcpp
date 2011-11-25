@@ -22,6 +22,7 @@
 #include "OpenPDU.hpp"
 #include "ClosePDU.hpp"
 #include "ResponsePDU.hpp"
+#include "RegisterPDU.hpp"
 #include "helper.hpp"
 #include "types.hpp"
 
@@ -251,10 +252,11 @@ void master_proxy::receive(const boost::system::error_code& result)
     delete[] payload;
 
     // Parse PDU
+    auto_ptr<PDU> pdu;
     bool dispatch_pdu = true; // some PDUs are discarded
     try
     {
-	auto_ptr<PDU> pdu = PDU::parse_pdu(buf);
+	pdu = PDU::parse_pdu(buf);
     }
     catch(version_mismatch)
     {
@@ -270,7 +272,23 @@ void master_proxy::receive(const boost::system::error_code& result)
     // Dispatch!
     if( dispatch_pdu )
     {
-	// TODO: add dispatcher code here!
+	// We use dynamic_cast to find out which type of PDU we received.
+
+	// Get the real pointer. We take the ownership!
+	PDU* pdu_ptr = pdu.release();
+
+	
+	if(ResponsePDU* response_ptr = dynamic_cast<ResponsePDU*>(pdu_ptr))
+	{
+	    // was a ResponsePDU: store to the responses map
+	    boost::shared_ptr<ResponsePDU> response(response_ptr);
+	    this->responses[response_ptr->get_packetID()] = response;
+	}
+	else
+	{
+	    // We don't like this type of PDU.
+	    // Ignoring...
+	}
     }
 
     // Set up socket for next read access

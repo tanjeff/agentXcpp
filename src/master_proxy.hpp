@@ -163,7 +163,9 @@ namespace agentxcpp
 	     * This function is called when data is ready on the socket (the 
 	     * header was already read into the header_buf buffer). It will 
 	     * read one PDU from the socket, process it and set up the next 
-	     * async read operation, so that it is called again for new data.
+	     * async read operation, so that it is called again for new data.  
+	     * 
+	     * Recieved ResponsePDU's are stored into the responses map.
 	     */
 	    void receive(const boost::system::error_code& result);
 
@@ -171,9 +173,47 @@ namespace agentxcpp
 	     * \brief The received, yet unprocessed reponses.
 	     *
 	     * The responses received asynchronously by the receive() function 
-	     * are stored in this map. The key is their packetID.
+	     * are stored in this map. The key is their packetID. They are 
+	     * reclaimed by the wait_for_response() function.
 	     */
+	    // TODO: What about responses which are received accidentally 
+	    // (e.g. by a defective master agent) and are not processed by the 
+	    // agentXcpp library? They will consume memory forever (memory 
+	    // leak).
 	    std::map< uint32_t, boost::shared_ptr<ResponsePDU> > responses;
+
+
+	    /**
+	     * \brief Wait with timeout for a reponse.
+	     *
+	     * This function blocks until a ResponsePDU with the given 
+	     * packetID is received or until the timeout expires, whichever 
+	     * comes first.  The received ResponsePDU (if any) is returned.
+	     *
+	     * This function calls run_one() on the io_service object until 
+	     * the desired ResponsePDU arrives or the timeout expires. This 
+	     * may cause other asynchronous operations to be served, as well.  
+	     * As a side effect, the function may return later than the 
+	     * timeout value requests.
+	     *
+	     * The unprocessed ResponsePDU's are put into the reponses map by 
+	     * the receive() function. This map is inspected by this function, 
+	     * and the desired ResponsePDU is removed from the map before 
+	     * returning it.
+	     *
+	     * \param packetID The packetID to wait for.
+	     *
+	     * \param timeout The timeout in milliseconds. Th default is 0,
+	     *                meaning "use the session's default timeout".
+	     *
+	     * \exception timeout If the timeout expired before the ResponsePDU
+	     *                    was received. 
+	     *
+	     * \return The received ResponsePDU.
+	     */
+	    boost::shared_ptr<ResponsePDU>
+		wait_for_response(uint32_t packetID,
+				  unsigned timeout=0);
 
 	public:
 	    /**

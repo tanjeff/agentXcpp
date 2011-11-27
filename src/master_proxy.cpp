@@ -282,6 +282,8 @@ void master_proxy::receive(const boost::system::error_code& result)
 	    // was a ResponsePDU: store to the responses map
 	    boost::shared_ptr<ResponsePDU> response(response_ptr);
 	    this->responses[response_ptr->get_packetID()] = response;
+	    // TODO: What if a ResponsePDU is already stored with that 
+	    // packetID?
 	}
 	else
 	{
@@ -296,4 +298,94 @@ void master_proxy::receive(const boost::system::error_code& result)
 	       boost::bind(&master_proxy::receive,
 			   this,
 			   boost::asio::placeholders::error));
+}
+
+
+
+
+// Helper type for master_proxy::wait_for_response(). See there for an 
+// explanation.
+enum status_t {
+    in_progress = 0,
+    success     = 1,
+    fail        = 2
+};
+
+
+// Helper function for master_proxy::wait_for_response(). See there for an 
+// explanation.
+static void callback(const boost::system::error_code& result,
+                                 status_t* retval)
+{
+    if( result.value() == 0 )
+    {
+	// success
+	*retval = success;
+    }
+    else
+    {
+	// error
+	*retval = fail;
+    }
+}
+/*
+ * Timeout handling:
+ * 
+ * The timeout handling is realized using a boost::asio::deadline_timer 
+ * object, which is set up to call the callback() function when it expires (or 
+ * when it fails). The variable 'timer_result' is intially set to 
+ * 'in_progress'.  The callback will set it to 'success' or 'fail' when the 
+ * timer expires respectively fails.
+ *
+ * Then the io_service.run_one() function is invoked repeatedly until either 
+ * the timer expired or the desired ResponsePDU arrived. Note that 
+ * io_service.run_one() may service other asynchronous operations first, e.g.  
+ * a get request.
+ *
+ * Finally either the received ResponsePDU is returned or a timeout exception 
+ * is thrown.
+ */
+shared_ptr<ResponsePDU> master_proxy::wait_for_response(uint32_t packetID,
+							unsigned timeout)
+{
+    // Handle default timeout (omitting timeout parameter)
+    if( timeout == 0 )
+    {
+	timeout = this->default_timeout;
+    }
+
+    // Start timeout timer
+    boost::asio::deadline_timer timer(*(this->io_service));
+    status_t timer_result = in_progress; // callback stores result here
+    timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
+    timer.async_wait( boost::bind(callback,
+				  boost::asio::placeholders::error,
+				  &timer_result) );
+
+    // process asio events until ResponsePDU arrives or timeout expires
+    while(   this->responses.find(packetID) == this->responses.end()
+	  && timer_result == in_progress)
+    {
+	this->io_service->run_one();
+    }
+    
+    // Check the result
+    map< uint32_t, boost::shared_ptr<ResponsePDU> >::iterator response;
+    response = this->responses.find(packetID);
+    if(response != this->responses.end())
+    {
+	// ResponsePDU arrived:
+	// 1. Cancel timer
+	// 2. Erase response from map
+	// 3. Return response
+	timer.cancel();
+	shared_ptr<ResponsePDU> retval = (*response).second;
+	this->responses.erase(response);
+	return retval;
+    }
+    else
+    {
+	// Timer expired or failed before ResponsePDU arrived
+	throw(timeout);
+    }
 }

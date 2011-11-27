@@ -145,6 +145,11 @@ namespace agentxcpp
 	    oid id;
 
 	    /**
+	     * \brief The SNMP objects registered with this master.
+	     */
+	    std::map<oid, variable*> registrations;
+
+	    /**
 	     * \brief Buffer to receive a PDU header
 	     *
 	     * When receiving a PDU asynchronously, the header is read into 
@@ -286,6 +291,71 @@ namespace agentxcpp
 		   byte_t default_timeout=0,
 		   oid ID=oid(),
 		   std::string unix_domain_socket="/var/agentx/master");
+
+	    /**
+	     * \brief Register a subtree with the master agent
+	     *
+	     * Before the master agent sends SNMP requests to a subagent, the 
+	     * subagent must register some OIDs. Doing so informs the master 
+	     * agent that the subagent wishes to handle requests for these 
+	     * OIDs.
+	     *
+	     * This function registers a subtree (or MIB region). It is 
+	     * typically called for the highest-level OID of the MIB which is 
+	     * implemented by the subagent. The subagent will then receive 
+	     * requests for the registered OID and its subtree. For example, 
+	     * registering 1.3.6.1.4.1.42.13 registers all OIDs beginning with 
+	     * this one, e.g. 1.3.6.1.4.1.42.13.1.1.2 and 
+	     * 1.3.6.1.4.1.42.13.200.1.3.2.1.1.2.
+	     *
+	     * \param subtree The (root of the) subtree to register.
+	     *
+	     * \param priority The priority with which to register the subtree.
+	     *                 Default is 127 according to RFC 2741, 6.2.3.  
+	     *                 "The agentx-Register-PDU".
+	     *
+	     * \param timeout The timeout value for the registered subtree, in
+	     *		      seconds. This value overrides the timeout of the 
+	     *		      session.  Default value is 0 (no override) 
+	     *		      according to RFC 2741, 6.2.3.  "The 
+	     *		      agentx-Register-PDU".
+	     *
+	     * \exception disconnected If the master_proxy is currently in
+	     *                         state 'disconnected'.
+	     *
+	     * \exception timeout_exception If the master agent does not
+	     *                              respond within the timeout 
+	     *                              interval.
+	     *
+	     * \exception internal_error If the master received a malformed
+	     *                           PDU. This is probably a programming 
+	     *                           error within the agentXcpp library.
+	     *
+	     * \exception master_is_unable The master agent was unable to
+	     *                             perform the desired register 
+	     *                             request.  The reason for that is 
+	     *                             unknown.
+	     *
+	     * \exception duplicate_registration If the exact same subtree was
+	     *                                   alread registered, either by 
+	     *                                   another subagent or by this 
+	     *                                   subagent.
+	     *
+	     * \exception master_is_unwilling If the master was unwilling for
+	     *                                some reason to make the desired 
+	     *                                registration.
+	     *
+	     * \exception parse_error If an unexpected response was sent by the
+	     *                        master. This is probably a programming 
+	     *                        error within the master agent. It is 
+	     *                        possible that the master actually 
+	     *                        performed the desired registration and 
+	     *                        that a retry will result in a 
+	     *                        duplicate_registration error.
+	     */
+	    void register_subtree(oid subtree,
+				  byte_t priority=127,
+				  byte_t timeout=0);
 
 	    /**
 	     * \brief Get the io_service object used by this master_proxy

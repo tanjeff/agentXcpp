@@ -211,6 +211,84 @@ master_proxy::~master_proxy()
     }
 }
 
+void master_proxy::register_subtree(oid subtree,
+				    byte_t priority,
+				    byte_t timeout)
+{
+    // Are we connected?
+    if( ! is_connected())
+    {
+	throw(disconnected());
+    }
+
+    // Build up the RegisterPDU
+    RegisterPDU pdu;
+    pdu.set_subtree(subtree);
+    pdu.set_priority(priority);
+    pdu.set_timeout(timeout);
+
+    // Send RegisterPDU
+    data_t buf = pdu.serialize();
+    socket.send(asio::buffer(buf.c_str(), buf.size()));
+
+    // Wait for response
+    boost::shared_ptr<ResponsePDU> response;
+    try{
+	response = wait_for_response(pdu.get_packetID());
+    }
+    catch(timeout_exception e)
+    {
+	// Throw timeout exception
+	throw(e);
+    }
+
+    // Check Response
+    switch(response->get_error())
+    {
+	// General errors:
+
+	case ResponsePDU::parseError:
+	    // Oops, we sent a malformed PDU to the master
+	    throw(internal_error());
+
+	case ResponsePDU::notOpen:
+	    // We checked the connection state before, but maybe we lost the 
+	    // connection during communication...
+	    throw(disconnected());
+
+	case ResponsePDU::unsupportedContext:
+	    // We do currently not really support contexts in this library. An 
+	    // invalid context is thus probably an agentxcpp bug.
+	    throw(internal_error());
+
+	case ResponsePDU::processingError:
+	    // master was unable to process the request
+	    throw(master_is_unable());
+
+	case ResponsePDU::noAgentXError:
+	    // Hey, it worked! Nothing left to do here, continuing...
+	    break;
+
+	// Register-specific errors:
+
+	case ResponsePDU::duplicateRegistration:
+	    throw(duplicate_registration());
+
+	case ResponsePDU::requestDenied:
+	    throw(master_is_unwilling());
+
+	default:
+	    // This is a cae of can-not-happen. Probably the master is buggy. 
+	    // The agentxcpp library is bug-free of course ;-)
+	    // We throw a parse error meanwhile, because we didn't expect the 
+	    // response to look like that...
+	    throw(parse_error());
+    }
+
+    // Finish
+    return;
+}
+
 void master_proxy::receive(const boost::system::error_code& result)
 {
     // Check for network errors

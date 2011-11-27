@@ -39,9 +39,9 @@ namespace agentxcpp
      * subagent and master agent. It serves as a proxy which represents the 
      * master agent. It is possible for a subagent to hold connections to more 
      * than one master agents. For each connection one master_proxy object is 
-     * created. Multiple connections to the same master agent are possible, too 
-     * (although this is probably not useful), in which case one master_proxy 
-     * per connection is needed.
+     * created. Multiple connections to the same master agent are possible, 
+     * too (although this is probably not useful), in which case one 
+     * master_proxy per connection is needed.
      *
      * The master_proxy is always in one of the following states:
      *
@@ -57,18 +57,20 @@ namespace agentxcpp
      * function at any time (even if the session is currently established - it 
      * will be shut down and re-established in this case).  When the object is 
      * destroyed, the session will be cleanly shut down. The connection state 
-     * can be inspected with the is_connected() function.  Some functions throw 
-     * a disconnected exception if the session is not currently established.
+     * can be inspected with the is_connected() function.  Some functions 
+     * throw a disconnected exception if the session is not currently 
+     * established.
      *
      * This class uses the boost::asio library for networking and therefore 
      * needs a boost::asio::io_service object. This object can either be 
      * provided by the user or created automatically. There are two 
      * constructors available therefore. The used object (whether auto-created 
      * or not) can be obtained using the get_io_service() function. If the 
-     * io_service object was autocreated by a constructor, it will be destroyed 
-     * by the destructor. If the user provided the io_service, it will NOT be 
-     * destroyed. It is possible to create multiple master_proxy objects using 
-     * the same io_service object, or using different io_service objects.
+     * io_service object was autocreated by a constructor, it will be 
+     * destroyed by the destructor. If the user provided the io_service, it 
+     * will NOT be destroyed. It is possible to create multiple master_proxy 
+     * objects using the same io_service object, or using different io_service 
+     * objects.
      *
      * \internal
      * The io_service_by_user variable is used to store whether the io_service 
@@ -81,8 +83,8 @@ namespace agentxcpp
      * function), an asyncronous read operation is started to read the PDU 
      * header. The receive() function is executed when a header arrived. It 
      * reads the payload of the PDU, parses it (using PDU::parse_pdu()) and 
-     * processes it.  Then it sets up an asyncronous read operation to wait for 
-     * the next header. The disconnect() function cancels the current read 
+     * processes it.  Then it sets up an asyncronous read operation to wait 
+     * for the next header. The disconnect() function cancels the current read 
      * operation before shutting down the session.
      */
     // TODO: describe timeout handling
@@ -190,12 +192,12 @@ namespace agentxcpp
 	     * \param description A string describing the subagent. This
 	     *                    description cannot be changed later.
 	     *
-	     * \param default_timeout The length of time, in seconds, that the
-	     *                        master agent should allow to elapse after 
-	     *                        receiving a message before it regards the 
-	     *                        subagent as not responding. Allowed 
-	     *                        values are 0-255, with 0 meaning "no 
-	     *                        default for this session".
+	     * \param default_timeout The length of time, in seconds, that
+	     *                        the master agent should allow to elapse 
+	     *                        after receiving a message before it 
+	     *                        regards the subagent as not responding.  
+	     *                        Allowed values are 0-255, with 0 meaning 
+	     *                        "no default for this session".
 	     *
 	     * \param ID An Object Identifier that identifies the subagent.
 	     *           Default is the null OID (no ID).
@@ -226,11 +228,11 @@ namespace agentxcpp
 	     *                    description cannot be changed later.
 	     *
 	     * \param default_timeout The length of time, in seconds, that the
-	     *                        master agent should allow to elapse after 
-	     *                        receiving a message before it regards the 
-	     *                        subagent as not responding. Allowed 
-	     *                        values are 0-255, with 0 meaning "no 
-	     *                        default for this session".
+	     *                        master agent should allow to elapse 
+	     *                        after receiving a message before it 
+	     *                        regards the subagent as not responding. 
+	     *                        Allowed values are 0-255, with 0 meaning 
+	     *                        "no default for this session".
 	     *
 	     * \param ID An Object Identifier that identifies the subagent.
 	     *           Default is the null OID (no ID).

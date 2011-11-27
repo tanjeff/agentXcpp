@@ -254,7 +254,8 @@ header_was_read:
 	status_t read_result = in_progress;
 	async_read(in,
 		   boost::asio::buffer(payload, payload_length),
-		   boost::bind(callback_for_get_pdu, boost::asio::placeholders::error,
+		   boost::bind(callback_for_get_pdu,
+			       boost::asio::placeholders::error,
 			       &read_result));
 
 	// process asio events until read succeeds or timeout expires

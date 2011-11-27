@@ -33,7 +33,6 @@ using namespace agentxcpp;
 using namespace boost;
 
 
-    
 master_proxy::master_proxy(boost::asio::io_service* _io_service,
 			   std::string _description,
 			   byte_t _default_timeout,

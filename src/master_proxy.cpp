@@ -444,7 +444,19 @@ shared_ptr<ResponsePDU> master_proxy::wait_for_response(uint32_t packetID,
     // Handle default timeout (omitting timeout parameter)
     if( timeout == 0 )
     {
-	timeout = this->default_timeout;
+	if(this->default_timeout == 0)
+	{
+    cout << __FILE__ << ":" << __LINE__ << endl;
+	    // No timeout given: fall back to 1 second
+	    timeout = 1000;
+	}
+	else
+	{
+    cout << __FILE__ << ":" << __LINE__ << endl;
+	    // No timeout given to function, but we have a session timeout: 
+	    // use session timeout
+	    timeout = this->default_timeout * 1000;
+	}
     }
 
     // Start timeout timer

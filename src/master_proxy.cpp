@@ -479,6 +479,6 @@ shared_ptr<ResponsePDU> master_proxy::wait_for_response(uint32_t packetID,
     else
     {
 	// Timer expired or failed before ResponsePDU arrived
-	throw(timeout);
+	throw(timeout_exception());
     }
 }

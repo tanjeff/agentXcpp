@@ -23,6 +23,7 @@
 #include "ClosePDU.hpp"
 #include "ResponsePDU.hpp"
 #include "RegisterPDU.hpp"
+#include "GetPDU.hpp"
 #include "helper.hpp"
 #include "types.hpp"
 
@@ -226,6 +227,7 @@ void master_proxy::register_subtree(oid subtree,
     pdu.set_subtree(subtree);
     pdu.set_priority(priority);
     pdu.set_timeout(timeout);
+    pdu.set_sessionID(this->sessionID);
 
     // Send RegisterPDU
     data_t buf = pdu.serialize();
@@ -363,10 +365,23 @@ void master_proxy::receive(const boost::system::error_code& result)
 	    // TODO: What if a ResponsePDU is already stored with that 
 	    // packetID?
 	}
+	else if(GetPDU* get_ptr = dynamic_cast<GetPDU*>(pdu_ptr))
+	{
+	    // was a GtPDU: for now, we simply put something on the console.
+	    boost::shared_ptr<GetPDU> get(get_ptr);
+	    cout << "Received Get-PDU:" << endl;
+	    vector<oid> search_range = get->get_sr();
+	    vector<oid>::const_iterator i;
+	    for(i=search_range.begin(); i != search_range.end(); i++)
+	    {
+		cout << "    " << *i << endl;
+	    }
+	}
 	else
 	{
 	    // We don't like this type of PDU.
-	    // Ignoring...
+	    // Ignoring... but put something on the console
+	    cout << "Request received from the master. Leaving it unanalyzed..." << endl;
 	}
     }
 

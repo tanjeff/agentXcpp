@@ -23,7 +23,11 @@
 #include "types.hpp"
 #include "exceptions.hpp"
 #include <boost/asio.hpp>
+#include <boost/shared_ptr.hpp>
 #include <memory>
+
+// We use this smart pointer:
+using boost::shared_ptr;
 
 namespace agentxcpp
 {
@@ -329,7 +333,7 @@ namespace agentxcpp
 	     * \exception version_mismatch If the AgentX version of the %PDU
 	     *                             is not 1.
 	     */
-	    static std::auto_ptr<PDU> parse_pdu(data_t buf);
+	    static shared_ptr<PDU> parse_pdu(data_t buf);
 
 	    /**
 	     * \brief Serialize function for concrete PDUs.

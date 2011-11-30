@@ -39,6 +39,7 @@
 #include "helper.hpp"
 
 using namespace agentxcpp;
+using boost::shared_ptr;
 
 
 uint32_t PDU::packetID_cnt = 0;
@@ -363,7 +364,7 @@ payload_was_read:
 }
 
 
-std::auto_ptr<PDU> PDU::parse_pdu(data_t buf)
+shared_ptr<PDU> PDU::parse_pdu(data_t buf)
 {
     // needed for parsing
     data_t::const_iterator pos;
@@ -397,7 +398,7 @@ std::auto_ptr<PDU> PDU::parse_pdu(data_t buf)
     byte_t type = buf[1];
 
     // create PDU (TODO: complete the list!)
-    std::auto_ptr<PDU> pdu;
+    shared_ptr<PDU> pdu;
     pos = buf.begin();
     const data_t::const_iterator end = buf.end();
     switch(type)

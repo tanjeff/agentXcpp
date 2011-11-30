@@ -32,6 +32,7 @@ using namespace std;
 
 using namespace agentxcpp;
 using namespace boost;
+using boost::shared_ptr;
 
 
 master_proxy::master_proxy(boost::asio::io_service* _io_service,
@@ -331,7 +332,7 @@ void master_proxy::receive(const boost::system::error_code& result)
     delete[] payload;
 
     // Parse PDU
-    auto_ptr<PDU> pdu;
+    shared_ptr<PDU> pdu;
     bool dispatch_pdu = true; // some PDUs are discarded
     try
     {
@@ -352,23 +353,17 @@ void master_proxy::receive(const boost::system::error_code& result)
     if( dispatch_pdu )
     {
 	// We use dynamic_cast to find out which type of PDU we received.
-
-	// Get the real pointer. We take the ownership!
-	PDU* pdu_ptr = pdu.release();
-
 	
-	if(ResponsePDU* response_ptr = dynamic_cast<ResponsePDU*>(pdu_ptr))
+	if(shared_ptr<ResponsePDU> response = boost::dynamic_pointer_cast<ResponsePDU>(pdu))
 	{
 	    // was a ResponsePDU: store to the responses map
-	    boost::shared_ptr<ResponsePDU> response(response_ptr);
-	    this->responses[response_ptr->get_packetID()] = response;
+	    this->responses[response->get_packetID()] = response;
 	    // TODO: What if a ResponsePDU is already stored with that 
 	    // packetID?
 	}
-	else if(GetPDU* get_ptr = dynamic_cast<GetPDU*>(pdu_ptr))
+	else if(shared_ptr<GetPDU> get = boost::dynamic_pointer_cast<GetPDU>(pdu))
 	{
 	    // was a GtPDU: for now, we simply put something on the console.
-	    boost::shared_ptr<GetPDU> get(get_ptr);
 	    cout << "Received Get-PDU:" << endl;
 	    vector<oid> search_range = get->get_sr();
 	    vector<oid>::const_iterator i;

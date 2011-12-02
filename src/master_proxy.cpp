@@ -35,6 +35,155 @@ using namespace boost;
 using boost::shared_ptr;
 
 
+
+/*
+ ********************************************
+  Local helper function: read_with_timeout()
+ ********************************************
+ */
+
+
+
+/**
+ * \brief Helper type for read_with_timeout(). See there for an explanation.
+ */
+enum status_t {
+    in_progress = 0,
+    success     = 1,
+    fail        = 2
+};
+
+
+
+/**
+ * \brief Helper function for read_with_timeout(). See there for an
+ *        explanation.
+ */
+static void callback(const boost::system::error_code& result,
+		     status_t* retval)
+{
+    if( result.value() == 0 )
+    {
+	// success
+	*retval = success;
+    }
+    else
+    {
+	// error
+	*retval = fail;
+    }
+}
+
+
+
+
+/**
+ * \brief Like boost::asio::read(), but with timeout
+ *
+ * Calls boost::asio::read(), but provides a timeout in addition.
+ * May throw the same exceptions as boost::asio::read().
+ *
+ * This function calls s.get_io_service.run_one().
+ *
+ * \param s The Stream to read from
+ *
+ * \param buffers The buffers to read into
+ *
+ * \param timeout The desired timeout in milliseconds
+ *
+ * \exception timeout_exception If the timeout expires before the read
+ *                              operation completes. Some bytes may have been 
+ *                              read.
+ *
+ * \return How many bytes were read
+ */
+
+//void async_read(
+//    AsyncReadStream & s,
+//    const MutableBufferSequence & buffers,
+//    ReadHandler handler);
+
+template<typename AsyncReadStream,
+         typename MutableBufferSequence>
+static void read_with_timeout(AsyncReadStream& s,
+			      const MutableBufferSequence& buffers,
+			      unsigned int timeout)
+{
+
+    // Start timeout timer
+    boost::asio::deadline_timer timer(s.get_io_service());
+    status_t timer_result = in_progress;
+    timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
+    timer.async_wait( boost::bind(callback,
+				  boost::asio::placeholders::error,
+				  &timer_result) );
+ 
+    // Start read
+    status_t read_result = in_progress;
+    async_read(s,
+	       buffers,
+	       boost::bind(callback,
+			   boost::asio::placeholders::error,
+			   &read_result));
+
+    // process asio events until read succeeds or timeout expires
+    do
+    {
+	s.get_io_service().run_one();
+    }
+    while(read_result == in_progress && timer_result == in_progress);
+
+    // Check read result
+    switch(read_result)
+    {
+	case success:
+	    // Read succeeded: OK
+	    timer.cancel();
+	    return;
+
+	case fail:
+	    // read failed: cancel timer, throw exception
+	    timer.cancel();
+	    throw( network() );
+
+	case in_progress:
+
+	    // Look at timer_result:
+	    switch(timer_result)
+	    {
+		case success:
+		    // timer fired while reading
+		    // cancel read, throw exception
+		    s.cancel();
+		    throw( timeout_exception() );
+		case fail:
+		    // timer failed while reading
+		    // what now?
+		    // I think we should fail with a network error
+		    s.cancel();
+		    throw( network() );
+		case in_progress:
+		    // What the fuck?
+		    // How was it possible to leave the loop above as long as 
+		    // both async operations where in progress ?!
+		    // This simply can't happen -> ignore
+		    break;
+	    }
+    }
+
+}
+
+
+
+
+/*
+ ********************************************
+  Implentation of class master_proxy
+ ********************************************
+ */
+
+
+
 master_proxy::master_proxy(boost::asio::io_service* _io_service,
 			   std::string _description,
 			   byte_t _default_timeout,
@@ -391,18 +540,10 @@ void master_proxy::receive(const boost::system::error_code& result)
 
 
 
-// Helper type for master_proxy::wait_for_response(). See there for an 
-// explanation.
-enum status_t {
-    in_progress = 0,
-    success     = 1,
-    fail        = 2
-};
-
 
 // Helper function for master_proxy::wait_for_response(). See there for an 
 // explanation.
-static void callback(const boost::system::error_code& result,
+static void callback_for_response(const boost::system::error_code& result,
                                  status_t* retval)
 {
     if( result.value() == 0 )
@@ -420,9 +561,9 @@ static void callback(const boost::system::error_code& result,
  * Timeout handling:
  * 
  * The timeout handling is realized using a boost::asio::deadline_timer 
- * object, which is set up to call the callback() function when it expires (or 
- * when it fails). The variable 'timer_result' is intially set to 
- * 'in_progress'.  The callback will set it to 'success' or 'fail' when the 
+ * object, which is set up to call the callback_for_response() function when 
+ * it expires (or when it fails). The variable 'timer_result' is intially set 
+ * to 'in_progress'.  The callback will set it to 'success' or 'fail' when the 
  * timer expires respectively fails.
  *
  * Then the io_service.run_one() function is invoked repeatedly until either 
@@ -458,7 +599,7 @@ shared_ptr<ResponsePDU> master_proxy::wait_for_response(uint32_t packetID,
     boost::asio::deadline_timer timer(*(this->io_service));
     status_t timer_result = in_progress; // callback stores result here
     timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
-    timer.async_wait( boost::bind(callback,
+    timer.async_wait( boost::bind(callback_for_response,
 				  boost::asio::placeholders::error,
 				  &timer_result) );
 

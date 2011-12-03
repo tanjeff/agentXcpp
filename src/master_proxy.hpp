@@ -170,21 +170,27 @@ namespace agentxcpp
 	     * read one PDU from the socket, process it and set up the next 
 	     * async read operation, so that it is called again for new data.  
 	     * 
-	     * Recieved ResponsePDU's are stored into the responses map.
+	     * Recieved ResponsePDU's are stored into the responses map if a 
+	     * null pointer was stored there in advance.
 	     */
 	    void receive(const boost::system::error_code& result);
 
 	    /**
-	     * \brief The received, yet unprocessed reponses.
+	     * \brief The received, yet unprocessed ReponsePDU's.
 	     *
-	     * The responses received asynchronously by the receive() function 
-	     * are stored in this map. The key is their packetID. They are 
-	     * reclaimed by the wait_for_response() function.
+	     * The wait_for_response() function stores a null pointer to this 
+	     * map to indicate that it is waiting for a certain response. The 
+	     * map key is the packetID.
+	     * 
+	     * When a response is received, the receive() function stores it 
+	     * into the map, if a null pointer is found for the packetID of the 
+	     * received ResponsePDU. Otherwise, the received ResponsePDU is 
+	     * discarded.
+	     *
+	     * After a ResponsePDU was received and stored into the map, the 
+	     * wait_for_response() function processes it and erases it from the 
+	     * map.
 	     */
-	    // TODO: What about responses which are received accidentally 
-	    // (e.g. by a defective master agent) and are not processed by the 
-	    // agentXcpp library? They will consume memory forever (memory 
-	    // leak).
 	    std::map< uint32_t, boost::shared_ptr<ResponsePDU> > responses;
 
 

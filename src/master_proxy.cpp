@@ -479,12 +479,24 @@ void master_proxy::receive(const boost::system::error_code& result)
     {
 	// We use dynamic_cast to find out which type of PDU we received.
 	
-	if(shared_ptr<ResponsePDU> response = boost::dynamic_pointer_cast<ResponsePDU>(pdu))
+	if(shared_ptr<ResponsePDU> r = boost::dynamic_pointer_cast<ResponsePDU>(pdu))
 	{
-	    // was a ResponsePDU: store to the responses map
-	    this->responses[response->get_packetID()] = response;
-	    // TODO: What if a ResponsePDU is already stored with that 
-	    // packetID?
+	    // Was a ResponsePDU: is someone waiting for it?
+	    // Hint: a waited-for response is indicated by putting a null 
+	    // pointer into the 'responses' map.
+	    if(this->responses.find(r->get_packetID()) != this->responses.end()
+	       && this->responses[r->get_packetID()].get() == 0)
+	    {
+		// someone waits for this PDU: give it to him!
+		this->responses[r->get_packetID()] = r;
+	    }
+	    else
+	    {
+		// Either nobode waits for it or another response with the 
+		// same packetID is still stored within the 'responses' map.  
+		// In either case, we deiscard the message.
+		// (Leaving this block destroys it)
+	    }
 	}
 	else if(shared_ptr<GetPDU> get = boost::dynamic_pointer_cast<GetPDU>(pdu))
 	{
@@ -553,23 +565,25 @@ static void callback_for_response(const boost::system::error_code& result,
 shared_ptr<ResponsePDU> master_proxy::wait_for_response(uint32_t packetID,
 							unsigned timeout)
 {
-    // Handle default timeout (omitting timeout parameter)
+    // Handle omitting timeout parameter
     if( timeout == 0 )
     {
 	if(this->default_timeout == 0)
 	{
-    cout << __FILE__ << ":" << __LINE__ << endl;
 	    // No timeout given: fall back to 1 second
 	    timeout = 1000;
 	}
 	else
 	{
-    cout << __FILE__ << ":" << __LINE__ << endl;
 	    // No timeout given to function, but we have a session timeout: 
 	    // use session timeout
 	    timeout = this->default_timeout * 1000;
 	}
     }
+
+    // Indicate that we are waiting for a specific response:
+    // We add a null pointer to the map
+    responses[packetID] = boost::shared_ptr<ResponsePDU>();
 
     // Start timeout timer
     boost::asio::deadline_timer timer(*(this->io_service));
@@ -580,24 +594,22 @@ shared_ptr<ResponsePDU> master_proxy::wait_for_response(uint32_t packetID,
 				  &timer_result) );
 
     // process asio events until ResponsePDU arrives or timeout expires
-    while(   this->responses.find(packetID) == this->responses.end()
+    while(   this->responses[packetID].get() == 0 // no response was stored
 	  && timer_result == in_progress)
     {
 	this->io_service->run_one();
     }
     
     // Check the result
-    map< uint32_t, boost::shared_ptr<ResponsePDU> >::iterator response;
-    response = this->responses.find(packetID);
-    if(response != this->responses.end())
+    if( this->responses[packetID].get() != 0 )
     {
 	// ResponsePDU arrived:
 	// 1. Cancel timer
 	// 2. Erase response from map
 	// 3. Return response
 	timer.cancel();
-	shared_ptr<ResponsePDU> retval = (*response).second;
-	this->responses.erase(response);
+	shared_ptr<ResponsePDU> retval = this->responses[packetID];
+	this->responses.erase( packetID );
 	return retval;
     }
     else

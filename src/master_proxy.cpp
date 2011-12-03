@@ -299,19 +299,20 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
     socket.send(asio::buffer(buf.c_str(), buf.size()));
 
     // Wait for response
-    ResponsePDU* response;
+    boost::shared_ptr<ResponsePDU> response;
     try
     {
-	response = dynamic_cast<ResponsePDU*>(PDU::get_pdu(socket));
+	response = wait_for_response(pdu.get_packetID());
     }
     catch(...)
     {
-	// ignore errors from PDU::get_pdu()
+	// Something went wrong -> close socket
+	kill_connection();
+	return;
     }
 
     // Check for errors
-    if(response != 0
-       && response->get_error() != ResponsePDU::noAgentXError)
+    if(response->get_error() != ResponsePDU::noAgentXError)
     {
 	// Some error occured, disconnect
 	kill_connection();

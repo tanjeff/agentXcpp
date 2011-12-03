@@ -117,7 +117,7 @@ static void read_with_timeout(AsyncReadStream& s,
     timer.async_wait( boost::bind(callback,
 				  boost::asio::placeholders::error,
 				  &timer_result) );
- 
+
     // Start read
     status_t read_result = in_progress;
     async_read(s,
@@ -239,7 +239,7 @@ void master_proxy::connect()
 	kill_connection();
 	return;
     }
-    
+
     // Send OpenPDU
     OpenPDU openpdu;
     openpdu.set_timeout(default_timeout);
@@ -247,25 +247,27 @@ void master_proxy::connect()
     data_t buf = openpdu.serialize();
     socket.send(asio::buffer(buf.data(), buf.size()));
 
+    // Start receiving PDU's asynchronously (the callback will call 
+    // async_read() to continue receiving)
+    async_read(this->socket,
+	       boost::asio::buffer(this->header_buf, 20),
+	       boost::bind(&master_proxy::receive,
+			   this,
+			   boost::asio::placeholders::error));
+
     // Wait for response
-    ResponsePDU* response;
+    boost::shared_ptr<ResponsePDU> response;
     try
     {
-	// TODO: memory leak!
-	response = dynamic_cast<ResponsePDU*>(PDU::get_pdu(socket));
+	response = wait_for_response(openpdu.get_packetID());
     }
     catch(...)
     {
-	// ignore errors from PDU::get_pdu()
-    }
-
-    // Check for errors
-    if(response == 0)
-    {
-	// Expected ResponsePDU, but received other PDU
+	// Something went wrong -> close socket
 	kill_connection();
 	return;
     }
+
     if(response->get_error() != ResponsePDU::noAgentXError)
     {
 	// Some error occured, disconnect
@@ -273,17 +275,11 @@ void master_proxy::connect()
 	return;
     }
 
-    // If it worked: get sessionID
     this->sessionID = response->get_sessionID();
-
-    // Finally: start receiving (the callback will call async_read() to 
-    // continue receiving)
-    async_read(this->socket,
-	       boost::asio::buffer(this->header_buf, 20),
-	       boost::bind(&master_proxy::receive,
-			   this,
-			   boost::asio::placeholders::error));
 }
+
+
+
 
 void master_proxy::disconnect(ClosePDU::reason_t reason)
 {
@@ -312,7 +308,7 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
     {
 	// ignore errors from PDU::get_pdu()
     }
-    
+
     // Check for errors
     if(response != 0
        && response->get_error() != ResponsePDU::noAgentXError)
@@ -599,7 +595,7 @@ shared_ptr<ResponsePDU> master_proxy::wait_for_response(uint32_t packetID,
     {
 	this->io_service->run_one();
     }
-    
+
     // Check the result
     if( this->responses[packetID].get() != 0 )
     {

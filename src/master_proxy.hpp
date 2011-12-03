@@ -220,6 +220,23 @@ namespace agentxcpp
 		wait_for_response(uint32_t packetID,
 				  unsigned timeout=0);
 
+	    /**
+	     * \brief Disconnect instantly, without notifying the master agent
+	     *
+	     * This simply closes down the socket, without sending a ClosePDU.  
+	     * This function does not throw.
+	     */
+	    void kill_connection()
+	    {
+		try {
+		    this->socket.close();
+		}
+		catch(...)
+		{
+		    // Ignore
+		}
+	    }
+
 	public:
 	    /**
 	     * \brief Create a session object connected via unix domain

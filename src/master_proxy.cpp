@@ -236,13 +236,7 @@ void master_proxy::connect()
     catch(boost::system::system_error)
     {
 	// Could not connect -> close the socket
-	try
-	{
-	    socket.close();
-	}
-	catch(...)
-	{
-	}
+	kill_connection();
 	return;
     }
     
@@ -269,25 +263,13 @@ void master_proxy::connect()
     if(response == 0)
     {
 	// Expected ResponsePDU, but received other PDU
-	try
-	{
-	    socket.close();
-	}
-	catch(...)
-	{
-	}
+	kill_connection();
 	return;
     }
     if(response->get_error() != ResponsePDU::noAgentXError)
     {
 	// Some error occured, disconnect
-	try
-	{
-	    socket.close();
-	}
-	catch(...)
-	{
-	}
+	kill_connection();
 	return;
     }
 
@@ -336,13 +318,7 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
        && response->get_error() != ResponsePDU::noAgentXError)
     {
 	// Some error occured, disconnect
-	try
-	{
-	    socket.close();
-	}
-	catch(...)
-	{
-	}
+	kill_connection();
 	return;
     }
 
@@ -448,7 +424,7 @@ void master_proxy::receive(const boost::system::error_code& result)
     {
 	// async read operation failed
 	// -> close socket (without notifying the master agent)
-	try { this->socket.close(); } catch(...) { }
+	kill_connection();
 
 	// Nothing left to do
 	return;
@@ -470,7 +446,7 @@ void master_proxy::receive(const boost::system::error_code& result)
 	// payload length must be a multiple of 4!
 	// See RFC 2741, 6.1. "AgentX PDU Header"
 	// -> close socket
-	try { this->socket.close(); } catch(...) { }
+	kill_connection();
     }
 
     // Read the payload (TODO: can we avoid the new() operator?)
@@ -495,7 +471,7 @@ void master_proxy::receive(const boost::system::error_code& result)
     catch(parse_error)
     {
 	// Close socket
-	try { this->socket.close(); } catch(...) { }
+	kill_connection();
     }
 
     // Dispatch!

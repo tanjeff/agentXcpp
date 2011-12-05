@@ -40,8 +40,7 @@ namespace agentxcpp
      * master agent. It is possible for a subagent to hold connections to more 
      * than one master agents. For each connection one master_proxy object is 
      * created. Multiple connections to the same master agent are possible, 
-     * too (although this is probably not useful), in which case one 
-     * master_proxy per connection is needed.
+     * too, in which case one master_proxy per connection is needed.
      *
      * The master_proxy is always in one of the following states:
      *
@@ -50,16 +49,15 @@ namespace agentxcpp
      *
      * The session to the master agent is established when creating a 
      * master_proxy object, thus the object usually starts in connected state.  
-     * If that fails, the object will start in disconnected state. A connected 
+     * If that fails, the object starts in disconnected state. A connected 
      * master_proxy object may also loose the connection to the master agent 
-     * and consequently become disconnected, without informing the user of the 
-     * AgentXcpp library. It is possible to re-connect with the reconnect() 
-     * function at any time (even if the session is currently established - it 
-     * will be shut down and re-established in this case).  When the object is 
-     * destroyed, the session will be cleanly shut down. The connection state 
-     * can be inspected with the is_connected() function.  Some functions 
-     * throw a disconnected exception if the session is not currently 
-     * established.
+     * and consequently become disconnected, without informing the user. It is 
+     * possible to re-connect with the reconnect() function at any time (even 
+     * if the session is currently established - it will be shut down and 
+     * re-established in this case).  When the object is destroyed, the session 
+     * will be cleanly shut down. The connection state can be inspected with 
+     * the is_connected() function.  Some functions throw a disconnected 
+     * exception if the session is not currently established.
      *
      * This class uses the boost::asio library for networking and therefore 
      * needs a boost::asio::io_service object. This object can either be 
@@ -68,9 +66,21 @@ namespace agentxcpp
      * or not) can be obtained using the get_io_service() function. If the 
      * io_service object was autocreated by a constructor, it will be 
      * destroyed by the destructor. If the user provided the io_service, it 
-     * will NOT be destroyed. It is possible to create multiple master_proxy 
-     * objects using the same io_service object, or using different io_service 
-     * objects.
+     * will NOT be destroyed by the destructor. It is possible to create 
+     * multiple master_proxy objects using the same io_service object, or using 
+     * different io_service objects.
+     *
+     * Receiving data from the master agent (requests or responses to requests) 
+     * is done asynchronously and only works if io_service::run() or 
+     * io_service::run_one() is invoked. However, some operations (such as 
+     * registering stuff) invoke io_service::run_one() several times while 
+     * waiting for a response from the master agent. If the io_service object 
+     * is not used exclusively by the master_proxy object (which is entirely  
+     * possible), this may complete asynchronous events before the library 
+     * operation (e.g.  registering) is completed. Even the internal 
+     * asynchronous reception calls io_service::run_one() while waiting for 
+     * more data. If this behaviour is not desired, a separate io_service 
+     * object should be used for other asynchronous I/O operations.
      *
      * \internal
      * The io_service_by_user variable is used to store whether the io_service 
@@ -81,11 +91,11 @@ namespace agentxcpp
      * asyncronously. The receive() function is used as a callback for this 
      * purpose.  When connecting to the master agent (i.e. in the connect() 
      * function), an asyncronous read operation is started to read the PDU 
-     * header. The receive() function is executed when a header arrived. It 
-     * reads the payload of the PDU, parses it (using PDU::parse_pdu()) and 
-     * processes it.  Then it sets up an asyncronous read operation to wait 
-     * for the next header. The disconnect() function cancels the current read 
-     * operation before shutting down the session.
+     * header. The receive() function is executed when a header arrived and 
+     * reads the payload of the PDU synchronously, parses it (using 
+     * PDU::parse_pdu()) and processes it.  Then it sets up an asyncronous read 
+     * operation to wait for the next header. The disconnect() function cancels 
+     * the current read operation before shutting down the session.
      */
     // TODO: describe timeout handling
     // TODO: byte ordering is constant for a session. See rfc 2741, 7.1.1
@@ -127,7 +137,7 @@ namespace agentxcpp
 	    /**
 	     * \brief A string describing the subagent.
 	     *
-	     * Set upon object creation.
+	     * Set upon object creation. It is allowed to be emtpy.
 	     */
 	    std::string description;
 
@@ -153,8 +163,9 @@ namespace agentxcpp
 	     * \brief Buffer to receive a PDU header
 	     *
 	     * When receiving a PDU asynchronously, the header is read into 
-	     * this buffer. Then the receive() callback is invoked, which does 
-	     * further processing.
+	     * this buffer. Then the receive() callback is invoked, which 
+	     * synchronously reads the payload and starts processing the 
+	     * received %PDU.
 	     *
 	     * Since the AgentX-header is always 20 bytes in length, this 
 	     * buffer is 20 bytes in size.
@@ -163,12 +174,19 @@ namespace agentxcpp
 	    byte_t header_buf[20];
 
 	    /**
-	     * \brief Callback function to read and process a PDU
+	     * \brief Callback function to read and process a %PDU
 	     *
 	     * This function is called when data is ready on the socket (the 
 	     * header was already read into the header_buf buffer). It will 
-	     * read one PDU from the socket, process it and set up the next 
-	     * async read operation, so that it is called again for new data.  
+	     * synchronously read one %PDU from the socket (to be precise, the 
+	     * payload is read), process it and set up the next async read 
+	     * operation, so that it is called again for new data.
+	     *
+	     * The synchronous read operation (to read the payload) may time 
+	     * out. The timeout is the session's default timeout if available, 
+	     * 1 second otherwise. If the read times out, the connection is 
+	     * aborted (without notifying the master agent) and the 
+	     * master_proxy object becomes disconnected.
 	     * 
 	     * Recieved ResponsePDU's are stored into the responses map if a 
 	     * null pointer was stored there in advance.
@@ -183,9 +201,9 @@ namespace agentxcpp
 	     * map key is the packetID.
 	     * 
 	     * When a response is received, the receive() function stores it 
-	     * into the map, if a null pointer is found for the packetID of the 
-	     * received ResponsePDU. Otherwise, the received ResponsePDU is 
-	     * discarded.
+	     * into the map, but only if a null pointer is found for the 
+	     * packetID of the received ResponsePDU. Otherwise, the received 
+	     * ResponsePDU is discarded.
 	     *
 	     * After a ResponsePDU was received and stored into the map, the 
 	     * wait_for_response() function processes it and erases it from the 
@@ -207,18 +225,19 @@ namespace agentxcpp
 	     * As a side effect, the function may return later than the 
 	     * timeout value requests.
 	     *
-	     * The unprocessed ResponsePDU's are put into the reponses map by 
-	     * the receive() function. This map is inspected by this function, 
-	     * and the desired ResponsePDU is removed from the map before 
-	     * returning it.
+	     * The received ResponsePDU's are put into the reponses map by the 
+	     * receive() function. This map is inspected by this function, and 
+	     * the desired ResponsePDU is removed from the map before returning 
+	     * it.
 	     *
 	     * \param packetID The packetID to wait for.
 	     *
-	     * \param timeout The timeout in milliseconds. Th default is 0,
-	     *                meaning "use the session's default timeout".
+	     * \param timeout The timeout in seconds. The default is 0,
+	     *                meaning "use the session's default timeout", or 1 
+	     *                second if not default timeout is set.
 	     *
-	     * \exception timeout If the timeout expired before the ResponsePDU
-	     *                    was received. 
+	     * \exception timeout_exception If the timeout expired before the
+	     *                              ResponsePDU was received. 
 	     *
 	     * \return The received ResponsePDU.
 	     */
@@ -264,6 +283,9 @@ namespace agentxcpp
 	     *                        the master agent should allow to elapse 
 	     *                        after receiving a message before it 
 	     *                        regards the subagent as not responding.  
+	     *                        The value is also used when waiting 
+	     *                        synchronously for data from the master 
+	     *                        agent (e.g. when registering stuff).  
 	     *                        Allowed values are 0-255, with 0 meaning 
 	     *                        "no default for this session".
 	     *
@@ -295,10 +317,13 @@ namespace agentxcpp
 	     * \param description A string describing the subagent. This
 	     *                    description cannot be changed later.
 	     *
-	     * \param default_timeout The length of time, in seconds, that the
-	     *                        master agent should allow to elapse 
+	     * \param default_timeout The length of time, in seconds, that
+	     *                        the master agent should allow to elapse 
 	     *                        after receiving a message before it 
-	     *                        regards the subagent as not responding. 
+	     *                        regards the subagent as not responding.  
+	     *                        The value is also used when waiting 
+	     *                        synchronously for data from the master 
+	     *                        agent (e.g. when registering stuff).  
 	     *                        Allowed values are 0-255, with 0 meaning 
 	     *                        "no default for this session".
 	     *
@@ -393,6 +418,10 @@ namespace agentxcpp
 	     *
 	     * \returns true if the session is connected, false otherwise.
 	     */
+	    // TODO: use a is_connected member, as the socket state may be 
+	    // unreliable in some situations. For example, if calling 
+	    // socket.close() when an operation timed out, the close() 
+	    // operation may fail, leaving the socket in an undefined state.
 	    bool is_connected()
 	    {
 		return socket.is_open();
@@ -422,8 +451,8 @@ namespace agentxcpp
 	    /**
 	     * \brief Reconnect to the master agent.
 	     *
-	     * Disconnects, then connects to the master agent. If the status is 
-	     * diconnected, the master is connected.
+	     * Disconnects from the master (only if currently connected), then 
+	     * connects again.
 	     */
 	    void reconnect();
 
@@ -445,10 +474,10 @@ namespace agentxcpp
 	    /**
 	     * \brief Default destructor
 	     *
-	     * The default destructor cleanly shuts down the session (if it is 
-	     * currently established) and destroys the session object. It also 
-	     * destroys the io_service object if it was created 
-	     * automatically.
+	     * The default destructor cleanly shuts down the session with the 
+	     * reason 'Shutdown' (if it is currently established) and destroys 
+	     * the session object. It also destroys the io_service object if it 
+	     * was created automatically (i.e. not provided by the user).
 	     */
 	    ~master_proxy();
 

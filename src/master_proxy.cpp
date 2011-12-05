@@ -427,6 +427,17 @@ void master_proxy::receive(const boost::system::error_code& result)
 	return;
     }
 
+    // Calculate timeout
+    unsigned timeout;
+    if( this->default_timeout != 0 )
+    {
+	timeout = this->default_timeout;
+    }
+    else
+    {
+	timeout = 1; // 1 second
+    }
+
     // Copy header into PDU buffer
     data_t buf;
     buf.append(this->header_buf, 20);
@@ -448,8 +459,19 @@ void master_proxy::receive(const boost::system::error_code& result)
 
     // Read the payload (TODO: can we avoid the new() operator?)
     byte_t* payload = new byte_t[payload_length];
-    boost::asio::read(this->socket,
-		      boost::asio::buffer(payload, payload_length));
+    try
+    {
+	read_with_timeout(this->socket,
+			  boost::asio::buffer(payload, payload_length),
+			  timeout);
+    }
+    catch(timeout_exception)
+    {
+	// Reading payload timed out
+	// -> abort connection
+	kill_connection();
+	delete[] payload;
+    }
     buf.append(payload, payload_length);
     delete[] payload;
 
@@ -568,13 +590,13 @@ shared_ptr<ResponsePDU> master_proxy::wait_for_response(uint32_t packetID,
 	if(this->default_timeout == 0)
 	{
 	    // No timeout given: fall back to 1 second
-	    timeout = 1000;
+	    timeout = 1;
 	}
 	else
 	{
 	    // No timeout given to function, but we have a session timeout: 
 	    // use session timeout
-	    timeout = this->default_timeout * 1000;
+	    timeout = this->default_timeout;
 	}
     }
 
@@ -585,7 +607,7 @@ shared_ptr<ResponsePDU> master_proxy::wait_for_response(uint32_t packetID,
     // Start timeout timer
     boost::asio::deadline_timer timer(*(this->io_service));
     status_t timer_result = in_progress; // callback stores result here
-    timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
+    timer.expires_from_now( boost::posix_time::seconds(timeout) );
     timer.async_wait( boost::bind(callback_for_response,
 				  boost::asio::placeholders::error,
 				  &timer_result) );

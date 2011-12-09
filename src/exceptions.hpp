@@ -20,67 +20,73 @@
 #ifndef __EXCEPTIONS_H__
 #define __EXCEPTIONS_H__
 
-/**
- * \brief Exception for parse errors
- */
-class parse_error { };
+#include <exception>
 
-/**
- * \brief Exception for invalid parameter.
- */
-class inval_param { };
+namespace agentxcpp
+{
 
-/**
- * \brief Exception is thrown if the master has sent a data packet with a wrong
- *        AgentX protocol version
- */
-class version_mismatch { };
+    /**
+     * \brief Exception for parse errors
+     */
+    class parse_error : public std::exception { };
 
-/**
- * \brief Exception to indicate a disconnected state
- */
-class disconnected { };
+    /**
+     * \brief Exception for invalid parameter.
+     */
+    class inval_param : public std::exception { };
 
-/**
- * \brief Exception to indicate a timeout
- */
-class timeout_exception { };
+    /**
+     * \brief Exception for reception of %PDU with invalid version number.
+     */
+    class version_error : public std::exception { };
 
-/**
- * \brief Exception to indicate a network error
- */
-class network { };
+    /**
+     * \brief Exception to indicate a disconnected state
+     */
+    class disconnected : public std::exception { };
 
-/**
- * \brief Exception to indicate an internal error.
- *
- * This is probably a programming error in the AgentXcpp library.
- */
-class internal_error { };
+    /**
+     * \brief Exception to indicate a timeout
+     */
+    class timeout_error : public std::exception { };
 
-/**
- * \brief Exception to indicate that the master agent was unable to process a 
- * request.
- */
-class master_is_unable { };
+    /**
+     * \brief Exception to indicate a network error
+     */
+    class network_error : public std::exception { };
 
-/**
- * \brief Exception to indicate that the master agent was not willing to 
- * process a request.
- *
- * This could for example happen if the the master agent does not wish to 
- * permit a registration for implementation-specific reasons.
- */
-class master_is_unwilling { };
+    /**
+     * \brief Exception to indicate an internal error.
+     *
+     * This is probably a programming error in the AgentXcpp library.
+     */
+    class internal_error : public std::exception { };
 
-/**
- * \brief Exception to indicate that a MIB region was registered twice with 
- * the same priority.
- *
- * This error can occur if two distinct subagents register the same subtree 
- * with the same priority. It can of course also occur if a single subagent 
- * does a double-registration.
- */
-class duplicate_registration { };
+    /**
+     * \brief Exception to indicate that the master agent was unable to process a 
+     *        request.
+     */
+    class master_is_unable : public std::exception { };
+
+    /**
+     * \brief Exception to indicate that the master agent was not willing to 
+     *        process a request.
+     *
+     * This could for example happen if the the master agent does not wish to 
+     * permit a registration for implementation-specific reasons.
+     */
+    class master_is_unwilling : public std::exception { };
+
+    /**
+     * \brief Exception to indicate that a MIB region was registered twice with 
+     *        the same priority.
+     *
+     * This error can occur if two distinct subagents register the same subtree 
+     * with the same priority. It can of course also occur if a single subagent 
+     * does a double-registration.
+     */
+    class duplicate_registration : public std::exception { };
+
+} // namespace agentxcpp
 
 #endif

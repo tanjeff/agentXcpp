@@ -1,0 +1,47 @@
+/*
+ * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ *
+ * This file is part of the agentXcpp library.
+ *
+ * AgentXcpp is free software: you can redistribute it and/or modify
+ * it under the terms of the AgentXcpp library license, version 1, which 
+ * consists of the GNU General Public License and some additional 
+ * permissions.
+ *
+ * AgentXcpp is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * See the AgentXcpp library license in the LICENSE file of this package 
+ * for more details.
+ */
+
+/*!
+
+\internal
+
+\page exceptions Exception Handling
+
+In agentXcpp, errors are reported using the C++ exception mechanism. As error 
+reporting and handling is a non-local issue, the following strategy is used 
+throughout the library:
+
+- <b>All used exceptions are defined in exception.hpp.</b>
+- <b>All used exceptions inherit from the class std::exception or from one of 
+  its subclasses.</b>
+- <b>Exception specifications are NOT used.</b> These are checked at runtime, 
+  not at compile time, and illegal exceptions lead to a call to unexpected(), 
+  which by default terminates the program. This is not useful.
+- <b> Errors are reported as exceptions.</b> No other techniques are used to 
+  report errors.
+- <b>Exceptions mean errors.</b> For example, master_proxy::is_connected() does 
+  not throw an exception to indicate that the master_proxy object is 
+  disconnected.
+- <b>Each possible exception is documented</b>. For each function, the possible 
+  exceptions are documented, including exceptions which might been thrown 
+  indirectly. For example, if f() calls g(), and g() uses new (which might 
+  throw bad_alloc), then bad_alloc is documented as possible exception for g() 
+  \em and f() (unless it is caught in f() or g(), of course).
+
+*/

@@ -144,7 +144,7 @@ static void read_with_timeout(AsyncReadStream& s,
 	case fail:
 	    // read failed: cancel timer, throw exception
 	    timer.cancel();
-	    throw( network() );
+	    throw( network_error() );
 
 	case in_progress:
 
@@ -155,13 +155,13 @@ static void read_with_timeout(AsyncReadStream& s,
 		    // timer fired while reading
 		    // cancel read, throw exception
 		    s.cancel();
-		    throw( timeout_exception() );
+		    throw( timeout_error() );
 		case fail:
 		    // timer failed while reading
 		    // what now?
 		    // I think we should fail with a network error
 		    s.cancel();
-		    throw( network() );
+		    throw( network_error() );
 		case in_progress:
 		    // What the fuck?
 		    // How was it possible to leave the loop above as long as 
@@ -361,7 +361,7 @@ void master_proxy::register_subtree(oid subtree,
     try{
 	response = wait_for_response(pdu.get_packetID());
     }
-    catch(timeout_exception e)
+    catch(timeout_error e)
     {
 	// Throw timeout exception
 	throw(e);
@@ -465,7 +465,7 @@ void master_proxy::receive(const boost::system::error_code& result)
 			  boost::asio::buffer(payload, payload_length),
 			  timeout);
     }
-    catch(timeout_exception)
+    catch(timeout_error)
     {
 	// Reading payload timed out
 	// -> abort connection
@@ -482,7 +482,7 @@ void master_proxy::receive(const boost::system::error_code& result)
     {
 	pdu = PDU::parse_pdu(buf);
     }
-    catch(version_mismatch)
+    catch(version_error)
     {
 	// discard PDU with wrong version
 	dispatch_pdu = false;
@@ -634,6 +634,6 @@ shared_ptr<ResponsePDU> master_proxy::wait_for_response(uint32_t packetID,
     else
     {
 	// Timer expired or failed before ResponsePDU arrived
-	throw(timeout_exception());
+	throw(timeout_error());
     }
 }

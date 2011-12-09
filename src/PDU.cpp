@@ -110,7 +110,7 @@ shared_ptr<PDU> PDU::parse_pdu(data_t buf)
     {
 	// Wrong protocol:
 	// throw exception
-	throw( version_mismatch() );
+	throw( version_error() );
     }
 
     // read endianess flag

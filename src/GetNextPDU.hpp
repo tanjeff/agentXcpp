@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __GETNEXTPDU_H__
-#define __GETNEXTPDU_H__
+#ifndef _GETNEXTPDU_H_
+#define _GETNEXTPDU_H_
 
 #include <vector>
 #include <utility>

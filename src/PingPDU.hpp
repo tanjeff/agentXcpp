@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __PINGPDU_H__
-#define __PINGPDU_H__
+#ifndef _PINGPDU_H_
+#define _PINGPDU_H_
 
 #include "PDUwithContext.hpp"
 

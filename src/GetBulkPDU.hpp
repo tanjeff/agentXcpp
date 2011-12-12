@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __GETBULKPDU_H__
-#define __GETBULKPDU_H__
+#ifndef _GETBULKPDU_H_
+#define _GETBULKPDU_H_
 
 #include <vector>
 #include <utility>

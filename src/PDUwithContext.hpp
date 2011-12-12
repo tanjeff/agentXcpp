@@ -17,8 +17,8 @@
  * for more details.
  */
 
-#ifndef __PDUWITHCONTEXT_H__
-#define __PDUWITHCONTEXT_H__
+#ifndef _PDUWITHCONTEXT_H_
+#define _PDUWITHCONTEXT_H_
 
 
 #include "PDU.hpp"

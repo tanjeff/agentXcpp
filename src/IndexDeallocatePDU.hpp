@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __INDEXDEALLOCATEPDU_H__
-#define __INDEXDEALLOCATEPDU_H__
+#ifndef _INDEXDEALLOCATEPDU_H_
+#define _INDEXDEALLOCATEPDU_H_
 
 #include <vector>
 using std::vector;

@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __ADDAGENTCAPSPDU__
-#define __ADDAGENTCAPSPDU__
+#ifndef _ADDAGENTCAPSPDU_H_
+#define _ADDAGENTCAPSPDU_H_
 
 #include "PDUwithContext.hpp"
 #include "oid.hpp"

@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __AGENTX_H__
-#define __AGENTX_H__
+#ifndef _MASTER_PROXY_H_
+#define _MASTER_PROXY_H_
 
 #include <boost/asio.hpp>
 

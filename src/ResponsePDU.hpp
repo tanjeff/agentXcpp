@@ -17,8 +17,8 @@
  * for more details.
  */
 
-#ifndef __RESPONSEPDU_H__
-#define __RESPONSEPDU_H__
+#ifndef _RESPONSEPDU_H_
+#define _RESPONSEPDU_H_
 
 #include <vector>
 using std::vector;

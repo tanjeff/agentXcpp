@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __CLEANUPSETPDU_H__
-#define __CLEANUPSETPDU_H__
+#ifndef _CLEANUPSETPDU_H_
+#define _CLEANUPSETPDU_H_
 
 #include "PDU.hpp"
 

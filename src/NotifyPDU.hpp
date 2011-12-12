@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __NOTIFYPDU_H__
-#define __NOTIFYPDU_H__
+#ifndef _NOTIFYPDU_H_
+#define _NOTIFYPDU_H_
 
 #include <vector>
 using std::vector;

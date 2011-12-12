@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __UNREGISTERPDU_H__
-#define __UNREGISTERPDU_H__
+#ifndef _UNREGISTERPDU_H_
+#define _UNREGISTERPDU_H_
 
 #include "PDUwithContext.hpp"
 #include "oid.hpp"

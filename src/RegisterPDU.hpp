@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __REGISTERPDU_H__
-#define __REGISTERPDU_H__
+#ifndef _REGISTERPDU_H_
+#define _REGISTERPDU_H_
 
 #include "types.hpp"
 #include "oid.hpp"

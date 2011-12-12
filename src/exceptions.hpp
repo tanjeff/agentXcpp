@@ -17,8 +17,8 @@
  * for more details.
  */
 
-#ifndef __EXCEPTIONS_H__
-#define __EXCEPTIONS_H__
+#ifndef _EXCEPTIONS_H_
+#define _EXCEPTIONS_H_
 
 #include <exception>
 

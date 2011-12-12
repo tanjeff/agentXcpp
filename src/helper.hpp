@@ -17,8 +17,8 @@
  * for more details.
  */
 
-#ifndef __HELPER_H__
-#define __HELPER_H__
+#ifndef _HELPER_H_
+#define _HELPER_H_
 
 #include "types.hpp"
 

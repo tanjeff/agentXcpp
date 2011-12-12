@@ -17,8 +17,8 @@
  * for more details.
  */
 
-#ifndef __PDU_H__
-#define __PDU_H__
+#ifndef _PDU_H_
+#define _PDU_H_
 
 #include "types.hpp"
 #include "exceptions.hpp"

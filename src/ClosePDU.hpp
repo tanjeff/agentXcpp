@@ -17,8 +17,8 @@
  * for more details.
  */
 
-#ifndef __CLOSEPDU_H__
-#define __CLOSEPDU_H__
+#ifndef _CLOSEPDU_H_
+#define _CLOSEPDU_H_
 
 #include "exceptions.hpp"
 #include "types.hpp"

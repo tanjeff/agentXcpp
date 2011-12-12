@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __TESTSETPDU_H__
-#define __TESTSETPDU_H__
+#ifndef _TESTSETPDU_H_
+#define _TESTSETPDU_H_
 
 #include <vector>
 using std::vector;

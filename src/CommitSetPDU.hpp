@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __COMMITSETPDU_H__
-#define __COMMITSETPDU_H__
+#ifndef _COMMITSETPDU_H_
+#define _COMMITSETPDU_H_
 
 #include "PDU.hpp"
 

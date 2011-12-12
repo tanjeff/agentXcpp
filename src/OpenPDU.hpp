@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __OPENPDU_H__
-#define __OPENPDU_H__
+#ifndef _OPENPDU_H_
+#define _OPENPDU_H_
 
 #include "PDU.hpp"
 #include "oid.hpp"

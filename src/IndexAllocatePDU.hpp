@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef __INDEXALLOCATEPDU_H__
-#define __INDEXALLOCATEPDU_H__
+#ifndef _INDEXALLOCATEPDU_H_
+#define _INDEXALLOCATEPDU_H_
 
 #include <vector>
 using std::vector;

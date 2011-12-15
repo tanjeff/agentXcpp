@@ -25,20 +25,73 @@
 
 namespace agentxcpp
 {
+
+    /**
+     * \internal
+     *
+     * \brief This class provides connection to another agentXcpp entity via
+     *        unix domain socket.
+     *
+     * A connection object is always in one of the following states:
+     *
+     * -# connected
+     * -# disconnected
+     *
+     * It tries to start in connected state. If that fails, it starts in 
+     * disconnected state. The current state can also be obtained using the 
+     * is_connected() method. Some operations may throw a disconnected 
+     * exception if the object is in disconnected state. Further, the 
+     * connection may fail at any point in time, therefore a disconnected 
+     * exception may also be thrown during a send operation, for example.
+     * 
+     * Receiving %PDU's works as follows:
+     *
+     * - Opon connecting to the remote entity, an asynchronous read operation 
+     *   is started to receive the %PDU header (fixed size).
+     * - When an header arrived, the receive_callback() is invoked by 
+     *   boost::asio, in the context of someone's io_service object's run() 
+     *   method.
+     * - The receive_callback() method reads the messages length from the 
+     *   header and reveives the payload synchronously (but with a timeout).
+     * - The receive_callback() method constructs a PDU object and calls a 
+     *   user-provided handler callback (if one is registered), transferring 
+     *   the newly created PDU object.
+     * - The handler processes the %PDU as needed. As soon as the handler 
+     *   finishes, the receive_callback() method starts the next asynchronous 
+     *   read operation, so that it invoked again when the next header 
+     *   arrived.
+     * - If no handler was registered, the %PDU is received nevertheless and is 
+     *   silently discarded.
+     *
+     * Sending works as follows:
+     *
+     * - The user invokes the send() method.
+     * - The send() method sends the %PDU synchronously (but with a timeout).
+     */
     class connection
     {
 	private:
 
+	    /**
+	     * \brief the timeout in seconds.
+	     *
+	     * This value is used when sending a %PDU to the remote entity. 
+	     * When sending doesn't complete within this timeout, it is 
+	     * considered an error.
+	     *
+	     * While receiving a PDU, the value is also used. As soon as the 
+	     * PDU header was received, the timeout is started. If the PDU is 
+	     * not received completely after the timeout, it is considered an 
+	     * error.
+	     */
 	    unsigned timeout;
 
 	    /**
 	     * \brief The mandatory io_service object.
 	     *
-	     * This object is needed for boost::asio sockets. Depending on the 
-	     * constructor used, the object is either provided by the user or 
-	     * generated automatically.
+	     * This object is needed for boost::asio sockets.
 	     */
-	    boost::asio::io_service* io_service;
+	    boost::shared_ptr<boost::asio::io_service> io_service;
 	    
 	    /**
 	     * \brief The socket.
@@ -46,7 +99,7 @@ namespace agentxcpp
 	    boost::asio::local::stream_protocol::socket socket;
 
 	    /**
-	     * \brief The endpoint used fo unix domain sockets.
+	     * \brief The endpoint used for unix domain sockets.
 	     */
 	    boost::asio::local::stream_protocol::endpoint endpoint;
 	    
@@ -103,12 +156,35 @@ namespace agentxcpp
 	    byte_t header_buf[20];
 
 	    void (*handler)(shared_ptr<PDU>);
+
+	    /**
+	     * \brief Hide standard constructor
+	     *
+	     * We need an io_service object to function properly.
+	     */
+	    connection();
 	    
 	public:
 
-	    connection(boost::asio::io_service* io_service,
-				   const std::string& unix_domain_socket,
-				   unsigned timeout);
+	    /**
+	     * \brief The constructor
+	     *
+	     * This constructor initializes the connection object and tries to 
+	     * connect to the remote entity. If connection fails, the objects 
+	     * starts in disconnected state.
+	     *
+	     * \param io_service The io_service object needed for boost::asio
+	     *                   operations.
+	     *
+	     * \param unix_domain_socket The path to the unix_domain_socket.
+	     *
+	     * \param timeout The timeout, in seconds, for sending and
+	     *                receiving %PDU's.  See the documentation of the 
+	     *                respective methods for details.
+	     */
+	    connection(boost::shared_ptr<boost::asio::io_service> io_service,
+		       const std::string& unix_domain_socket,
+		       unsigned timeout);
 
 
 	    /**
@@ -124,11 +200,6 @@ namespace agentxcpp
 	     * As a side effect, the function may return later than the 
 	     * timeout value requests.
 	     *
-	     * The received ResponsePDU's are put into the reponses map by the 
-	     * receive_callback() function. This map is inspected by this 
-	     * function, and the desired ResponsePDU is removed from the map 
-	     * before returning it.
-	     *
 	     * \param packetID The packetID to wait for.
 	     *
 	     * \param timeout The timeout in seconds. The default is 0,
@@ -139,24 +210,83 @@ namespace agentxcpp
 	     *                              ResponsePDU was received. 
 	     *
 	     * \return The received ResponsePDU.
+	     *
+	     * \internal
+	     *
+	     * The received ResponsePDU's are put into the reponses map by the 
+	     * receive_callback() function. This map is inspected by this 
+	     * function, and the desired ResponsePDU is removed from the map 
+	     * before returning it.
 	     */
 	    boost::shared_ptr<ResponsePDU>
 		wait_for_response(uint32_t packetID,
 				  unsigned timeout=0);
 
+	    /**
+	     * \brief Register a callback handler for received %PDU's.
+	     *
+	     * Every time a %PDU is received, the callback will be invoked with 
+	     * that %PDU as argument. The handler is executed in the context of 
+	     * the io_service object's run() or run_one() method. Care should 
+	     * been taken to not block the call, e.g. by doing some 
+	     * networking.
+	     *
+	     * The handler can be the null pointer, in which case it is not 
+	     * called. After registering a handler it can be unregistered again 
+	     * by calling this function with a null pointer. While no handler 
+	     * is registered, received %PDU's are silently discarded.
+	     *
+	     * There can be only one handler registered at a time.
+	     *
+	     * \param handler A pointer to the handler function, or null.
+	     */
 	    void register_handler( void (*handler)(shared_ptr<PDU>) );
 
+	    /**
+	     * \brief Connect to the remote entity.
+	     *
+	     * This function also starts receiving %PDU's. If the object is 
+	     * already connected, the function does nothing.
+	     * 
+	     * \note While no handler is registered, received %PDU's are
+	     *       silently discarded.
+	     */
 	    void connect();
 
+	    /**
+	     * \brief Disconnect the remote entity.
+	     *
+	     * This function also stops receiving %PDU's.
+	     */
 	    void disconnect();
 
+	    /**
+	     * \brief Find out whether the object is currently connected.
+	     *
+	     * \return Whether the object is in state connected.
+	     */
 	    bool is_connected()
 	    {
 		return this->socket.is_open();
 	    }
 
+	    /**
+	     * \brief send a %PDU to the remote entity.
+	     *
+	     * The %PDU is sent to the remote entity. If the timeout expires 
+	     * during the send operation, a timeout_error is thrown.
+	     *
+	     * \param pdu The PDU to send
+	     *
+	     * \exception timeout_error If a timeout error occurs. The function
+	     *                          uses the timeout value given to the 
+	     *                          constructor during construction.
+	     */
+	    void send(const PDU* pdu);
+
 
     };
+
 }
 
 #endif

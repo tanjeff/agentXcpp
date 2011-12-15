@@ -164,12 +164,12 @@ static void read_with_timeout(AsyncReadStream& s,
 
 /*
  ********************************************
-  Implentation of class master_proxy
+  Implentation of class connection
  ********************************************
  */
 	    
 
-connection::connection(boost::asio::io_service* io_service,
+connection::connection(boost::shared_ptr<boost::asio::io_service> io_service,
 		       const std::string& unix_domain_socket,
 		       unsigned timeout) :
     timeout(timeout),
@@ -208,6 +208,13 @@ void connection::connect()
 	throw(disconnected());
 	return;
     }
+    
+    // Set up socket for next read access
+    async_read(this->socket,
+	       boost::asio::buffer(this->header_buf, 20),
+	       boost::bind(&connection::receive_callback,
+			   this,
+			   boost::asio::placeholders::error));
 }
 
 void connection::disconnect()
@@ -221,6 +228,7 @@ void connection::disconnect()
     // Close socket
     try
     {
+	socket.cancel();
 	socket.close();
     }
     catch(...)
@@ -289,26 +297,27 @@ void connection::receive_callback(const boost::system::error_code& result)
     buf.append(payload, payload_length);
     delete[] payload;
 
-    // Parse PDU
-    shared_ptr<PDU> pdu;
-    try
-    {
-	pdu = PDU::parse_pdu(buf);
-    }
-    catch(version_error)
-    {
-	// We cannot handle this PDU.
-	// -> ignore
-    }
-    catch(parse_error)
-    {
-	// Close socket
-	this->disconnect();
-    }
-
-    // Call the handler
+    // Further processing only if handler is registered.
     if( this->handler )
     {
+	// Parse PDU
+	shared_ptr<PDU> pdu;
+	try
+	{
+	    pdu = PDU::parse_pdu(buf);
+	}
+	catch(version_error)
+	{
+	    // We cannot handle this PDU.
+	    // -> ignore
+	}
+	catch(parse_error)
+	{
+	    // Close socket
+	    this->disconnect();
+	}
+
+	// Call the handler
 	this->handler(pdu);
     }
 
@@ -320,3 +329,8 @@ void connection::receive_callback(const boost::system::error_code& result)
 			   boost::asio::placeholders::error));
 }
 
+
+
+void connection::send(const PDU* pdu)
+{
+}

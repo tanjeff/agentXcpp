@@ -30,7 +30,7 @@ namespace agentxcpp
      * \internal
      *
      * \brief This class provides connection to another agentXcpp entity via
-     *        unix domain socket.
+     *        a unix domain socket.
      *
      * A connection object is always in one of the following states:
      *
@@ -44,15 +44,22 @@ namespace agentxcpp
      * connection may fail at any point in time, therefore a disconnected 
      * exception may also be thrown during a send operation, for example.
      * 
+     * Sending works as follows:
+     *
+     * - The user invokes the send() method.
+     * - The send() method sends the %PDU synchronously (but with a timeout).
+     *
      * Receiving %PDU's works as follows:
      *
      * - Opon connecting to the remote entity, an asynchronous read operation 
-     *   is started to receive the %PDU header (fixed size).
-     * - When an header arrived, the receive_callback() is invoked by 
-     *   boost::asio, in the context of someone's io_service object's run() 
-     *   method.
+     *   is started to receive the %PDU header (fixed size). On disconnect, the 
+     *   asynchronous read operation is stopped again.
+     * - The boost:asio library writes a fixed amount of data (which is the 
+     *   %PDU header) into the header_buf member and invokes the
+     *   receive_callback() function.
      * - The receive_callback() method reads the messages length from the 
-     *   header and reveives the payload synchronously (but with a timeout).
+     *   header_buf and reveives the payload synchronously (but with a 
+     *   timeout).
      * - The receive_callback() method constructs a PDU object and calls a 
      *   user-provided handler callback (if one is registered), transferring 
      *   the newly created PDU object.
@@ -60,36 +67,69 @@ namespace agentxcpp
      *   finishes, the receive_callback() method starts the next asynchronous 
      *   read operation, so that it invoked again when the next header 
      *   arrived.
-     * - If no handler was registered, the %PDU is received nevertheless and is 
-     *   silently discarded.
      *
-     * Sending works as follows:
+     * \note As a special case, ResponsePDU's do not invoke the registered
+     *       handler, but are handled differently. see below for details.
      *
-     * - The user invokes the send() method.
-     * - The send() method sends the %PDU synchronously (but with a timeout).
+     * \note If no handler was registered, the %PDU is received nevertheless
+     *       and is silently discarded.
+     *
+     * \note The receive_callback() function, and thus the registered handler
+     *       (if any) are executed in the io_service's run() context.
+     *
+     * The function wait_for_response() supports the request-response 
+     * communication model. After sending a request to the remote entity (using 
+     * send()), wait_for_response() is used to wait for the response. It blocks 
+     * while waiting for a responsePDU from the remote entity, which is then 
+     * returned to the caller. The wait_for_response() function may seem to do 
+     * synchronous operations only, but this is not true.  In fact, it uses an 
+     * asynchronous receive mechanism, because there may be other %PDU's in the 
+     * queue before the given response is actually received.  
+     * wait_for_response() therefore invokes io_service->run_one() one ore more 
+     * times, until the response is received. This may also cause other 
+     * asynchronous operations to finish.  For example, the registered handler 
+     * may be invoked to process other %PDU types, or another asynchronous 
+     * operation on the io_service obejct (outside this class or even outside 
+     * the agentXcpp library) may be served.
+     */
+    /**
+     *
+     * Receiving %ResponsePDU's works as follows:
+     *
+     * - The wait_for_response() function puts an empty boost::shared_ptr<> 
+     *   into the responses map, using the PacketID of the awaited ResponsePDU 
+     *   as key.
+     * - The wait_for_response() function invokes io_service->run_one() one or 
+     *   several times, which triggers receive_callback() if data becomes 
+     *   available.
+     * - When the receive_callback() function is invoked, it receives a single 
+     *   %PDU and processes it as described above.
+     * - If a ResponsePDU is received, the registered handler is not invoked.  
+     *   Instead, the responses map is searched for an entry with the same 
+     *   PacketID as the received ResponsePDU. If found, the received 
+     *   ResponsePDU is stored in the map. Otherwise the ResponsePDU is 
+     *   silently discarded (as nobody waits for it). 
+     * - The wait_for_response() checks its map entry after each run_one() call 
+     *   for a received ResponsePDU. If it finds one, the entry is erased from 
+     *   the map and returned to the caller.
+     *
+     * The same timeout value is used by all operations which deal with 
+     * timeouts. The value is stored in the timeout member.
      */
     class connection
     {
 	private:
 
 	    /**
-	     * \brief the timeout in seconds.
-	     *
-	     * This value is used when sending a %PDU to the remote entity. 
-	     * When sending doesn't complete within this timeout, it is 
-	     * considered an error.
-	     *
-	     * While receiving a PDU, the value is also used. As soon as the 
-	     * PDU header was received, the timeout is started. If the PDU is 
-	     * not received completely after the timeout, it is considered an 
-	     * error.
+	     * \brief the timeout in seconds, used in various contexts.
 	     */
 	    unsigned timeout;
 
 	    /**
 	     * \brief The mandatory io_service object.
 	     *
-	     * This object is needed for boost::asio sockets.
+	     * This object is needed for boost::asio sockets. It is provided by 
+	     * the user of this class.
 	     */
 	    boost::shared_ptr<boost::asio::io_service> io_service;
 	    
@@ -104,22 +144,25 @@ namespace agentxcpp
 	    boost::asio::local::stream_protocol::endpoint endpoint;
 	    
 	    /**
-	     * \brief Callback function to read and process a %PDU
+	     * \brief Callback function to receive a %PDU.
 	     *
 	     * This function is called when data is ready on the socket (the 
 	     * header was already read into the header_buf buffer). It will 
 	     * synchronously read one %PDU from the socket (to be precise, the 
-	     * payload is read), process it and set up the next async read 
-	     * operation, so that it is called again for new data.
+	     * payload is read), invoke the registered handler on it (if any)      
+	     * and set up the next async read operation, so that it is called 
+	     * again for the next %PDU. As a special exception, ResponsePDU's 
+	     * are stored into the responses map if a null pointer was stored 
+	     * there in advance, and the handler is not invoked for them.
 	     *
 	     * The synchronous read operation (to read the payload) may time 
-	     * out. The timeout is the session's default timeout if available, 
-	     * 1 second otherwise. If the read times out, the connection is 
-	     * aborted (without notifying the master agent) and the 
-	     * master_proxy object becomes disconnected.
-	     * 
-	     * Recieved ResponsePDU's are stored into the responses map if a 
-	     * null pointer was stored there in advance.
+	     * out, using the class' timeout value. If the read times out, the 
+	     * socket is closed (without notifying the master agent) and the 
+	     * connection object becomes disconnected.
+	     *
+	     * \param result The result of the asynchronous read operation.
+	     *
+	     * \exception None.
 	     */
 	    void receive_callback(const boost::system::error_code& result);
 
@@ -127,9 +170,8 @@ namespace agentxcpp
 	     * \brief The received, yet unprocessed ReponsePDU's.
 	     *
 	     * The wait_for_response() function stores a null pointer to this 
-	     * map to indicate that it is waiting for a certain response. The 
-	     * map key is the packetID.
-	     * 
+	     * map to indicate that it is waiting for a certain response.
+	     *
 	     * When a response is received, the receive_callback() function 
 	     * stores it into the map, but only if a null pointer is found for 
 	     * the packetID of the received ResponsePDU. Otherwise, the 
@@ -138,11 +180,13 @@ namespace agentxcpp
 	     * After a ResponsePDU was received and stored into the map, the 
 	     * wait_for_response() function processes it and erases it from the 
 	     * map.
+	     *
+	     * The map key is the packetID of the response which is awaited.
 	     */
 	    std::map< uint32_t, boost::shared_ptr<ResponsePDU> > responses;
 
 	    /**
-	     * \brief Buffer to receive a PDU header
+	     * \brief Buffer to receive a PDU header.
 	     *
 	     * When receiving a PDU asynchronously, the header is read into 
 	     * this buffer. Then the receive_callback() callback is invoked, 
@@ -155,6 +199,15 @@ namespace agentxcpp
 	    // TODO: avoid magic numbers, even if they are documented.
 	    byte_t header_buf[20];
 
+	    /**
+	     * \brief The handler to invoke on %PDU reception.
+	     *
+	     * This handler is called by receive_callback() for each received 
+	     * PDU (except ResponsePDU's).
+	     *
+	     * The pointer may be null, which means that there is no handler 
+	     * registered.
+	     */
 	    void (*handler)(shared_ptr<PDU>);
 
 	    /**
@@ -174,18 +227,20 @@ namespace agentxcpp
 	     * starts in disconnected state.
 	     *
 	     * \param io_service The io_service object needed for boost::asio
-	     *                   operations.
+	     *                   operations. It may also be used by other parts 
+	     *                   of the program.
 	     *
 	     * \param unix_domain_socket The path to the unix_domain_socket.
 	     *
 	     * \param timeout The timeout, in seconds, for sending and
 	     *                receiving %PDU's.  See the documentation of the 
 	     *                respective methods for details.
+	     *
+	     * \exception None.
 	     */
 	    connection(boost::shared_ptr<boost::asio::io_service> io_service,
 		       const std::string& unix_domain_socket,
 		       unsigned timeout);
-
 
 	    /**
 	     * \brief Wait with timeout for a reponse.
@@ -194,51 +249,40 @@ namespace agentxcpp
 	     * packetID is received or until the timeout expires, whichever 
 	     * comes first.  The received ResponsePDU (if any) is returned.
 	     *
-	     * This function calls run_one() on the io_service object until 
-	     * the desired ResponsePDU arrives or the timeout expires. This 
-	     * may cause other asynchronous operations to be served, as well.  
-	     * As a side effect, the function may return later than the 
-	     * timeout value requests.
+	     * This function calls run_one() repeatedly on the io_service 
+	     * object until the desired ResponsePDU arrives or the timeout 
+	     * expires.  This may cause other asynchronous operations to be 
+	     * served, as well.  As a side effect, the function may return 
+	     * later than the timeout value requests.
 	     *
 	     * \param packetID The packetID to wait for.
-	     *
-	     * \param timeout The timeout in seconds. The default is 0,
-	     *                meaning "use the session's default timeout", or 1 
-	     *                second if not default timeout is set.
 	     *
 	     * \exception timeout_exception If the timeout expired before the
 	     *                              ResponsePDU was received. 
 	     *
 	     * \return The received ResponsePDU.
-	     *
-	     * \internal
-	     *
-	     * The received ResponsePDU's are put into the reponses map by the 
-	     * receive_callback() function. This map is inspected by this 
-	     * function, and the desired ResponsePDU is removed from the map 
-	     * before returning it.
 	     */
 	    boost::shared_ptr<ResponsePDU>
-		wait_for_response(uint32_t packetID,
-				  unsigned timeout=0);
+		wait_for_response(uint32_t packetID);
 
 	    /**
 	     * \brief Register a callback handler for received %PDU's.
 	     *
 	     * Every time a %PDU is received, the callback will be invoked with 
-	     * that %PDU as argument. The handler is executed in the context of 
+	     * the %PDU as argument. The handler is executed in the context of 
 	     * the io_service object's run() or run_one() method. Care should 
-	     * been taken to not block the call, e.g. by doing some 
-	     * networking.
+	     * be taken to not block the call, e.g. by doing networking.
 	     *
 	     * The handler can be the null pointer, in which case it is not 
-	     * called. After registering a handler it can be unregistered again 
-	     * by calling this function with a null pointer. While no handler 
-	     * is registered, received %PDU's are silently discarded.
+	     * invoked. After registering a handler it can be unregistered 
+	     * again by calling this function with a null pointer.  While no 
+	     * handler is registered, received %PDU's are silently discarded.
 	     *
 	     * There can be only one handler registered at a time.
 	     *
 	     * \param handler A pointer to the handler function, or null.
+	     *
+	     * \exception None.
 	     */
 	    void register_handler( void (*handler)(shared_ptr<PDU>) );
 
@@ -256,7 +300,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Disconnect the remote entity.
 	     *
-	     * This function also stops receiving %PDU's.
+	     * This function stops receiving %PDU's.
 	     */
 	    void disconnect();
 

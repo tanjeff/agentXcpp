@@ -635,3 +635,89 @@ void connection::send(const PDU* pdu)
 	throw;
     }
 }
+
+
+
+// Helper function for master_proxy::wait_for_response(). See there for an 
+// explanation.
+static void callback_for_response(const boost::system::error_code& result,
+                                 status_t* retval)
+{
+    if( result.value() == 0 )
+    {
+	// success
+	*retval = success;
+    }
+    else
+    {
+	// error
+	*retval = fail;
+    }
+}
+/*
+ * Timeout handling:
+ * 
+ * The timeout handling is realized using a boost::asio::deadline_timer 
+ * object, which is set up to call the callback_for_response() function when 
+ * it expires (or when it fails). The variable 'timer_result' is intially set 
+ * to 'in_progress'.  The callback will set it to 'success' or 'fail' when the 
+ * timer expires respectively fails.
+ *
+ * Then the io_service.run_one() function is invoked repeatedly until either 
+ * the timer expired or the desired ResponsePDU arrived. Note that 
+ * io_service.run_one() may service other asynchronous operations first, e.g.  
+ * a get request.
+ *
+ * Finally either the received ResponsePDU is returned or a timeout exception 
+ * is thrown.
+ */
+boost::shared_ptr<ResponsePDU>
+connection::wait_for_response(uint32_t packetID)
+{
+    // Indicate that we are waiting for a specific response:
+    // We add a null pointer to the map
+    responses[packetID] = boost::shared_ptr<ResponsePDU>();
+
+    // Start timeout timer
+    boost::asio::deadline_timer timer(*(this->io_service));
+    status_t timer_result = in_progress; // callback stores result here
+    timer.expires_from_now( boost::posix_time::seconds(timeout) );
+    timer.async_wait( boost::bind(callback_for_response,
+				  boost::asio::placeholders::error,
+				  &timer_result) );
+
+    // process asio events until ResponsePDU arrives or timeout expires
+    try
+    {
+	while(   this->responses[packetID].get() == 0 // no response was stored
+		 && timer_result == in_progress)
+	{
+	    this->io_service->run_one();
+	}
+    }
+    catch(boost::system::system_error)
+    {
+	// run_one() failed
+	// -> disconnect and fail
+	this->disconnect();
+	throw disconnected();
+    }
+
+    // Check the result
+    if( this->responses[packetID].get() != 0 )
+    {
+	// ResponsePDU arrived:
+	// 1. Cancel timer
+	// 2. Erase response from map
+	// 3. Return response
+	timer.cancel();
+	shared_ptr<ResponsePDU> retval = this->responses[packetID];
+	this->responses.erase( packetID );
+	return retval;
+    }
+    else
+    {
+	// Timer expired or failed before ResponsePDU arrived
+	throw(timeout_error());
+    }
+}

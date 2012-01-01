@@ -265,7 +265,13 @@ namespace agentxcpp
 	     * \param packetID The packetID to wait for.
 	     *
 	     * \exception timeout_exception If the timeout expired before the
-	     *                              ResponsePDU was received. 
+	     *                              ResponsePDU was received. The 
+	     *                              connection object stays in 
+	     *                              connected state.
+	     *
+	     * \exception disconnected If disconnected.  This is also thrown if
+	     *                         the operation fails and the object gets 
+	     *                         disconnected for that reason.
 	     *
 	     * \return The received ResponsePDU.
 	     */

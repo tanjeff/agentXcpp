@@ -25,7 +25,6 @@
 using namespace agentxcpp;
 
 
-
 /*
  ********************************************
   Local helper function: read_with_timeout()
@@ -35,7 +34,7 @@ using namespace agentxcpp;
 
 
 /**
- * \brief Helper type for read_with_timeout(). See there for an explanation.
+ * \brief Helper type for *_with_timeout() functions.
  */
 enum status_t {
     in_progress = 0,
@@ -46,8 +45,7 @@ enum status_t {
 
 
 /**
- * \brief Helper function for read_with_timeout(). See there for an
- *        explanation.
+ * \brief Helper function for *_with_timeout() functions.
  */
 static void callback(const boost::system::error_code& result,
 		     status_t* retval)
@@ -71,7 +69,6 @@ static void callback(const boost::system::error_code& result,
  * \brief Like boost::asio::read(), but with timeout
  *
  * Calls boost::asio::read(), but provides a timeout in addition.
- * May throw the same exceptions as boost::asio::read().
  *
  * This function calls s.get_io_service.run_one().
  *
@@ -85,55 +82,124 @@ static void callback(const boost::system::error_code& result,
  *                              operation completes. Some bytes may have been 
  *                              read.
  *
+ * \exception network_error If reading failed. Some data may have been read
+ *                          already or will be read later. Subsequent calls to 
+ *                          this function will lead to undefined results.
+ *
  * \return How many bytes were read
  */
-
-//void async_read(
-//    AsyncReadStream & s,
-//    const MutableBufferSequence & buffers,
-//    ReadHandler handler);
-
 template<typename AsyncReadStream,
          typename MutableBufferSequence>
 static void read_with_timeout(AsyncReadStream& s,
 			      const MutableBufferSequence& buffers,
 			      unsigned int timeout)
 {
+    //
+    // What this function does:
+    //
+    // 1) start timeout timer
+    // 2) start read
+    // 3) wait until timer or read completes
+    // 4) process result
+    //
 
-    // Start timeout timer
+    // The timer_result and read_result variables are static because in some 
+    // circumstances the callback (which manipulates them) might be called 
+    // after this function returned. We avoid a segfault this way.
+    static status_t timer_result;
+    static status_t read_result;
+    
+    // 1) Start timeout timer
     boost::asio::deadline_timer timer(s.get_io_service());
-    status_t timer_result = in_progress;
-    timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
+    timer_result = in_progress;
+    try
+    {
+	// throws system_error in boost 1.45.0
+	timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
+    }
+    catch(boost::system::system_error)
+    {
+	throw( network_error() );
+    }
+    // doesn't throw in boost 1.45.0:
     timer.async_wait( boost::bind(callback,
 				  boost::asio::placeholders::error,
 				  &timer_result) );
 
-    // Start read
-    status_t read_result = in_progress;
+    // 2) Start read
+    read_result = in_progress;
+    // doesn't throw in boost 1.45.0:
     async_read(s,
 	       buffers,
 	       boost::bind(callback,
 			   boost::asio::placeholders::error,
 			   &read_result));
 
-    // process asio events until read succeeds or timeout expires
-    do
+    // 3) process asio events until read succeeds or timeout expires
+    try
     {
-	s.get_io_service().run_one();
+	do
+	{
+	    // throws system_error in boost 1.45.0:
+	    s.get_io_service().run_one();
+	}
+	while(read_result == in_progress && timer_result == in_progress);
     }
-    while(read_result == in_progress && timer_result == in_progress);
+    catch(boost::system::system_error)
+    {
+	try
+	{
+	    // throws system_error in boost 1.45.0
+	    timer.cancel();
 
-    // Check read result
+	    // TODO: How to cancel the async_read operation?
+	}
+	catch(boost::system::system_error)
+	{
+	    // Is the timer uncancelled now? Will it possibly fire our 
+	    // callback? On the other hand, leaving this function will 
+	    // destroy the deadline_timer object anyway.
+
+	    // -> ignore
+	}
+	throw( network_error() );
+    }
+
+    // 4) Check read result
     switch(read_result)
     {
 	case success:
 	    // Read succeeded: OK
-	    timer.cancel();
+	    try
+	    {
+		// throws system_error in bost 1.45.0:
+		timer.cancel();
+	    }
+	    catch(boost::system::system_error)
+	    {
+		// Is the timer uncancelled now? Will it possibly fire our 
+		// callback? On the other hand, leaving this function will 
+		// destroy the deadline_timer object anyway.
+
+		// -> ignore
+	    }
 	    return;
 
 	case fail:
 	    // read failed: cancel timer, throw exception
-	    timer.cancel();
+	    try
+	    {
+		// throws system_error in bost 1.45.0:
+		timer.cancel();
+	    }
+	    catch(boost::system::system_error)
+	    {
+		// Is the timer uncancelled now? Will it possibly fire our 
+		// callback? On the other hand, leaving this function will 
+		// destroy the deadline_timer object anyway.
+
+		// -> ignore
+	    }
 	    throw( network_error() );
 
 	case in_progress:
@@ -143,21 +209,193 @@ static void read_with_timeout(AsyncReadStream& s,
 	    {
 		case success:
 		    // timer fired while reading
-		    // cancel read, throw exception
-		    s.cancel();
+		    
+		    // TODO: how to cancel the async read operation?
+		    
 		    throw( timeout_error() );
+
 		case fail:
 		    // timer failed while reading
 		    // what now?
 		    // I think we should fail with a network error
-		    s.cancel();
+		    
+		    // TODO: how to cancel the async read operation?
+		    
 		    throw( network_error() );
+
 		case in_progress:
 		    // It didn't happen -> ignore
 		    break;
 	    }
     }
 
+}
+
+
+
+/**
+ * \brief Send some data with timeout
+ *
+ * \note This function calls s.get_io_service.run_one().
+ *
+ * \param s The Stream to send to to
+ *
+ * \param buffers The data to send
+ *
+ * \param timeout The desired timeout in milliseconds
+ *
+ * \exception timeout_error If the timeout expires before the send
+ *                          operation completes. Some data may have been sent 
+ *                          already. Subsequent calls to this function will 
+ *                          lead to undefined results.
+ *
+ * \exception network_error If sending failed. Some data may have been sent
+ *                          already or may still be in the send queue.  
+ *                          Subsequent calls to this function will lead to 
+ *                          undefined results.
+ */
+template<typename ConstBufferSequence>
+static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
+			      const ConstBufferSequence& buffers,
+			      unsigned timeout)
+{
+    //
+    // What this function does:
+    //
+    // 1) start timeout timer
+    // 2) start send
+    // 3) wait until timer or send completes
+    // 4) process result
+    //
+    
+    // The timer_result and send_result variables are static because in some 
+    // circumstances the callback (which manipulates them) might be called 
+    // after this function returned. We avoid a segfault this way.
+    static status_t timer_result;
+    static status_t send_result;
+
+
+    // 1) Start timeout timer
+    
+    // doesn't throw in boost 1.45.0:
+    boost::asio::deadline_timer timer(s.get_io_service());
+    timer_result = in_progress;
+    try
+    {
+	// throws system_error in boost 1.45.0
+	timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
+    }
+    catch(boost::system::system_error)
+    {
+	throw( network_error() );
+    }
+    // doesn't throw in boost 1.45.0:
+    timer.async_wait( boost::bind(callback,
+				  boost::asio::placeholders::error,
+				  &timer_result) );
+
+    // 2) Start send
+    send_result = in_progress;
+    // doesn't throw in boost 1.45.0:
+    s.async_send(buffers,
+		 boost::bind(callback,
+			     boost::asio::placeholders::error,
+			     &send_result));
+
+    // 3) process asio events until send succeeds or timeout expires
+    try
+    {
+	do
+	{
+	    // throws system_error in boost 1.45.0:
+	    s.get_io_service().run_one();
+	}
+	while(send_result == in_progress && timer_result == in_progress);
+    }
+    catch(boost::system::system_error)
+    {
+	try
+	{
+	    // throws system_error in boost 1.45.0
+	    timer.cancel();
+
+	    // TODO: How to cancel the async_send operation?
+	}
+	catch(boost::system::system_error)
+	{
+	    // Is the timer uncancelled now? Will it possibly fire our 
+	    // callback? On the other hand, leaving this function will 
+	    // destroy the deadline_timer object anyway.
+
+	    // -> ignore
+	}
+	throw( network_error() );
+    }
+
+    // 4) Check result
+    switch(send_result)
+    {
+	case success:
+	    // Send succeeded:
+	    try
+	    {
+		// throws system_error in bost 1.45.0:
+		timer.cancel();
+	    }
+	    catch(boost::system::system_error)
+	    {
+		// Is the timer uncancelled now? Will it possibly fire our 
+		// callback? On the other hand, leaving this function will 
+		// destroy the deadline_timer object anyway.
+
+		// -> ignore
+	    }
+	    return;
+
+	case fail:
+	    // send failed: cancel timer, throw exception
+	    try
+	    {
+		// throws system_error in bost 1.45.0:
+		timer.cancel();
+	    }
+	    catch(boost::system::system_error)
+	    {
+		// Is the timer uncancelled now? Will it possibly fire our 
+		// callback? On the other hand, leaving this function will 
+		// destroy the deadline_timer object anyway.
+
+		// -> ignore
+	    }
+	    throw( network_error() );
+
+	case in_progress:
+
+	    // Sending still in progress, look at timer_result:
+	    switch(timer_result)
+	    {
+		case success:
+		    // timer fired while reading
+		    
+		    // TODO: how to cancel the async send operation?
+
+		    // throw exception
+		    throw( timeout_error() );
+
+		case fail:
+		    // timer failed while sending
+		    // what now?
+		    // I think we should fail with a network error
+		    
+		    // TODO: how to cancel the async send operation?
+		    
+		    throw( network_error() );
+
+		case in_progress:
+		    // It didn't happen -> ignore
+		    break;
+	    }
+    }
 }
 
 
@@ -174,8 +412,8 @@ connection::connection(boost::shared_ptr<boost::asio::io_service> io_service,
 		       unsigned timeout) :
     timeout(timeout),
     io_service(io_service),
-    socket(*io_service),
-    endpoint(unix_domain_socket.c_str()),
+    socket(0),
+    endpoint(unix_domain_socket),
     handler(0)
 {
     // Try to start connected
@@ -185,32 +423,37 @@ connection::connection(boost::shared_ptr<boost::asio::io_service> io_service,
     }
     catch(...)
     {
-	// Ignore any errors (don't throw anything)
+	// Ignore any errors (don't throw)
     }
 }
 
 void connection::connect()
 {
-    if( this->socket.is_open() )
+    // If currently connected: do nothing
+    // (is_open() doesn't throw in boost 1.45.0)
+    if( this->socket )
     {
-	// we are already connected -> nothing to do
 	return;
     }
 
     // Connect to endpoint
+    using boost::asio::local::stream_protocol;
+    this->socket = new stream_protocol::socket(*io_service);
     try
     {
-	socket.connect(endpoint);
+	this->socket->connect(endpoint);
     }
     catch(boost::system::system_error)
     {
 	// Could not connect
+	delete this->socket;
+	this->socket = 0;
 	throw(disconnected());
-	return;
     }
     
     // Set up socket for next read access
-    async_read(this->socket,
+    // (async_read doesn't throw in boost 1.45.0)
+    async_read(*this->socket,
 	       boost::asio::buffer(this->header_buf, 20),
 	       boost::bind(&connection::receive_callback,
 			   this,
@@ -219,22 +462,41 @@ void connection::connect()
 
 void connection::disconnect()
 {
-    if( ! this->socket.is_open() )
+    // If already disconnected: do nothing
+    if( this->socket == 0 )
     {
-	// we are already disconnected -> nothing to do
 	return;
     }
     
-    // Close socket
+    // Shutdown socket
     try
     {
-	socket.cancel();
-	socket.close();
+
+	// Cancel all read and write operations. Called on the recommendation 
+	// of socket.close() documentation.
+	// (throws system_error in boost 1.45.0)
+	socket->shutdown(
+		boost::asio::local::stream_protocol::socket::shutdown_both);
     }
-    catch(...)
+    catch(boost::system::system_error)
     {
 	// ignore errors
     }
+
+    // Close socket
+    try
+    {
+	// (throws system_error in boost 1.45.0)
+	socket->close();
+    }
+    catch(boost::system::system_error)
+    {
+	// ignore errors
+    }
+    
+    // Finally destroy socket
+    delete this->socket;
+    this->socket = 0;
 }
 
 
@@ -251,9 +513,19 @@ void connection::receive_callback(const boost::system::error_code& result)
     // Check for network errors
     if( result.value() != 0 )
     {
-	// async read operation failed
-	// -> close socket (without notifying the master agent)
-	this->disconnect();
+	// result will probably be boost::asio::error::operation_aborted if the 
+	// socket is explicitly closed. See boost 1.45.0 docs for 
+	// basic_stream_socket::close().
+	if( result.value() == boost::asio::error::operation_aborted )
+	{
+	    // Socket was closed. Nothing to do here.
+	}
+	else
+	{
+	    // async read operation failed
+	    // -> disconnect
+	    this->disconnect();
+	}
 
 	// Nothing left to do
 	return;
@@ -282,14 +554,14 @@ void connection::receive_callback(const boost::system::error_code& result)
     byte_t* payload = new byte_t[payload_length];
     try
     {
-	read_with_timeout(this->socket,
+	read_with_timeout(*this->socket,
 			  boost::asio::buffer(payload, payload_length),
 			  this->timeout);
     }
-    catch(timeout_error)
+    catch(...)
     {
-	// Reading payload timed out
-	// -> abort connection
+	// Some error occurred, e.g. timeout
+	// -> disconnect
 	this->disconnect();
 	delete[] payload;
 	return;
@@ -313,16 +585,24 @@ void connection::receive_callback(const boost::system::error_code& result)
 	}
 	catch(parse_error)
 	{
-	    // Close socket
+	    // disconnect
 	    this->disconnect();
 	}
 
 	// Call the handler
-	this->handler(pdu);
+	try
+	{
+	    this->handler(pdu);
+	}
+	catch(...)
+	{
+	    // discard exceptions from user handler
+	}
     }
 
     // Set up socket for next read access
-    async_read(this->socket,
+    // (async_read doesn't throw in boost 1.45.0)
+    async_read(*this->socket,
 	       boost::asio::buffer(this->header_buf, 20),
 	       boost::bind(&connection::receive_callback,
 			   this,
@@ -333,4 +613,25 @@ void connection::receive_callback(const boost::system::error_code& result)
 
 void connection::send(const PDU* pdu)
 {
+    try
+    {
+	// throws timeout_error and network_error:
+	send_with_timeout(*this->socket,
+			  boost::asio::buffer(pdu->serialize()),
+			  this->timeout);
+    }
+    catch(network_error)
+    {
+	// network errors are fatal: disconnect & throw
+	this->disconnect();
+	throw disconnected();
+    }
+    catch(timeout_error)
+    {
+	// No subsequent calls to send_with_timeout() possible -> disconnect.
+	this->disconnect();
+	
+	// forward timeout_error to caller
+	throw;
+    }
 }

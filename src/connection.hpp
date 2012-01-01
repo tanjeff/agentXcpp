@@ -38,11 +38,16 @@ namespace agentxcpp
      * -# disconnected
      *
      * It tries to start in connected state. If that fails, it starts in 
-     * disconnected state. The current state can also be obtained using the 
+     * disconnected state. The current state can be obtained using the 
      * is_connected() method. Some operations may throw a disconnected 
      * exception if the object is in disconnected state. Further, the 
      * connection may fail at any point in time, therefore a disconnected 
-     * exception may also be thrown during a send operation, for example.
+     * exception may also be thrown during a network operation.
+     * 
+     * The socket needed for networking is created upon connect and destroyed 
+     * upon disconnect. The reason is that closing the socket may throw a 
+     * system_error exception, leaving the socket in an unknown state.  
+     * Destroying it and creating a new one should be safe.
      * 
      * Sending works as follows:
      *
@@ -51,31 +56,31 @@ namespace agentxcpp
      *
      * Receiving %PDU's works as follows:
      *
-     * - Opon connecting to the remote entity, an asynchronous read operation 
+     * - Upon connecting to the remote entity, an asynchronous read operation 
      *   is started to receive the %PDU header (fixed size). On disconnect, the 
      *   asynchronous read operation is stopped again.
-     * - The boost:asio library writes a fixed amount of data (which is the 
+     * - The boost::asio library writes a fixed amount of data (which is the 
      *   %PDU header) into the header_buf member and invokes the
      *   receive_callback() function.
-     * - The receive_callback() method reads the messages length from the 
-     *   header_buf and reveives the payload synchronously (but with a 
-     *   timeout).
-     * - The receive_callback() method constructs a PDU object and calls a 
+     * - The receive_callback() method reads the payload length from header_buf 
+     *   and reveives the payload synchronously (but with a timeout).
+     * - The receive_callback() method then constructs a PDU object and calls a 
      *   user-provided handler callback (if one is registered), transferring 
      *   the newly created PDU object.
      * - The handler processes the %PDU as needed. As soon as the handler 
      *   finishes, the receive_callback() method starts the next asynchronous 
-     *   read operation, so that it invoked again when the next header 
-     *   arrived.
+     *   read operation, so that it invoked again when the next header arrives.
      *
      * \note As a special case, ResponsePDU's do not invoke the registered
      *       handler, but are handled differently. see below for details.
      *
-     * \note If no handler was registered, the %PDU is received nevertheless
+     * \note If no handler is registered, the %PDU is received nevertheless
      *       and is silently discarded.
      *
      * \note The receive_callback() function, and thus the registered handler
      *       (if any) are executed in the io_service's run() context.
+     *
+     * Receiving %ResponsePDU's works as follows:
      *
      * The function wait_for_response() supports the request-response 
      * communication model. After sending a request to the remote entity (using 
@@ -89,12 +94,11 @@ namespace agentxcpp
      * times, until the response is received. This may also cause other 
      * asynchronous operations to finish.  For example, the registered handler 
      * may be invoked to process other %PDU types, or another asynchronous 
-     * operation on the io_service obejct (outside this class or even outside 
-     * the agentXcpp library) may be served.
+     * operation on the io_service object (outside this class or even outside 
+     * the agentXcpp library) may be served. Here are the steps performed to 
+     * receive a ResponsePDU:
      */
     /**
-     *
-     * Receiving %ResponsePDU's works as follows:
      *
      * - The wait_for_response() function puts an empty boost::shared_ptr<> 
      *   into the responses map, using the PacketID of the awaited ResponsePDU 
@@ -104,11 +108,11 @@ namespace agentxcpp
      *   available.
      * - When the receive_callback() function is invoked, it receives a single 
      *   %PDU and processes it as described above.
-     * - If a ResponsePDU is received, the registered handler is not invoked.  
-     *   Instead, the responses map is searched for an entry with the same 
-     *   PacketID as the received ResponsePDU. If found, the received 
-     *   ResponsePDU is stored in the map. Otherwise the ResponsePDU is 
-     *   silently discarded (as nobody waits for it). 
+     * - If a ResponsePDU is received, the registered handler is not invoked by 
+     *   receive_callback(). Instead, the responses map is searched for an 
+     *   entry with the same PacketID as the received ResponsePDU. If found, 
+     *   the received ResponsePDU is stored in the map. Otherwise the 
+     *   ResponsePDU is silently discarded (as nobody waits for it). 
      * - The wait_for_response() checks its map entry after each run_one() call 
      *   for a received ResponsePDU. If it finds one, the entry is erased from 
      *   the map and returned to the caller.
@@ -121,7 +125,7 @@ namespace agentxcpp
 	private:
 
 	    /**
-	     * \brief the timeout in seconds, used in various contexts.
+	     * \brief the timeout in milliseconds, used in various contexts.
 	     */
 	    unsigned timeout;
 
@@ -135,8 +139,10 @@ namespace agentxcpp
 	    
 	    /**
 	     * \brief The socket.
+	     *
+	     * The null pointer while disconnected.
 	     */
-	    boost::asio::local::stream_protocol::socket socket;
+	    boost::asio::local::stream_protocol::socket* socket;
 
 	    /**
 	     * \brief The endpoint used for unix domain sockets.
@@ -146,21 +152,19 @@ namespace agentxcpp
 	    /**
 	     * \brief Callback function to receive a %PDU.
 	     *
-	     * This function is called when data is ready on the socket (the 
-	     * header was already read into the header_buf buffer). It will 
-	     * synchronously read one %PDU from the socket (to be precise, the 
-	     * payload is read), invoke the registered handler on it (if any)      
-	     * and set up the next async read operation, so that it is called 
-	     * again for the next %PDU. As a special exception, ResponsePDU's 
-	     * are stored into the responses map if a null pointer was stored 
-	     * there in advance, and the handler is not invoked for them.
+	     * See the class documentation to learn about the receive 
+	     * mechanism.
 	     *
+	     * \note Exceptions thrown by the user-provided handler (if any)
+	     *       are catched and discarded.
+	     * 
 	     * The synchronous read operation (to read the payload) may time 
 	     * out, using the class' timeout value. If the read times out, the 
-	     * socket is closed (without notifying the master agent) and the 
-	     * connection object becomes disconnected.
+	     * socket is destroyed and the connection object becomes 
+	     * disconnected.
 	     *
-	     * \param result The result of the asynchronous read operation.
+	     * \param result The result of the asynchronous read operation
+	     *               (provided by boost::asio).
 	     *
 	     * \exception None.
 	     */
@@ -168,6 +172,9 @@ namespace agentxcpp
 
 	    /**
 	     * \brief The received, yet unprocessed ReponsePDU's.
+	     *
+	     * See the class documentation to learn about the receive 
+	     * mechanism.
 	     *
 	     * The wait_for_response() function stores a null pointer to this 
 	     * map to indicate that it is waiting for a certain response.
@@ -188,10 +195,11 @@ namespace agentxcpp
 	    /**
 	     * \brief Buffer to receive a PDU header.
 	     *
-	     * When receiving a PDU asynchronously, the header is read into 
-	     * this buffer. Then the receive_callback() callback is invoked, 
-	     * which synchronously reads the payload and starts processing the 
-	     * received %PDU.
+	     * See the class documentation to learn about the receive 
+	     * mechanism.
+	     *
+	     * The %PDU header is placed here before receive_callback() is 
+	     * called by boost::asio.
 	     *
 	     * Since the AgentX-header is always 20 bytes in length, this 
 	     * buffer is 20 bytes in size.
@@ -232,7 +240,7 @@ namespace agentxcpp
 	     *
 	     * \param unix_domain_socket The path to the unix_domain_socket.
 	     *
-	     * \param timeout The timeout, in seconds, for sending and
+	     * \param timeout The timeout, in milliseconds, for sending and
 	     *                receiving %PDU's.  See the documentation of the 
 	     *                respective methods for details.
 	     *
@@ -252,8 +260,7 @@ namespace agentxcpp
 	     * This function calls run_one() repeatedly on the io_service 
 	     * object until the desired ResponsePDU arrives or the timeout 
 	     * expires.  This may cause other asynchronous operations to be 
-	     * served, as well.  As a side effect, the function may return 
-	     * later than the timeout value requests.
+	     * served, as well.
 	     *
 	     * \param packetID The packetID to wait for.
 	     *
@@ -278,7 +285,10 @@ namespace agentxcpp
 	     * again by calling this function with a null pointer.  While no 
 	     * handler is registered, received %PDU's are silently discarded.
 	     *
-	     * There can be only one handler registered at a time.
+	     * \note Any exceptions thrown by the handler are silently
+	     *       discarded.
+	     *
+	     * \note There can be only one handler registered at a time.
 	     *
 	     * \param handler A pointer to the handler function, or null.
 	     *
@@ -289,18 +299,23 @@ namespace agentxcpp
 	    /**
 	     * \brief Connect to the remote entity.
 	     *
-	     * This function also starts receiving %PDU's. If the object is 
-	     * already connected, the function does nothing.
+	     * This function connects to the remote entity and starts receiving 
+	     * %PDU's.  If the object is already connected, the function does 
+	     * nothing.
 	     * 
 	     * \note While no handler is registered, received %PDU's are
 	     *       silently discarded.
+	     *
+	     * \exception disconnected If connecting fails.
 	     */
 	    void connect();
 
 	    /**
 	     * \brief Disconnect the remote entity.
 	     *
-	     * This function stops receiving %PDU's.
+	     * Stops receiving %PDU's and disconnects the remote entity.
+	     *
+	     * \exception None.
 	     */
 	    void disconnect();
 
@@ -308,26 +323,50 @@ namespace agentxcpp
 	     * \brief Find out whether the object is currently connected.
 	     *
 	     * \return Whether the object is in state connected.
+	     *
+	     * \exception None.
 	     */
 	    bool is_connected()
 	    {
-		return this->socket.is_open();
+		return (this->socket != 0 ? true : false );
 	    }
 
 	    /**
 	     * \brief send a %PDU to the remote entity.
 	     *
 	     * The %PDU is sent to the remote entity. If the timeout expires 
-	     * during the send operation, a timeout_error is thrown.
+	     * during the send operation, a timeout_error is thrown and the 
+	     * object gets disconnected.
+	     *
+	     * \note The run_one() of the io_service object is called at least
+	     *       one time by this operation.
 	     *
 	     * \param pdu The PDU to send
 	     *
 	     * \exception timeout_error If a timeout error occurs. The function
-	     *                          uses the timeout value given to the 
-	     *                          constructor during construction.
+	     *                          uses the timeout value given during 
+	     *                          construction. The objects gets 
+	     *                          disconnected in this case. Some data 
+	     *                          might be sent already.
+	     *
+	     * \exception disconnected If disconnected. This is also thrown if
+	     *                         sending fails and the object gets 
+	     *                         disconnected for that reason. Some data 
+	     *                         might be sent already.
 	     */
 	    void send(const PDU* pdu);
 
+	    /**
+	     * \brief Destructor
+	     *
+	     * \exception None.
+	     */
+	    ~connection()
+	    {
+		// Disconnect if applicable. This also destroys the socket (if 
+		// any).
+		disconnect();
+	    }
 
     };
 

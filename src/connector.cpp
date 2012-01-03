@@ -18,7 +18,7 @@
  */
 
 #include <boost/bind.hpp>
-#include "connection.hpp"
+#include "connector.hpp"
 #include "helper.hpp"
 
 
@@ -402,12 +402,12 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
 
 /*
  ********************************************
-  Implentation of class connection
+  Implentation of class connector
  ********************************************
  */
 	    
 
-connection::connection(boost::shared_ptr<boost::asio::io_service> io_service,
+connector::connector(boost::shared_ptr<boost::asio::io_service> io_service,
 		       const std::string& unix_domain_socket,
 		       unsigned timeout) :
     timeout(timeout),
@@ -427,7 +427,7 @@ connection::connection(boost::shared_ptr<boost::asio::io_service> io_service,
     }
 }
 
-void connection::connect()
+void connector::connect()
 {
     // If currently connected: do nothing
     // (is_open() doesn't throw in boost 1.45.0)
@@ -455,12 +455,12 @@ void connection::connect()
     // (async_read doesn't throw in boost 1.45.0)
     async_read(*this->socket,
 	       boost::asio::buffer(this->header_buf, 20),
-	       boost::bind(&connection::receive_callback,
+	       boost::bind(&connector::receive_callback,
 			   this,
 			   boost::asio::placeholders::error));
 }
 
-void connection::disconnect()
+void connector::disconnect()
 {
     // If already disconnected: do nothing
     if( this->socket == 0 )
@@ -502,13 +502,13 @@ void connection::disconnect()
 
 
 
-void connection::register_handler( void (*handler)(shared_ptr<PDU>) )
+void connector::register_handler( void (*handler)(shared_ptr<PDU>) )
 {
     this->handler = handler;
 }
 
 
-void connection::receive_callback(const boost::system::error_code& result)
+void connector::receive_callback(const boost::system::error_code& result)
 {
     // Check for network errors
     if( result.value() != 0 )
@@ -604,14 +604,14 @@ void connection::receive_callback(const boost::system::error_code& result)
     // (async_read doesn't throw in boost 1.45.0)
     async_read(*this->socket,
 	       boost::asio::buffer(this->header_buf, 20),
-	       boost::bind(&connection::receive_callback,
+	       boost::bind(&connector::receive_callback,
 			   this,
 			   boost::asio::placeholders::error));
 }
 
 
 
-void connection::send(const PDU* pdu)
+void connector::send(const PDU* pdu)
 {
     try
     {
@@ -672,7 +672,7 @@ static void callback_for_response(const boost::system::error_code& result,
  * is thrown.
  */
 boost::shared_ptr<ResponsePDU>
-connection::wait_for_response(uint32_t packetID)
+connector::wait_for_response(uint32_t packetID)
 {
     // Indicate that we are waiting for a specific response:
     // We add a null pointer to the map

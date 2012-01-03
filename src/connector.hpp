@@ -32,7 +32,7 @@ namespace agentxcpp
      * \brief This class provides connection to another agentXcpp entity via
      *        a unix domain socket.
      *
-     * A connection object is always in one of the following states:
+     * A connector object is always in one of the following states:
      *
      * -# connected
      * -# disconnected
@@ -120,7 +120,7 @@ namespace agentxcpp
      * The same timeout value is used by all operations which deal with 
      * timeouts. The value is stored in the timeout member.
      */
-    class connection
+    class connector
     {
 	private:
 
@@ -160,7 +160,7 @@ namespace agentxcpp
 	     * 
 	     * The synchronous read operation (to read the payload) may time 
 	     * out, using the class' timeout value. If the read times out, the 
-	     * socket is destroyed and the connection object becomes 
+	     * socket is destroyed and the connector object becomes 
 	     * disconnected.
 	     *
 	     * \param result The result of the asynchronous read operation
@@ -223,14 +223,14 @@ namespace agentxcpp
 	     *
 	     * We need an io_service object to function properly.
 	     */
-	    connection();
+	    connector();
 	    
 	public:
 
 	    /**
 	     * \brief The constructor
 	     *
-	     * This constructor initializes the connection object and tries to 
+	     * This constructor initializes the connector object and tries to 
 	     * connect to the remote entity. If connection fails, the objects 
 	     * starts in disconnected state.
 	     *
@@ -246,7 +246,7 @@ namespace agentxcpp
 	     *
 	     * \exception None.
 	     */
-	    connection(boost::shared_ptr<boost::asio::io_service> io_service,
+	    connector(boost::shared_ptr<boost::asio::io_service> io_service,
 		       const std::string& unix_domain_socket,
 		       unsigned timeout);
 
@@ -266,7 +266,7 @@ namespace agentxcpp
 	     *
 	     * \exception timeout_exception If the timeout expired before the
 	     *                              ResponsePDU was received. The 
-	     *                              connection object stays in 
+	     *                              connector object stays in 
 	     *                              connected state.
 	     *
 	     * \exception disconnected If disconnected.  This is also thrown if
@@ -367,7 +367,7 @@ namespace agentxcpp
 	     *
 	     * \exception None.
 	     */
-	    ~connection()
+	    ~connector()
 	    {
 		// Disconnect if applicable. This also destroys the socket (if 
 		// any).

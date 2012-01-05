@@ -360,7 +360,7 @@ namespace agentxcpp
 	     *                         disconnected for that reason. Some data 
 	     *                         might be sent already.
 	     */
-	    void send(const PDU* pdu);
+	    void send(const PDU& pdu);
 
 	    /**
 	     * \brief Destructor

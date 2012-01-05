@@ -413,7 +413,7 @@ connector::connector(boost::shared_ptr<boost::asio::io_service> io_service,
     timeout(timeout),
     io_service(io_service),
     socket(0),
-    endpoint(unix_domain_socket),
+    endpoint(unix_domain_socket.c_str()),
     handler(0)
 {
     // Try to start connected
@@ -611,13 +611,13 @@ void connector::receive_callback(const boost::system::error_code& result)
 
 
 
-void connector::send(const PDU* pdu)
+void connector::send(const PDU& pdu)
 {
     try
     {
 	// throws timeout_error and network_error:
 	send_with_timeout(*this->socket,
-			  boost::asio::buffer(pdu->serialize()),
+			  boost::asio::buffer(pdu.serialize()),
 			  this->timeout);
     }
     catch(network_error)

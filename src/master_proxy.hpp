@@ -29,6 +29,7 @@
 #include "oid.hpp"
 #include "ClosePDU.hpp"
 #include "ResponsePDU.hpp"
+#include "connector.hpp"
 
 namespace agentxcpp
 {
@@ -110,6 +111,7 @@ namespace agentxcpp
 	     * constructor used, the object is either provided by the user or 
 	     * generated automatically.
 	     */
+	    // TODO: use shared_ptr<>
 	    boost::asio::io_service* io_service;
 
 	    /**
@@ -118,14 +120,16 @@ namespace agentxcpp
 	    bool io_service_by_user;
 	    
 	    /**
-	     * \brief The socket.
+	     * \brief The path to the unix domain socket.
 	     */
-	    boost::asio::local::stream_protocol::socket socket;
-
+	    std::string socket_file;
+	    
 	    /**
-	     * \brief The endpoint used fo unix domain sockets.
+	     * \brief The connector object used for networking.
+	     *
+	     * Created be constructors, destroyed by destructor.
 	     */
-	    boost::asio::local::stream_protocol::endpoint endpoint;
+	    connector* connection;
 
 	    /**
 	     * \brief The session ID of the current session.
@@ -159,108 +163,6 @@ namespace agentxcpp
 	     */
 	    std::map<oid, variable*> registrations;
 
-	    /**
-	     * \brief Buffer to receive a PDU header
-	     *
-	     * When receiving a PDU asynchronously, the header is read into 
-	     * this buffer. Then the receive() callback is invoked, which 
-	     * synchronously reads the payload and starts processing the 
-	     * received %PDU.
-	     *
-	     * Since the AgentX-header is always 20 bytes in length, this 
-	     * buffer is 20 bytes in size.
-	     */
-	    // TODO: avoid magic numbers, even if they are documented.
-	    byte_t header_buf[20];
-
-	    /**
-	     * \brief Callback function to read and process a %PDU
-	     *
-	     * This function is called when data is ready on the socket (the 
-	     * header was already read into the header_buf buffer). It will 
-	     * synchronously read one %PDU from the socket (to be precise, the 
-	     * payload is read), process it and set up the next async read 
-	     * operation, so that it is called again for new data.
-	     *
-	     * The synchronous read operation (to read the payload) may time 
-	     * out. The timeout is the session's default timeout if available, 
-	     * 1 second otherwise. If the read times out, the connection is 
-	     * aborted (without notifying the master agent) and the 
-	     * master_proxy object becomes disconnected.
-	     * 
-	     * Recieved ResponsePDU's are stored into the responses map if a 
-	     * null pointer was stored there in advance.
-	     */
-	    void receive(const boost::system::error_code& result);
-
-	    /**
-	     * \brief The received, yet unprocessed ReponsePDU's.
-	     *
-	     * The wait_for_response() function stores a null pointer to this 
-	     * map to indicate that it is waiting for a certain response. The 
-	     * map key is the packetID.
-	     * 
-	     * When a response is received, the receive() function stores it 
-	     * into the map, but only if a null pointer is found for the 
-	     * packetID of the received ResponsePDU. Otherwise, the received 
-	     * ResponsePDU is discarded.
-	     *
-	     * After a ResponsePDU was received and stored into the map, the 
-	     * wait_for_response() function processes it and erases it from the 
-	     * map.
-	     */
-	    std::map< uint32_t, boost::shared_ptr<ResponsePDU> > responses;
-
-
-	    /**
-	     * \brief Wait with timeout for a reponse.
-	     *
-	     * This function blocks until a ResponsePDU with the given 
-	     * packetID is received or until the timeout expires, whichever 
-	     * comes first.  The received ResponsePDU (if any) is returned.
-	     *
-	     * This function calls run_one() on the io_service object until 
-	     * the desired ResponsePDU arrives or the timeout expires. This 
-	     * may cause other asynchronous operations to be served, as well.  
-	     * As a side effect, the function may return later than the 
-	     * timeout value requests.
-	     *
-	     * The received ResponsePDU's are put into the reponses map by the 
-	     * receive() function. This map is inspected by this function, and 
-	     * the desired ResponsePDU is removed from the map before returning 
-	     * it.
-	     *
-	     * \param packetID The packetID to wait for.
-	     *
-	     * \param timeout The timeout in seconds. The default is 0,
-	     *                meaning "use the session's default timeout", or 1 
-	     *                second if not default timeout is set.
-	     *
-	     * \exception timeout_exception If the timeout expired before the
-	     *                              ResponsePDU was received. 
-	     *
-	     * \return The received ResponsePDU.
-	     */
-	    boost::shared_ptr<ResponsePDU>
-		wait_for_response(uint32_t packetID,
-				  unsigned timeout=0);
-
-	    /**
-	     * \brief Disconnect instantly, without notifying the master agent
-	     *
-	     * This simply closes down the socket, without sending a ClosePDU.  
-	     * This function does not throw.
-	     */
-	    void kill_connection()
-	    {
-		try {
-		    this->socket.close();
-		}
-		catch(...)
-		{
-		    // Ignore
-		}
-	    }
 
 	public:
 	    /**
@@ -305,7 +207,7 @@ namespace agentxcpp
 
 	    /**
 	     * \brief Create a session object connected via unix domain
-	     *        socket
+	     *        socket.
 	     *
 	     * This constructor tries to connect to the master agent. If that 
 	     * fails, the object is created nevertheless and will be in state 
@@ -406,7 +308,7 @@ namespace agentxcpp
 				  byte_t timeout=0);
 
 	    /**
-	     * \brief Get the io_service object used by this master_proxy
+	     * \brief Get the io_service object used by this master_proxy.
 	     */
 	    boost::asio::io_service* get_io_service() const
 	    {
@@ -418,33 +320,35 @@ namespace agentxcpp
 	     *
 	     * \returns true if the session is connected, false otherwise.
 	     */
-	    // TODO: use a is_connected member, as the socket state may be 
-	    // unreliable in some situations. For example, if calling 
-	    // socket.close() when an operation timed out, the close() 
-	    // operation may fail, leaving the socket in an undefined state.
 	    bool is_connected()
 	    {
-		return socket.is_open();
+		return this->connection->is_connected();
 	    }
 
 	    /**
 	     * \brief Connect to the master agent.
 	     *
-	     * Note that upon creation of a session object, the connection is 
-	     * automatically established. If the current state is "connected", 
-	     * the function does nothing.
+	     * \note Upon creation of a session object, the connection is
+	     *       automatically established. If the current state is 
+	     *       "connected", the function does nothing.
+	     *
+	     * \exception disconnected If connecting fails.
 	     */
 	    void connect();
 
 	    /**
 	     * \brief Shutdown the session.
 	     *
-	     * Disconnect from the master agent. Note that upon destruction of 
-	     * a session object the session is automatically shutdown. If the 
-	     * session is in state "disconnected", the function does nothing.
+	     * Disconnect from the master agent.
+	     * 
+	     * \note Upon destruction of a session object the session is
+	     *       automatically shutdown. If the session is in state 
+	     *       "disconnected", the function does nothing.
 	     *
 	     * \param reason The shutdown reason is reported to the master
 	     *               agent during shutdown.
+	     *
+	     * \exception None.
 	     */
 	    void disconnect(ClosePDU::reason_t reason=ClosePDU::reasonShutdown);
 
@@ -453,8 +357,15 @@ namespace agentxcpp
 	     *
 	     * Disconnects from the master (only if currently connected), then 
 	     * connects again.
+	     *
+	     * \exception disconnected If connecting fails.
 	     */
-	    void reconnect();
+	    void reconnect()
+	    {
+		this->connection->disconnect();
+		// throws disconnected, which is forwarded:
+		this->connection->connect();
+	    }
 
 	    /**
 	     * \brief Get the sessionID of the session
@@ -468,7 +379,7 @@ namespace agentxcpp
 	     */
 	    uint32_t get_sessionID()
 	    {
-		return sessionID;
+		return this->sessionID;
 	    }
     
 	    /**

@@ -616,8 +616,9 @@ void connector::send(const PDU& pdu)
     try
     {
 	// throws timeout_error and network_error:
+	data_t buf = pdu.serialize();
 	send_with_timeout(*this->socket,
-			  boost::asio::buffer(pdu.serialize()),
+			  boost::asio::buffer(buf.data(), buf.size()),
 			  this->timeout);
     }
     catch(network_error)

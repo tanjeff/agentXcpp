@@ -47,13 +47,17 @@ master_proxy::master_proxy(boost::asio::io_service* _io_service,
     io_service(_io_service),
     io_service_by_user(true),
     socket_file(_filename.c_str()),
-    connection(new connector(shared_ptr<boost::asio::io_service>(_io_service),
-			     _filename.c_str(),
-			     _default_timeout)),
     description(_description),
     default_timeout(_default_timeout),
     id(_id)
 {
+    // Initialize connector (never use timeout=0)
+    byte_t timeout;
+    timeout = (this->default_timeout == 0) ? 1 : this->default_timeout;
+    connection = new connector(shared_ptr<boost::asio::io_service>(io_service),
+			       _filename.c_str(),
+			       timeout);
+		      
     // Try to connect
     try
     {
@@ -75,13 +79,17 @@ master_proxy::master_proxy(std::string _description,
     io_service(new boost::asio::io_service()),
     io_service_by_user(false),
     socket_file(_filename.c_str()),
-    connection(new connector(shared_ptr<boost::asio::io_service>(io_service),
-			     _filename.c_str(),
-			     _default_timeout)),
     description(_description),
     default_timeout(_default_timeout),
     id(_id)
 {
+    // Initialize connector (never use timeout=0)
+    byte_t timeout;
+    timeout = (this->default_timeout == 0) ? 1 : this->default_timeout;
+    connection = new connector(shared_ptr<boost::asio::io_service>(io_service),
+			       _filename.c_str(),
+			       timeout);
+		      
     // Try to connect
     try
     {

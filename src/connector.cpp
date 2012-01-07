@@ -682,7 +682,7 @@ connector::wait_for_response(uint32_t packetID)
     // Start timeout timer
     boost::asio::deadline_timer timer(*(this->io_service));
     status_t timer_result = in_progress; // callback stores result here
-    timer.expires_from_now( boost::posix_time::seconds(timeout) );
+    timer.expires_from_now( boost::posix_time::seconds(this->timeout) );
     timer.async_wait( boost::bind(callback_for_response,
 				  boost::asio::placeholders::error,
 				  &timer_result) );

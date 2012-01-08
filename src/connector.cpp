@@ -613,6 +613,12 @@ void connector::receive_callback(const boost::system::error_code& result)
 
 void connector::send(const PDU& pdu)
 {
+    if(this->socket == 0)
+    {
+	// We are currently not conected
+	throw disconnected();
+    }
+
     try
     {
 	// throws timeout_error and network_error:
@@ -675,6 +681,12 @@ static void callback_for_response(const boost::system::error_code& result,
 boost::shared_ptr<ResponsePDU>
 connector::wait_for_response(uint32_t packetID)
 {
+    if(this->socket == 0)
+    {
+	// We are currently not conected
+	throw disconnected();
+    }
+
     // Indicate that we are waiting for a specific response:
     // We add a null pointer to the map
     responses[packetID] = boost::shared_ptr<ResponsePDU>();

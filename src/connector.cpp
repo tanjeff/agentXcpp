@@ -416,15 +416,6 @@ connector::connector(boost::shared_ptr<boost::asio::io_service> io_service,
     endpoint(unix_domain_socket.c_str()),
     handler(0)
 {
-    // Try to start connected
-    try
-    {
-	connect();
-    }
-    catch(...)
-    {
-	// Ignore any errors (don't throw)
-    }
 }
 
 void connector::connect()

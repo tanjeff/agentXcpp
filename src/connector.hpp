@@ -37,12 +37,12 @@ namespace agentxcpp
      * -# connected
      * -# disconnected
      *
-     * It tries to start in connected state. If that fails, it starts in 
-     * disconnected state. The current state can be obtained using the 
-     * is_connected() method. Some operations may throw a disconnected 
-     * exception if the object is in disconnected state. Further, the 
-     * connection may fail at any point in time, therefore a disconnected 
-     * exception may also be thrown during a network operation.
+     * When created, a connector object starts in disconnected state. The 
+     * current state can be obtained using the is_connected() method. Some 
+     * operations may throw a disconnected exception if the object is in 
+     * disconnected state.  Further, the connection may fail at any point in 
+     * time, therefore a disconnected exception may also be thrown during a 
+     * network operation.
      * 
      * The socket needed for networking is created upon connect and destroyed 
      * upon disconnect. The reason is that closing the socket may throw a 
@@ -230,9 +230,8 @@ namespace agentxcpp
 	    /**
 	     * \brief The constructor
 	     *
-	     * This constructor initializes the connector object and tries to 
-	     * connect to the remote entity. If connection fails, the objects 
-	     * starts in disconnected state.
+	     * This constructor initializes the connector object to be in 
+	     * disconnected state.
 	     *
 	     * \param io_service The io_service object needed for boost::asio
 	     *                   operations. It may also be used by other parts 

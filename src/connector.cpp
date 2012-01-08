@@ -568,35 +568,59 @@ void connector::receive_callback(const boost::system::error_code& result)
     }
     buf.append(payload, payload_length);
     delete[] payload;
-
-    // Further processing only if handler is registered.
-    if( this->handler )
+	
+    // Parse PDU
+    shared_ptr<PDU> pdu;
+    try
     {
-	// Parse PDU
-	shared_ptr<PDU> pdu;
-	try
-	{
-	    pdu = PDU::parse_pdu(buf);
-	}
-	catch(version_error)
-	{
-	    // We cannot handle this PDU.
-	    // -> ignore
-	}
-	catch(parse_error)
-	{
-	    // disconnect
-	    this->disconnect();
-	}
+	pdu = PDU::parse_pdu(buf);
+    }
+    catch(version_error)
+    {
+	// We cannot handle this PDU.
+	// -> ignore
+    }
+    catch(parse_error)
+    {
+	// disconnect
+	this->disconnect();
+    }
 
-	// Call the handler
-	try
+    // Special case: ResponsePDU's
+    shared_ptr<ResponsePDU> response;
+    response = boost::dynamic_pointer_cast<ResponsePDU>(pdu);
+    if(response.get() != 0)
+    {
+	// Was a response
+	std::map< uint32_t, boost::shared_ptr<ResponsePDU> >::iterator i;
+	i = this->responses.find( response->get_packetID() );
+	if(i != this->responses.end())
 	{
-	    this->handler(pdu);
+	    // Someone is waiting for this response
+	    i->second = response;
 	}
-	catch(...)
+	else
 	{
-	    // discard exceptions from user handler
+	    // Nobody was waiting for the response
+	    // -> ignore it
+	}
+    }
+    else
+    {
+	// Was not a Response
+	// -> call handler if available
+	if( this->handler )
+	{
+
+	    // Call the handler
+	    try
+	    {
+		this->handler(pdu);
+	    }
+	    catch(...)
+	    {
+		// discard exceptions from user handler
+	    }
 	}
     }
 

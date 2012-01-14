@@ -141,6 +141,9 @@ provided:
 - <tt>--includedir=INCLUDEDIR</tt>
 - <tt>--docdir=DOCDIR</tt>
 
+Next, the git command <tt>describe</tt> is used to determine the revision from 
+which agentXcpp is built. The revision is added to the build environment.
+
 Finally, the subsidiary SConscript's are invoked, exporting the environment.
 
 \subsection src_sconscript src/SConscript
@@ -165,7 +168,9 @@ alongside), and 'api.doxyfile', the doxygen configuration file for the API
 docs, is defined as primary source for the build. The command for building 
 begins with '<tt>cd doc/</tt>', because the build is always started from the 
 top-level directory, but Doxygen must be invoked in the doc directory in order 
-to find its files.
+to find its files. Also, this command includes shell code to feed the revision 
+from the environment into doxygen's <tt>PROJECT_NUMBER</tt> variable to make it 
+visible in the generated documentation.
 
 Second, the dependencies are defined. If any dependency changes, the 
 documentation must be rebuild. To keep things easy, all <tt>*.cpp</tt> and 

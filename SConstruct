@@ -17,6 +17,8 @@
 # for more details.
 #
 
+import subprocess
+
 
 #################################################
 ## Our Environment
@@ -66,6 +68,16 @@ env['includedir'] = GetOption('includedir')
 # Make relative path absolute
 if env['includedir'][0] != '/' and env['includedir'][0] != '#':
     env['includedir'] = GetLaunchDir() + "/" + env['includedir']
+
+
+#################################################
+## Obtain description of current version
+
+# Get current revision
+# We ask git for a description of the current revision and add it to the 
+# environment.
+descr = subprocess.check_output(["git", "describe", "--always", "--dirty"])
+env['revision'] = descr.strip()
 
 
 #################################################

@@ -24,7 +24,7 @@ This software is currently NOT USABLE.
 It is work in progress.  Unfortunately, the author has little time to work on 
 the software. Here is the release plan. Note that this plan may change.
  
-  Version 0.1 (by end of 2011)
+  Version 0.1 (end of 2011 was missed. New goal: March/2012)
     GET functionality working, source code and build system are cleaned up, 
     complete documentation of implementation internals is available.
  
@@ -90,7 +90,9 @@ src/
 
 
 unit_tests/
-	This directory contains the unit tests for the agentXcpp components.
+	This directory contains the unit tests for the agentXcpp components.  
+	Note that this is currently rather a skeleton, and no tests are 
+	available yet.
 
 
 Documentation
@@ -104,24 +106,30 @@ such as the build system.
 
 You can build the documentation using SCons or without SCons.
 
-1) With SCons
-   cd to the top level directory (the one containing this README) and type
+1a) With SCons:
+    cd to the top level directory (the one containing this README) and type
     
-     scons
+      scons
 
-   This builds the library as well as both documentations. 
+    This builds the library as well as both documentations.
 
-2) Without SCons
-   cd into the doc/ direcory and type
+1b) Without SCons:
+    cd into the doc/ directory and type
 
-     doxygen api.doxyfile
+      doxygen api.doxyfile
 
-   respectively
+    respectively
     
-     doxygen internals.doxyfile
+      doxygen internals.doxyfile
 
-After buidling, the documentation can be displayed by pointing a web browser to 
-doc/api/html/index.html respectively doc/internals/html/index.html.
+2)  After building, the documentation can be displayed by pointing a web 
+    browser to
+
+      doc/api/html/index.html
+    
+    respectively
+
+      doc/internals/html/index.html.
 
 
 

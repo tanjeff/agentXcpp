@@ -41,7 +41,7 @@ is also possible to install agentXcpp right into a system.
 This section explains how AgentXcpp is built and how SCons is used by agentXccp 
 internally.
 
-\section hotobuild How to build AgentXcpp
+\section howtobuild How to build AgentXcpp
 
 \subsection prerequisites Prerequisites
 
@@ -113,9 +113,9 @@ This doesn't clean any files installed with <tt>scons install</tt>.
 
 \section howitworks How Scons works in agentXcpp
 
-Scons is controlled via the \c SConstruct and \c SConscript files (the 
+SCons is controlled via the \c SConstruct and \c SConscript files (the 
 "Makefiles" of SCons).  These files are in fact python scripts which call 
-certain Scons functions.  These Scons functions then build agentXcpp. The root 
+certain SCons functions.  These SCons functions then build agentXcpp. The root 
 directory contains an \c SConstruct file, and each subdirectory has a \c 
 SConscript file to control the build process inside that directory.
 

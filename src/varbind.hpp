@@ -28,6 +28,8 @@
 namespace agentxcpp
 {
     /**
+     * \internal
+     *
      * \brief Represents a VarBind according to RFC 2741, section 5.4.
      */
     class varbind

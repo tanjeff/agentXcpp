@@ -23,7 +23,7 @@
 
 \page parsing Parsing incoming PDUs
 
-This section explains how PDU parsing is done in agentxcpp.
+This section explains how PDU parsing is done in agentXcpp.
 
 AgentX PDUs are read from a stream, constructing C++ objects which represent 
 the PDUs and all their parts (such as varbinds, for example). In general, the 
@@ -39,13 +39,13 @@ data_t::const_iterator& end, bool big_endian).  It takes an iterator ('pos')
 and begins parsing at where 'pos' points to.  While reading, the varbind object 
 is constructed. A varbind always contains (at least) an oid.  The varbind 
 constructor therefore creates an oid object by passing the 'pos' iterator to 
-the constructor of the oid class, which reads the serialized oid and 
-construncts the oid object. If needed, another variable is created the same way 
-(e.g. an Integer or an Octet_String). When the varbind object is fully 
-constructed, the 'pos' iterator points to the position behind the varbind and 
-the constructor returns. Note that the interator is modified by the 
-constructor. The caller may then use 'pos' to create the next object, until the 
-buffer is completely parsed.
+the constructor of the oid class, which reads the serialized oid and constructs 
+the oid object. If needed, another variable is created the same way (e.g. an 
+Integer or an Octet_String). When the varbind object is fully constructed, the 
+'pos' iterator points to the position behind the varbind and the constructor 
+returns. Note that the iterator is modified by the constructor. The caller may 
+then use 'pos' to create the next object, until the buffer is completely 
+parsed.
 
 The 'end' iterator seen in the above constructor prototype is needed to know 
 the end of the buffer. Parse constructors use it to detect missing data at the 
@@ -63,7 +63,7 @@ created object is returned, and the caller is responsible for deleting it when
 it is not longer needed.
 
 The agentxcpp::PDU class cannot be instantiated itself, as it does not 
-represent a PDU type defined in RFC2741. It serves as base class for the 
+represent a PDU type defined in RFC 2741. It serves as base class for the 
 concrete PDU types.  Each concrete PDU type (for example the OpenPDU class) 
 inherits from PDU. The constructor of such a concrete class must call the 
 constructor of the PDU class, which parses the header. Example:

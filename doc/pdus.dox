@@ -28,7 +28,7 @@ The %PDU objects, such as OpenPDU, RegisterPDU and so on represent the AgentX
 Protocol Data Units. Each of these classes inherits from the abstract PDU class 
 which represents the header of a %PDU. The header is identical for each 
 %PDU. Some classes inherit from the PDUwithContext class, which in turn derives 
-from PDU. PDU is used for classes whithout the context field while 
+from PDU. PDU is used for classes without the context field while 
 PDUwithContext is used for classes with the context field. The latter only 
 implements functionality to handle the context.
 

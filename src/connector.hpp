@@ -97,8 +97,6 @@ namespace agentxcpp
      * operation on the io_service object (outside this class or even outside 
      * the agentXcpp library) may be served. Here are the steps performed to 
      * receive a ResponsePDU:
-     */
-    /**
      *
      * - The wait_for_response() function puts an empty boost::shared_ptr<> 
      *   into the responses map, using the PacketID of the awaited ResponsePDU 

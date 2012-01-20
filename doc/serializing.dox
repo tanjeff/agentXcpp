@@ -30,7 +30,7 @@ AgentXcpp defines some data types and helper functions to deal with
 serialization. The type data_t can be used like an STL string, but is a series 
 of byte_t values.  The byte_t type in turn is defined to hold a single byte.  
 The write32() and write16() functions are used to append a 32-bit value 
-respecively a 16-bit-value to a data_t object, using big endian. The agentXcpp 
+respectively a 16-bit-value to a data_t object, using big endian. The agentXcpp 
 library always uses big endian (this may change in future).
 
 Each %PDU has a serialize() member function to get the serialized form of that 

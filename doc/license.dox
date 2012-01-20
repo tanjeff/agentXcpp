@@ -36,7 +36,7 @@ four essential freedoms:
 - The freedom to redistribute copies (freedom 2).
 - The freedom to distribute copies of modified versions to others (freedom 3).
 
-In addition, the GPL garantuees that these freedoms remain intact when the 
+In addition, the GPL guarantees that these freedoms remain intact when the 
 software is distributed, be it unmodified or modified.
 
 However, there is one freedom that the GPL denies to the user of a GPL'ed \em 
@@ -68,9 +68,9 @@ library may be \em used without any further restrictions, but changing it and
 copying its code is still covered by the GPL.
 
 Finally, a word on non-copyleft licenses (e.g. the well-known BSD-licenses).  
-The authour could have choosen one of them. This would have made agentXcpp a 
-free software, but these licenses do not ensure that the software remains free.  
-For the author, it was not an option that users (especially companies) could 
+The author could have chosen one of them. This would have made agentXcpp a free 
+software, but these licenses do not ensure that the software remains free.  For 
+the author, it was not an option that users (especially companies) could 
 benefit from their improvements to free software while not giving them back to 
 the community. The agentXcpp library may still be modified, even by companies, 
 and it is explicitly allowed to distribute the modified version, e.g. to 

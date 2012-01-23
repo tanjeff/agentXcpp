@@ -39,9 +39,13 @@ RegisterPDU::RegisterPDU(data_t::const_iterator& pos,
     subtree = oid(pos, end, big_endian);
 
     // read r.upper_bound only if r.range_subid is not 0
-    if( range_subid )
+    if(end - pos < 4)
     {
-	upper_bound = oid(pos, end, big_endian);
+	throw(parse_error());
+    }
+    if( range_subid != 0 )
+    {
+	upper_bound = read32(pos, big_endian);
     }
 }
 
@@ -57,9 +61,9 @@ data_t RegisterPDU::serialize() const
 
     serialized += subtree.serialize();
 
-    if( range_subid )
+    if( range_subid != 0 )
     {
-	serialized += upper_bound.serialize();
+	write32(serialized, upper_bound);
     }
 
     // Add Header

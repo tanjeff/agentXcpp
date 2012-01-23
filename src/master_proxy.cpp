@@ -293,7 +293,7 @@ void master_proxy::register_subtree(oid subtree,
 	    throw(master_is_unwilling());
 
 	default:
-	    // This is a cae of can-not-happen. Probably the master is buggy. 
+	    // This is a case of can-not-happen. Probably the master is buggy.  
 	    // The agentxcpp library is bug-free of course ;-)
 	    // We throw a parse error meanwhile, because we didn't expect the 
 	    // response to look like that...

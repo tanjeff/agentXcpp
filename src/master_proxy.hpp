@@ -245,7 +245,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Register a subtree with the master agent
 	     *
-	     * Before the master agent sends SNMP requests to a subagent, the 
+	     * Before the master agent sends requests to a subagent, the 
 	     * subagent must register some OIDs. Doing so informs the master 
 	     * agent that the subagent wishes to handle requests for these 
 	     * OIDs.
@@ -257,6 +257,14 @@ namespace agentxcpp
 	     * registering 1.3.6.1.4.1.42.13 registers all OIDs beginning with 
 	     * this one, e.g. 1.3.6.1.4.1.42.13.1.1.2 and 
 	     * 1.3.6.1.4.1.42.13.200.1.3.2.1.1.2.
+	     *
+	     * Each registration is done with a priority value. The higher the 
+	     * value, the lower the priority. The subtrees of multiple 
+	     * registrations (done by the same subagent or by different 
+	     * subagents) may overlap each other.  In this case the priority 
+	     * value is used to decide which subagent gets the requests. Note 
+	     * that the master refuses overlapping registrations with the same 
+	     * priority values.
 	     *
 	     * \param subtree The (root of the) subtree to register.
 	     *

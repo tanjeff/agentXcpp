@@ -84,32 +84,31 @@ namespace agentxcpp
      * object should be used for other asynchronous I/O operations.
      *
      * \internal
+     * 
      * The io_service_by_user variable is used to store whether the io_service 
      * object was generated automatically. It is set to true or false by the 
      * respective constructors and evaluated by the destructor.
      *
-     * Receiving and processing PDU's coming from the master is done 
-     * asyncronously. The receive() function is used as a callback for this 
-     * purpose.  When connecting to the master agent (i.e. in the connect() 
-     * function), an asyncronous read operation is started to read the PDU 
-     * header. The receive() function is executed when a header arrived and 
-     * reads the payload of the PDU synchronously, parses it (using 
-     * PDU::parse_pdu()) and processes it.  Then it sets up an asyncronous read 
-     * operation to wait for the next header. The disconnect() function cancels 
-     * the current read operation before shutting down the session.
+     * Receiving and processing PDU's coming from the master is done using the 
+     * connector class. The master_proxy class implements the 
+     * connectro::pdu_handler interface to recieve PDU's from the connector. A 
+     * master_proxy object registers itself with the connector object, which 
+     * then invokes master_proxy::handle_pdu() for incoming PDU's. Registering 
+     * is done by the constructors, while the destructor unregisters the 
+     * object.
      */
     // TODO: describe timeout handling
     // TODO: byte ordering is constant for a session. See rfc 2741, 7.1.1
-    class master_proxy
+    class master_proxy : public connector::pdu_handler
     {
 	private:
 
 	    /**
 	     * \brief The mandatory io_service object.
 	     *
-	     * This object is needed for boost::asio sockets. Depending on the 
-	     * constructor used, the object is either provided by the user or 
-	     * generated automatically.
+	     * This object is needed for boost::asio operation. Depending on 
+	     * the constructor used, the object is either provided by the user 
+	     * or generated automatically.
 	     */
 	    // TODO: use shared_ptr<>
 	    boost::asio::io_service* io_service;
@@ -127,7 +126,7 @@ namespace agentxcpp
 	    /**
 	     * \brief The connector object used for networking.
 	     *
-	     * Created be constructors, destroyed by destructor.
+	     * Created by constructors, destroyed by destructor.
 	     */
 	    connector* connection;
 
@@ -163,8 +162,15 @@ namespace agentxcpp
 	     */
 	    std::map<oid, variable*> registrations;
 
-
 	public:
+	    /**
+	     * \brief The dispatcher for incoming %PDU's.
+	     *
+	     * This method implements pdu_handler::handle_pdu() and is invoked 
+	     * by the connector object when PDU's are received.
+	     */
+	    virtual void handle_pdu(shared_ptr<PDU>);
+
 	    /**
 	     * \brief Create a session object connected via unix domain
 	     *        socket

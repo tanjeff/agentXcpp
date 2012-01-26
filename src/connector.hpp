@@ -25,7 +25,6 @@
 
 namespace agentxcpp
 {
-
     /**
      * \internal
      *
@@ -54,6 +53,9 @@ namespace agentxcpp
      * - The user invokes the send() method.
      * - The send() method sends the %PDU synchronously (but with a timeout).
      *
+     * Note: The send() function invokes io_service->run_one() one or several
+     *       times.
+     *
      * Receiving %PDU's works as follows:
      *
      * - Upon connecting to the remote entity, an asynchronous read operation 
@@ -64,22 +66,26 @@ namespace agentxcpp
      *   receive_callback() function.
      * - The receive_callback() method reads the payload length from header_buf 
      *   and reveives the payload synchronously (but with a timeout).
-     * - The receive_callback() method then constructs a PDU object and calls a 
-     *   user-provided handler callback (if one is registered), transferring 
-     *   the newly created PDU object.
-     * - The handler processes the %PDU as needed. As soon as the handler 
+     * - The receive_callback() method then constructs a PDU object and 
+     *   delivers it to a user-provided handler object (which implements the 
+     *   connector::pdu_handler interface) by calling its handle_pdu() 
+     *   method.
+     * - The handler object processes the %PDU as needed. As soon as processing 
      *   finishes, the receive_callback() method starts the next asynchronous 
      *   read operation, so that it invoked again when the next header arrives.
      *
-     * \note As a special case, ResponsePDU's do not invoke the registered
-     *       handler, but are handled differently. see below for details.
+     * \note As a special case, ResponsePDU's are not delivered to the
+     *       registered handler object, but are handled differently. see below 
+     *       for details.
      *
-     * \note If no handler is registered, the %PDU is received nevertheless
-     *       and is silently discarded.
+     * \note If no handler object is registered, the %PDU is received
+     *       nevertheless and is silently discarded.
      *
      * \note The receive_callback() function, and thus the registered handler
-     *       (if any) are executed in the io_service's run() context.
-     *
+     *       object's handle_pdu() method are executed in the io_service's 
+     *       run() context.
+     */
+    /**
      * Receiving %ResponsePDU's works as follows:
      *
      * The function wait_for_response() supports the request-response 
@@ -93,9 +99,9 @@ namespace agentxcpp
      * wait_for_response() therefore invokes io_service->run_one() one ore more 
      * times, until the response is received. This may also cause other 
      * asynchronous operations to finish.  For example, the registered handler 
-     * may be invoked to process other %PDU types, or another asynchronous 
-     * operation on the io_service object (outside this class or even outside 
-     * the agentXcpp library) may be served. Here are the steps performed to 
+     * object may receive other %PDU types, or another asynchronous operation 
+     * on the io_service object (outside this class or even outside the 
+     * agentXcpp library) may be served. Here are the steps performed to 
      * receive a ResponsePDU:
      *
      * - The wait_for_response() function puts an empty boost::shared_ptr<> 
@@ -106,10 +112,10 @@ namespace agentxcpp
      *   available.
      * - When the receive_callback() function is invoked, it receives a single 
      *   %PDU and processes it as described above.
-     * - If a ResponsePDU is received, the registered handler is not invoked by 
-     *   receive_callback(). Instead, the responses map is searched for an 
-     *   entry with the same PacketID as the received ResponsePDU. If found, 
-     *   the received ResponsePDU is stored in the map. Otherwise the 
+     * - If a ResponsePDU is received, the registered handler object is not 
+     *   informed by receive_callback(). Instead, the responses map is searched 
+     *   for an entry with the same PacketID as the received ResponsePDU. If 
+     *   found, the received ResponsePDU is stored in the map.  Otherwise the 
      *   ResponsePDU is silently discarded (as nobody waits for it). 
      * - The wait_for_response() checks its map entry after each run_one() call 
      *   for a received ResponsePDU. If it finds one, the entry is erased from 
@@ -120,10 +126,34 @@ namespace agentxcpp
      */
     class connector
     {
+	public:
+
+	    /**
+	     * \brief Interface for classes which can handle incoming PDU's.
+	     *
+	     * Classes which want to receive incoming %PDU's implement this 
+	     * interface. An object of type pdu_handler can then be registered 
+	     * with a connector object to indicate that it wants to receive 
+	     * %PDU's.
+	     */
+	    class pdu_handler
+	    {
+		public:
+		    /**
+		     * \brief Handler method for incoming %PDU's.
+		     *
+		     * When a %PDU is received by the connector class, this 
+		     * method is called on the registered object. Note that 
+		     * ResponsePDU's are not handed over to the registered 
+		     * object.
+		     */
+		    virtual void handle_pdu(boost::shared_ptr<PDU>) =0;
+	    };
+	
 	private:
 
 	    /**
-	     * \brief the timeout in milliseconds, used in various contexts.
+	     * \brief The timeout in milliseconds, used in various contexts.
 	     */
 	    unsigned timeout;
 
@@ -206,18 +236,18 @@ namespace agentxcpp
 	    byte_t header_buf[20];
 
 	    /**
-	     * \brief The handler to invoke on %PDU reception.
+	     * \brief The handler object for incoming %PDU's.
 	     *
-	     * This handler is called by receive_callback() for each received 
-	     * PDU (except ResponsePDU's).
+	     * This handler object is informed by receive_callback() for each 
+	     * received PDU (except ResponsePDU's).
 	     *
 	     * The pointer may be null, which means that there is no handler 
-	     * registered.
+	     * object registered.
 	     */
-	    void (*handler)(shared_ptr<PDU>);
+	    pdu_handler* handler;
 
 	    /**
-	     * \brief Hide standard constructor
+	     * \brief Hide standard constructor.
 	     *
 	     * We need an io_service object to function properly.
 	     */
@@ -275,29 +305,30 @@ namespace agentxcpp
 	    boost::shared_ptr<ResponsePDU>
 		wait_for_response(uint32_t packetID);
 
+
 	    /**
-	     * \brief Register a callback handler for received %PDU's.
+	     * \brief Register a handler object for received %PDU's.
 	     *
-	     * Every time a %PDU is received, the callback will be invoked with 
-	     * the %PDU as argument. The handler is executed in the context of 
-	     * the io_service object's run() or run_one() method. Care should 
-	     * be taken to not block the call, e.g. by doing networking.
+	     * Every time a %PDU is received, the handler object's handle_pdu() 
+	     * method will be invoked with the %PDU as argument. This method is 
+	     * executed in the context of the io_service object's run() or 
+	     * run_one() method.  Care should be taken to not block the call, 
+	     * e.g. by doing networking.
 	     *
-	     * The handler can be the null pointer, in which case it is not 
-	     * invoked. After registering a handler it can be unregistered 
-	     * again by calling this function with a null pointer.  While no 
-	     * handler is registered, received %PDU's are silently discarded.
+	     * After registering a handler it can be unregistered again by 
+	     * calling this function with a null pointer.  While no handler 
+	     * object is registered, received %PDU's are silently discarded.
 	     *
-	     * \note Any exceptions thrown by the handler are silently
+	     * \note Any exceptions thrown by the handler object are silently
 	     *       discarded.
 	     *
-	     * \note There can be only one handler registered at a time.
+	     * \note There can be only one handler object registered at a time.
 	     *
-	     * \param handler A pointer to the handler function, or null.
+	     * \param handler A pointer to the handler object, or null.
 	     *
 	     * \exception None.
 	     */
-	    void register_handler( void (*handler)(shared_ptr<PDU>) );
+	    void register_handler( pdu_handler* );
 
 	    /**
 	     * \brief Connect to the remote entity.

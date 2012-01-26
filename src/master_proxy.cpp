@@ -58,11 +58,14 @@ master_proxy::master_proxy(boost::asio::io_service* _io_service,
 			       _filename.c_str(),
 			       timeout);
 		      
+    // Register this object as %PDU handler
+    this->connection->register_handler( this );
+
     // Try to connect
     try
     {
 	// throws disconnected:
-	connect();
+	this->connect();
     }
     catch(disconnected)
     {
@@ -90,6 +93,9 @@ master_proxy::master_proxy(std::string _description,
 			       _filename.c_str(),
 			       timeout);
 		      
+    // Register this object as %PDU handler
+    this->connection->register_handler( this );
+
     // Try to connect
     try
     {
@@ -214,10 +220,11 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
 master_proxy::~master_proxy()
 {
     // Disconnect from master agent
-    disconnect(ClosePDU::reasonShutdown);
-
+    this->disconnect(ClosePDU::reasonShutdown);
+    
     // Destroy connection
-    delete connection;
+    // Unregistering this object as %PDU handler is unneeded.
+    delete this->connection;
 
     // Destroy io_service object if needed
     if( ! this->io_service_by_user )

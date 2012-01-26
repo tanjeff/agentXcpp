@@ -493,7 +493,7 @@ void connector::disconnect()
 
 
 
-void connector::register_handler( void (*handler)(shared_ptr<PDU>) )
+void connector::register_handler( pdu_handler *handler )
 {
     this->handler = handler;
 }
@@ -606,7 +606,7 @@ void connector::receive_callback(const boost::system::error_code& result)
 	    // Call the handler
 	    try
 	    {
-		this->handler(pdu);
+		this->handler->handle_pdu(pdu);
 	    }
 	    catch(...)
 	    {

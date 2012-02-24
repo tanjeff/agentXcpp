@@ -24,11 +24,13 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <list>
 #include <boost/shared_ptr.hpp>
 #include "types.hpp"
 #include "oid.hpp"
 #include "ClosePDU.hpp"
 #include "ResponsePDU.hpp"
+#include "RegisterPDU.hpp"
 #include "connector.hpp"
 
 namespace agentxcpp
@@ -36,12 +38,17 @@ namespace agentxcpp
     /**
      * \brief This class represents the master agent in a subagent program.
      *
+     * \par Introduction
+     *
      * This class is used on the subagent's side of a connection between 
      * subagent and master agent. It serves as a proxy which represents the 
      * master agent. It is possible for a subagent to hold connections to more 
      * than one master agents. For each connection one master_proxy object is 
      * created. Multiple connections to the same master agent are possible, 
      * too, in which case one master_proxy per connection is needed.
+     */
+    /**
+     * \par Connection State
      *
      * The master_proxy is always in one of the following states:
      *
@@ -60,15 +67,19 @@ namespace agentxcpp
      * the is_connected() function.  Some functions throw a disconnected 
      * exception if the session is not currently established.
      *
+     */
+    /**
+     * \par The io_service object
+     *
      * This class uses the boost::asio library for networking and therefore 
      * needs a boost::asio::io_service object. This object can either be 
      * provided by the user or created automatically. There are two 
      * constructors available therefore. The used object (whether auto-created 
      * or not) can be obtained using the get_io_service() function. If the 
-     * io_service object was autocreated by a constructor, it will be 
-     * destroyed by the destructor. If the user provided the io_service, it 
-     * will NOT be destroyed by the destructor. It is possible to create 
-     * multiple master_proxy objects using the same io_service object, or using 
+     * io_service object was autocreated by a constructor, it will be destroyed 
+     * by the destructor. If the user provided the io_service, it will NOT be 
+     * destroyed by the destructor. It is possible to create multiple 
+     * master_proxy objects using the same io_service object, or using 
      * different io_service objects.
      *
      * Receiving data from the master agent (requests or responses to requests) 
@@ -83,7 +94,55 @@ namespace agentxcpp
      * more data. If this behaviour is not desired, a separate io_service 
      * object should be used for other asynchronous I/O operations.
      *
+     */
+    /**
+     * \par Registrations
+     *
+     * Before the master agent sends requests to a subagent, the subagent must 
+     * register a subtree. Doing so informs the master agent that the subagent 
+     * wishes to handle requests for these OIDs. A subtree is an OID which 
+     * denotes the root of a subtree in which some of the offered objects 
+     * resides. For example, when two objects shall be offered with the OIDs 
+     * 1.3.6.1.4.1.42<b>.1.1</b> and 1.3.6.1.4.1.42<b>.1.2</b>, then a subtree 
+     * with OID 1.3.6.1.4.1.42<b>.1</b> should be registered, which includes 
+     * both objects.  The master agent will then forward all requests 
+     * conecerning objects in this subtree to this subagent. Requests to 
+     * non-existing objects (e.g.  1.3.6.1.4.1.42<b>.1.3</b>) are also 
+     * forwarded, and the agentXcpp library will take care of them and return 
+     * an appropriate error to the master agent. The function 
+     * register_subtree() is used to register a subtree. It is typically called 
+     * for the highest-level OID of the MIB which is implemented by the 
+     * subagent. However, it is entirely possible to register multiple 
+     * subtrees.
+     *
+     * Identical subtrees are subtrees with the exact same root OID. Each 
+     * registration is done with a priority value.  The higher the value, the 
+     * lower the priority.  When identical subtrees are registered (by the same 
+     * subagent or by different subagents), the priority value is used to 
+     * decide which subagent gets the requests.  The master refuses identical 
+     * registrations with the same priority values.  Note however, that in case 
+     * of overlapping subtrees which are \e not identical (e.g.  
+     * 1.3.6.1.4.1.42<b>.1</b> and 1.3.6.1.4.1.42<b>.1.33.1</b>), the most 
+     * specific subtree (i.e. the one with the longest OID) wins regardless of 
+     * the priority values.
+     *
+     *
+     * TODO: How to unregister?
+     *
      * \internal
+     *
+     * The master_proxy object generates a RegisterPDU object each time a 
+     * registration is performed. These RegisterPDU objects are stored in the 
+     * registrations member. On reconnect, all stored RegisterPDUs are re-sent 
+     * to the master to restore the registration state.
+     *
+     * \endinternal
+     *
+     */
+    /**
+     * \internal
+     *
+     * \par Internals
      * 
      * The io_service_by_user variable is used to store whether the io_service 
      * object was generated automatically. It is set to true or false by the 
@@ -158,9 +217,57 @@ namespace agentxcpp
 	    oid id;
 
 	    /**
-	     * \brief The SNMP objects registered with this master.
+	     * \brief The registrations.
+	     *
+	     * Every time an registration is performed, the RegisterPDUs is 
+	     * stored in this list. This allows to automatically re-register 
+	     * these subtrees on reconnect (e.g.  after a connection loss).
 	     */
-	    std::map<oid, variable*> registrations;
+	    std::list< boost::shared_ptr<RegisterPDU> > registrations;
+
+	    /**
+	     * \brief Send a RegisterPDU to the master agent.
+	     *
+	     * This function sends a RegisterPDU to the master agent, waites 
+	     * for the response and evaluates it. This means that run_one() is 
+	     * called one or more times on the io_service object.
+	     *
+	     * \param pdu The RegisterPDU to send.
+	     *
+	     * \exception disconnected If the master_proxy is currently in
+	     *                         state 'disconnected'.
+	     *
+	     * \exception timeout_error If the master agent does not
+	     *                          respond within the timeout interval.
+	     *
+	     * \exception internal_error If the master received a malformed
+	     *                           PDU. This is probably a programming 
+	     *                           error within the agentXcpp library.
+	     *
+	     * \exception master_is_unable The master agent was unable to
+	     *                             perform the desired register 
+	     *                             request.  The reason for that is 
+	     *                             unknown.
+	     *
+	     * \exception duplicate_registration If the exact same subtree was
+	     *                                   alread registered, either by 
+	     *                                   another subagent or by this 
+	     *                                   subagent.
+	     *
+	     * \exception master_is_unwilling If the master was unwilling for
+	     *                                some reason to make the desired 
+	     *                                registration.
+	     *
+	     * \exception parse_error If an unexpected response was received
+	     *                        from the master. This is probably a 
+	     *                        programming error within the master 
+	     *                        agent.  It is possible that the master 
+	     *                        actually performed the desired 
+	     *                        registration and that a retry will result 
+	     *                        in a duplicate_registration error.
+	     */
+	    void do_registration(boost::shared_ptr<RegisterPDU> pdu);
+
 
 	public:
 	    /**
@@ -251,26 +358,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Register a subtree with the master agent
 	     *
-	     * Before the master agent sends requests to a subagent, the 
-	     * subagent must register some OIDs. Doing so informs the master 
-	     * agent that the subagent wishes to handle requests for these 
-	     * OIDs.
+	     * This function registers a subtree (or MIB region).
 	     *
-	     * This function registers a subtree (or MIB region). It is 
-	     * typically called for the highest-level OID of the MIB which is 
-	     * implemented by the subagent. The subagent will then receive 
-	     * requests for the registered OID and its subtree. For example, 
-	     * registering 1.3.6.1.4.1.42.13 registers all OIDs beginning with 
-	     * this one, e.g. 1.3.6.1.4.1.42.13.1.1.2 and 
-	     * 1.3.6.1.4.1.42.13.200.1.3.2.1.1.2.
+	     * \internal
 	     *
-	     * Each registration is done with a priority value. The higher the 
-	     * value, the lower the priority. The subtrees of multiple 
-	     * registrations (done by the same subagent or by different 
-	     * subagents) may overlap each other.  In this case the priority 
-	     * value is used to decide which subagent gets the requests. Note 
-	     * that the master refuses overlapping registrations with the same 
-	     * priority values.
+	     * This method calls adds the registered subtree to 
+	     * registered_subtrees on success.
+	     * 
+	     * \endinternal
 	     *
 	     * \param subtree The (root of the) subtree to register.
 	     *
@@ -291,10 +386,6 @@ namespace agentxcpp
 	     *                              respond within the timeout 
 	     *                              interval.
 	     *
-	     * \exception internal_error If the master received a malformed
-	     *                           PDU. This is probably a programming 
-	     *                           error within the agentXcpp library.
-	     *
 	     * \exception master_is_unable The master agent was unable to
 	     *                             perform the desired register 
 	     *                             request.  The reason for that is 
@@ -309,9 +400,10 @@ namespace agentxcpp
 	     *                                some reason to make the desired 
 	     *                                registration.
 	     *
-	     * \exception parse_error If an unexpected response was sent by the
-	     *                        master. This is probably a programming 
-	     *                        error within the master agent. It is 
+	     * \exception parse_error A malformed network message was found
+	     *                        during communcation with the master. This 
+	     *                        may be a programming error in the master 
+	     *                        or in the agentXcpp library. It is 
 	     *                        possible that the master actually 
 	     *                        performed the desired registration and 
 	     *                        that a retry will result in a 

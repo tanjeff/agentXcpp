@@ -167,6 +167,15 @@ void master_proxy::connect()
 
     // All went fine, we are connected now
     this->sessionID = response->get_sessionID();
+
+    // Re-register stuff if any
+    std::list< boost::shared_ptr<RegisterPDU> >::const_iterator r;
+    r = this->registrations.begin();
+    while (r != this->registrations.end())
+    {
+	this->do_registration(*r);
+	r++;
+    }
 }
 
 
@@ -233,9 +242,8 @@ master_proxy::~master_proxy()
     }
 }
 
-void master_proxy::register_subtree(oid subtree,
-				    byte_t priority,
-				    byte_t timeout)
+
+void master_proxy::do_registration(boost::shared_ptr<RegisterPDU> pdu)
 {
     // Are we connected?
     if( ! is_connected())
@@ -243,26 +251,14 @@ void master_proxy::register_subtree(oid subtree,
 	throw(disconnected());
     }
 
-    // Build up the RegisterPDU
-    RegisterPDU pdu;
-    pdu.set_subtree(subtree);
-    pdu.set_priority(priority);
-    pdu.set_timeout(timeout);
-    pdu.set_sessionID(this->sessionID);
-
     // Send RegisterPDU
-    this->connection->send(pdu);
+    // (forward exceptions timeout_error and disconnected)
+    this->connection->send(*pdu);
 
     // Wait for response
+    // (forward exceptions timeout_error and disconnected)
     boost::shared_ptr<ResponsePDU> response;
-    try{
-	response = this->connection->wait_for_response(pdu.get_packetID());
-    }
-    catch(timeout_error e)
-    {
-	// Throw timeout exception
-	throw(e);
-    }
+    response = this->connection->wait_for_response(pdu->get_packetID());
 
     // Check Response
     switch(response->get_error())
@@ -288,7 +284,7 @@ void master_proxy::register_subtree(oid subtree,
 	    throw(master_is_unable());
 
 	case ResponsePDU::noAgentXError:
-	    // Hey, it worked! Nothing left to do here, continuing...
+	    // Hey, it worked!
 	    break;
 
 	// Register-specific errors:
@@ -312,3 +308,37 @@ void master_proxy::register_subtree(oid subtree,
 }
 
 
+
+
+
+void master_proxy::register_subtree(oid subtree,
+		      byte_t priority,
+		      byte_t timeout)
+{
+    // Build PDU
+    boost::shared_ptr<RegisterPDU> pdu(new RegisterPDU);
+    pdu->set_subtree(subtree);
+    pdu->set_priority(priority);
+    pdu->set_timeout(timeout);
+    
+    // Sent PDU
+    try
+    {
+	this->do_registration(pdu);
+    }
+    catch( internal_error )
+    {
+	// Huh, it seems that we sent a malformed PDU to the master. We convert 
+	// this to parse_error.
+	throw(parse_error());
+    }
+    catch(...)
+    {
+	// All other exceptions are forwarded unmodified:
+	throw;
+    }
+
+    // Success: store registration
+    this->registrations.push_back(pdu);
+
+}

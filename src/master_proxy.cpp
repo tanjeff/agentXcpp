@@ -342,3 +342,66 @@ void master_proxy::register_subtree(oid subtree,
     this->registrations.push_back(pdu);
 
 }
+
+
+
+void master_proxy::undo_registration(boost::shared_ptr<UnregisterPDU> pdu)
+{
+    // Are we connected?
+    if( ! is_connected())
+    {
+	throw(disconnected());
+    }
+
+    // Send UnregisterPDU
+    // (forward exceptions timeout_error and disconnected)
+    this->connection->send(*pdu);
+
+    // Wait for response
+    // (forward exceptions timeout_error and disconnected)
+    boost::shared_ptr<ResponsePDU> response;
+    response = this->connection->wait_for_response(pdu->get_packetID());
+
+    // Check Response
+    switch(response->get_error())
+    {
+	// General errors:
+
+	case ResponsePDU::parseError:
+	    // Oops, we sent a malformed PDU to the master
+	    throw(internal_error());
+
+	case ResponsePDU::notOpen:
+	    // We checked the connection state before, but maybe we lost the 
+	    // connection during communication...
+	    throw(disconnected());
+
+	case ResponsePDU::unsupportedContext:
+	    // We do currently not really support contexts in this library. An 
+	    // invalid context is thus probably an agentxcpp bug.
+	    throw(internal_error());
+
+	case ResponsePDU::processingError:
+	    // master was unable to process the request
+	    throw(master_is_unable());
+
+	case ResponsePDU::noAgentXError:
+	    // Hey, it worked!
+	    break;
+
+	// Register-specific errors:
+
+	case ResponsePDU::unknownRegistration:
+	    throw(unknown_registration());
+
+	default:
+	    // This is a case of can-not-happen. Probably the master is buggy.  
+	    // The agentxcpp library is bug-free of course ;-)
+	    // We throw a parse error meanwhile, because we didn't expect the 
+	    // response to look like that...
+	    throw(parse_error());
+    }
+
+    // Finish
+    return;
+}

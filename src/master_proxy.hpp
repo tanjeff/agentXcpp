@@ -268,6 +268,46 @@ namespace agentxcpp
 	     */
 	    void do_registration(boost::shared_ptr<RegisterPDU> pdu);
 
+	    /**
+	     * \brief Send a UnregisterPDU to the master agent.
+	     *
+	     * This function sends an UnregisterPDU to the master agent which 
+	     * revokes the registration done by a RegisterPDU.  Then it waites 
+	     * for the response and evaluates it.  This means that run_one() is 
+	     * called one or more times on the io_service object.
+	     *
+	     * \param pdu The RegisterPDU whose registration is to be revoked.
+	     *
+	     * \exception disconnected If the master_proxy is currently in
+	     *                         state 'disconnected'.
+	     *
+	     * \exception timeout_error If the master agent does not
+	     *                          respond within the timeout interval.
+	     *
+	     * \exception internal_error If the master received a malformed
+	     *                           PDU. This is probably a programming 
+	     *                           error within the agentXcpp library.
+	     *
+	     * \exception master_is_unable The master agent was unable to
+	     *                             perform the desired register 
+	     *                             request.  The reason for that is 
+	     *                             unknown.
+	     *
+	     * \exception unknown_registration If the exact same subtree was
+	     *                                   alread registered, either by 
+	     *                                   another subagent or by this 
+	     *                                   subagent.
+	     *
+	     * \exception parse_error If an unexpected response was received
+	     *                        from the master. This is probably a 
+	     *                        programming error within the master 
+	     *                        agent.  It is possible that the master 
+	     *                        actually performed the desired 
+	     *                        registration and that a retry will result 
+	     *                        in a duplicate_registration error.
+	     */
+	    void undo_registration(boost::shared_ptr<UnregisterPDU> pdu);
+
 
 	public:
 	    /**

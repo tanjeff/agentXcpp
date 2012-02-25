@@ -87,6 +87,14 @@ namespace agentxcpp
      */
     class duplicate_registration : public std::exception { };
 
+    /**
+     * \brief Exception to indicate that a MIB region was NOT registered.
+     *
+     * This error can occur when unregistering a MIB region which was not 
+     * previously registered.
+     */
+    class unknown_registration : public std::exception { };
+
 } // namespace agentxcpp
 
 #endif

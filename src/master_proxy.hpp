@@ -31,6 +31,7 @@
 #include "ClosePDU.hpp"
 #include "ResponsePDU.hpp"
 #include "RegisterPDU.hpp"
+#include "UnregisterPDU.hpp"
 #include "connector.hpp"
 
 namespace agentxcpp
@@ -308,6 +309,21 @@ namespace agentxcpp
 	     */
 	    void undo_registration(boost::shared_ptr<UnregisterPDU> pdu);
 
+	   /**
+	    * \brief Create UnregisterPDU for undoing a registration.
+            *
+	    * This function creates an UnregisterPDU which unregisters the MIB 
+	    * region which is registered by a given RegisterPDU.
+            *
+	    * \param pdu The RegisterPDU which creates a registration.
+	    *
+            * \return The created UnregisterPDU.
+	    *
+	    * \exception None.
+            */
+	    boost::shared_ptr<UnregisterPDU> create_unregister_pdu(
+				    boost::shared_ptr<RegisterPDU> pdu);
+
 
 	public:
 	    /**
@@ -537,7 +553,6 @@ namespace agentxcpp
 	     * was created automatically (i.e. not provided by the user).
 	     */
 	    ~master_proxy();
-
     };
 }
 

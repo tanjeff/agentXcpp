@@ -79,16 +79,3 @@ RegisterPDU::RegisterPDU()
 {
 }
 
-
-
-boost::shared_ptr<UnregisterPDU> RegisterPDU::create_unregister_pdu()
-{
-    boost::shared_ptr<UnregisterPDU> pdu(new UnregisterPDU());
-    pdu->set_subtree(this->subtree);
-    pdu->set_range_subid(this->range_subid);
-    pdu->set_upper_bound(this->upper_bound);
-    pdu->set_priority(this->priority);
-
-    return pdu;
-}
-

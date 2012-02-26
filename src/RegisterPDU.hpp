@@ -22,7 +22,6 @@
 #include "types.hpp"
 #include "oid.hpp"
 #include "PDUwithContext.hpp"
-#include "UnregisterPDU.hpp"
 
 namespace agentxcpp
 {
@@ -158,16 +157,6 @@ namespace agentxcpp
 	     * - upper_bound = null Object Identifier
 	     */
 	    RegisterPDU();
-
-	    /**
-	     * \brief Create UnregisterPDU for undoing this registration
-	     *
-	     * This function creates an UnregisterPDU which unregisters the OID 
-	     * subtree which is registered by this RegisterPDU. 
-	     *
-	     * \return The created UnregisterPDU.
-	     */
-	    boost::shared_ptr<UnregisterPDU> create_unregister_pdu();
     };
 }
 #endif

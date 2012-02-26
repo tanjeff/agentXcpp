@@ -405,3 +405,18 @@ void master_proxy::undo_registration(boost::shared_ptr<UnregisterPDU> pdu)
     // Finish
     return;
 }
+
+
+
+boost::shared_ptr<UnregisterPDU> master_proxy::create_unregister_pdu(
+				    boost::shared_ptr<RegisterPDU> pdu)
+{
+    boost::shared_ptr<UnregisterPDU> new_pdu(new UnregisterPDU());
+    new_pdu->set_subtree( pdu->get_subtree() );
+    new_pdu->set_range_subid( pdu->get_range_subid() );
+    new_pdu->set_upper_bound( pdu->get_upper_bound() );
+    new_pdu->set_priority( pdu->get_priority() );
+
+    return new_pdu;
+}
+

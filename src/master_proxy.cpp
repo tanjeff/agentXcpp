@@ -354,6 +354,54 @@ void master_proxy::register_subtree(oid subtree,
 
 
 
+void master_proxy::unregister_subtree(oid subtree,
+				      byte_t priority)
+{
+    // Remove the registration from registrations list
+    std::list< boost::shared_ptr<RegisterPDU> >::iterator r;
+    r = this->registrations.begin();
+    while (r != this->registrations.end())
+    {
+	if(   (*r)->get_priority() == priority
+	   && (*r)->get_subtree() == subtree
+	   && (*r)->get_range_subid() == 0
+	   && (*r)->get_upper_bound() == 0 )
+	{
+	    // registration found: remove it, forward to next one
+	    r = registrations.erase(r);
+	}
+	else
+	{
+	    // Ignore registration, inspect next one
+	    r++;
+	}
+    }
+
+    // Build UnregisterPDU
+    boost::shared_ptr<UnregisterPDU> pdu(new UnregisterPDU);
+    pdu->set_subtree(subtree);
+    pdu->set_priority(priority);
+
+    // Sent PDU
+    try
+    {
+	this->undo_registration(pdu);
+    }
+    catch( internal_error )
+    {
+	// Huh, it seems that we sent a malformed PDU to the master. We convert 
+	// this to parse_error.
+	throw(parse_error());
+    }
+    catch(...)
+    {
+	// All other exceptions are forwarded unmodified:
+	throw;
+    }
+}
+
+
+
 void master_proxy::undo_registration(boost::shared_ptr<UnregisterPDU> pdu)
 {
     // Are we connected?

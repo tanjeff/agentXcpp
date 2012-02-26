@@ -294,10 +294,8 @@ namespace agentxcpp
 	     *                             request.  The reason for that is 
 	     *                             unknown.
 	     *
-	     * \exception unknown_registration If the exact same subtree was
-	     *                                   alread registered, either by 
-	     *                                   another subagent or by this 
-	     *                                   subagent.
+	     * \exception unknown_registration The MIB region is not currently
+	     *                                 registered with this parameters.
 	     *
 	     * \exception parse_error If an unexpected response was received
 	     *                        from the master. This is probably a 
@@ -418,8 +416,8 @@ namespace agentxcpp
 	     *
 	     * \internal
 	     *
-	     * This method calls adds the registered subtree to 
-	     * registered_subtrees on success.
+	     * This method adds the registered subtree to registered_subtrees 
+	     * on success.
 	     * 
 	     * \endinternal
 	     *
@@ -468,6 +466,50 @@ namespace agentxcpp
 	    void register_subtree(oid subtree,
 				  byte_t priority=127,
 				  byte_t timeout=0);
+
+	    /**
+	     * \brief Unregister a subtree with the master agent
+	     *
+	     * This function unregisters a subtree (or MIB region) which has 
+	     * previously been registered.
+	     *
+	     * \internal
+	     *
+	     * This method removes the registered subtree from
+	     * registered_subtrees.
+	     * 
+	     * \endinternal
+	     *
+	     * \param subtree The (root of the) subtree to unregister.
+	     *
+	     * \param priority The priority with which the registration was
+	     *                 done. the subtree.  Because register_subtree() 
+	     *                 uses 127 as default, this value is also the 
+	     *                 default for this function.
+	     *
+	     * \exception disconnected If the master_proxy is currently in
+	     *                         state 'disconnected'.
+	     *
+	     * \exception timeout_error If the master agent does not
+	     *                          respond within the timeout interval.
+	     *
+	     * \exception master_is_unable The master agent was unable to
+	     *                             perform the desired unregister 
+	     *                             request.  The reason for that is 
+	     *                             unknown.
+	     *
+	     * \exception unknown_registration The MIB region is not currently
+	     *                                 registered with this parameters.
+	     *
+	     * \exception parse_error A malformed network message was found
+	     *                        during communcation with the master. This 
+	     *                        may be a programming error in the master 
+	     *                        or in the agentXcpp library. It is 
+	     *                        possible that the master actually 
+	     *                        unregistered the MIB region.
+	     */
+	    void unregister_subtree(oid subtree,
+				    byte_t priority=127);
 
 	    /**
 	     * \brief Get the io_service object used by this master_proxy.

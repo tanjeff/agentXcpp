@@ -196,9 +196,18 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
     // The response we expect from the master
     boost::shared_ptr<ResponsePDU> response;
 
-    // Try clean shutdown
+    // Try clean shutdown (ignore errors)
     try
     {
+	// Unregister stuff if any
+	std::list< boost::shared_ptr<RegisterPDU> >::const_iterator r;
+	r = this->registrations.begin();
+	while (r != this->registrations.end())
+	{
+	    this->undo_registration(create_unregister_pdu(*r));
+	    r++;
+	}
+
 	// Send ClosePDU
 	ClosePDU closepdu(this->sessionID, reason);
 	// throws disconnected and timeout_error:

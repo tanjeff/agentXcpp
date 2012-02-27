@@ -127,8 +127,14 @@ namespace agentxcpp
      * specific subtree (i.e. the one with the longest OID) wins regardless of 
      * the priority values.
      *
+     * The agentXcpp library stores all registrations internally and restores 
+     * them at a reconnect. Note, however, that it is not possible to register 
+     * stuff while dicsconnected.
      *
-     * TODO: How to unregister?
+     * It is also possible to unregister subtrees using the 
+     * unregister_subtree() function. This informs the master agent that the 
+     * MIB region is no longer available from this subagent. The registration 
+     * is also removed from the internal storage.
      *
      * \internal
      *
@@ -136,6 +142,9 @@ namespace agentxcpp
      * registration is performed. These RegisterPDU objects are stored in the 
      * registrations member. On reconnect, all stored RegisterPDUs are re-sent 
      * to the master to restore the registration state.
+     *
+     * When unregistering, the matching RegisterPDU is removed from the 
+     * registration member.
      *
      * \endinternal
      *

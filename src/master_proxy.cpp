@@ -167,15 +167,6 @@ void master_proxy::connect()
 
     // All went fine, we are connected now
     this->sessionID = response->get_sessionID();
-
-    // Re-register stuff if any
-    std::list< boost::shared_ptr<RegisterPDU> >::const_iterator r;
-    r = this->registrations.begin();
-    while (r != this->registrations.end())
-    {
-	this->do_registration(*r);
-	r++;
-    }
 }
 
 

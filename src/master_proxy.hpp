@@ -140,6 +140,12 @@ namespace agentxcpp
      * When unregistering, the matching RegisterPDU is removed from the 
      * registration member.
      *
+     * The registration member becomes invalid on connection loss. Since a 
+     * connection loss is not signalled, the member cannot be cleared in such 
+     * situations. Therefore, it is cleared in the connect() method if the 
+     * object is currently disconnected. If connect() is called on a connected 
+     * master_proxy object, the registrations member is not cleared.
+     *
      * \endinternal
      *
      */

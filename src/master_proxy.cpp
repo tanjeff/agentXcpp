@@ -123,6 +123,9 @@ void master_proxy::connect()
 	return;
     }
 
+    // Clear registrations
+    registrations.clear();
+
     // Connect to endpoint
     try
     {

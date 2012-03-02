@@ -157,6 +157,30 @@ namespace agentxcpp
 	     * - upper_bound = null Object Identifier
 	     */
 	    RegisterPDU();
+
+	    /**
+	     * \brief Get instance_registration flag
+	     *
+	     * The instance_registration flag is part of the PDU header and 
+	     * therefore located in the PDU class. However, it is used only by 
+	     * Register-PDUs, therefore the getter method is located here.
+	     */
+	    bool get_instance_registration()
+	    {
+		return instance_registration;
+	    }
+
+	    /**
+	     * \brief Set instance_registration flag
+	     *
+	     * The instance_registration flag is part of the PDU header and 
+	     * therefore located in the PDU class. However, it is used only by 
+	     * Register-PDUs, therefore the setter method is located here.
+	     */
+	    void set_instance_registration(bool ir)
+	    {
+		this->instance_registration = ir;
+	    }
     };
 }
 #endif

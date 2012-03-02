@@ -55,11 +55,6 @@ namespace agentxcpp
 	private:
 
 	    /**
-	     * \brief the instance_registration flag
-	     */
-	    bool instance_registration;
-
-	    /**
 	     * \brief the new_index flag
 	     */
 	    bool new_index;
@@ -97,6 +92,17 @@ namespace agentxcpp
 
 
 	protected:
+
+	    /**
+	     * \brief the instance_registration flag
+	     *
+	     * This flag is used only in the RegisterPDU. It is located here, 
+	     * because it is part of the PDU header. It is parsed by the parse 
+	     * constructor of this class and serialized by the add_header() 
+	     * function.
+	     */
+	    bool instance_registration;
+
 	    /**
 	     * \brief Whether the PDU has a non-default context
 	     *
@@ -211,17 +217,6 @@ namespace agentxcpp
 	    PDU();
 
 	public:
-	    /**
-	     * \brief Get instance_registration flag
-	     */
-	    bool get_instance_registration() { return instance_registration; }
-	    /**
-	     * \brief Set instance_registration flag
-	     */
-	    void set_instance_registration(bool ir)
-	    {
-		this->instance_registration = ir;
-	    }
 
 	    /**
 	     * \brief Get new_index flag

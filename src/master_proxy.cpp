@@ -348,6 +348,9 @@ void master_proxy::register_subtree(oid subtree,
 void master_proxy::unregister_subtree(oid subtree,
 				      byte_t priority)
 {
+    // The UnregisterPDU
+    boost::shared_ptr<UnregisterPDU> pdu;
+
     // Remove the registration from registrations list
     std::list< boost::shared_ptr<RegisterPDU> >::iterator r;
     r = this->registrations.begin();
@@ -358,7 +361,12 @@ void master_proxy::unregister_subtree(oid subtree,
 	   && (*r)->get_range_subid() == 0
 	   && (*r)->get_upper_bound() == 0 )
 	{
-	    // registration found: remove it, forward to next one
+	    // registration found
+
+	    // create UnregisterPDU
+	    pdu = create_unregister_pdu(*r);
+
+	    // remove registration from list, forward to next one
 	    r = registrations.erase(r);
 	}
 	else
@@ -367,11 +375,6 @@ void master_proxy::unregister_subtree(oid subtree,
 	    r++;
 	}
     }
-
-    // Build UnregisterPDU
-    boost::shared_ptr<UnregisterPDU> pdu(new UnregisterPDU);
-    pdu->set_subtree(subtree);
-    pdu->set_priority(priority);
 
     // Sent PDU
     try

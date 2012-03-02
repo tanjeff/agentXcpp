@@ -415,13 +415,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Register a subtree with the master agent
 	     *
-	     * This function registers a subtree (or MIB region).
+	     * This function registers a subtree (or MIB region). This function 
+	     * invokes run_one() one or more times on the io_service object.
 	     *
 	     * \internal
 	     *
-	     * This method adds the registered subtree to registered_subtrees 
-	     * on success.
-	     * 
+	     * This method adds the registered subtree to registrations on 
+	     * success.
+	     *
 	     * \endinternal
 	     *
 	     * \param subtree The (root of the) subtree to register.
@@ -474,12 +475,13 @@ namespace agentxcpp
 	     * \brief Unregister a subtree with the master agent
 	     *
 	     * This function unregisters a subtree (or MIB region) which has 
-	     * previously been registered.
+	     * previously been registered. This function invokes run_one() one 
+	     * or more times on the io_service object.
 	     *
 	     * \internal
 	     *
 	     * This method removes the registered subtree from
-	     * registered_subtrees.
+	     * registrations.
 	     * 
 	     * \endinternal
 	     *

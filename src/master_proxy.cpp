@@ -476,7 +476,7 @@ boost::shared_ptr<UnregisterPDU> master_proxy::create_unregister_pdu(
 }
 
 
-void master_proxy::add(oid id, shared_ptr<variable> v)
+void master_proxy::add_variable(const oid& id, shared_ptr<variable> v)
 {
     // Check whether id is contained in a registration
     bool is_registered = false;
@@ -503,4 +503,22 @@ void master_proxy::add(oid id, shared_ptr<variable> v)
 	throw(unknown_registration());
     }
     variables[id] = v;
+}
+
+
+
+void master_proxy::remove_variable(const oid& id)
+{
+    // Find variable
+    map<oid, shared_ptr<variable> >::iterator i = variables.find(id);
+
+    if(i == variables.end())
+    {
+	// Variable was not added in advance
+	// -> ignore
+	return;
+    }
+
+    // Remove variable
+    variables.erase(i);
 }

@@ -151,14 +151,17 @@ namespace agentxcpp
      *
      */
     /**
-     * \par Adding Variables
+     * \par Adding and Removing Variables
      *
      * Registering a subtree does not make any SNMP variables accessible yet.  
      * To provide SNMP variables, they must be added to the master_proxy 
-     * object, e.g. using add(). The master_proxy object will then dispatch 
-     * incoming requests to the variables it knows about. If a request is 
-     * received for an OID for which no variable has been added, an appropriate 
-     * error is returned to the master agent.
+     * object, e.g. using add_variable(). The master_proxy object will then 
+     * dispatch incoming requests to the variables it knows about. If a request 
+     * is received for an OID for which no variable has been added, an 
+     * appropriate error is returned to the master agent.
+     *
+     * Added variables can be removed again using remove_variable(). This makes 
+     * a variable inaccessible for the master agent.
      *
      * \internal
      *
@@ -166,6 +169,8 @@ namespace agentxcpp
      * std::map<oid, shared_ptr<variable> >. The key is the OID for which the 
      * variable was added. This allows easy lookup for the request 
      * dispatcher.
+     *
+     * When removing a variable, it is removed from the variables member.
      *
      * The variables member becomes invalid on connection loss. Since a 
      * connection loss is not signalled, the member cannot be cleared in such 
@@ -661,7 +666,22 @@ namespace agentxcpp
 	     *                                 within a registered MIB 
 	     *                                 region.
 	     */
-	    void add(oid id, shared_ptr<variable> v);
+	    void add_variable(const oid& id, shared_ptr<variable> v);
+
+	    /**
+	     * \brief Remove an SNMP variable so that is not longer accessible.
+	     *
+	     * This removes a variable previously added using add_variable().  
+	     * The variable will no longer receive SNMP requests.
+	     *
+	     * If no variable is known for the given id, nothing happens.
+	     *
+	     * \param id The OID of the variable to remove. This is the OID
+	     *           which was given to add_variable().
+	     *
+	     * \exception None.
+	     */
+	    void remove_variable(const oid& id);
     };
 }
 

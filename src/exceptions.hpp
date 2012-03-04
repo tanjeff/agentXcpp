@@ -88,10 +88,12 @@ namespace agentxcpp
     class duplicate_registration : public std::exception { };
 
     /**
-     * \brief Exception to indicate that a MIB region was NOT registered.
+     * \brief Exception to indicate that a MIB region registration was not
+     *        found.
      *
      * This error can occur when unregistering a MIB region which was not 
-     * previously registered.
+     * previously registered. It also occurs when adding an SNMP variable with 
+     * an OID which does not reside within a registered MIB region.
      */
     class unknown_registration : public std::exception { };
 

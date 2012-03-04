@@ -352,3 +352,29 @@ oid& oid::operator=(const oid& other)
     // Return reference to us
     return *this;
 }
+
+
+bool oid::contains(const oid& id)
+{
+    // If id has fewer subids than this: not contained
+    if(this->size() > id.size())
+    {
+	// Is not contained
+	return false;
+    }
+
+    // id has at least as many subids than this -> iteration is safe
+    for(size_type i = 0; i < this->size(); i++)
+    {
+	if( (*this)[i] != id[i] )
+	{
+	    // We differ in a subid!
+	    return false;
+	}
+    }
+
+    // If we get here, the id starts the same subids as this (it has possibly 
+    // more subids). This means that it is contained in the subtree spanned by 
+    // this.
+    return true;
+}

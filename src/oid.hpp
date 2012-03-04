@@ -197,21 +197,21 @@ namespace agentxcpp
 	     * it has lesser parts.
 	     *
 	     * Example:\n
-	     * 1.3.6.1.4.1.42.3.3.1 \n
+	     * 1.3.6.1.4.1.42.3<b>.3</b>.1 \n
 	     * is less than \n
-	     * 1.3.6.1.4.1.42.3.4.1 \n
+	     * 1.3.6.1.4.1.42.3<b>.4</b>.1 \n
 	     * Note the next to last number.
 	     *
 	     * Also,\n
 	     * 1.3.6.1.4.1.42.3.3.1 \n
 	     * is less than \n
-	     * 1.3.6.1.4.1.42.3.3.1.1 \n
+	     * 1.3.6.1.4.1.42.3.3.1<b>.1</b> \n
 	     * because it is shorter.
 	     *
 	     * However, \n
-	     * 1.3.6.1.4.1.42.3.3.1 \n
+	     * 1.3.6.1.4.1.42.3<b>.3</b>.1 \n
 	     * is greater than \n
-	     * 1.3.6.1.4.1.42.3.2.1.1 \n
+	     * 1.3.6.1.4.1.42.3<b>.2</b>.1.1 \n
 	     * because the 9th number is greater (although the first OID has 
 	     * less numbers than the second).
 	     */
@@ -247,6 +247,27 @@ namespace agentxcpp
 		// a > b is the same as b < a :-)
 		return o < *this;
 	    }
+
+	    /**
+	     * \brief Checks whether the given oid is in the subtree of this
+	     *        oid.
+	     *
+	     * This method checks whether the given OID is included in the 
+	     * subtree which has this oid as root.
+	     *
+	     * Examples:\n
+	     * oid id(1.3.6.1.4.1.42.3); \n
+	     * id.contains( oid(1.3.6.1.4.1.42.3) ); // true \n
+	     * id.contains( oid(1.3.6.1.4.1.42) ); // false \n
+	     * id.contains( oid(1.3.6.1.4.1.43.3) ); // false \n
+	     * id.contains( oid(1.3.6.1.4.1.42.3.3.1) ); // true \n
+	     *
+	     * \param id The OID to check.
+	     *
+	     * \return True if id is contained in the subtree, false
+	     *         otherwise.
+	     */
+	    bool contains(const oid& id);
 
 	    friend std::ostream& operator<<(std::ostream&,
 					    const agentxcpp::oid&);

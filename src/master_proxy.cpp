@@ -123,8 +123,9 @@ void master_proxy::connect()
 	return;
     }
 
-    // Clear registrations
+    // Clear registrations and variables
     registrations.clear();
+    variables.clear();    
 
     // Connect to endpoint
     try
@@ -474,3 +475,32 @@ boost::shared_ptr<UnregisterPDU> master_proxy::create_unregister_pdu(
     return new_pdu;
 }
 
+
+void master_proxy::add(oid id, shared_ptr<variable> v)
+{
+    // Check whether id is contained in a registration
+    bool is_registered = false;
+    std::list< boost::shared_ptr<RegisterPDU> >::const_iterator r;
+    for(r = registrations.begin(); r != registrations.end(); r++)
+    {
+	if((*r)->get_instance_registration() == false &&
+	   (*r)->get_range_subid() == 0)
+	{
+	    // Registration is a simple subtree
+	    if( (*r)->get_subtree().contains(id) )
+	    {
+		// The ID lies within a registered area
+		is_registered = true;
+		break; // stop search
+	    }
+	}
+	// TODO: handle other registrations (e.g. instance registration)
+    }
+
+    if( ! is_registered )
+    {
+	// Not in a registered area
+	throw(unknown_registration());
+    }
+    variables[id] = v;
+}

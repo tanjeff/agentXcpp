@@ -28,6 +28,7 @@
 #include <boost/shared_ptr.hpp>
 #include "types.hpp"
 #include "oid.hpp"
+#include "variable.hpp"
 #include "ClosePDU.hpp"
 #include "ResponsePDU.hpp"
 #include "RegisterPDU.hpp"
@@ -150,6 +151,32 @@ namespace agentxcpp
      *
      */
     /**
+     * \par Adding Variables
+     *
+     * Registering a subtree does not make any SNMP variables accessible yet.  
+     * To provide SNMP variables, they must be added to the master_proxy 
+     * object, e.g. using add(). The master_proxy object will then dispatch 
+     * incoming requests to the variables it knows about. If a request is 
+     * received for an OID for which no variable has been added, an appropriate 
+     * error is returned to the master agent.
+     *
+     * \internal
+     *
+     * The variables are stored in the member variables, which is a 
+     * std::map<oid, shared_ptr<variable> >. The key is the OID for which the 
+     * variable was added. This allows easy lookup for the request 
+     * dispatcher.
+     *
+     * The variables member becomes invalid on connection loss. Since a 
+     * connection loss is not signalled, the member cannot be cleared in such 
+     * situations.  Therefore, it is cleared in the connect() method if the 
+     * object is currently disconnected. If connect() is called on a connected 
+     * master_proxy object, the variables member is not cleared.
+     *
+     * \endinternal
+     *
+     */
+    /**
      * \internal
      *
      * \par Internals
@@ -234,6 +261,12 @@ namespace agentxcpp
 	     * these subtrees on reconnect (e.g.  after a connection loss).
 	     */
 	    std::list< boost::shared_ptr<RegisterPDU> > registrations;
+
+	    /**
+	     * \brief Storage for all SNMP variables known to the agentXcpp
+	     *        library.
+	     */
+	    std::map< oid, shared_ptr<variable> > variables;
 
 	    /**
 	     * \brief Send a RegisterPDU to the master agent.
@@ -606,6 +639,29 @@ namespace agentxcpp
 	     * was created automatically (i.e. not provided by the user).
 	     */
 	    ~master_proxy();
+
+	    /**
+	     * \brief Add an SNMP variable to serve.
+	     *
+	     * This adds an SNMP variable which can be read and/or written.
+	     *
+	     * Variables can only be added to MIB regions which were registered 
+	     * in advance.
+	     *
+	     * If adding a variable with an id for which another variable is 
+	     * already registered, the existing variable is replaced by the new 
+	     * one.
+	     *
+	     * \param id The OID of the variable.
+	     *
+	     * \param v The variable.
+	     *
+	     * \exception unknown_registration If trying to add a variable
+	     *                                 with an id which does not reside 
+	     *                                 within a registered MIB 
+	     *                                 region.
+	     */
+	    void add(oid id, shared_ptr<variable> v);
     };
 }
 

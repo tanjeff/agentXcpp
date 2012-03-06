@@ -137,12 +137,12 @@ data_t oid::serialize() const
     // |                       sub-identifier #n_subid                 |
     // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     //
-    // We use a string here to represent the serial stream, an we use some 
+    // We use a string here to represent the serial stream, and we use some 
     // constants as indexes:
     const int n_subid_idx = 0;
     const int prefix_idx = 1;
     const int include_idx = 2;
-    const int reserved_idx = 2;
+    const int reserved_idx = 3;
 
     // This is our binary data:
     data_t serialized;

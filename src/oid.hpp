@@ -269,6 +269,19 @@ namespace agentxcpp
 	     */
 	    bool contains(const oid& id);
 
+	    /**
+	     * \brief Whether it is the null Object Identifier
+	     *
+	     * According to RFC 2741, 5.1 "Object Identifier", a null object 
+	     * identifier has serial representation of for 4 bytes which are 
+	     * all set to 0. An OID with no subid's and the index field set to 
+	     * 0 results in that representation and is thus considered as null 
+	     * OID.
+	     *
+	     * \return True if the object is the null OID, false otherwise.
+	     */
+	    bool is_null();
+
 	    friend std::ostream& operator<<(std::ostream&,
 					    const agentxcpp::oid&);
     };

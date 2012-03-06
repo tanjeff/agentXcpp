@@ -378,3 +378,18 @@ bool oid::contains(const oid& id)
     // this.
     return true;
 }
+
+
+bool oid::is_null()
+{
+    if( this->size() == 0 &&
+	! this->include)
+    {
+	// Is the null OID
+	return true;
+    }
+    else
+    {
+	return false;
+    }
+}

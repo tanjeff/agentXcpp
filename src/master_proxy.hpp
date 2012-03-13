@@ -377,7 +377,7 @@ namespace agentxcpp
 	     * This method implements pdu_handler::handle_pdu() and is invoked 
 	     * by the connector object when PDU's are received.
 	     */
-	    virtual void handle_pdu(shared_ptr<PDU>);
+	    virtual void handle_pdu(shared_ptr<PDU>, int error);
 
 	    /**
 	     * \brief Create a session object connected via unix domain

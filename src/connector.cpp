@@ -539,6 +539,19 @@ void connector::receive_callback(const boost::system::error_code& result)
 	// See RFC 2741, 6.1. "AgentX PDU Header"
 	// -> close socket
 	this->disconnect();
+
+	// Report parse error
+	if( this->handler )
+	{
+	    try
+	    {
+		this->handler->handle_pdu(shared_ptr<PDU>(), -1);
+	    }
+	    catch(...)
+	    {
+		// discard exceptions from user handler
+	    }
+	}
     }
 
     // Read the payload (TODO: can we avoid the new() operator?)
@@ -568,13 +581,36 @@ void connector::receive_callback(const boost::system::error_code& result)
     }
     catch(version_error)
     {
-	// We cannot handle this PDU.
-	// -> ignore
+	// Report version error
+	if( this->handler )
+	{
+	    try
+	    {
+		this->handler->handle_pdu(shared_ptr<PDU>(), -2);
+	    }
+	    catch(...)
+	    {
+		// discard exceptions from user handler
+	    }
+	}
     }
     catch(parse_error)
     {
 	// disconnect
 	this->disconnect();
+	
+	// Report parse error
+	if( this->handler )
+	{
+	    try
+	    {
+		this->handler->handle_pdu(shared_ptr<PDU>(), -1);
+	    }
+	    catch(...)
+	    {
+		// discard exceptions from user handler
+	    }
+	}
     }
 
     // Special case: ResponsePDU's
@@ -606,7 +642,7 @@ void connector::receive_callback(const boost::system::error_code& result)
 	    // Call the handler
 	    try
 	    {
-		this->handler->handle_pdu(pdu);
+		this->handler->handle_pdu(pdu, 0);
 	    }
 	    catch(...)
 	    {

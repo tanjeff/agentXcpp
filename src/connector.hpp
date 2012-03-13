@@ -146,8 +146,22 @@ namespace agentxcpp
 		     * method is called on the registered object. Note that 
 		     * ResponsePDU's are not handed over to the registered 
 		     * object.
+		     *
+		     * The 'error' parameter is used to report errors. Using 
+		     * exceptions is not possible because of the asynchronous 
+		     * nature of the callback-mechanism.
+		     *
+		     * \param pdu The PDU which was just received. This is an
+		     *            empty shared_ptr if an error occured.
+		     *
+		     * \param error The error code. 0 means success, -1 means
+		     *              "parse error", -2 means "version error".
+		     *
+		     * \todo Check whether usage of boost::system makes
+		     *       sense for error reporting.
 		     */
-		    virtual void handle_pdu(boost::shared_ptr<PDU>) =0;
+		    virtual void handle_pdu(boost::shared_ptr<PDU> pdu,
+					    int error) =0;
 	    };
 	
 	private:

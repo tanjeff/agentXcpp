@@ -476,6 +476,52 @@ boost::shared_ptr<UnregisterPDU> master_proxy::create_unregister_pdu(
 }
 
 
+
+
+void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
+{
+    // Here we process all PDU's except ResponsePDU's, according to RFC 2741, 
+    // 7.2.2. "Subagent Processing".
+
+    // Step 1) Create a response and copy header from received pdu
+    //
+    // Notes:
+    //   - The version, type and payload_length fields are filled
+    //     automatically
+    //   - The flags are not copied, because they have
+    //     other meanings in ResponsePDU's.
+    //   - Context is not yet supported.
+    ResponsePDU response;
+    response.set_sessionID( pdu->get_sessionID() );
+    response.set_transactionID( pdu->get_transactionID() );
+    response.set_packetID( pdu->get_packetID() );
+
+    // Step 2) Was there a parse error?
+    //
+    // Note: Error numbers are documented in connector.hpp
+    if(error == -1)
+    {
+	// Step 4b) Stop processing, don't send reply.
+	//
+	// Note: we cannot determine whether the header was sucessfully
+	//       parsed, therefore we simply ignore the PDU. We don't send a 
+	//       parseError indication to the master agent.
+	//
+	// TODO: Send response if the header was parsed sucessfully.
+	return;
+    }
+
+    // Step 3) Is the session valid?
+    if(pdu->get_sessionID() != this->sessionID)
+    {
+	response.set_error(ResponsePDU::notOpen);
+
+	// Step 4a) Stop processing the PDU. Send response.
+	this->connection->send(response);
+    }
+}
+
+
 void master_proxy::add_variable(const oid& id, shared_ptr<variable> v)
 {
     // Check whether id is contained in a registration

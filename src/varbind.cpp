@@ -43,7 +43,7 @@ data_t varbind::serialize() const
     serialized.push_back( 0 );	// reserved
     
     // encode name
-    serialized += name->serialize();
+    serialized += name.serialize();
 
     // encode data if needed
     if (var) serialized += var->serialize();
@@ -52,7 +52,7 @@ data_t varbind::serialize() const
 }
 
 
-varbind::varbind(oid* o, variable* v)
+varbind::varbind(const oid& o, variable* v)
 {
     name = o;
     var = v;
@@ -75,7 +75,7 @@ varbind::varbind(oid* o, variable* v)
 }
 
 
-varbind::varbind(oid* o, type_t t)
+varbind::varbind(const oid& o, type_t t)
 {
     name = o;
 
@@ -114,7 +114,7 @@ varbind::varbind(data_t::const_iterator& pos,
     pos += 2;
     
     // read OID: no exceptions are catched; they are forwarded to the caller
-    name = new oid(pos, end, big_endian);
+    name = oid(pos, end, big_endian); 
 
     // Get data: no exceptions are catched; they are forwarded to the caller
     switch(type)

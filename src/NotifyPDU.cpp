@@ -131,5 +131,5 @@ varbind NotifyPDU::trapToNotification(oid enterprise,
     }
 
     // Create and return varbind
-    return varbind( new oid(snmpTrapOID,0), value);
+    return varbind(oid(snmpTrapOID,0), value);
 }

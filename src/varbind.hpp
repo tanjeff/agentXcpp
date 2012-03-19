@@ -38,7 +38,7 @@ namespace agentxcpp
 	    /**
 	     * \brief The name (OID) of the VarBind.
 	     */
-	    oid* name;
+	    oid name;
 
 	    /**
 	     * \brief The variable inside the varbind.
@@ -74,7 +74,7 @@ namespace agentxcpp
 	     * If the type of the variable cannot be determined, inval_param is 
 	     * thrown.
 	     */
-	    varbind(oid*, variable* v);
+	    varbind(const oid&, variable* v);
 	    
 	    /**
 	     * \brief These values can be used to create a VarBind.
@@ -93,7 +93,7 @@ namespace agentxcpp
 	     * Only the constants defined by varbind::type_t are allowed.  A 
 	     * wrong type will cause an inval_param exception.
 	     */
-	    varbind(oid*, type_t);
+	    varbind(const oid&, type_t);
 
 	    /**
 	     * \internal

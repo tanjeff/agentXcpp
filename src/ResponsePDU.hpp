@@ -89,14 +89,14 @@ namespace agentxcpp
 	     */
 	    error_t error;
 
+	public:
 	    /**
-	     * \brief The VarBindList, if any.
+	     * \brief The VarBindList.
 	     *
 	     * This vector may be empty if the %PDU has no VarBinds.
 	     */
 	    vector<varbind> varbindlist;
 
-	public:
 	    /**
 	     * \brief Parse constructor
 	     *
@@ -179,22 +179,6 @@ namespace agentxcpp
 	    uint16_t get_index()
 	    {
 		return index;
-	    }
-
-	    /**
-	     * \brief Set the VarBindList
-	     */
-	    void set_varbindlist(vector<varbind> varbindlist)
-	    {
-		this->varbindlist = varbindlist;
-	    }
-	    
-	    /**
-	     * \brief Get the VarBindList
-	     */
-	    vector<varbind> get_varbindlist()
-	    {
-		return this->varbindlist;
 	    }
 
 	    /**

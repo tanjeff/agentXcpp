@@ -324,6 +324,7 @@ void master_proxy::register_subtree(oid subtree,
     pdu->set_subtree(subtree);
     pdu->set_priority(priority);
     pdu->set_timeout(timeout);
+    pdu->set_sessionID(this->sessionID);
     
     // Sent PDU
     try

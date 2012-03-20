@@ -510,6 +510,12 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 	// TODO: Send response if the header was parsed sucessfully.
 	return;
     }
+    if(error == -2)
+    {
+	// Version error
+	// TODO: provide better handling. For now: ignore PDU
+	return;
+    }
 
     // Step 3) Is the session valid?
     if(pdu->get_sessionID() != this->sessionID)
@@ -517,7 +523,18 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 	response.set_error(ResponsePDU::notOpen);
 
 	// Step 4a) Stop processing the PDU. Send response.
-	this->connection->send(response);
+	try
+	{
+	    this->connection->send(response);
+	}
+	catch(timeout_error)
+	{
+	    // connection loss. Ignore.
+	}
+	catch(disconnected)
+	{
+	    // No connection. Ignore.
+	}
 
 	return;
     }
@@ -579,7 +596,18 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 	}
 
 	// Finally: send the response
-	this->connection->send(response);
+	try
+	{
+	    this->connection->send(response);
+	}
+	catch(timeout_error)
+	{
+	    // connection loss. Ignore.
+	}
+	catch(disconnected)
+	{
+	    // No connection. Ignore.
+	}
     }
 
     // TODO: handle other PDU types

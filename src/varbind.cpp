@@ -46,27 +46,27 @@ data_t varbind::serialize() const
     serialized += name.serialize();
 
     // encode data if needed
-    if (var) serialized += var->serialize();
+    if (var.get()) serialized += var->serialize();
 
     return serialized;
 }
 
 
-varbind::varbind(const oid& o, variable* v)
+varbind::varbind(const oid& o, boost::shared_ptr<variable> v)
 {
     name = o;
     var = v;
 
     // Determine type of variable and fill type field.
-    if( dynamic_cast<Integer*>(var) ) type = 2;
-    else if( dynamic_cast<Octet_String*>(var) ) type = 4;
-    else if( dynamic_cast<oid*>(var) ) type = 6;
-    else if( dynamic_cast<IpAddress*>(var) ) type = 64;
-    else if( dynamic_cast<Counter32*>(var) ) type = 65;
-    else if( dynamic_cast<Gauge32*>(var) ) type = 66;
-    else if( dynamic_cast<TimeTicks*>(var) ) type = 67;
-    else if( dynamic_cast<Opaque*>(var) ) type = 68;
-    else if( dynamic_cast<Counter64*>(var) ) type = 70;
+    if( dynamic_cast<Integer*>(var.get()) ) type = 2;
+    else if( dynamic_cast<Octet_String*>(var.get()) ) type = 4;
+    else if( dynamic_cast<oid*>(var.get()) ) type = 6;
+    else if( dynamic_cast<IpAddress*>(var.get()) ) type = 64;
+    else if( dynamic_cast<Counter32*>(var.get()) ) type = 65;
+    else if( dynamic_cast<Gauge32*>(var.get()) ) type = 66;
+    else if( dynamic_cast<TimeTicks*>(var.get()) ) type = 67;
+    else if( dynamic_cast<Opaque*>(var.get()) ) type = 68;
+    else if( dynamic_cast<Counter64*>(var.get()) ) type = 70;
     else
     {
 	// Type could not be determined -> invalid parameter.
@@ -120,37 +120,37 @@ varbind::varbind(data_t::const_iterator& pos,
     switch(type)
     {
 	case 2:
-	    var = new Integer(pos, end, big_endian);
+	    var.reset(new Integer(pos, end, big_endian));
 	    break;
 	case 4:
-	    var = new Octet_String(pos, end, big_endian);
+	    var.reset(new Octet_String(pos, end, big_endian));
 	    break;
 	case 6:
-	    var = new oid(pos, end, big_endian);
+	    var.reset(new oid(pos, end, big_endian));
 	    break;
 	case 64:
-	    var = new IpAddress(pos, end, big_endian);
+	    var.reset(new IpAddress(pos, end, big_endian));
 	    break;
 	case 65:
-	    var = new Counter32(pos, end, big_endian);
+	    var.reset(new Counter32(pos, end, big_endian));
 	    break;
 	case 66:
-	    var = new Gauge32(pos, end, big_endian);
+	    var.reset(new Gauge32(pos, end, big_endian));
 	    break;
 	case 67:
-	    var = new TimeTicks(pos, end, big_endian);
+	    var.reset(new TimeTicks(pos, end, big_endian));
 	    break;
 	case 68:
-	    var = new Opaque(pos, end, big_endian);
+	    var.reset(new Opaque(pos, end, big_endian));
 	    break;
 	case 70:
-	    var = new Counter64(pos, end, big_endian);
+	    var.reset(new Counter64(pos, end, big_endian));
 	    break;
 	case 5:	    // Null
 	case 128:   // noSuchObject
 	case 129:   // noSuchInstance
 	case 130:   // endOfMibView
-	    var = 0;
+	    var.reset();
 	    break;
 	default:
 	    // invalid type

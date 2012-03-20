@@ -20,6 +20,7 @@
 #define _VARBIND_H_
 
 #include <istream>
+#include <boost/shared_ptr.hpp>
 
 #include "types.hpp"
 #include "oid.hpp"
@@ -46,7 +47,7 @@ namespace agentxcpp
 	     * This pointer may be 0 if the varbind has a type without a 
 	     * variable (e.g. "NoSuchObject").
 	     */
-	    variable* var;
+	    boost::shared_ptr<variable> var;
 
 	    /**
 	     * \brief The type of the varbind.
@@ -74,7 +75,7 @@ namespace agentxcpp
 	     * If the type of the variable cannot be determined, inval_param is 
 	     * thrown.
 	     */
-	    varbind(const oid&, variable* v);
+	    varbind(const oid&, boost::shared_ptr<variable> v);
 	    
 	    /**
 	     * \brief These values can be used to create a VarBind.

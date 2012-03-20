@@ -280,7 +280,7 @@ namespace agentxcpp
 	     *
 	     * \return True if the object is the null OID, false otherwise.
 	     */
-	    bool is_null();
+	    bool is_null() const;
 
 	    friend std::ostream& operator<<(std::ostream&,
 					    const agentxcpp::oid&);

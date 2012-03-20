@@ -380,7 +380,7 @@ bool oid::contains(const oid& id)
 }
 
 
-bool oid::is_null()
+bool oid::is_null() const
 {
     if( this->size() == 0 &&
 	! this->include)

@@ -31,11 +31,31 @@
 class variable
 {
     public:
-	//virtual data_t serialize();
-	
+	/**
+	 * \brief Serialize the variable.
+	 *
+	 * This function must be implemented by all derived classes. The 
+	 * function shall generate a serialized form of the variable.
+	 *
+	 * \return The serialized form of the variable.
+	 *
+	 * \exception None: The function shall not throw.
+	 */
 	// Needed for encoding varbinds
 	virtual data_t serialize() const = 0;
 
+	/**
+	 * \brief An SNMP GET request was received.
+	 *
+	 * This function should be implemented by derived classes to support 
+	 * GET requests. The function shall update its internal data if 
+	 * neccessary.
+	 *
+	 * This function is called on SNMP GET requests, before serializing the 
+	 * variable and sending it to the master agent.
+	 *
+	 * \exception None.
+	 */
 	virtual void get();
 };
 

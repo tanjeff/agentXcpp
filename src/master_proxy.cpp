@@ -518,7 +518,71 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 
 	// Step 4a) Stop processing the PDU. Send response.
 	this->connection->send(response);
+
+	return;
     }
+
+
+    // Is it a GetPDU?
+    shared_ptr<GetPDU> get_pdu;
+    if( (get_pdu = dynamic_pointer_cast<GetPDU>(pdu)) != 0 )
+    {
+	// Handling according to
+	// RFC 2741, 7.2.3.1 "Subagent Processing of the agentx-Get-PDU"
+
+	// Extract searchRange list
+	vector<oid> sr = get_pdu->get_sr();
+
+	// Iterate over list and handle each oid separately
+	vector<oid>::const_iterator i;
+	for(i = sr.begin(); i != sr.end(); i++)
+	{
+	    // The name
+	    const oid& name = *i;
+
+	    // Find variable for current OID
+	    map< oid, shared_ptr<variable> >::const_iterator var;
+	    var = variables.find(name);
+	    if(var != variables.end())
+	    {
+		// Step (2): We have a variable for this oid
+
+		// update variable
+		var->second->get();
+
+		// Add variable to response (Step (1): include name)
+		response.varbindlist.push_back( varbind(name, var->second) );
+	    }
+	    else
+	    {
+		// Interpret 'name' as prefix:
+		// append .0 and check whether we have a variable
+		// with this name
+		oid name_copy(name, 0);
+
+		var = variables.find(name_copy);
+		if(var != variables.end())
+		{
+		    // Step (4): We have a variable with the object
+		    //           identifier prefix 'name': Send noSuchInstance 
+		    //           error (Step (1): include name)
+		    response.varbindlist.push_back( varbind(name, varbind::noSuchInstance) );
+		}
+		else
+		{
+		    // Step (3): we have no variable with the object
+		    //           identifier prefix 'name': Send noSuchObject 
+		    //           error (Step (1): include name)
+		    response.varbindlist.push_back( varbind(name, varbind::noSuchObject) );
+		}
+	    }
+	}
+
+	// Finally: send the response
+	this->connection->send(response);
+    }
+
+    // TODO: handle other PDU types
 }
 
 

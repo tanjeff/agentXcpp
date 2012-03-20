@@ -35,6 +35,8 @@ class variable
 	
 	// Needed for encoding varbinds
 	virtual data_t serialize() const = 0;
+
+	virtual void get();
 };
 
 

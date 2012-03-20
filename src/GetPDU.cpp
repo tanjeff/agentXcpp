@@ -30,7 +30,20 @@ GetPDU::GetPDU(data_t::const_iterator& pos,
     // Get SearchRanges until the PDU is completely parsed
     while( pos < end )
     {
+	// read starting oid
 	sr.push_back(oid(pos, end, big_endian));
+
+	// read and forget ending oid (but check its include field)
+	oid ending(pos, end, big_endian);
+	if(ending.get_include() == true)
+	{
+	    // Parse error according to RFC 2741, 5.2 "SearchRange":
+	    // include field of ending OID must be 0
+	    throw( parse_error() );
+	}
+
+
+
 	pos += 4;   // ignore empty "end" oid
     }
 }

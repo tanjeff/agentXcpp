@@ -38,8 +38,17 @@ GetBulkPDU::GetBulkPDU(data_t::const_iterator& pos,
     while( pos < end )
     {
 	pair<oid,oid> p;
+
 	p.first = oid(pos, end, big_endian);
 	p.second = oid(pos, end, big_endian);
+
+	if(p.second.get_include() == true)
+	{
+	    // Parse error according to RFC 2741, 5.2 "SearchRange":
+	    // include field of ending OID must be 0
+	    throw( parse_error() );
+	}
+
 	sr.push_back(p);
     }
 }

@@ -40,7 +40,11 @@ UnregisterPDU::UnregisterPDU(data_t::const_iterator& pos,
     // read r.upper_bound only if r.range_subid is not 0
     if( range_subid )
     {
-	upper_bound = oid(pos, end, big_endian);
+	if(end - pos < 4)
+	{
+	    throw(parse_error());
+	}
+	upper_bound = read32(pos, big_endian);
     }
 }
 
@@ -58,7 +62,7 @@ data_t UnregisterPDU::serialize() const
 
     if( range_subid )
     {
-	serialized += upper_bound.serialize();
+	write32(serialized, upper_bound);
     }
 
     // Add Header
@@ -70,6 +74,6 @@ data_t UnregisterPDU::serialize() const
 
 
 UnregisterPDU::UnregisterPDU()
-    : priority(127), range_subid(0), subtree(), upper_bound()
+    : priority(127), range_subid(0), subtree(), upper_bound(0)
 {
 }

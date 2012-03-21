@@ -35,20 +35,20 @@ namespace agentxcpp
 	    byte_t priority;
 	    byte_t range_subid;
 	    oid subtree;
-	    oid upper_bound;
+	    uint32_t upper_bound;
 
 	public:
 	    /**
 	     * \brief Set the upper_bound.
 	     */
-	    void set_upper_bound(oid upper_bound)
+	    void set_upper_bound(uint32_t upper_bound)
 	    {
 		this->upper_bound = upper_bound;
 	    }
 	    /**
 	     * \brief Get the upper_bound.
 	     */
-	    oid get_upper_bound()
+	    uint32_t get_upper_bound()
 	    {
 		return this->upper_bound;
 	    }

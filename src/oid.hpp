@@ -144,31 +144,9 @@ namespace agentxcpp
 	    oid(const oid& o, std::string id);
 
 	    /**
-	     * \brief Initialize an oid object with another oid plus a sequence 
-	     * of up to 19 subidentifiers.
-	     *
-	     * The 'include' field is copied from o.
-	     *
-	     * This is also the copy constructor.
-	     *
-	     * \note Zero (0) is not allowed for a subidentifier, i.e. the
-	     *       first subidentifier with value 0 and all its successors 
-	     *       are ignored.
-	     */
-	    oid(const oid& o,
-		uint32_t  c1=0, uint32_t  c2=0, uint32_t  c3=0,
-		uint32_t  c4=0, uint32_t  c5=0, uint32_t  c6=0,
-		uint32_t  c7=0, uint32_t  c8=0,	uint32_t  c9=0,
-		uint32_t c10=0, uint32_t c11=0, uint32_t c12=0,
-		uint32_t c13=0, uint32_t c14=0, uint32_t c15=0,
-		uint32_t c16=0, uint32_t c17=0, uint32_t c18=0,
-		uint32_t c19=0 );
-
-	    /**
 	     * \brief Assignment operator
 	     */
 	    oid& operator=(const oid& oid);
-
 
 	    /**
 	     * \internal
@@ -358,15 +336,15 @@ namespace agentxcpp
     const oid iso("1");
     const oid ccitt("0");
     const oid joint_iso_ccitt("2");
-    const oid org(iso,3);
-    const oid dod(org,6);
-    const oid internet(dod,1);
-    const oid directory(internet,1);
-    const oid mgmt(internet,2);
-    const oid experimental(internet,3);
+    const oid org(iso,"3");
+    const oid dod(org,"6");
+    const oid internet(dod,"1");
+    const oid directory(internet,"1");
+    const oid mgmt(internet,"2");
+    const oid experimental(internet,"3");
     // 'private' is a C++ keyword, thus we use private_:
-    const oid private_(internet,4);
-    const oid enterprises(private_, 1);
+    const oid private_(internet,"4");
+    const oid enterprises(private_, "1");
 }
 
 

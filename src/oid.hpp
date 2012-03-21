@@ -65,6 +65,19 @@ namespace agentxcpp
 	     */
 	    bool include;
 
+	    /**
+	     * \brief Parse an OID from a string and append it.
+	     *
+	     * The OID contained within the string 's' is parsed and appended 
+	     * this object. The format of the string is described in the 
+	     * oid::oid(std::string) constructor's documentation.
+	     *
+	     * \param s The OID to be parsed.
+	     *
+	     * \exception inval_param If the string is malformed.
+	     */
+	    void parse_string(std::string s);
+
 	public:
 
 	    /**
@@ -112,6 +125,23 @@ namespace agentxcpp
 	     * \exception inval_param If the string is malformed.
 	     */
 	    oid(std::string id);
+
+	    /**
+	     * \brief Initialize an oid object with another oid plus an OID in 
+	     * string format.
+	     *
+	     * The 'include' field and all subid's are copied from 'o'. Then, 
+	     * the OID contained within the string 'id' is appended. The format 
+	     * of the string is the same as for the oid::oid(std::string) 
+	     * constructor.
+	     *
+	     * \param o The starting OID.
+	     *
+	     * \param id The OID to append to o.
+	     *
+	     * \exception inval_param If the string is malformed.
+	     */
+	    oid(const oid& o, std::string id);
 
 	    /**
 	     * \brief Initialize an oid object with another oid plus a sequence 

@@ -26,10 +26,8 @@
 using namespace agentxcpp;
 
 
-oid::oid(std::string s)
+void oid::parse_string(std::string s)
 {
-    include = false;
-
     // Do not parse empty string
     if(s.empty()) return;
 
@@ -62,6 +60,26 @@ oid::oid(std::string s)
 	    throw( inval_param() );
 	}
     }
+}
+
+
+
+oid::oid(std::string s)
+{
+    include = false;
+
+    // parse the string. Forward all exceptions.
+    parse_string(s);
+}
+
+
+oid::oid(const oid& o, std::string id)
+{
+    // start with o
+    *this = o;
+
+    // add OID from string. Forward all exceptions.
+    parse_string(id);
 }
 
 

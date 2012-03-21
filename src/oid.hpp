@@ -29,32 +29,61 @@
 namespace agentxcpp
 {
     /**
-     * \brief Represents an SNMP object identifier (OID)
+     * \brief Represents an SNMP object identifier (OID).
      *
-     * This class represents an OID. OID's are sequences of integers. This 
-     * class inherits from std:vector<>, which means that an oid object can be 
-     * manipulated much the same way as a std::vector<> can be manipulated.
+     * This class represents an OID. OID's are sequences of sub-identifiers, 
+     * which are integers.
      *
-     * In addition, the OID class provides constructors taking a number of 
-     * integers to ease creatng such objects. For example, this works:
-     *
-     * \code
-     * oid myCompany = oid(1,3,6,1,4,1,355);
-     * \endcode
-     *
-     * Also a constructor is provided which takes an oid and a number of 
-     * integers, so this works also:
+     * This class provides constructors taking a string which contains an OID.  
+     * For example, this works:
      *
      * \code
-     * oid myObject = oid(myCompany,1,1,3,42);
+     * oid myCompany = oid("1.3.6.1.4.1.355");
      * \endcode
      *
-     * In addition, some common oid's are provided as constants, e.g. 
-     * 'enterprises', so the following will also work:
+     * Also a constructor is provided which takes an oid and a string and 
+     * concatenates them, so this works also:
      *
      * \code
-     * oid myCompany = oid(enterprises,355);
+     * oid myObject = oid(myCompany, "1.1.3.0");
      * \endcode
+     *
+     * In addition, some common oid's are provided as constants, e.g.  
+     * 'enterprises', so the following will also work (note that the second 
+     * argument is a string, not an integer!):
+     *
+     * \code
+     * oid yourCompany = oid(enterprises, "42"); // second param is a string!
+     * \endcode
+     *
+     * The string given to the constructors must have a valid syntax. If a 
+     * malformed string is provided, inval_param is thrown and the object is 
+     * not constructed. For example, the following strings are malformed:
+     *
+     * \code
+     * "1,3,6"  // wrong separator (must be a period)
+     * "1.3.6." // trailing character at the end
+     * "1.3.6.1.4.1.123456789123" // last subid is too big (must fit in a 32 bit unsigned integer)
+     * \endcode
+     *
+     * However, the following strings are accepted:
+     *
+     * \code
+     * "1.3.6"
+     * "1"  // a single subid is ok
+     * "1.3.6.1.4.1.42.1.0" // 0 as subid is ok
+     * ""   // empty string is ok
+     * \endcode
+     *
+     * This class inherits from std:vector<uint32_t>, which means that an oid 
+     * object can be manipulated the same way as a std::vector<> can be 
+     * manipulated:
+     *
+     * \code
+     * oid theirCompany = enterprises;
+     * theirCompany.push_back(23);    // Don't use a string here!
+     * \endcode
+     *
      */
     class oid: public variable, public std::vector<uint32_t>
     {
@@ -69,8 +98,7 @@ namespace agentxcpp
 	     * \brief Parse an OID from a string and append it.
 	     *
 	     * The OID contained within the string 's' is parsed and appended 
-	     * this object. The format of the string is described in the 
-	     * oid::oid(std::string) constructor's documentation.
+	     * this object. The format of the string is described above 
 	     *
 	     * \param s The OID to be parsed.
 	     *
@@ -97,26 +125,9 @@ namespace agentxcpp
 	    /**
 	     * \brief Initialize an oid object with an OID in string format.
 	     *
-	     * This constructor takes a string of the form "1.3.4.1.6.1.42.1" 
-	     * and initializes the oid object with this object identifier. If a 
-	     * malformed string is provided, inval_param is thrown and the 
-	     * object is not constructed.  For example, the following strings 
-	     * are malformed:
-	     *
-	     * \code
-	     * "1,3,6"  // wrong separator (must be a period)
-	     * "1.3.6." // trailing character at the end
-	     * "1.3.6.1.4.1.123456789123" // last subid is too big (must fit in a 32 bit unsigned integer)
-	     * \endcode
-	     *
-	     * However, the following strings are accepted:
-	     *
-	     * \code
-	     * "1.3.6"
-	     * "1"  // a single subid is ok
-	     * "1.3.6.1.4.1.42.1.0" // 0 as subid is ok
-	     * ""   // empty string is ok
-	     * \endcode
+	     * This constructor takes a string and initializes the oid object 
+	     * with the OID contained within this string. The format of the 
+	     * string is described above.
 	     * 
 	     * The 'include' field is initialized to 'false'.
 	     *
@@ -131,9 +142,9 @@ namespace agentxcpp
 	     * string format.
 	     *
 	     * The 'include' field and all subid's are copied from 'o'. Then, 
-	     * the OID contained within the string 'id' is appended. The format 
-	     * of the string is the same as for the oid::oid(std::string) 
-	     * constructor.
+	     * the OID contained within the string 'id' is appended.  The 
+	     * format of the string is described in the documentation of this 
+	     * class.
 	     *
 	     * \param o The starting OID.
 	     *
@@ -151,7 +162,7 @@ namespace agentxcpp
 	    /**
 	     * \internal
 	     *
-	     * \brief get the current include value
+	     * \brief Get the current include value.
 	     *
 	     * The include value is present in the serialized form of an OID.  
 	     * If an OID object is created by parsing a AgentX message, the 
@@ -306,8 +317,8 @@ namespace agentxcpp
 	     * According to RFC 2741, 5.1 "Object Identifier", a null object 
 	     * identifier has serial representation of for 4 bytes which are 
 	     * all set to 0. An OID with no subid's and the index field set to 
-	     * 0 results in that representation and is thus considered as null 
-	     * OID.
+	     * 0 results in that representation and is thus considered to be 
+	     * the null OID.
 	     *
 	     * \return True if the object is the null OID, false otherwise.
 	     */
@@ -333,6 +344,8 @@ namespace agentxcpp
 
 
     // Some oid's according to RFC 1155:
+    // TODO: document them! Possibly these should be put into the 
+    // agentxcpp::oid namespace?
     const oid iso("1");
     const oid ccitt("0");
     const oid joint_iso_ccitt("2");

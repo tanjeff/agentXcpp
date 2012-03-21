@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <ostream>
+#include <string>
 #include "variable.hpp"
 #include "types.hpp"
 
@@ -67,28 +68,50 @@ namespace agentxcpp
 	public:
 
 	    /**
-	     * \brief Initialize an oid object with a sequence of up to 20
-	     *        subidentifiers.
+	     * \brief Default Constructor
 	     *
-	     * This constructor takes up to 20 subidentifiers which forms up 
-	     * the object identifier. More subidentifiers can be added using 
-	     * functions from the vector<> class.
+	     * This constructs an empty oid (the null oid). The 'include' field 
+	     * is initialized to 'false'.
 	     *
+	     * \exception None.
+	     */
+	    oid()
+	    {
+		include = false;
+	    }
+
+
+	    /**
+	     * \brief Initialize an oid object with an OID in string format.
+	     *
+	     * This constructor takes a string of the form "1.3.4.1.6.1.42.1" 
+	     * and initializes the oid object with this object identifier. If a 
+	     * malformed string is provided, inval_param is thrown and the 
+	     * object is not constructed.  For example, the following strings 
+	     * are malformed:
+	     *
+	     * \code
+	     * "1,3,6"  // wrong separator (must be a period)
+	     * "1.3.6." // trailing character at the end
+	     * "1.3.6.1.4.1.123456789123" // last subid is too big (must fit in a 32 bit unsigned integer)
+	     * \endcode
+	     *
+	     * However, the following strings are accepted:
+	     *
+	     * \code
+	     * "1.3.6"
+	     * "1"  // a single subid is ok
+	     * "1.3.6.1.4.1.42.1.0" // 0 as subid is ok
+	     * ""   // empty string is ok
+	     * \endcode
+	     * 
 	     * The 'include' field is initialized to 'false'.
 	     *
-	     * This is also the default constructor.
+	     * \param id The initial object identifier.
 	     *
-	     * \note Zero (0) is not allowed for a subidentifier, i.e. the
-	     *       first subidentifier with value 0 and all its successors 
-	     *       are ignored.
+	     * \exception inval_param If the string is malformed.
 	     */
-	    oid(uint32_t  c1=0, uint32_t  c2=0, uint32_t  c3=0,
-		uint32_t  c4=0,	uint32_t  c5=0, uint32_t  c6=0,
-		uint32_t  c7=0, uint32_t  c8=0, uint32_t  c9=0,
-		uint32_t c10=0, uint32_t c11=0, uint32_t c12=0,
-		uint32_t c13=0, uint32_t c14=0, uint32_t c15=0,
-		uint32_t c16=0, uint32_t c17=0, uint32_t c18=0,
-		uint32_t c19=0, uint32_t c20=0 );
+	    oid(std::string id);
 
 	    /**
 	     * \brief Initialize an oid object with another oid plus a sequence 
@@ -302,9 +325,9 @@ namespace agentxcpp
 
 
     // Some oid's according to RFC 1155:
-    const oid iso(1);
-    const oid ccitt(0);
-    const oid joint_iso_ccitt(2);
+    const oid iso("1");
+    const oid ccitt("0");
+    const oid joint_iso_ccitt("2");
     const oid org(iso,3);
     const oid dod(org,6);
     const oid internet(dod,1);

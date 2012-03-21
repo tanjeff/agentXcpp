@@ -18,6 +18,7 @@
  */
 
 //#include <iostream>
+#include <sstream>
 #include "oid.hpp"
 #include "exceptions.hpp"
 
@@ -25,38 +26,42 @@
 using namespace agentxcpp;
 
 
-oid::oid(uint32_t  c1, uint32_t  c2, uint32_t  c3,
-	 uint32_t  c4, uint32_t  c5, uint32_t  c6,
-	 uint32_t  c7, uint32_t  c8, uint32_t  c9,
-	 uint32_t c10, uint32_t c11, uint32_t c12,
-	 uint32_t c13, uint32_t c14, uint32_t c15,
-	 uint32_t c16, uint32_t c17, uint32_t c18,
-	 uint32_t c19, uint32_t c20)
+oid::oid(std::string s)
 {
     include = false;
 
-    if(c1) push_back(c1); else return;
-    if(c2) push_back(c2); else return;
-    if(c3) push_back(c3); else return;
-    if(c4) push_back(c4); else return;
-    if(c5) push_back(c5); else return;
-    if(c6) push_back(c6); else return;
-    if(c7) push_back(c7); else return;
-    if(c8) push_back(c8); else return;
-    if(c9) push_back(c9); else return;
-    
-    if(c10) push_back(c10); else return;
-    if(c11) push_back(c11); else return;
-    if(c12) push_back(c12); else return;
-    if(c13) push_back(c13); else return;
-    if(c14) push_back(c14); else return;
-    if(c15) push_back(c15); else return;
-    if(c16) push_back(c16); else return;
-    if(c17) push_back(c17); else return;
-    if(c18) push_back(c18); else return;
-    if(c19) push_back(c19); else return;
-    
-    if(c20) push_back(c20); else return;
+    // Do not parse empty string
+    if(s.empty()) return;
+
+    // Parse the string
+    std::istringstream ss(s);
+    uint32_t subid;
+    char ch;
+    while(ss)
+    {
+	// Read a subid
+	ss >> subid;
+	if(!ss)
+	{
+	    // cannot get number: parse error
+	    // This happens also if the number is too large
+	    throw( inval_param() );
+	}
+	push_back(subid);
+
+	// Read a period
+	ss >> ch;
+	if(!ss)
+	{
+	    // end of string: end of parsing
+	    break;
+	}
+	if(ch != '.')
+	{
+	    // Wrong char: parse error
+	    throw( inval_param() );
+	}
+    }
 }
 
 

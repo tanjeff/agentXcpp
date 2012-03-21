@@ -100,30 +100,32 @@ varbind NotifyPDU::trapToNotification(oid enterprise,
 
 
     // calculate the value of snmpTrapOID.0 according to RFC 1908
-    shared_ptr<oid> value;
+    shared_ptr<oid> value( new oid() );
 
     switch(generic_trap)
     {
 	case coldStart:
-	    value.reset(new oid(coldStart));
+	    value->push_back(coldStart);
 	    break;
 	case warmStart:
-	    value.reset(new oid(warmStart));
+	    value->push_back(warmStart);
 	    break;
 	case linkDown:
-	    value.reset(new oid(linkDown));
+	    value->push_back(linkDown);
 	    break;
 	case linkUp:
-	    value.reset(new oid(linkUp));
+	    value->push_back(linkUp);
 	    break;
 	case authenticationFailure:
-	    value.reset(new oid(authenticationFailure));
+	    value->push_back(authenticationFailure);
 	    break;
 	case egpNeighborLoss:
-	    value.reset(new oid(egpNeighborLoss));
+	    value->push_back(egpNeighborLoss);
 	    break;
 	case enterpriseSpecific:
-	    value.reset(new oid(enterprise, 0, specific_trap));
+	    *value = enterprises;
+	    value->push_back(0);
+	    value->push_back(specific_trap);
 	    break;
 	default:
 	    // invalid generic_trap value!

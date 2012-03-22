@@ -40,8 +40,12 @@ namespace agentxcpp
 	public:
 	    /**
 	     * \brief Create an Integer object
+	     *
+	     * The default value of the new object is 0.
+	     *
+	     * \exception None.
 	     */
-	    Integer(uint32_t _value) :value(_value) {}
+	    Integer(uint32_t _value=0) :value(_value) {}
 
 	    /**
 	     * \brief Get the value
@@ -95,12 +99,6 @@ namespace agentxcpp
 	    Integer(data_t::const_iterator& pos,
 		    const data_t::const_iterator& end,
 		    bool big_endian=true);
-	    
-	private:
-	    /**
-	     * \brief hide default constructor
-	     */
-	    Integer();
     };
 }
 

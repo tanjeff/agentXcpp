@@ -106,7 +106,7 @@ data_t ResponsePDU::serialize() const
     }
 
     // Add Header
-    add_header(PDU::agentxClosePDU, serialized);
+    add_header(PDU::agentxResponsePDU, serialized);
 
     return serialized;
 }

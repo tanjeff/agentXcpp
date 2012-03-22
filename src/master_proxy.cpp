@@ -481,6 +481,13 @@ boost::shared_ptr<UnregisterPDU> master_proxy::create_unregister_pdu(
 
 void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 {
+    if(error == -2)
+    {
+	// Version error
+	// TODO: provide better handling. For now: ignore PDU
+	return;
+    }
+
     // Here we process all PDU's except ResponsePDU's, according to RFC 2741, 
     // 7.2.2. "Subagent Processing".
 
@@ -496,6 +503,8 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
     response.set_sessionID( pdu->get_sessionID() );
     response.set_transactionID( pdu->get_transactionID() );
     response.set_packetID( pdu->get_packetID() );
+    response.set_error(ResponsePDU::noAgentXError);
+    response.set_index(0);
 
     // Step 2) Was there a parse error?
     //
@@ -509,15 +518,9 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 	//       parseError indication to the master agent.
 	//
 	// TODO: Send response if the header was parsed sucessfully.
+	response.set_error(ResponsePDU::parseError);
 	return;
     }
-    if(error == -2)
-    {
-	// Version error
-	// TODO: provide better handling. For now: ignore PDU
-	return;
-    }
-
     // Step 3) Is the session valid?
     if(pdu->get_sessionID() != this->sessionID)
     {

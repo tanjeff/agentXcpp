@@ -79,6 +79,19 @@ namespace agentxcpp
 	    Opaque(data_t initial_value) : value(initial_value) {}
 
 	    Opaque() { }
+
+	    /**
+	     * \brief Update the internal state of the object.
+	     *
+	     * This function calls get() to obtain a new value and writes that 
+	     * value to the 'value' member.
+	     *
+             * \exception generic_error If obtaining the new value failed.
+	     */
+	    virtual void update()
+	    {
+		//value = this->get();
+	    }
     };
 }
 

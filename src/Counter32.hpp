@@ -44,9 +44,9 @@ namespace agentxcpp
 	     * The value after creation is undefined.
 	     */
 	    Counter32() {}
-	    
+
 	    /**
-	     * \internal
+             * \internal
 	     *
 	     * \brief Construct the object from input stream
 	     *
@@ -72,7 +72,7 @@ namespace agentxcpp
 	    Counter32(data_t::const_iterator& pos,
 		      const data_t::const_iterator& end,
 		      bool big_endian=true);
-	    
+
 	    /**
 	     * \internal
 	     *
@@ -81,7 +81,19 @@ namespace agentxcpp
 	     * This function uses big endian.
 	     */
 	    virtual data_t serialize() const;
-	    
+
+	    /**
+	     * \brief Update the internal state of the object.
+	     *
+	     * This function calls get() to obtain a new value and writes that 
+	     * value to the 'value' member.
+	     *
+             * \exception generic_error If obtaining the new value failed.
+	     */
+	    virtual void update()
+	    {
+		//value = this->get();
+	    }
     };
 }
 

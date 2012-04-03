@@ -326,6 +326,19 @@ namespace agentxcpp
 
 	    friend std::ostream& operator<<(std::ostream&,
 					    const agentxcpp::oid&);
+
+	    /**
+	     * \brief Update the internal state of the object.
+	     *
+	     * This function calls get() to obtain a new value and stores that 
+	     * value within this object.
+	     *
+             * \exception generic_error If obtaining the new value failed.
+	     */
+	    virtual void update()
+	    {
+		//*this = this->get();
+	    }
     };
 
     /**

@@ -50,7 +50,7 @@ Opaque::Opaque(data_t::const_iterator& pos,
 	       const data_t::const_iterator& end,
 	       bool big_endian)
 {
-    uint32_t size;
+    int size;
     
     // We need 4 bytes for the size
     if(end - pos < 4)

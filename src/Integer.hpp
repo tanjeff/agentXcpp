@@ -99,6 +99,19 @@ namespace agentxcpp
 	    Integer(data_t::const_iterator& pos,
 		    const data_t::const_iterator& end,
 		    bool big_endian=true);
+
+	    /**
+	     * \brief Update the internal state of the object.
+	     *
+	     * This function calls get() to obtain a new value and writes that 
+	     * value to the 'value' member.
+	     *
+             * \exception generic_error If obtaining the new value failed.
+	     */
+	    virtual void update()
+	    {
+		//value = this->get();
+	    }
     };
 }
 

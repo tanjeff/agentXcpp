@@ -81,7 +81,19 @@ namespace agentxcpp
 	     * This function uses big endian.
 	     */
 	    virtual data_t serialize() const;
-	    
+
+	    /**
+	     * \brief Update the internal state of the object.
+	     *
+	     * This function calls get() to obtain a new value and writes that 
+	     * value to the 'value' member.
+	     *
+             * \exception generic_error If obtaining the new value failed.
+	     */
+	    virtual void update()
+	    {
+		//value = this->get();
+	    }
     };
 }
 

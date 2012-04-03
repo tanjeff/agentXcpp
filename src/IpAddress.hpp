@@ -93,6 +93,19 @@ namespace agentxcpp
 		address[2] = c;
 		address[3] = d;
 	    }
+
+	    /**
+	     * \brief Update the internal state of the object.
+	     *
+	     * This function calls get() to obtain a new value and writes that 
+	     * value to the 'address' member.
+	     *
+             * \exception generic_error If obtaining the new value failed.
+	     */
+	    virtual void update()
+	    {
+		//address = this->get();
+	    }
     };
 }
 

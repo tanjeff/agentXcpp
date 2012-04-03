@@ -95,7 +95,23 @@ namespace agentxcpp
 	    /**
 	     * \brief get the current value
 	     */
-	    data_t get_value() { return value; }
+	    data_t get_value()
+	    {
+		return value;
+	    }
+
+	    /**
+	     * \brief Update the internal state of the object.
+	     *
+	     * This function calls get() to obtain a new value and writes that 
+	     * value to the 'value' member.
+	     *
+             * \exception generic_error If obtaining the new value failed.
+	     */
+	    virtual void update()
+	    {
+		//value = this->get();
+	    }
     };
 }
 

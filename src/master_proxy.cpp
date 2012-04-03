@@ -569,7 +569,7 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 		// Step (2): We have a variable for this oid
 
 		// update variable
-		var->second->get();
+		var->second->update();
 
 		// Add variable to response (Step (1): include name)
 		response.varbindlist.push_back( varbind(name, var->second) );

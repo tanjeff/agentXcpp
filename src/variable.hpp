@@ -46,19 +46,31 @@ namespace agentxcpp
 	    // Needed for encoding varbinds
 	    virtual data_t serialize() const = 0;
 
-	    /**
-	     * \brief An SNMP GET request was received.
-	     *
-	     * This function should be implemented by derived classes to support 
-	     * GET requests. The function shall update its internal data if 
-	     * neccessary.
-	     *
-	     * This function is called on SNMP GET requests, before serializing the 
-	     * variable and sending it to the master agent.
-	     *
-	     * \exception None.
-	     */
-	    virtual void get();
+	/**
+	 * \brief An SNMP GET request was received.
+	 *
+	 * This function should be implemented by derived classes to support 
+	 * GET requests. The function shall update its internal data if 
+	 * neccessary.
+	 *
+	 * This function is called on SNMP GET requests, before serializing the 
+	 * variable and sending it to the master agent.
+	 *
+	 * \exception None.
+	 */
+	//virtual void get();
+
+	/**
+	 * \brief Update the internal state of the variable.
+	 *
+	 * This function must be implemented in derived classes. It shall 
+	 * update the internal state of the object.
+	 *
+         * \exception generic_error If obtaining the new value failed. The
+         *                          state of such an object cannot be 
+         *                          updated.
+	 */
+	virtual void update()=0;
     };
 }
 

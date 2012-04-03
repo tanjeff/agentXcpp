@@ -73,8 +73,8 @@ Octet_String::Octet_String(data_t::const_iterator& pos,
 			   const data_t::const_iterator& end,
 			   bool big_endian)
 {
-    uint32_t size;
-    
+    int size;
+
     // We need 4 bytes for the size
     if(end - pos < 4)
     {
@@ -96,14 +96,14 @@ Octet_String::Octet_String(data_t::const_iterator& pos,
 	size |= *pos++ << 16;
 	size |= *pos++ << 24;
     }
-    
+
     // Octet String emtpy?
     if( size == 0 )
     {
 	// nothing left to parse
 	return;
     }
-    
+
     // We want to read (size) more bytes
     if((end - pos) < size)
     {
@@ -113,7 +113,7 @@ Octet_String::Octet_String(data_t::const_iterator& pos,
     // Get value
     value.assign(pos, pos+size);
     pos += size;
-    
+
     // Eat padding bytes
     int padsize = 4 - (size % 4);
     if( padsize == 4 ) padsize = 0;

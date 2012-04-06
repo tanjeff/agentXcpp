@@ -38,7 +38,12 @@ namespace agentxcpp
 	    IpAddress();
 
 	protected:
-	    uint32_t address[4]; // only IPv4
+	    /**
+	     * \brief The IP address.
+	     *
+	     * According to RFC 2578, IpAddress is a 32-bit number.
+	     */
+	    uint8_t address[4]; // only IPv4
 
 	public:
 	    /**

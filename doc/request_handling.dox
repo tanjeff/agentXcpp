@@ -60,6 +60,14 @@ new value within the variable.
 When implementing an SNMP variable, the user of the agentXcpp library derives 
 one of the variable classes (e.g. agentxcpp::Octet_String) and overrides the 
 get() method. The get() method may throw agentxcpp::generic_error, in which 
-case a generic error is reported to the master agent.
+case a generic error is reported to the master agent. Note that any other 
+exception also results in a generic error reported to the master agent.
+
+The variable classes provide default implementations of get() which throws 
+agentxcpp::generic_error. As a side effect, a generic error is reported if a 
+derived class does not override get(). The main reason for providing a default 
+implementations is that get() cannot be pure virtual, because the variable 
+classes are created while parsing PDU contents.  Abstract classes would not 
+allow that mechanism.
 
 */

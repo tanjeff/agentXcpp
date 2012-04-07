@@ -32,7 +32,10 @@ namespace agentxcpp
     {
 	protected:
 	    /**
-	     * \brief The TimeTicks value
+	     * \brief The TimeTicks value.
+	     *
+	     * According to RFC 2578, Counter32 is a non-negative 32-bit 
+	     * number.
 	     */
 	    uint32_t value;
 
@@ -91,7 +94,24 @@ namespace agentxcpp
 	     */
 	    virtual void update()
 	    {
-		//value = this->get();
+		value = this->get();
+	    }
+
+            /**
+             * \brief Obtain the current value for the object.
+             *
+             * This member function is derived by classes representing SNMP 
+             * variables and shall return the current value of the object.
+             *
+             * The default implementation throws generic_error.
+             *
+             * \return The current value of the object.
+             *
+             * \exception generic_error If obtaining the current value fails.
+             */
+	    virtual uint32_t get()
+	    {
+		throw( generic_error() );
 	    }
     };
 }

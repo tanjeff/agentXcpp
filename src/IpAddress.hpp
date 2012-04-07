@@ -109,7 +109,28 @@ namespace agentxcpp
 	     */
 	    virtual void update()
 	    {
-		//address = this->get();
+		IpAddress a = this->get();
+		address[0] = a.address[0];
+		address[1] = a.address[1];
+		address[2] = a.address[2];
+		address[3] = a.address[3];
+	    }
+
+            /**
+             * \brief Obtain the current value for the object.
+             *
+             * This member function is derived by classes representing SNMP 
+             * variables and shall return the current value of the object.
+             *
+             * The default implementation throws generic_error.
+             *
+             * \return The current value of the object.
+             *
+             * \exception generic_error If obtaining the current value fails.
+             */
+	    virtual IpAddress get()
+	    {
+		throw( generic_error() );
 	    }
     };
 }

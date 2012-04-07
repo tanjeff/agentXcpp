@@ -25,6 +25,7 @@
 #include <string>
 #include "variable.hpp"
 #include "types.hpp"
+#include "exceptions.hpp"
 
 namespace agentxcpp
 {
@@ -337,7 +338,24 @@ namespace agentxcpp
 	     */
 	    virtual void update()
 	    {
-		//*this = this->get();
+		*this = this->get();
+	    }
+
+            /**
+             * \brief Obtain the current value for the object.
+             *
+             * This member function is derived by classes representing SNMP 
+             * variables and shall return the current value of the object.
+             *
+             * The default implementation throws generic_error.
+             *
+             * \return The current value of the object.
+             *
+             * \exception generic_error If obtaining the current value fails.
+             */
+	    virtual oid get()
+	    {
+		throw( generic_error() );
 	    }
     };
 

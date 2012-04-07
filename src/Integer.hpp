@@ -33,32 +33,34 @@ namespace agentxcpp
     {
 	protected:
 	    /**
-	     * \brief The Integer value
+	     * \brief The Integer value.
+	     *
+	     * According to RFC 2578, INTEGER is a signed 32-bit number.
 	     */
-	    uint32_t value;
+	    int32_t value;
 
 	public:
 	    /**
-	     * \brief Create an Integer object
+	     * \brief Create an Integer object.
 	     *
 	     * The default value of the new object is 0.
 	     *
 	     * \exception None.
 	     */
-	    Integer(uint32_t _value=0) :value(_value) {}
+	    Integer(int32_t _value=0) :value(_value) {}
 
 	    /**
-	     * \brief Get the value
+	     * \brief Get the value.
 	     */
-	    uint32_t get_value()
+	    int32_t get_value()
 	    {
 		return value;
 	    }
 	    
 	    /**
-	     * \brief Set the value
+	     * \brief Set the value.
 	     */
-	    void set_value(uint32_t v)
+	    void set_value(int32_t v)
 	    {
 		value = v;
 	    }
@@ -110,8 +112,26 @@ namespace agentxcpp
 	     */
 	    virtual void update()
 	    {
-		//value = this->get();
+		value = this->get();
 	    }
+
+            /**
+             * \brief Obtain the current value for the object.
+             *
+             * This member function is derived by classes representing SNMP 
+             * variables and shall return the current value of the object.
+             *
+             * The default implementation throws generic_error.
+             *
+             * \return The current value of the object.
+             *
+             * \exception generic_error If obtaining the current value fails.
+             */
+	    virtual int32_t get()
+	    {
+		throw( generic_error() );
+	    }
+
     };
 }
 

@@ -97,6 +97,12 @@ namespace agentxcpp
      */
     class unknown_registration : public std::exception { };
 
+    /**
+     * \brief Exception to indicate that obtaining the value of an SNMP
+     *        variable failed.
+     */
+    class generic_error : public std::exception { };
+
 } // namespace agentxcpp
 
 #endif

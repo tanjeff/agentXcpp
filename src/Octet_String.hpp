@@ -32,8 +32,12 @@ namespace agentxcpp
     class Octet_String : public variable
     {
 	protected:
-	    // We use data_t here although it was not invented for this.
-	    // TODO: Is this a problem?
+	    /**
+	     * \brief The string.
+	     *
+	     * According to RFC 2578, Octet_String represents arbitrary binary 
+	     * or textual data.
+	     */
 	    data_t value;
 
 	public:
@@ -110,7 +114,24 @@ namespace agentxcpp
 	     */
 	    virtual void update()
 	    {
-		//value = this->get();
+		value = this->get();
+	    }
+
+            /**
+             * \brief Obtain the current value for the object.
+             *
+             * This member function is derived by classes representing SNMP 
+             * variables and shall return the current value of the object.
+             *
+             * The default implementation throws generic_error.
+             *
+             * \return The current value of the object.
+             *
+             * \exception generic_error If obtaining the current value fails.
+             */
+	    virtual data_t get()
+	    {
+		throw( generic_error() );
 	    }
     };
 }

@@ -27,13 +27,18 @@
 namespace agentxcpp
 {
     /**
-     * \brief Represents an Integer as descibed in RFC 2741
+     * \brief Represents an Counter32 as descibed in RFC 2741
+     *
+     * RFC2578?
      */
     class Counter32 : public variable
     {
 	protected:
 	    /**
-	     * \brief The counter value
+	     * \brief The counter value.
+	     *
+	     * According to RFC 2578, Counter32 is a non-negative 32-bit 
+	     * number.
 	     */
 	    uint32_t value;
 
@@ -92,8 +97,26 @@ namespace agentxcpp
 	     */
 	    virtual void update()
 	    {
-		//value = this->get();
+		value = this->get();
 	    }
+
+            /**
+             * \brief Obtain the current value for the object.
+             *
+             * This member function is derived by classes representing SNMP 
+             * variables and shall return the current value of the object.
+             *
+             * The default implementation throws generic_error.
+             *
+             * \return The current value of the object.
+             *
+             * \exception generic_error If obtaining the current value fails.
+             */
+	    virtual uint32_t get()
+	    {
+		throw( generic_error() );
+	    }
+
     };
 }
 

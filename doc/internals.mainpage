@@ -32,6 +32,7 @@ goals of the library are:
 
 Table of contents
 - \subpage license
+- \subpage subagent_howto
 - \subpage documentation
 - \subpage buildsystem
 - \subpage pdus

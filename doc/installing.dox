@@ -19,19 +19,8 @@
 
 /*! 
 
-\mainpage AgentXcpp API documentation
+\page installing_agentxcpp How To Install AgentXcpp
 
-The AgentXcpp library is intended to implement SNMP MIB's. This is achieved by 
-implementing the AgentX protocol as defined in RFC 2741. The main goals of the 
-library are:
-
-  - Compliance to RFC 2741
-  - Provide a clean, easy to use API
-  - Provide full documentation of the API
-  - Ensure stable operation
-
-Table of Contents
-- \subpage license
-- \subpage subagent_howto
+WTFM!
 
 */

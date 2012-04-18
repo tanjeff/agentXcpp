@@ -1,0 +1,184 @@
+/*
+ * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ *
+ * This file is part of the agentXcpp library.
+ *
+ * AgentXcpp is free software: you can redistribute it and/or modify
+ * it under the terms of the AgentXcpp library license, version 1, which 
+ * consists of the GNU General Public License and some additional 
+ * permissions.
+ *
+ * AgentXcpp is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * See the AgentXcpp library license in the LICENSE file of this package 
+ * for more details.
+ */
+
+/*! 
+
+\page subagent_howto How to write a Subagent
+
+\note It is assumed that agentXcpp is installed properly; see \ref 
+installing_agentxcpp for how to do that.
+
+This HOWTO explains how to implement, compile and run a trivial subagent. Our 
+trivial subagent has only one variable which could be described within a MIB as 
+follows:
+
+\code
+simpleCounter OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "A simple counter which is incremented each time
+                 it is queried. Starts with 0."
+    ::={ enterprises 42 1 }
+\endcode
+
+Now let's see how easy this can be implemented with agentXcpp!
+
+\section implementing Implementing the Subagent
+
+\subsection headers The Headers
+
+First of all, we need to include some header files for our subagent. The 
+purpose of each header is described later, when the respective functionality is 
+introduced. So let's start the implementation:
+
+\code
+#include <Integer.hpp>
+#include <master_proxy.hpp>
+\endcode
+
+All agentxcpp classes are in the namespace 'agentxcpp'. To make the code more 
+readable, we make the namespace globally available:
+
+\code
+using namespace agentxcpp;
+\endcode
+
+\subsection implement_class Implementing the simpleCounter Variable
+
+The simpleCounter thing described above is an OBJECT-TYPE. OBJECT-TYPE is a 
+description of the object, not the object itself. The OID of simpleCounter is 
+"enterprise.42.1", while the real object will be accessible with OID 
+"enterprise.42.1.0".
+
+In C++, objects are described by their classes (note the difference between 
+classes and objects). The class-object-relation in C++ is similar to the 
+"OBJECT-TYPE"-"object"-relation in SNMP. Therefore, OBJEC-TYPEs are represented 
+by classes in agentXcpp, while SNMP objects are represented by C++ objects.  
+Therefore, to implement simpleCounter, we start with a class, and later we will 
+make an object of the class:
+
+\code
+class simpleCounter : public Integer
+{
+\endcode
+
+The simpleCounter must have a type, which is given in the SYNTAX clause above.  
+AgentXcpp provides various classes to match these types, all of which inherit 
+from the agentxcpp::variable class. Our simpleCounter class  inherits from 
+agentXcpp::Integer, which makes it an INTEGER. Note that Integer.hpp was 
+included to make agentxcpp::Integer available.
+
+Next, the get() method from agentxcpp::Integer must be overridden. This method 
+is called on SNMP GET requests and returns the current value of the object.  In 
+our case, it returns the value of a member variable and increments this 
+variable afterwards:
+
+\code
+    private:
+        int32_t counter;
+
+    public:
+        virtual int32_t get()
+        {
+            return counter++;
+        }
+\endcode
+
+Finally, we provide a simple constructor to ensure that the 'counter' member is 
+initialized to 0:
+
+\code
+        simpleCounter()
+          : counter(0)
+        {
+        }
+};
+\endcode
+
+
+\subsection setting_up Setting up the Subagent
+
+In the main() function, we create a master_proxy object (master_proxy.hpp was 
+included to make it available):
+
+\code
+int main(void)
+{
+    master_proxy master;
+\endcode
+
+The class agentxcpp::master_proxy is used to communicate with the master agent.  
+A master_proxy can be thought of a local C++ object representing the remote 
+master agent. The master_proxy can be in disconnected state at any time, or 
+become disconnected, which means that most operations could possibly fail with 
+a agentxcpp::disconnected exception.
+
+
+The default constructor tries to connect to the master agent via the unix 
+domain socket /var/agentx/master. Of course, another unix domain socket may be 
+chosen, but it cannot be changed once the master_proxy object is created.
+
+Now, as we have the master_proxy object, we register a subtree. This means that 
+we provide an OID to the master to indicate that our subagent wishes to serve 
+all requests to OIDs starting with that OID. For our subagent we use 
+"enterprises.42.1", where 'enterprises' is the standard OID "1.3.6.1.4.1".  The 
+master will then send all SNMP requests within that subtree to our subagent 
+(e.g.  "enterprises.42.1.0" or "enterprises.42.1.1.2.0"), regardless of whether 
+the subagent actually can serve them. If a request cannot be served, agentXcpp 
+will send an error message automatically.
+
+And here is the code for subtree registration:
+
+\code
+    oid testagent_oid = oid(enterprises, "42.1");
+    master.register_subtree(testagent_oid);
+\endcode
+
+As you see, an agentxcpp::oid object can be created by giving it the 
+"enterprise" object (which is provided by agentXcpp for convenience) and an 
+additional string with further subids.
+
+Finally, we create a simpleCounter variable and register it with agentXcpp:
+
+\code
+    oid simpleCounter_oid(testagent_oid, "0");
+    shared_ptr<simpleCounter> sc(new simpleCounter);
+    master.add_variable( simpleCounter_oid, sc);
+\endcode
+
+This is the place where we create the real SNMP variable 'sc'. This variable is 
+then registered with the master_agent by providing its OID (the one with .0 at 
+the tail!) and the object itself. Note that the object is given in form of a 
+smart pointer, which means that is must be created using the 'new' operator.
+
+This OID for the object was constructed by appending a "0" to the 
+'testagent_oid' OID. Read the agentxcpp::oid documentation to learn how OIDs 
+can be constructed and manipulated easily.
+
+
+
+\section compiling Compiling the Subagent
+
+
+
+\section running Running the Subagent
+
+
+*/

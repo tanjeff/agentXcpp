@@ -76,9 +76,13 @@ if env['includedir'][0] != '/' and env['includedir'][0] != '#':
 # Get current revision
 # We ask git for a description of the current revision and add it to the 
 # environment.
-descr = subprocess.check_output(["git", "describe", "--always", "--dirty"])
-env['revision'] = descr.strip()
-
+#
+# Note: subprocess.check_output() would be more appropriiate, but doesn't
+#       exist in Python 2.4 :-(
+proc = subprocess.Popen(["git", "describe", "--always", "--dirty"],
+                        stdout=subprocess.PIPE)
+(out,err) = proc.communicate()
+env['revision'] = out.strip()
 
 #################################################
 ## Include SCronscripts from subdirectories

@@ -49,8 +49,8 @@ purpose of each header is described later, when the respective functionality is
 introduced. So let's start the implementation:
 
 \code
-#include <Integer.hpp>
-#include <master_proxy.hpp>
+#include <agentxcpp/Integer.hpp>
+#include <agentxcpp/master_proxy.hpp>
 \endcode
 
 All agentxcpp classes are in the namespace 'agentxcpp'. To make the code more 

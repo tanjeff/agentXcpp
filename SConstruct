@@ -62,8 +62,8 @@ if env['docdir'][0] != '/' and env['docdir'][0] != '#':
 AddOption('--includedir', nargs=1, action='store', dest='includedir', 
 	type='string',
 	  help='installation directory for header files ' +
-	  '(default: <PREFIX>/include)',
-	  default=env['prefix'] + '/include')
+	  '(default: <PREFIX>/include/agentxcpp)',
+	  default=env['prefix'] + '/include/agentxcpp')
 env['includedir'] = GetOption('includedir')
 # Make relative path absolute
 if env['includedir'][0] != '/' and env['includedir'][0] != '#':

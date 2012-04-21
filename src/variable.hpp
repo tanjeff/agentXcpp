@@ -24,8 +24,6 @@
 namespace agentxcpp
 {
     /**
-     * \internal
-     *
      * \brief This class represents a SNMP variable.
      *
      * It is inherited by more concrete classes.
@@ -34,6 +32,8 @@ namespace agentxcpp
     {
 	public:
 	    /**
+             * \internal
+             *
 	     * \brief Serialize the variable.
 	     *
 	     * This function must be implemented by all derived classes. The 
@@ -61,6 +61,8 @@ namespace agentxcpp
 	//virtual void get();
 
 	/**
+         * \internal
+         *
 	 * \brief Update the internal state of the variable.
 	 *
 	 * This function must be implemented in derived classes. It shall 

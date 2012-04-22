@@ -19,18 +19,21 @@
 
 /*! 
 
+
 \page subagent_howto How to write a Subagent
 
 \note It is assumed that agentXcpp is installed properly; see \ref 
 installing_agentxcpp for how to do that.
 
-\note No Exception handling in this howto.
-
 This HOWTO explains how to implement, compile and run a trivial subagent. Our 
-trivial subagent has only one variable which could be described within a MIB as 
-follows:
+trivial subagent has only one variable called 'simpleCounter' which is 
+described within the minimal MIB called 'SIMPLE-MIB':
 
-\code
+\verbatim
+SIMPLE-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS OBJECT-TYPE FROM SNMPv2-SMI
+
 simpleCounter OBJECT-TYPE
     SYNTAX INTEGER
     ACCESS read-only
@@ -38,36 +41,48 @@ simpleCounter OBJECT-TYPE
     DESCRIPTION "A simple counter which is incremented each time
                  it is queried. Starts with 0."
     ::={ enterprises 42 1 }
-\endcode
+
+END
+\endverbatim
 
 Now let's see how easy this can be implemented with agentXcpp!
 
+
+
 \section implementing Implementing the Subagent
+
+
 
 \subsection headers The Headers
 
-First of all, we need to include some header files for our subagent. The 
-purpose of each header is described later, when the respective functionality is 
-introduced. So let's start the implementation:
+First of all, we need to include some header files for our subagent:
 
 \code
+// Make the class agentxcpp::Integer available:
 #include <agentxcpp/Integer.hpp>
+
+// Make the class agentxcpp::master_proxy available:
 #include <agentxcpp/master_proxy.hpp>
+
+// We want to output error messages:
+#include <iostream>
 \endcode
 
-All agentxcpp classes are in the namespace 'agentxcpp'. To make the code more 
+All agentXcpp classes are in the namespace 'agentxcpp'. To make the code more 
 readable, we make the namespace globally available:
 
 \code
 using namespace agentxcpp;
 \endcode
 
+
+
 \subsection implement_class Implementing the simpleCounter Variable
 
 The simpleCounter thing described above is an OBJECT-TYPE. OBJECT-TYPE is a 
 description of the object, not the object itself. The OID of simpleCounter is 
-"enterprise.42.1", while the real object will be accessible with OID 
-"enterprise.42.1.0".
+"enterprises.42.1", while the real object will be accessible with OID 
+"enterprises.42.1.0".
 
 In C++, objects are described by their classes (note the difference between 
 classes and objects). The class-object-relation in C++ is similar to the 
@@ -81,11 +96,11 @@ class simpleCounter : public Integer
 {
 \endcode
 
-The simpleCounter has a type which is given in the SYNTAX clause.  AgentXcpp 
-provides various classes to match these types, all of which inherit from the 
-\ref agentxcpp::variable "variable" class. Our simpleCounter class  inherits from 
-\ref agentxcpp::Integer "Integer", which makes it an INTEGER. Note that Integer.hpp was 
-included to make \ref agentxcpp::Integer "Integer" available.
+The simpleCounter has a type which is given in the SYNTAX clause in the MIB.  
+AgentXcpp provides various classes to match standard SYNTAX types, all of which 
+inherit from the \ref agentxcpp::variable "variable" class. Our simpleCounter 
+class  inherits from \ref agentxcpp::Integer "Integer", which makes it an 
+INTEGER.
 
 Next, the get() method from \ref agentxcpp::Integer "Integer" must be overridden. This method 
 is called on SNMP GET requests and returns the current value of the object.  In 
@@ -103,8 +118,7 @@ variable afterwards:
         }
 \endcode
 
-Finally, we provide a simple constructor to ensure that the 'counter' member is 
-initialized to 0:
+Finally, we add a constructor which initializes the 'counter' member to zero:
 
 \code
         simpleCounter()
@@ -115,10 +129,10 @@ initialized to 0:
 \endcode
 
 
+
 \subsection main_function The main() Function
 
-In the main() function, we create a master_proxy object (master_proxy.hpp was 
-included to make it available):
+In the main() function, we create a master_proxy object:
 
 \code
 int main(void)
@@ -130,11 +144,11 @@ The class \ref agentxcpp::master_proxy "master_proxy" is used to communicate wit
 A master_proxy can be thought of a local C++ object representing the remote 
 master agent. The master_proxy can be in disconnected state at any time, or 
 become disconnected, which means that most operations could possibly fail with 
-a \ref agentxcpp::disconnected "disconnected" exception.
+a agentxcpp::disconnected exception.
 
-
-The default constructor tries to connect to the master agent via the unix 
-domain socket /var/agentx/master. Of course, another unix domain socket may be 
+The default constructor of \ref agentxcpp::master_proxy "master_proxy" tries to 
+connect to the master agent via the unix domain socket 
+<tt>/var/agentx/master</tt>. Of course, another unix domain socket may be 
 chosen, but it cannot be changed once the master_proxy object is created.
 
 Now, as we have the \ref agentxcpp::master_proxy "master_proxy" object, we 
@@ -145,64 +159,75 @@ the standard OID "1.3.6.1.4.1".  The master will then send all SNMP requests
 within that subtree to our subagent (e.g.  "enterprises.42.1.0" or 
 "enterprises.42.1.1.2.0"), regardless of whether the subagent actually can 
 serve them. If a request cannot be served, the \ref agentxcpp::master_proxy 
-"master_proxy" will send an error message to the master agent.
+"master_proxy" will send an appropriate error message to the master agent.
 
 And here is the code for subtree registration:
 
 \code
-    oid testagent_oid = oid(enterprises, "42.1");
-    master.register_subtree(testagent_oid);
+    oid simpleagent_oid = oid(enterprises, "42.1");
+    master.register_subtree(simpleagent_oid);
 \endcode
 
 As you see, an \ref agentxcpp::oid "oid" object can be created by giving it the 
-"enterprise" object (which is provided by agentXcpp for convenience) and an 
+"enterprises" object (which is provided by agentXcpp for convenience) and an 
 additional string with further subids.
 
 Next, we create a simpleCounter variable and register it with agentXcpp:
 
 \code
-    oid simpleCounter_oid(testagent_oid, "0");
+    oid simpleCounter_oid(simpleagent_oid, "0");
     shared_ptr<simpleCounter> sc(new simpleCounter);
     master.add_variable( simpleCounter_oid, sc);
 \endcode
 
 This is the place where we create the real SNMP variable 'sc'. This variable is 
-then registered with the master_agent by providing its OID (the one with .0) 
-and the object itself. Note that the object is given in form of a smart 
+then registered with the master agent by providing its OID (the one with .0) 
+and the object itself. Note that the object is given in form of a shared 
 pointer, which means that is must be created using the 'new' operator.
 
 Finally we give control to the agentXcpp library in order to receive requests 
 from the master agent:
 
 \code
-    while(true)
+    while( master.is_connected() )
     {
         master.get_io_service()->run();
     }
+
+    std::cerr << "I lost the connection to the master agent." << std::endl;
 }
 \endcode
 
 The \ref agentxcpp::master_proxy "master_proxy" uses boost::asio for 
 networking, therefore a boost::asio::io_service object is utilized to give 
 control to boost::asio, which in turn informs agentXcpp about incoming data.  
-These implementation details are not of interest for our trivial subagent, but 
-if you plan to use boost::asio in your real subagent, you can integrate with 
+If you plan to use boost::asio in your real subagent, you can integrate with 
 agentXcpp. For example, you can use the same boost::asio::io_service object as 
 the master_proxy, or tell the master_proxy to use a boost::asio::io_service 
 object that you provide.
 
-The implementation is now complete. Read on to learn how to compile the 
-subagent!
+The main loop is left if the 'master' object ever gets disconnected.  In this 
+case, an error message is output, and the subagent exits.  A real subagent 
+might try to reconnect to the master agent with <tt>master.reconnect()</tt>.
+
+If the connection fails earlier (e.g. upon creation of the 'master' object), 
+exceptions are thrown by the <tt>master.register_subtree()</tt> or 
+<tt>master.add_variable()</tt> calls, which will abort the subagent.  This 
+should be fine for the first time; a more realistic subagent should of course 
+handle exceptions properly.
+
+Now, let's store the program as <tt>simpleagent.cpp</tt> and compile it!
+
 
 
 \section compiling Compiling the Subagent
 
-Now let's compile our program. We need to link against the boost library 
+When compiling the subagent, we need to link against the boost library 
 'system_error' and, of course, against the agentXcpp library. In linux, you can 
 type the following command:
 
 \code
-g++ testagent.cpp -o testagent -l boost_system -l agentxcpp
+g++ simpleagent.cpp -o simpleagent -l boost_system -l agentxcpp
 \endcode
 
 This assumes that the agentxcpp library is installed properly, so that the 

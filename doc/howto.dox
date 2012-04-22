@@ -223,11 +223,11 @@ Now, let's store the program as <tt>simpleagent.cpp</tt> and compile it!
 \section compiling Compiling the Subagent
 
 When compiling the subagent, we need to link against the boost library 
-'system_error' and, of course, against the agentXcpp library. In linux, you can 
-type the following command:
+'system_error', 'pthread' and, of course, against the agentXcpp library. In 
+linux, you can type the following command:
 
 \code
-g++ simpleagent.cpp -o simpleagent -l boost_system -l agentxcpp
+g++ simpleagent.cpp -o simpleagent -lboost_system -lpthread -lagentxcpp
 \endcode
 
 This assumes that the agentxcpp library is installed properly, so that the 

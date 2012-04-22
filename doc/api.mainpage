@@ -31,8 +31,17 @@ library are:
   - Ensure stable operation
 
 Table of Contents
+- \subpage getting_started
 - \subpage license
-- \subpage subagent_howto
-- \subpage installation
+
+*/
+
+
+/*!
+
+\page getting_started Getting Started
+
+-# \subpage installation "Install agentXcpp to your computer, or make a package for your system."
+-# \subpage subagent_howto "Learn how to write subagents with agentXcpp."
 
 */

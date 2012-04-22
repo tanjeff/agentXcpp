@@ -22,8 +22,8 @@
 
 \page subagent_howto How to write a Subagent
 
-\note It is assumed that agentXcpp is installed properly; see \ref 
-installing_agentxcpp for how to do that.
+\note It is assumed that agentXcpp is installed properly; see \ref installation 
+for how to do that.
 
 This HOWTO explains how to implement, compile and run a trivial subagent. Our 
 trivial subagent has only one variable called 'simpleCounter' which is 

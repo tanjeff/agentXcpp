@@ -19,8 +19,75 @@
 
 /*! 
 
-\page installing_agentxcpp How To Install AgentXcpp
+\page installation Building and Installing AgentXcpp
 
-WTFM!
+If you are lucky, there is a package for your system which can be easily 
+installed. If you are not so lucky, or if you are a package maintainer, you 
+have to compile agentXcpp yourself. Here is how to do this.
+
+\note The build process can be accelerated with the <tt>-j i</tt> parameter, 
+      where i is the maximum number of threads used. As a rule of thumb, use i 
+      = (number_of_cpus + 1).
+
+
+
+\section installation_prerequisites Prerequisites
+
+The following software is needed to build agentXcpp, simply use the versions 
+which are easily available for your system:
+- Standard build environment (compiler, linker, etc.)
+- Doxygen, to build the documentation
+- SCons, to control the build process
+- The following boost libraries:
+  - Asio
+  - Bind
+  - Smart Ptr
+  - Test
+
+
+
+\section installation_installingSystem Building and installing agentXcpp
+
+Building and installing agentXcpp is a one-step operation: one command builds 
+the library and installs all files.  The place where they are is installed can 
+freely be chosen.  If you want to make an agentXcpp package, you probably need 
+to install into a local directory.  If you are an end user you certainly want 
+to install into the system such that you can use the library.
+
+To install it into a linux system, the following command should work:
+
+\verbatim
+# To install into a linux system, do as root:
+scons install --prefix /usr
+\endverbatim
+
+This will install the headers into <tt>/usr/include/agentxcpp/</tt>, the shared 
+library to <tt>/usr/lib/</tt> and the API documentation to 
+<tt>/usr/share/doc/agentxcpp/</tt>. If want to install into a local directory, 
+use:
+
+\verbatim
+# To install locally, do:
+scons install --prefix ./usr
+\endverbatim
+
+This will install the headers, shared library, and the API documentation to 
+<tt>./usr/include/agentxcpp/</tt>, <tt>./usr/lib/</tt> and 
+<tt>./usr/share/doc/agentxcpp/</tt>, respectively. You can pick them up there 
+for your package.
+
+In any case, you can control the individual installation directories like so:
+
+\verbatim
+# To choose each directory separately:
+scons install --libdir /usr/lib \
+              --docdir /opt/agentxcpp/doc \
+              --includedir /usr/include/agentxcpp \
+
+# This will do the same:
+scons install --prefix=/usr/lib \
+              --docdir=/opt/agentxcpp/doc
+\endverbatim
+
 
 */

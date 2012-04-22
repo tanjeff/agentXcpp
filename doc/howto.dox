@@ -237,5 +237,84 @@ compiler can find the headers and the shared object file.
 
 \section running Running the Subagent
 
+This step is difficult to describe, because it depends on your setup how to get 
+the subagent running. This howto describes the procedure using the NET-SNMP 
+package on linux. That package contains a daemon which can be used as master 
+agent, and some command line tools, which can be used to query the SNMP 
+agent.
+
+We will configure the NET-SNMP agent to act as AgentX master agent. To keep 
+this guide simple, we will use the SNMPv1 protocol using "rw" as read-write 
+community name, but our subagent can of course be queried using SNMPv2c or 
+SNMPv3, as long as the master is configured accordingly. The subagent 
+implementation is independent of the used SNMP version.
+
+
+
+\subsection starting_master Starting the master agent
+
+First, we add the following lines to its config file 
+<tt>/etc/snmp/snmpd.conf</tt>:
+
+\verbatim
+rwcommunity rw        # use "rw" as read-write-community name
+master      agentx    # snmpd shall act as agentX master agent
+agentXPerms 0666 777  # make socket world-readable
+\endverbatim
+
+The community name is needed later, when issuing a SNMP GET request. We set it 
+to "rw" in the example, but you can use anything you wish.
+
+The agentXPerms are not strictly required, but making the socket world-readable 
+saves us some trouble regarding access restrictions. Next, we (re)start the 
+master agent using its init scripts:
+
+\verbatim
+/etc/init.d/snmpd stop
+/etc/init.d/snmpd start
+\endverbatim
+
+Note that the path depends on your system. For example in ArchLinux, it is 
+/etc/rc.d/snmpd.
+
+
+
+\subsection starting_subagent Starting the Subagent
+
+Now the subagent can be started:
+
+\verbatim
+./simpleagent
+\endverbatim
+
+If the subagent can't connect to the master, or another error is detected, it 
+will terminate with an exception (since our code doesn't catch any exceptions).  
+Or, if connection is lost, it will leave the main loop and exit with the error 
+message we implemented.
+
+Otherwise, the subagent is now connected, and we can try if it works.
+
+
+
+\subsection querying Querying the Subagent
+
+Our little subagent exposes an INTERGER object with the OID 
+"1.3.6.1.4.1.42.1.0". We can query this object with an SNMP GET request. We use 
+the NET-SNMP utility snmpget (but you can use any tool you wish, of course):
+
+\verbatim
+snmpget -v1 -c rw localhost 1.3.6.1.4.1.42.1.0
+\endverbatim
+
+Or, if the MIB above is put into a file in the right directory, we can also do:
+
+\verbatim
+snmpget -v1 -c rw localhost enterprises.42.1.0
+\endverbatim
+
+Each time the command is executed, the simpleCounter object reports the 
+incremented number. The trivial subagent is working now, your installation have 
+proven to be usable, thus you can go and implement your own subagent!
+
 
 */

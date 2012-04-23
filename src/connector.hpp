@@ -347,7 +347,7 @@ namespace agentxcpp
 	     *
 	     * \exception None.
 	     */
-	    void register_handler( pdu_handler* );
+	    void register_handler( pdu_handler* handler );
 
 	    /**
 	     * \brief Connect to the remote entity.

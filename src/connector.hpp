@@ -162,6 +162,11 @@ namespace agentxcpp
 		     */
 		    virtual void handle_pdu(boost::shared_ptr<PDU> pdu,
 					    int error) =0;
+
+		    /**
+		     * \brief Destructor.
+		     */
+		    virtual ~pdu_handler();
 	    };
 	
 	private:

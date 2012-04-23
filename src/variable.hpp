@@ -59,6 +59,11 @@ namespace agentxcpp
 	     * \exception None.
 	     */
 	    virtual void get();
+
+	    /**
+	     * \brief Destructor.
+	     */
+	    virtual ~variable();
     };
 }
 

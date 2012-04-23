@@ -216,6 +216,11 @@ namespace agentxcpp
 	     */
 	    PDU();
 
+	    /**
+	     * \brief Destructor.
+	     */
+	    virtual ~PDU();
+
 	public:
 
 	    /**

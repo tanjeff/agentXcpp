@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -24,8 +24,6 @@
 namespace agentxcpp
 {
     /**
-     * \internal
-     *
      * \brief This class represents a SNMP variable.
      *
      * It is inherited by more concrete classes.
@@ -34,6 +32,8 @@ namespace agentxcpp
     {
 	public:
 	    /**
+             * \internal
+             *
 	     * \brief Serialize the variable.
 	     *
 	     * This function must be implemented by all derived classes. The 
@@ -47,23 +47,23 @@ namespace agentxcpp
 	    virtual data_t serialize() const = 0;
 
 	    /**
-	     * \brief An SNMP GET request was received.
-	     *
-	     * This function should be implemented by derived classes to support 
-	     * GET requests. The function shall update its internal data if 
-	     * neccessary.
-	     *
-	     * This function is called on SNMP GET requests, before serializing the 
-	     * variable and sending it to the master agent.
-	     *
-	     * \exception None.
-	     */
-	    virtual void get();
-
-	    /**
 	     * \brief Destructor.
 	     */
 	    virtual ~variable();
+
+	/**
+         * \internal
+         *
+	 * \brief Update the internal state of the variable.
+	 *
+	 * This function must be implemented in derived classes. It shall 
+	 * update the internal state of the object.
+	 *
+         * \exception generic_error If obtaining the new value failed. The
+         *                          state of such an object cannot be 
+         *                          updated.
+	 */
+	virtual void update()=0;
     };
 }
 

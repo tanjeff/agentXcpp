@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -86,6 +86,8 @@ namespace agentxcpp
      *       run() context.
      */
     /**
+     * \internal
+     *
      * Receiving %ResponsePDU's works as follows:
      *
      * The function wait_for_response() supports the request-response 
@@ -129,6 +131,8 @@ namespace agentxcpp
 	public:
 
 	    /**
+             * \internal
+             *
 	     * \brief Interface for classes which can handle incoming PDU's.
 	     *
 	     * Classes which want to receive incoming %PDU's implement this 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -21,11 +21,11 @@
 
 \page license License
 
-Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
 
 \image html gplv3-logo.png
 
-\section foreword Foreword
+\section license_foreword Foreword
 
 The agentXcpp software is licensed under the GNU General Public License (GPL), 
 plus a linking exception.  The GPL was designed to give the program's users the 
@@ -79,14 +79,18 @@ customers, as long this is done under the terms of the GPL.
 
 
 
-
-\section license LICENSE
+\section license_agentxcppLicense The agentXcpp License
 
 The agentXcpp library is licenced under the GPL plus a linking exception:
 
 \verbinclude LICENSE
 
-Here is a verbatim copy of the GNU General Public License:
+
+
+\section license_gpl The GPL
+
+The agentXcpp license is the GNU General Public License (GPL), plus a linking 
+exception. Here is a verbatim copy of the GPL:
 
 
 \verbinclude GPLv3

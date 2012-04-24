@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -57,7 +57,7 @@ master_proxy::master_proxy(boost::asio::io_service* _io_service,
     connection = new connector(shared_ptr<boost::asio::io_service>(io_service),
 			       _filename.c_str(),
 			       timeout);
-		      
+
     // Register this object as %PDU handler
     this->connection->register_handler( this );
 
@@ -92,7 +92,7 @@ master_proxy::master_proxy(std::string _description,
     connection = new connector(shared_ptr<boost::asio::io_service>(io_service),
 			       _filename.c_str(),
 			       timeout);
-		      
+
     // Register this object as %PDU handler
     this->connection->register_handler( this );
 
@@ -110,8 +110,6 @@ master_proxy::master_proxy(std::string _description,
     {
 	// Ignore, stay disconnected
     }
-    
-    
 }
 
 
@@ -125,7 +123,7 @@ void master_proxy::connect()
 
     // Clear registrations and variables
     registrations.clear();
-    variables.clear();    
+    variables.clear();
 
     // Connect to endpoint
     try
@@ -187,7 +185,7 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
     // According to RFC 2741, 7.1.8. "Processing the agentx-Close-PDU", the 
     // master agent unregisters all MIB regions, frees all index values and all 
     // sysORID are removed. Thus no need to clean up before ClosePDU is sent.
-    
+
     // The response we expect from the master
     boost::shared_ptr<ResponsePDU> response;
 
@@ -211,7 +209,7 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
 	// Wait for response
 	// throws disconnected and timeout_error:
 	response = this->connection->wait_for_response(closepdu.get_packetID());
-    
+
 	// Check for errors
 	if(response->get_error() != ResponsePDU::noAgentXError)
 	{
@@ -234,7 +232,7 @@ master_proxy::~master_proxy()
 {
     // Disconnect from master agent
     this->disconnect(ClosePDU::reasonShutdown);
-    
+
     // Destroy connection
     // Unregistering this object as %PDU handler is unneeded.
     delete this->connection;
@@ -325,7 +323,7 @@ void master_proxy::register_subtree(oid subtree,
     pdu->set_priority(priority);
     pdu->set_timeout(timeout);
     pdu->set_sessionID(this->sessionID);
-    
+
     // Sent PDU
     try
     {
@@ -451,8 +449,8 @@ void master_proxy::undo_registration(boost::shared_ptr<UnregisterPDU> pdu)
 	    throw(unknown_registration());
 
 	default:
-	    // This is a case of can-not-happen. Probably the master is buggy.  
-	    // The agentxcpp library is bug-free of course ;-)
+            // This is a case of can-not-happen. Probably the master is buggy. 
+            // The agentxcpp library is bug-free of course ;-)
 	    // We throw a parse error meanwhile, because we didn't expect the 
 	    // response to look like that...
 	    throw(parse_error());
@@ -521,6 +519,7 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 	response.set_error(ResponsePDU::parseError);
 	return;
     }
+
     // Step 3) Is the session valid?
     if(pdu->get_sessionID() != this->sessionID)
     {
@@ -556,6 +555,8 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 
 	// Iterate over list and handle each oid separately
 	vector<oid>::const_iterator i;
+        uint16_t index = 1;     // Index is 1-based (RFC 2741,
+                                // 5.4. "Value Representation"):
 	for(i = sr.begin(); i != sr.end(); i++)
 	{
 	    // The name
@@ -569,10 +570,21 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 		// Step (2): We have a variable for this oid
 
 		// update variable
-		var->second->get();
+                try
+                {
+                    var->second->update();
 
-		// Add variable to response (Step (1): include name)
-		response.varbindlist.push_back( varbind(name, var->second) );
+                    // Add variable to response (Step (1): include name)
+                    response.varbindlist.push_back( varbind(name, var->second) );
+                }
+                catch(...)
+                {
+                    // An error occurred
+                    response.set_error( ResponsePDU::genErr );
+                    response.set_index( index );
+                    // Leave response.varbindlist empty
+                }
+
 	    }
 	    else
 	    {
@@ -597,6 +609,8 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 		    response.varbindlist.push_back( varbind(name, varbind::noSuchObject) );
 		}
 	    }
+
+            index++;
 	}
 
 	// Finally: send the response

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -50,7 +50,7 @@ Opaque::Opaque(data_t::const_iterator& pos,
 	       const data_t::const_iterator& end,
 	       bool big_endian)
 {
-    uint32_t size;
+    int size;
     
     // We need 4 bytes for the size
     if(end - pos < 4)

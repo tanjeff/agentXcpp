@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -48,6 +48,7 @@ namespace agentxcpp
 	     */
 	    enum error_t
 	    {
+                // Values from RFC 2741, 6.2.16 "The agentx-Response-PDU"
 		noAgentXError = 0,
 		openFailed = 256,
 		notOpen = 257,
@@ -61,7 +62,28 @@ namespace agentxcpp
 		unknownAgentCaps = 265,
 		parseError = 266,
 		requestDenied = 267,
-		processingError = 268
+		processingError = 268,
+
+                // Values from RFC 1905 (allowed according to RFC 2741, 6.2.16 
+                // "The agentx-Response-PDU")
+                tooBig = 1,
+                noSuchName = 2,   // for proxy compatibility
+                badValue = 3,     // for proxy compatibility
+                readOnly = 4,     // for proxy compatibility
+                genErr = 5,
+                noAccess = 6,
+                wrongType = 7,
+                wrongLength = 8,
+                wrongEncoding = 9,
+                wrongValue = 10,
+                noCreation = 11,
+                inconsistentValue = 12,
+                resourceUnavailable = 13,
+                commitFailed = 14,
+                undoFailed = 15,
+                authorizationError = 16,
+                notWritable = 17,
+                inconsistentName = 18
 	    };
 
 	private:

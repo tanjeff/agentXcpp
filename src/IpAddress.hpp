@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -38,7 +38,12 @@ namespace agentxcpp
 	    IpAddress();
 
 	protected:
-	    uint32_t address[4]; // only IPv4
+	    /**
+	     * \brief The IP address.
+	     *
+	     * According to RFC 2578, IpAddress is a 32-bit number.
+	     */
+	    uint8_t address[4]; // only IPv4
 
 	public:
 	    /**
@@ -92,6 +97,40 @@ namespace agentxcpp
 		address[1] = b;
 		address[2] = c;
 		address[3] = d;
+	    }
+
+	    /**
+	     * \brief Update the internal state of the object.
+	     *
+	     * This function calls get() to obtain a new value and writes that 
+	     * value to the 'address' member.
+	     *
+             * \exception generic_error If obtaining the new value failed.
+	     */
+	    virtual void update()
+	    {
+		IpAddress a = this->get();
+		address[0] = a.address[0];
+		address[1] = a.address[1];
+		address[2] = a.address[2];
+		address[3] = a.address[3];
+	    }
+
+            /**
+             * \brief Obtain the current value for the object.
+             *
+             * This member function is derived by classes representing SNMP 
+             * variables and shall return the current value of the object.
+             *
+             * The default implementation throws generic_error.
+             *
+             * \return The current value of the object.
+             *
+             * \exception generic_error If obtaining the current value fails.
+             */
+	    virtual IpAddress get()
+	    {
+		throw( generic_error() );
 	    }
     };
 }

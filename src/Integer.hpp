@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -33,32 +33,34 @@ namespace agentxcpp
     {
 	protected:
 	    /**
-	     * \brief The Integer value
+	     * \brief The Integer value.
+	     *
+	     * According to RFC 2578, INTEGER is a signed 32-bit number.
 	     */
-	    uint32_t value;
+	    int32_t value;
 
 	public:
 	    /**
-	     * \brief Create an Integer object
+	     * \brief Create an Integer object.
 	     *
 	     * The default value of the new object is 0.
 	     *
 	     * \exception None.
 	     */
-	    Integer(uint32_t _value=0) :value(_value) {}
+	    Integer(int32_t _value=0) :value(_value) {}
 
 	    /**
-	     * \brief Get the value
+	     * \brief Get the value.
 	     */
-	    uint32_t get_value()
+	    int32_t get_value()
 	    {
 		return value;
 	    }
 	    
 	    /**
-	     * \brief Set the value
+	     * \brief Set the value.
 	     */
-	    void set_value(uint32_t v)
+	    void set_value(int32_t v)
 	    {
 		value = v;
 	    }
@@ -99,6 +101,37 @@ namespace agentxcpp
 	    Integer(data_t::const_iterator& pos,
 		    const data_t::const_iterator& end,
 		    bool big_endian=true);
+
+	    /**
+	     * \brief Update the internal state of the object.
+	     *
+	     * This function calls get() to obtain a new value and writes that 
+	     * value to the 'value' member.
+	     *
+             * \exception generic_error If obtaining the new value failed.
+	     */
+	    virtual void update()
+	    {
+		value = this->get();
+	    }
+
+            /**
+             * \brief Obtain the current value for the object.
+             *
+             * This member function is derived by classes representing SNMP 
+             * variables and shall return the current value of the object.
+             *
+             * The default implementation throws generic_error.
+             *
+             * \return The current value of the object.
+             *
+             * \exception generic_error If obtaining the current value fails.
+             */
+	    virtual int32_t get()
+	    {
+		throw( generic_error() );
+	    }
+
     };
 }
 

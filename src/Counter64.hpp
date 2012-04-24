@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -33,7 +33,10 @@ namespace agentxcpp
     {
 	protected:
 	    /**
-	     * \brief The counter value
+	     * \brief The counter value.
+	     *
+	     * According to RFC 2578, Counter64 is a non-negative 64-bit 
+	     * number.
 	     */
 	    uint64_t value;
 
@@ -81,6 +84,36 @@ namespace agentxcpp
 	     * This function uses big endian.
 	     */
 	    virtual data_t serialize() const;
+
+	    /**
+	     * \brief Update the internal state of the object.
+	     *
+	     * This function calls get() to obtain a new value and writes that 
+	     * value to the 'value' member.
+	     *
+             * \exception generic_error If obtaining the new value failed.
+	     */
+	    virtual void update()
+	    {
+		value = this->get();
+	    }
+
+            /**
+             * \brief Obtain the current value for the object.
+             *
+             * This member function is derived by classes representing SNMP 
+             * variables and shall return the current value of the object.
+             *
+             * The default implementation throws generic_error.
+             *
+             * \return The current value of the object.
+             *
+             * \exception generic_error If obtaining the current value fails.
+             */
+	    virtual uint64_t get()
+	    {
+		throw( generic_error() );
+	    }
     };
 }
 

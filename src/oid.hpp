@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -25,6 +25,7 @@
 #include <string>
 #include "variable.hpp"
 #include "types.hpp"
+#include "exceptions.hpp"
 
 namespace agentxcpp
 {
@@ -326,6 +327,36 @@ namespace agentxcpp
 
 	    friend std::ostream& operator<<(std::ostream&,
 					    const agentxcpp::oid&);
+
+	    /**
+	     * \brief Update the internal state of the object.
+	     *
+	     * This function calls get() to obtain a new value and stores that 
+	     * value within this object.
+	     *
+             * \exception generic_error If obtaining the new value failed.
+	     */
+	    virtual void update()
+	    {
+		*this = this->get();
+	    }
+
+            /**
+             * \brief Obtain the current value for the object.
+             *
+             * This member function is derived by classes representing SNMP 
+             * variables and shall return the current value of the object.
+             *
+             * The default implementation throws generic_error.
+             *
+             * \return The current value of the object.
+             *
+             * \exception generic_error If obtaining the current value fails.
+             */
+	    virtual oid get()
+	    {
+		throw( generic_error() );
+	    }
     };
 
     /**

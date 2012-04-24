@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -27,13 +27,18 @@
 namespace agentxcpp
 {
     /**
-     * \brief Represents an Integer as descibed in RFC 2741
+     * \brief Represents an Counter32 as descibed in RFC 2741
+     *
+     * RFC2578?
      */
     class Counter32 : public variable
     {
 	protected:
 	    /**
-	     * \brief The counter value
+	     * \brief The counter value.
+	     *
+	     * According to RFC 2578, Counter32 is a non-negative 32-bit 
+	     * number.
 	     */
 	    uint32_t value;
 
@@ -44,9 +49,9 @@ namespace agentxcpp
 	     * The value after creation is undefined.
 	     */
 	    Counter32() {}
-	    
+
 	    /**
-	     * \internal
+             * \internal
 	     *
 	     * \brief Construct the object from input stream
 	     *
@@ -72,7 +77,7 @@ namespace agentxcpp
 	    Counter32(data_t::const_iterator& pos,
 		      const data_t::const_iterator& end,
 		      bool big_endian=true);
-	    
+
 	    /**
 	     * \internal
 	     *
@@ -81,7 +86,37 @@ namespace agentxcpp
 	     * This function uses big endian.
 	     */
 	    virtual data_t serialize() const;
-	    
+
+	    /**
+	     * \brief Update the internal state of the object.
+	     *
+	     * This function calls get() to obtain a new value and writes that 
+	     * value to the 'value' member.
+	     *
+             * \exception generic_error If obtaining the new value failed.
+	     */
+	    virtual void update()
+	    {
+		value = this->get();
+	    }
+
+            /**
+             * \brief Obtain the current value for the object.
+             *
+             * This member function is derived by classes representing SNMP 
+             * variables and shall return the current value of the object.
+             *
+             * The default implementation throws generic_error.
+             *
+             * \return The current value of the object.
+             *
+             * \exception generic_error If obtaining the current value fails.
+             */
+	    virtual uint32_t get()
+	    {
+		throw( generic_error() );
+	    }
+
     };
 }
 

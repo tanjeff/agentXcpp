@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -96,6 +96,12 @@ namespace agentxcpp
      * an OID which does not reside within a registered MIB region.
      */
     class unknown_registration : public std::exception { };
+
+    /**
+     * \brief Exception to indicate that obtaining the value of an SNMP
+     *        variable failed.
+     */
+    class generic_error : public std::exception { };
 
 } // namespace agentxcpp
 

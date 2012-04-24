@@ -46,10 +46,12 @@ namespace agentxcpp
 	    // Needed for encoding varbinds
 	    virtual data_t serialize() const = 0;
 
-	    /**
-	     * \brief Destructor.
-	     */
-	    virtual ~variable();
+            /**
+             * \brief Destructor.
+             */
+             virtual ~variable()
+             {
+             }
 
 	/**
          * \internal

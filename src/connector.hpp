@@ -170,7 +170,9 @@ namespace agentxcpp
 		    /**
 		     * \brief Destructor.
 		     */
-		    virtual ~pdu_handler();
+                    virtual ~pdu_handler()
+                    {
+                    }
 	    };
 	
 	private:

@@ -61,6 +61,9 @@ To install it into a linux system, the following command should work:
 scons install --prefix /usr
 \endverbatim
 
+\note Using the <tt>sudo</tt> command may fail on some systems, because the 
+      environment provided by <tt>sudo</tt> may be insufficient for scons.
+
 This will install the headers into <tt>/usr/include/agentxcpp/</tt>, the shared 
 library to <tt>/usr/lib/</tt> and the API documentation to 
 <tt>/usr/share/doc/agentxcpp/</tt>. If want to install into a local directory, 

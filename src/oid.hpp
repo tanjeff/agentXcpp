@@ -50,11 +50,11 @@ namespace agentxcpp
      * \endcode
      *
      * In addition, some common oid's are provided as constants, e.g.  
-     * 'enterprises', so the following will also work (note that the second 
+     * 'enterprises_oid', so the following will also work (note that the second 
      * argument is a string, not an integer!):
      *
      * \code
-     * oid yourCompany = oid(enterprises, "42"); // second param is a string!
+     * oid yourCompany = oid(enterprises_oid, "42"); // second param is a string!
      * \endcode
      *
      * The string given to the constructors must have a valid syntax. If a 
@@ -81,7 +81,7 @@ namespace agentxcpp
      * manipulated:
      *
      * \code
-     * oid theirCompany = enterprises;
+     * oid theirCompany = enterprises_oid;
      * theirCompany.push_back(23);    // Don't use a string here!
      * \endcode
      *
@@ -112,8 +112,11 @@ namespace agentxcpp
 	    /**
 	     * \brief Default Constructor
 	     *
-	     * This constructs an empty oid (the null oid). The 'include' field 
-	     * is initialized to 'false'.
+	     * This constructs an empty oid (the null oid).
+             *
+             * \internal
+             * The 'include' field is initialized to 'false'.
+             * \endinternal
 	     *
 	     * \exception None.
 	     */
@@ -130,7 +133,9 @@ namespace agentxcpp
 	     * with the OID contained within this string. The format of the 
 	     * string is described above.
 	     * 
-	     * The 'include' field is initialized to 'false'.
+             * \internal
+             * The 'include' field is initialized to 'false'.
+             * \endinternal
 	     *
 	     * \param id The initial object identifier.
 	     *
@@ -142,14 +147,17 @@ namespace agentxcpp
 	     * \brief Initialize an oid object with another oid plus an OID in 
 	     * string format.
 	     *
-	     * The 'include' field and all subid's are copied from 'o'. Then, 
-	     * the OID contained within the string 'id' is appended.  The 
-	     * format of the string is described in the documentation of this 
-	     * class.
+             * All subid's are copied from 'o'.  Then, the OID contained within 
+             * the string 'id' is appended.  The format of the string is 
+             * described in the documentation of this class.
+             *
+             * \internal
+             * The 'include' field is copied from 'o'.
+             * \endinternal
 	     *
 	     * \param o The starting OID.
 	     *
-	     * \param id The OID to append to o.
+             * \param id The OID to append.
 	     *
 	     * \exception inval_param If the string is malformed.
 	     */
@@ -157,8 +165,14 @@ namespace agentxcpp
 
 	    /**
 	     * \brief Assignment operator
+             *
+             * Copies all data from 'o' into this OID.
+             *
+             * \param o The OID to copy from.
+             *
+             * \return A reference to this OID.
 	     */
-	    oid& operator=(const oid& oid);
+	    oid& operator=(const oid& o);
 
 	    /**
 	     * \internal
@@ -257,6 +271,10 @@ namespace agentxcpp
 	     * 1.3.6.1.4.1.42.3<b>.2</b>.1.1 \n
 	     * because the 9th number is greater (although the first OID has 
 	     * less numbers than the second).
+             *
+             * \param o The OID tocompare to.
+             *
+             * \return True if the OID is less than 'o', false otherwise.
 	     */
 	    bool operator<(const oid& o) const;
 
@@ -265,6 +283,10 @@ namespace agentxcpp
 	     *
 	     * See operator<() for a more detailed description about comparing 
 	     * OIDs.
+             *
+             * \param o The OID tocompare to.
+             *
+             * \return True if the OIDs are equal, false otherwise.
 	     */
 	    bool operator==(const oid& o) const;
 
@@ -273,6 +295,10 @@ namespace agentxcpp
 	     *
 	     * See operator<() for a more detailed description about comparing 
 	     * OIDs.
+             *
+             * \param o The OID tocompare to.
+             *
+             * \return False if the OIDs are equal, true otherwise.
 	     */
 	    bool operator!=(const oid& o) const
 	    {
@@ -284,6 +310,10 @@ namespace agentxcpp
 	     *
 	     * See operator<() for a more detailed description about comparing 
 	     * OIDs.
+             *
+             * \param o The OID tocompare to.
+             *
+             * \return True if the OID is greater than 'o', false otherwise.
 	     */
 	    bool operator>(const oid& o) const
 	    {
@@ -299,11 +329,13 @@ namespace agentxcpp
 	     * subtree which has this oid as root.
 	     *
 	     * Examples:\n
-	     * oid id(1.3.6.1.4.1.42.3); \n
-	     * id.contains( oid(1.3.6.1.4.1.42.3) ); // true \n
-	     * id.contains( oid(1.3.6.1.4.1.42) ); // false \n
-	     * id.contains( oid(1.3.6.1.4.1.43.3) ); // false \n
-	     * id.contains( oid(1.3.6.1.4.1.42.3.3.1) ); // true \n
+             * \code
+             * oid id("1.3.6.1.4.1.42.3");
+             * id.contains( oid(1.3.6.1.4.1.42.3) ); // true
+             * id.contains( oid(1.3.6.1.4.1.42) ); // false
+             * id.contains( oid(1.3.6.1.4.1.43.3) ); // false
+             * id.contains( oid(1.3.6.1.4.1.42.3.3.1) ); // true
+             * \endcode
 	     *
 	     * \param id The OID to check.
 	     *
@@ -313,6 +345,8 @@ namespace agentxcpp
 	    bool contains(const oid& id);
 
 	    /**
+             * \internal
+             *
 	     * \brief Whether it is the null Object Identifier
 	     *
 	     * According to RFC 2741, 5.1 "Object Identifier", a null object 
@@ -325,10 +359,12 @@ namespace agentxcpp
 	     */
 	    bool is_null() const;
 
-	    friend std::ostream& operator<<(std::ostream&,
-					    const agentxcpp::oid&);
+	    friend std::ostream& operator<<(std::ostream& out,
+					    const agentxcpp::oid& o);
 
 	    /**
+             * \internal
+             *
 	     * \brief Update the internal state of the object.
 	     *
 	     * This function calls get() to obtain a new value and stores that 
@@ -352,6 +388,7 @@ namespace agentxcpp
              * \return The current value of the object.
              *
              * \exception generic_error If obtaining the current value fails.
+             *                          No other exception shall be thrown.
              */
 	    virtual oid get()
 	    {
@@ -365,30 +402,102 @@ namespace agentxcpp
      * Object identifiers (oid objects) can be output as follows:
      * 
      * \code
-     * oid led_state(enterprise,1,3,3,1);
+     * oid led_state(enterprises_oid, "1.3.3.1");
      * cout << "LED state OID: " << led_state << endl;
      * \endcode
      *
      * The last line will output "LED state OID:  .1.3.6.1.4.1.3.3.1".
+     *
+     * \param out The stream to which to write the output.
+     *
+     * \param o The OID to output.
+     *
+     * \return The 'out' parameter.
      */
-    std::ostream& operator<<(std::ostream&, const agentxcpp::oid&);
+    std::ostream& operator<<(std::ostream& out, const agentxcpp::oid& o);
 
 
-    // Some oid's according to RFC 1155:
-    // TODO: document them! Possibly these should be put into the 
-    // agentxcpp::oid namespace?
-    const oid iso("1");
-    const oid ccitt("0");
-    const oid joint_iso_ccitt("2");
-    const oid org(iso,"3");
-    const oid dod(org,"6");
-    const oid internet(dod,"1");
-    const oid directory(internet,"1");
-    const oid mgmt(internet,"2");
-    const oid experimental(internet,"3");
-    // 'private' is a C++ keyword, thus we use private_:
-    const oid private_(internet,"4");
-    const oid enterprises(private_, "1");
+    // TODO: Possibly these should be put into the agentxcpp::oid namespace?  
+    // The use of \memberof is not elegant.
+
+    /**
+     * \memberof oid
+     *
+     * \brief The 'iso' OID according to RFC 1155.
+     */
+    const oid iso_oid("1");
+
+    /**
+     * \memberof oid
+     *
+     * \brief The 'ccitt' OID according to RFC 1155.
+     */
+    const oid ccitt_oid("0");
+
+    /**
+     * \memberof oid
+     *
+     * \brief The 'joint.iso.ccitt' OID according to RFC 1155.
+     */
+    const oid joint_iso_ccitt_oid("2");
+
+    /**
+     * \memberof oid
+     *
+     * \brief The 'iso.org' OID according to RFC 1155.
+     */
+    const oid org_oid(iso_oid,"3");
+
+    /**
+     * \memberof oid
+     *
+     * \brief The 'iso.org.dod' OID according to RFC 1155.
+     */
+    const oid dod_oid(org_oid,"6");
+
+    /**
+     * \memberof oid
+     *
+     * \brief The 'iso.org.dod.internet' OID according to RFC 1155.
+     */
+    const oid internet_oid(dod_oid,"1");
+
+    /**
+     * \memberof oid
+     *
+     * \brief The 'iso.org.dod.internet.directory' OID according to RFC 1155.
+     */
+    const oid directory_oid(internet_oid,"1");
+
+    /**
+     * \memberof oid
+     *
+     * \brief The 'iso.org.dod.internet.mgmt' OID according to RFC 1155.
+     */
+    const oid mgmt_oid(internet_oid,"2");
+
+    /**
+     * \memberof oid
+     *
+     * \brief The 'iso.org.dod.internet.experimental' OID according to
+     *        RFC 1155.
+     */
+    const oid experimental_oid(internet_oid,"3");
+
+    /**
+     * \memberof oid
+     *
+     * \brief The 'iso.org.dod.internet.private' OID according to RFC 1155.
+     */
+    const oid private_oid(internet_oid,"4");
+
+    /**
+     * \memberof oid
+     *
+     * \brief The 'iso.org.dod.internet.private.enterprises' OID according to
+     *        RFC 1155.
+     */
+    const oid enterprises_oid(private_oid, "1");
 }
 
 

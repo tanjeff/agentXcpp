@@ -30,8 +30,8 @@ namespace agentxcpp
      */
     class TimeTicks : public variable
     {
-	protected:
-	    /**
+	private:
+            /**
 	     * \brief The TimeTicks value.
 	     *
 	     * According to RFC 2578, Counter32 is a non-negative 32-bit 
@@ -41,6 +41,8 @@ namespace agentxcpp
 
 	public:
 	    /**
+             * \internal
+             *
 	     * \brief Create an TimeTicks without initialization.
 	     *
 	     * The value after creation is undefined.
@@ -85,6 +87,8 @@ namespace agentxcpp
 	    virtual data_t serialize() const;
 
 	    /**
+             * \internal
+             *
 	     * \brief Update the internal state of the object.
 	     *
 	     * This function calls get() to obtain a new value and writes that 
@@ -108,6 +112,7 @@ namespace agentxcpp
              * \return The current value of the object.
              *
              * \exception generic_error If obtaining the current value fails.
+             *                          No other exception shall be thrown.
              */
 	    virtual uint32_t get()
 	    {

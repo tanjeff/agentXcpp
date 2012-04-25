@@ -164,13 +164,13 @@ serve them. If a request cannot be served, the \ref agentxcpp::master_proxy
 And here is the code for subtree registration:
 
 \code
-    oid simpleagent_oid = oid(enterprises, "42.1");
+    oid simpleagent_oid = oid(enterprises_oid, "42.1");
     master.register_subtree(simpleagent_oid);
 \endcode
 
 As you see, an \ref agentxcpp::oid "oid" object can be created by giving it the 
-"enterprises" object (which is provided by agentXcpp for convenience) and an 
-additional string with further subids.
+"enterprises_oid" object (which is provided by agentXcpp for convenience) and 
+an additional string with further subids.
 
 Next, we create a simpleCounter variable and register it with agentXcpp:
 

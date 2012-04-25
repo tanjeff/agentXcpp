@@ -31,7 +31,7 @@ namespace agentxcpp
      */
     class Octet_String : public variable
     {
-	protected:
+	private:
 	    /**
 	     * \brief The string.
 	     *
@@ -52,13 +52,22 @@ namespace agentxcpp
 	    data_t serialize() const;
 
 	    /**
-	     * \brief FIXME
+             * \internal
+             *
+             * \brief FIXME
 	     */
 	    Octet_String(data_t initial_value) : value(initial_value) {}
 
+            /**
+             * \internal
+             *
+             * \brief FIXME
+             */
 	    Octet_String(std::string initial_value);
 
 	    /**
+             * \internal
+             *
 	     * \brief FIXME
 	     */
 	    Octet_String() { }
@@ -92,11 +101,15 @@ namespace agentxcpp
 			 bool big_endian=true);
 
 	    /**
+             * \internal
+             *
 	     * \brief Set the current value
 	     */
 	    void set_value(data_t new_value) { value = new_value; }
 
 	    /**
+             * \internal
+             *
 	     * \brief get the current value
 	     */
 	    data_t get_value()
@@ -105,6 +118,8 @@ namespace agentxcpp
 	    }
 
 	    /**
+             * \internal
+             *
 	     * \brief Update the internal state of the object.
 	     *
 	     * This function calls get() to obtain a new value and writes that 
@@ -128,6 +143,7 @@ namespace agentxcpp
              * \return The current value of the object.
              *
              * \exception generic_error If obtaining the current value fails.
+             *                          No other exception shall be thrown.
              */
 	    virtual data_t get()
 	    {

@@ -53,10 +53,9 @@ namespace agentxcpp
      * \par Connection State
      *
      * The master_proxy is always in one of the following states:
-     *
      * -# connected
      * -# disconnected
-     *
+     * .
      * The session to the master agent is established when creating a 
      * master_proxy object, thus the object usually starts in connected state.  
      * If that fails, the object starts in disconnected state. A connected 
@@ -73,9 +72,9 @@ namespace agentxcpp
     /**
      * \par The io_service object
      *
-     * This class uses the boost::asio library for networking and therefore 
-     * needs a boost::asio::io_service object. This object can either be 
-     * provided by the user or created automatically. There are two 
+     * The master_proxy class uses the boost::asio library for networking and 
+     * therefore needs a boost::asio::io_service object. This object can either 
+     * be provided by the user or created automatically. There are two 
      * constructors available therefore. The used object (whether auto-created 
      * or not) can be obtained using the get_io_service() function. If the 
      * io_service object was autocreated by a constructor, it will be destroyed 
@@ -84,17 +83,17 @@ namespace agentxcpp
      * master_proxy objects using the same io_service object, or using 
      * different io_service objects.
      *
-     * Receiving data from the master agent (requests or responses to requests) 
-     * is done asynchronously and only works if io_service::run() or 
-     * io_service::run_one() is invoked. However, some operations (such as 
-     * registering stuff) invoke io_service::run_one() several times while 
-     * waiting for a response from the master agent. If the io_service object 
-     * is not used exclusively by the master_proxy object (which is entirely  
-     * possible), this may complete asynchronous events before the library 
-     * operation (e.g.  registering) is completed. Even the internal 
-     * asynchronous reception calls io_service::run_one() while waiting for 
-     * more data. If this behaviour is not desired, a separate io_service 
-     * object should be used for other asynchronous I/O operations.
+     * Receiving data from the master agent is done asynchronously and only 
+     * works if io_service::run() or io_service::run_one() is invoked.  
+     * However, some operations (such as registering stuff) invoke 
+     * io_service::run_one() several times while waiting for a response from 
+     * the master agent. If the io_service object is not used exclusively by 
+     * the master_proxy object (which is entirely  possible), this may complete 
+     * asynchronous events before the library operation (e.g.  registering) is 
+     * completed. Even the internal asynchronous reception calls 
+     * io_service::run_one() while waiting for more data. If this behaviour is 
+     * not desired, a separate io_service object should be used for other 
+     * asynchronous I/O operations.
      *
      */
     /**
@@ -111,11 +110,12 @@ namespace agentxcpp
      * conecerning objects in this subtree to this subagent. Requests to 
      * non-existing objects (e.g.  1.3.6.1.4.1.42<b>.1.3</b>) are also 
      * forwarded, and the agentXcpp library will take care of them and return 
-     * an appropriate error to the master agent. The function 
-     * register_subtree() is used to register a subtree. It is typically called 
-     * for the highest-level OID of the MIB which is implemented by the 
-     * subagent. However, it is entirely possible to register multiple 
-     * subtrees.
+     * an appropriate error to the master agent.
+     * 
+     * The function register_subtree() is used to register a subtree. It is 
+     * typically called for the highest-level OID of the MIB which is 
+     * implemented by the subagent. However, it is entirely possible to 
+     * register multiple subtrees.
      *
      * Identical subtrees are subtrees with the exact same root OID. Each 
      * registration is done with a priority value.  The higher the value, the 
@@ -372,6 +372,8 @@ namespace agentxcpp
 
 	public:
 	    /**
+             * \internal
+             *
 	     * \brief The dispatcher for incoming %PDU's.
 	     *
 	     * This method implements pdu_handler::handle_pdu() and is invoked 
@@ -387,8 +389,8 @@ namespace agentxcpp
 	     * fails, the object is created nevertheless and will be in state 
 	     * disconnected.
 	     *
-	     * This constructor takes an io_service object as parameter. This 
-	     * io_service is not destroyed by the consntructor.
+             * This constructor takes an io_service object as parameter. The 
+             * io_service is not destroyed by the constructor.
 	     *
 	     * \param io_service The io_service object.
 	     *
@@ -396,14 +398,13 @@ namespace agentxcpp
 	     *                    description cannot be changed later.
 	     *
 	     * \param default_timeout The length of time, in seconds, that
-	     *                        the master agent should allow to elapse 
-	     *                        after receiving a message before it 
-	     *                        regards the subagent as not responding.  
-	     *                        The value is also used when waiting 
-	     *                        synchronously for data from the master 
-	     *                        agent (e.g. when registering stuff).  
-	     *                        Allowed values are 0-255, with 0 meaning 
-	     *                        "no default for this session".
+             *                        the master agent should allow to elapse 
+             *                        before it regards the subagent as not 
+             *                        responding.  The value is also used when 
+             *                        waiting synchronously for data from the 
+             *                        master agent (e.g. when registering 
+             *                        stuff).  Allowed values are 0-255, with 0 
+             *                        meaning "no default for this session".
 	     *
 	     * \param ID An Object Identifier that identifies the subagent.
 	     *           Default is the null OID (no ID).
@@ -433,15 +434,14 @@ namespace agentxcpp
 	     * \param description A string describing the subagent. This
 	     *                    description cannot be changed later.
 	     *
-	     * \param default_timeout The length of time, in seconds, that
-	     *                        the master agent should allow to elapse 
-	     *                        after receiving a message before it 
-	     *                        regards the subagent as not responding.  
-	     *                        The value is also used when waiting 
-	     *                        synchronously for data from the master 
-	     *                        agent (e.g. when registering stuff).  
-	     *                        Allowed values are 0-255, with 0 meaning 
-	     *                        "no default for this session".
+             * \param default_timeout The length of time, in seconds, that
+             *                        the master agent should allow to elapse 
+             *                        before it regards the subagent as not 
+             *                        responding.  The value is also used when 
+             *                        waiting synchronously for data from the 
+             *                        master agent (e.g. when registering 
+             *                        stuff).  Allowed values are 0-255, with 0 
+             *                        meaning "no default for this session".
 	     *
 	     * \param ID An Object Identifier that identifies the subagent.
 	     *           Default is the null OID (no ID).
@@ -459,10 +459,9 @@ namespace agentxcpp
 	    /**
 	     * \brief Register a subtree with the master agent
 	     *
-	     * This function registers a subtree (or MIB region). This function 
-	     * invokes run_one() one or more times on the io_service object.
-	     *
-	     * \internal
+	     * This function registers a subtree (or MIB region).
+             * 
+             * \internal
 	     *
 	     * This method adds the registered subtree to registrations on 
 	     * success.
@@ -510,6 +509,9 @@ namespace agentxcpp
 	     *                        performed the desired registration and 
 	     *                        that a retry will result in a 
 	     *                        duplicate_registration error.
+             *
+             * \note This function invokes run_one() one or more times on the
+             *       io_service object.
 	     */
 	    void register_subtree(oid subtree,
 				  byte_t priority=127,
@@ -519,10 +521,9 @@ namespace agentxcpp
 	     * \brief Unregister a subtree with the master agent
 	     *
 	     * This function unregisters a subtree (or MIB region) which has 
-	     * previously been registered. This function invokes run_one() one 
-	     * or more times on the io_service object.
-	     *
-	     * \internal
+	     * previously been registered.
+             * 
+             * \internal
 	     *
 	     * This method removes the registered subtree from
 	     * registrations.
@@ -532,9 +533,7 @@ namespace agentxcpp
 	     * \param subtree The (root of the) subtree to unregister.
 	     *
 	     * \param priority The priority with which the registration was
-	     *                 done. the subtree.  Because register_subtree() 
-	     *                 uses 127 as default, this value is also the 
-	     *                 default for this function.
+             *                 done.
 	     *
 	     * \exception disconnected If the master_proxy is currently in
 	     *                         state 'disconnected'.
@@ -556,7 +555,12 @@ namespace agentxcpp
 	     *                        or in the agentXcpp library. It is 
 	     *                        possible that the master actually 
 	     *                        unregistered the MIB region.
+             *
+             * \note This function invokes run_one() one or more times on the
+             *       io_service object.
 	     */
+            // TODO: the 'priority' parameter can possibly be omitted: the 
+            // value can be stored by master_agent upon subtree registration.
 	    void unregister_subtree(oid subtree,
 				    byte_t priority=127);
 
@@ -595,8 +599,8 @@ namespace agentxcpp
 	     * Disconnect from the master agent.
 	     * 
 	     * \note Upon destruction of a session object the session is
-	     *       automatically shutdown. If the session is in state 
-	     *       "disconnected", the function does nothing.
+             *       automatically shutdown. If the session is in state 
+             *       "disconnected", this function does nothing.
 	     *
 	     * \param reason The shutdown reason is reported to the master
 	     *               agent during shutdown.
@@ -636,27 +640,27 @@ namespace agentxcpp
 	    }
     
 	    /**
-	     * \brief Default destructor
+             * \brief Destructor.
 	     *
-	     * The default destructor cleanly shuts down the session with the 
-	     * reason 'Shutdown' (if it is currently established) and destroys 
-	     * the session object. It also destroys the io_service object if it 
-	     * was created automatically (i.e. not provided by the user).
+             * The destructor cleanly shuts down the session with the reason 
+             * 'Shutdown' (if it is currently established) and destroys the 
+             * master_proxy object. It also destroys the io_service object if 
+             * it was created automatically (i.e. not provided by the user).
 	     */
 	    ~master_proxy();
 
 	    /**
-	     * \brief Add an SNMP variable to serve.
+             * \brief Add an SNMP variable for serving.
 	     *
-	     * This adds an SNMP variable which can be read and/or written.
+             * This adds an SNMP variable which can then be read and/or 
+             * written.
 	     *
 	     * Variables can only be added to MIB regions which were registered 
 	     * in advance.
 	     *
-	     * If adding a variable with an id for which another variable is 
-	     * already registered, the existing variable is replaced by the new 
-	     * one.
-	     *
+             * If adding a variable with an id for which another variable is 
+             * already registered, it replaces the odl one.
+             *
 	     * \param id The OID of the variable.
 	     *
 	     * \param v The variable.

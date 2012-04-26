@@ -31,7 +31,7 @@ namespace agentxcpp
      */
     class Counter64 : public variable
     {
-	protected:
+	private:
 	    /**
 	     * \brief The counter value.
 	     *
@@ -42,6 +42,8 @@ namespace agentxcpp
 
 	public:
 	    /**
+             * \internal
+             *
 	     * \brief Create a counter without initialization.
 	     *
 	     * The value after creation is undefined.
@@ -86,6 +88,8 @@ namespace agentxcpp
 	    virtual data_t serialize() const;
 
 	    /**
+             * \internal
+             *
 	     * \brief Update the internal state of the object.
 	     *
 	     * This function calls get() to obtain a new value and writes that 
@@ -109,6 +113,7 @@ namespace agentxcpp
              * \return The current value of the object.
              *
              * \exception generic_error If obtaining the current value fails.
+             *                          No other exception shall be thrown.
              */
 	    virtual uint64_t get()
 	    {

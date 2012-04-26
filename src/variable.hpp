@@ -26,7 +26,9 @@ namespace agentxcpp
     /**
      * \brief This class represents a SNMP variable.
      *
-     * It is inherited by more concrete classes.
+     * This class is used as base class for the SNMP variable types (such as 
+     * Octet_String or Integer). It has no functions or members exposed to the 
+     * API.
      */
     class variable
     {
@@ -53,19 +55,19 @@ namespace agentxcpp
              {
              }
 
-	/**
-         * \internal
-         *
-	 * \brief Update the internal state of the variable.
-	 *
-	 * This function must be implemented in derived classes. It shall 
-	 * update the internal state of the object.
-	 *
-         * \exception generic_error If obtaining the new value failed. The
-         *                          state of such an object cannot be 
-         *                          updated.
-	 */
-	virtual void update()=0;
+            /**
+             * \internal
+             *
+             * \brief Update the internal state of the variable.
+             *
+             * This function must be implemented in derived classes. It shall 
+             * update the internal state of the object.
+             *
+             * \exception generic_error If obtaining the new value failed. The
+             *                          state of such an object cannot be 
+             *                          updated.
+             */
+            virtual void update()=0;
     };
 }
 

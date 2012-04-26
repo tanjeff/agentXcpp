@@ -40,16 +40,6 @@ typedef unsigned long long uint64_t;
 typedef unsigned char byte_t; // for machines where unsigned char has 8bits
 
 /**
- * \brief input stream for connection to master agent
- *
- * This type is used as input stream which is used to receive protocol messages 
- * from the master agent.
- */
-typedef std::basic_istream<byte_t> input_stream;
-
-/**
- * \internal
- *
  * \brief A type representing a contigous byte stream
  */
 class data_t : public std::basic_string<byte_t> { };

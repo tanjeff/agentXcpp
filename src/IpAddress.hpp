@@ -37,7 +37,7 @@ namespace agentxcpp
 	     */
 	    IpAddress();
 
-	protected:
+	private:
 	    /**
 	     * \brief The IP address.
 	     *
@@ -86,7 +86,11 @@ namespace agentxcpp
 	    data_t serialize() const;
 
 	    /**
-	     * \brief FIXME
+             * \brief Construct an IpAddress object.
+             *
+             * The stored IpAddress is initialized to "a.b.c.d".
+             *
+             * \exception None.
 	     */
 	    IpAddress(uint32_t a,
 		    uint32_t b,
@@ -100,6 +104,8 @@ namespace agentxcpp
 	    }
 
 	    /**
+             * \internal
+             *
 	     * \brief Update the internal state of the object.
 	     *
 	     * This function calls get() to obtain a new value and writes that 
@@ -127,6 +133,7 @@ namespace agentxcpp
              * \return The current value of the object.
              *
              * \exception generic_error If obtaining the current value fails.
+             *                          No other exception shall be thrown.
              */
 	    virtual IpAddress get()
 	    {

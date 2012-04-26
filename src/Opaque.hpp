@@ -31,7 +31,7 @@ namespace agentxcpp
      */
     class Opaque : public variable
     {
-	protected:
+	private:
 	    /**
 	     * \brief The string.
 	     *
@@ -79,11 +79,16 @@ namespace agentxcpp
 		   const data_t::const_iterator& end,
 		   bool big_endian=true);
 
+            /**
+             * \internal
+             *
+             * \brief Constructor for initializing with data.
+             */
 	    Opaque(data_t initial_value) : value(initial_value) {}
 
-	    Opaque() { }
-
-	    /**
+            /**
+             * \internal
+             *
 	     * \brief Update the internal state of the object.
 	     *
 	     * This function calls get() to obtain a new value and writes that 
@@ -107,6 +112,7 @@ namespace agentxcpp
              * \return The current value of the object.
              *
              * \exception generic_error If obtaining the current value fails.
+             *                          No other exception shall be thrown.
              */
 	    virtual data_t get()
 	    {

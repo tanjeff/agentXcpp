@@ -31,7 +31,7 @@ namespace agentxcpp
      */
     class Integer : public variable
     {
-	protected:
+	private:
 	    /**
 	     * \brief The Integer value.
 	     *
@@ -41,6 +41,8 @@ namespace agentxcpp
 
 	public:
 	    /**
+             * \internal
+             *
 	     * \brief Create an Integer object.
 	     *
 	     * The default value of the new object is 0.
@@ -49,23 +51,7 @@ namespace agentxcpp
 	     */
 	    Integer(int32_t _value=0) :value(_value) {}
 
-	    /**
-	     * \brief Get the value.
-	     */
-	    int32_t get_value()
-	    {
-		return value;
-	    }
-	    
-	    /**
-	     * \brief Set the value.
-	     */
-	    void set_value(int32_t v)
-	    {
-		value = v;
-	    }
-	    
-	    /**
+            /**
 	     * \internal
 	     *
 	     * \brief Encode the object as described in RFC 2741, section 5.4
@@ -103,6 +89,8 @@ namespace agentxcpp
 		    bool big_endian=true);
 
 	    /**
+             * \internal
+             *
 	     * \brief Update the internal state of the object.
 	     *
 	     * This function calls get() to obtain a new value and writes that 
@@ -126,6 +114,7 @@ namespace agentxcpp
              * \return The current value of the object.
              *
              * \exception generic_error If obtaining the current value fails.
+             *                          No other exception shall be thrown.
              */
 	    virtual int32_t get()
 	    {

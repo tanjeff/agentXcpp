@@ -49,6 +49,13 @@ namespace agentxcpp
 	    virtual data_t serialize() const = 0;
 
             /**
+             * \brief Destructor.
+             */
+             virtual ~variable()
+             {
+             }
+
+            /**
              * \internal
              *
              * \brief Update the internal state of the variable.

@@ -24,6 +24,7 @@
 
 
 using namespace agentxcpp;
+using namespace std;
 
 
 void oid::parse_string(std::string s)

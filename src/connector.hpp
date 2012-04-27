@@ -166,6 +166,13 @@ namespace agentxcpp
 		     */
 		    virtual void handle_pdu(boost::shared_ptr<PDU> pdu,
 					    int error) =0;
+
+		    /**
+		     * \brief Destructor.
+		     */
+                    virtual ~pdu_handler()
+                    {
+                    }
 	    };
 	
 	private:
@@ -346,7 +353,7 @@ namespace agentxcpp
 	     *
 	     * \exception None.
 	     */
-	    void register_handler( pdu_handler* );
+	    void register_handler( pdu_handler* handler );
 
 	    /**
 	     * \brief Connect to the remote entity.

@@ -18,7 +18,8 @@
 #
 
 import subprocess
-
+import sys
+import os
 
 #################################################
 ## Our Environment
@@ -27,6 +28,10 @@ env = DefaultEnvironment()
 
 #################################################
 ## Command-line magic
+
+# TODO:
+# - check whether '/' works with all systems
+# - should the user be allowed to use '#dir' as path name?
 
 # --prefix magic
 default_prefix = '#install-root'
@@ -60,7 +65,7 @@ if env['docdir'][0] != '/' and env['docdir'][0] != '#':
 
 # --includedir magic
 AddOption('--includedir', nargs=1, action='store', dest='includedir', 
-	type='string',
+	  type='string',
 	  help='installation directory for header files ' +
 	  '(default: <PREFIX>/include/agentxcpp)',
 	  default=env['prefix'] + '/include/agentxcpp')
@@ -69,6 +74,38 @@ env['includedir'] = GetOption('includedir')
 if env['includedir'][0] != '/' and env['includedir'][0] != '#':
     env['includedir'] = GetLaunchDir() + "/" + env['includedir']
 
+# --with_libs magic
+AddOption('--with_libs', nargs=1, action='store', dest='with_libs', 
+	type='string',
+	  help='Colon-separated list of directories. For each ' +
+          'directory $DIR the $DIR/include is added to the ' +
+          'compilers header search path and $DIR/lib is added ' +
+          'to the library search path.',
+	  default=None)
+with_libs = GetOption('with_libs')
+if with_libs != None:
+    # only if --with-libs was provided:
+    with_libs = with_libs.split(':')
+    for dir in with_libs:
+        # For each DIR:
+        # - Make relative path absolute
+        # - Fail if DIR/include or DIR/lib is not a directory
+        #   otherwise:
+        #   - Append DIR/inlcude to CPPPATH
+        #   - Append DIR/lib to LIBPATH
+        if dir[0] != '/' and dir[0] != '#':
+            dir = GetLaunchDir() + "/" + dir
+        includepath = dir + "/include"
+        libpath = dir + "/lib"
+        if not os.path.isdir(includepath):
+            print includepath + " is not a directory."
+            sys.exit()
+        elif not os.path.isdir(libpath):
+            print libpath + " is not a directory."
+            sys.exit()
+        else:
+            env.Append(CPPPATH = [includepath])
+            env.Append(LIBPATH = [libpath])
 
 #################################################
 ## Obtain description of current version
@@ -76,9 +113,13 @@ if env['includedir'][0] != '/' and env['includedir'][0] != '#':
 # Get current revision
 # We ask git for a description of the current revision and add it to the 
 # environment.
-descr = subprocess.check_output(["git", "describe", "--always", "--dirty"])
-env['revision'] = descr.strip()
-
+#
+# Note: subprocess.check_output() would be more appropriiate, but doesn't
+#       exist in Python 2.4 :-(
+proc = subprocess.Popen(["git", "describe", "--always", "--dirty"],
+                        stdout=subprocess.PIPE)
+(out,err) = proc.communicate()
+env['revision'] = out.strip()
 
 #################################################
 ## Include SCronscripts from subdirectories

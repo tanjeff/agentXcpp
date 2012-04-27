@@ -24,7 +24,6 @@ Import('env')
 # warnings, so we enable them only for g++. For development it's enough.)
 if(env["CXX"] == "g++"):
     env.Append(CPPFLAGS = ['-Wall'])
-    env.Append(CPPFLAGS = ['-Werror'])
 
 # Build the library:
 agentxcpp = env.SharedLibrary('agentxcpp', Glob('*.cpp'))

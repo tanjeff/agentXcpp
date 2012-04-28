@@ -1,0 +1,14 @@
+
+= Version 0.1 =
+
+  This version supports writing subagents which can handle 'Get' requests for 
+  SNMP objects (but no other requests are supported, not even Get-Next). All 
+  SNMP objects defined by RFC 2741 are supported (Integer, Octet_String, 
+  IpAddress, etc.). Only complete subtrees can be registered for an subagent, 
+  which means that the master agent will forward all requests for OIDs within 
+  this subtree to the registering subagent. Single OIDs cannot be registered, 
+  and it is not possible to share tables with other subagents (i.e. no index 
+  allocation is supported). Notifications (a.k.a. traps) are also not provided.
+ 
+  This version is not usable for real-world projects, since it doesn't support 
+  'Set' requests and notifications.

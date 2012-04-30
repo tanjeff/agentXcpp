@@ -20,9 +20,11 @@
 #ifndef _IPADDRESS_H_
 #define _IPADDRESS_H_
 
+#include <boost/cstdint.hpp>
 #include "types.hpp"
 #include "variable.hpp"
 #include "exceptions.hpp"
+
 
 namespace agentxcpp
 {
@@ -43,7 +45,7 @@ namespace agentxcpp
 	     *
 	     * According to RFC 2578, IpAddress is a 32-bit number.
 	     */
-	    uint8_t address[4]; // only IPv4
+	    boost::uint8_t address[4]; // only IPv4
 
 	public:
 	    /**

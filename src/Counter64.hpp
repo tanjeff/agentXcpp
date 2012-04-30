@@ -20,9 +20,13 @@
 #ifndef _COUNTER64_H_
 #define _COUNTER64_H_
 
+#include <boost/cstdint.hpp>
+
 #include "types.hpp"
 #include "variable.hpp"
 #include "exceptions.hpp"
+
+using boost::uint64_t;
 
 namespace agentxcpp
 {
@@ -49,7 +53,7 @@ namespace agentxcpp
 	     * The value after creation is undefined.
 	     */
 	    Counter64() {}
-	    
+
 	    /**
 	     * \internal
 	     *
@@ -77,7 +81,7 @@ namespace agentxcpp
 	    Counter64(data_t::const_iterator& pos,
 		      const data_t::const_iterator& end,
 		      bool big_endian=true);
-	    
+
 	    /**
 	     * \internal
 	     *

@@ -17,6 +17,7 @@
  * for more details.
  */
 #include <boost/bind.hpp>
+#include <boost/cstdint.hpp>
 
 #include "master_proxy.hpp"
 #include "OpenPDU.hpp"
@@ -28,11 +29,11 @@
 #include "types.hpp"
 
 #include <iostream>
-using namespace std;
 
+using namespace std;
 using namespace agentxcpp;
-using namespace boost;
-using boost::shared_ptr;
+using namespace boost;  // Beside other things, this pulls boost::uint16_t
+
 
 
 
@@ -555,8 +556,8 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 
 	// Iterate over list and handle each oid separately
 	vector<oid>::const_iterator i;
-        uint16_t index = 1;     // Index is 1-based (RFC 2741,
-                                // 5.4. "Value Representation"):
+        uint16_t index = 1;  // Index is 1-based (RFC 2741,
+                             // 5.4. "Value Representation"):
 	for(i = sr.begin(); i != sr.end(); i++)
 	{
 	    // The name

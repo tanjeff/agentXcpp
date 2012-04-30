@@ -21,13 +21,15 @@
 #define _RESPONSEPDU_H_
 
 #include <vector>
-using std::vector;
+#include <boost/cstdint.hpp>
 
 #include "PDU.hpp"
 #include "oid.hpp"
 #include "Octet_String.hpp"
 #include "varbind.hpp"
 
+using std::vector;
+using boost::uint16_t;
 
 namespace agentxcpp
 {

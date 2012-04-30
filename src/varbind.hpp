@@ -21,10 +21,13 @@
 
 #include <istream>
 #include <boost/shared_ptr.hpp>
+#include <boost/cstdint.hpp>
 
 #include "types.hpp"
 #include "oid.hpp"
 #include "variable.hpp"
+
+using boost::uint16_t;
 
 namespace agentxcpp
 {

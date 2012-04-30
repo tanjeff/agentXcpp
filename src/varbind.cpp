@@ -16,6 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
+#include <boost/cstdint.hpp>
+
 #include "varbind.hpp"
 #include "Octet_String.hpp"
 #include "Integer.hpp"
@@ -28,6 +30,7 @@
 #include "helper.hpp"
 
 using namespace agentxcpp;
+using boost::uint16_t;
 
 
 data_t varbind::serialize() const

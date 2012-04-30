@@ -20,7 +20,10 @@
 #ifndef _HELPER_H_
 #define _HELPER_H_
 
+#include <boost/cstdint.hpp>
 #include "types.hpp"
+
+using boost::uint16_t;
 
 inline uint32_t read32(data_t::const_iterator& pos, bool big_endian)
 {

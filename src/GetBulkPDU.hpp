@@ -21,9 +21,11 @@
 
 #include <vector>
 #include <utility>
+#include <boost/cstdint.hpp>
 
 using std::vector;
 using std::pair;
+using boost::uint16_t;
 
 #include "PDUwithContext.hpp"
 #include "oid.hpp"

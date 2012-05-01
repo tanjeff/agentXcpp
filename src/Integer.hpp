@@ -20,9 +20,13 @@
 #ifndef _INTEGER_H_
 #define _INTEGER_H_
 
+#include <boost/cstdint.hpp>
+
 #include "types.hpp"
 #include "variable.hpp"
 #include "exceptions.hpp"
+
+using boost::int32_t;
 
 namespace agentxcpp
 {

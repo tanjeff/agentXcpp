@@ -107,6 +107,23 @@ unit_tests/
         available yet.
 
 
+Prerequisites
+-------------
+
+To build agentXcpp, the following is needed:
+
+- Standard build environment (compiler, linker, etc.)
+- Doxygen, to build the documentation
+- The 'dot' tool from the graphviz package, which is used by doxygen to 
+  generate diagrams
+- SCons, to control the build process
+- The following boost libraries:
+  - Asio
+  - Bind
+  - Smart Ptr
+  - Test
+
+
 Documentation
 -------------
 

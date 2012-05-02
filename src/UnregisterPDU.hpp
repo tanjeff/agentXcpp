@@ -19,8 +19,12 @@
 #ifndef _UNREGISTERPDU_H_
 #define _UNREGISTERPDU_H_
 
+#include <boost/cstdint.hpp>
+
 #include "PDUwithContext.hpp"
 #include "oid.hpp"
+
+using boost::uint32_t;
 
 namespace agentxcpp
 {

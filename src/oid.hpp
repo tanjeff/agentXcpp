@@ -23,9 +23,14 @@
 #include <vector>
 #include <ostream>
 #include <string>
+
+#include <boost/cstdint.hpp>
+
 #include "variable.hpp"
 #include "types.hpp"
 #include "exceptions.hpp"
+
+using boost::uint32_t;
 
 namespace agentxcpp
 {

@@ -19,9 +19,13 @@
 #ifndef _REGISTERPDU_H_
 #define _REGISTERPDU_H_
 
+#include <boost/shared_ptr.hpp>
+
 #include "types.hpp"
 #include "oid.hpp"
 #include "PDUwithContext.hpp"
+
+using boost::uint32_t;
 
 namespace agentxcpp
 {

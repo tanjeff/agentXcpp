@@ -20,6 +20,7 @@
 #define _MASTER_PROXY_H_
 
 #include <boost/asio.hpp>
+#include <boost/cstdint.hpp>
 
 #include <fstream>
 #include <string>
@@ -34,6 +35,8 @@
 #include "RegisterPDU.hpp"
 #include "UnregisterPDU.hpp"
 #include "connector.hpp"
+
+using boost::uint32_t;
 
 namespace agentxcpp
 {

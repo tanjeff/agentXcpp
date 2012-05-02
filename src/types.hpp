@@ -23,7 +23,6 @@
 #include <istream>
 #include <ostream>
 
-typedef unsigned int uint32_t;
 
 /**
  * \brief A type with exactly 8 bits

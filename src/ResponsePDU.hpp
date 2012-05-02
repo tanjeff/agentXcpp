@@ -30,6 +30,7 @@
 
 using std::vector;
 using boost::uint16_t;
+using boost::uint32_t;
 
 namespace agentxcpp
 {

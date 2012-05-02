@@ -20,8 +20,11 @@
 #define _LOCAL_SOCKET_H_
 
 #include <boost/asio.hpp>
+#include <boost/cstdint.hpp>
 
 #include "ResponsePDU.hpp"
+
+using boost::uint32_t;
 
 namespace agentxcpp
 {

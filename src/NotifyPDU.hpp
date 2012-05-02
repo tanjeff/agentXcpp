@@ -20,10 +20,14 @@
 #define _NOTIFYPDU_H_
 
 #include <vector>
-using std::vector;
+
+#include <boost/cstdint.hpp>
 
 #include "PDUwithContext.hpp"
 #include "varbind.hpp"
+
+using boost::uint32_t;
+using std::vector;
 
 namespace agentxcpp
 {

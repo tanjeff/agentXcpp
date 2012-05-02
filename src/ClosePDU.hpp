@@ -20,9 +20,13 @@
 #ifndef _CLOSEPDU_H_
 #define _CLOSEPDU_H_
 
+#include <boost/cstdint.hpp>
+
 #include "exceptions.hpp"
 #include "types.hpp"
 #include "PDU.hpp"
+
+using boost::uint32_t;
 
 namespace agentxcpp
 {

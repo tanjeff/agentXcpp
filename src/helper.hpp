@@ -24,6 +24,7 @@
 #include "types.hpp"
 
 using boost::uint16_t;
+using boost::uint32_t;
 
 inline uint32_t read32(data_t::const_iterator& pos, bool big_endian)
 {

@@ -20,13 +20,16 @@
 #ifndef _PDU_H_
 #define _PDU_H_
 
-#include "types.hpp"
-#include "exceptions.hpp"
-#include <boost/shared_ptr.hpp>
 #include <memory>
 
-// We use this smart pointer:
+#include <boost/shared_ptr.hpp>
+#include <boost/cstdint.hpp>
+
+#include "types.hpp"
+#include "exceptions.hpp"
+
 using boost::shared_ptr;
+using boost::uint32_t;
 
 namespace agentxcpp
 {

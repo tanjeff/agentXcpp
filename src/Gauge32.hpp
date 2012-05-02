@@ -20,9 +20,13 @@
 #ifndef _GAUGE32_H_
 #define _GAUGE32_H_
 
+#include <boost/cstdint.hpp>
+
 #include "types.hpp"
 #include "variable.hpp"
 #include "exceptions.hpp"
+
+using boost::uint32_t;
 
 namespace agentxcpp
 {

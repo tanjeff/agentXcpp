@@ -555,7 +555,7 @@ void connector::receive_callback(const boost::system::error_code& result)
     }
 
     // Read the payload (TODO: can we avoid the new() operator?)
-    byte_t* payload = new byte_t[payload_length];
+    uint8_t* payload = new uint8_t[payload_length];
     try
     {
 	read_with_timeout(*this->socket,

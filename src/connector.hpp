@@ -24,6 +24,7 @@
 
 #include "ResponsePDU.hpp"
 
+using boost::uint8_t;
 using boost::uint32_t;
 
 namespace agentxcpp
@@ -192,7 +193,7 @@ namespace agentxcpp
 	     * the user of this class.
 	     */
 	    boost::shared_ptr<boost::asio::io_service> io_service;
-	    
+
 	    /**
 	     * \brief The socket.
 	     *
@@ -201,10 +202,10 @@ namespace agentxcpp
 	    boost::asio::local::stream_protocol::socket* socket;
 
 	    /**
-	     * \brief The endpoint used for unix domain sockets.
+             * \brief The endpoint used for unix domain sockets.
 	     */
 	    boost::asio::local::stream_protocol::endpoint endpoint;
-	    
+
 	    /**
 	     * \brief Callback function to receive a %PDU.
 	     *
@@ -261,7 +262,7 @@ namespace agentxcpp
 	     * buffer is 20 bytes in size.
 	     */
 	    // TODO: avoid magic numbers, even if they are documented.
-	    byte_t header_buf[20];
+	    uint8_t header_buf[20];
 
 	    /**
 	     * \brief The handler object for incoming %PDU's.
@@ -280,7 +281,7 @@ namespace agentxcpp
 	     * We need an io_service object to function properly.
 	     */
 	    connector();
-	    
+
 	public:
 
 	    /**

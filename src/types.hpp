@@ -23,21 +23,14 @@
 #include <istream>
 #include <ostream>
 
+#include <boost/cstdint.hpp>
 
-/**
- * \brief A type with exactly 8 bits
- *
- * The char types in C++ (char, unsigned char, signed char) are defined to have 
- * <em>at least</em> 8 bits. Although these types probably have 8 bits on 
- * virtually every platform, I'm a perfectionist here and define my own type, 
- * so that it can be redefined in one central place.
- */
-typedef unsigned char byte_t; // for machines where unsigned char has 8bits
+
 
 /**
  * \brief A type representing a contigous byte stream
  */
-class data_t : public std::basic_string<byte_t> { };
+class data_t : public std::basic_string<boost::uint8_t> { };
 
 inline std::ostream& operator<<(std::ostream& out, const data_t& stream)
 {

@@ -74,7 +74,7 @@ PDU::PDU(data_t::const_iterator& pos,
     pos += 2;
 
     // read flags
-    byte_t flags = *pos++;
+    uint8_t flags = *pos++;
     instance_registration    = ( flags & (1<<0) ) ? true : false;
     new_index                = ( flags & (1<<1) ) ? true : false;
     any_index                = ( flags & (1<<2) ) ? true : false;
@@ -105,7 +105,7 @@ shared_ptr<PDU> PDU::parse_pdu(data_t buf)
     data_t::const_iterator pos;
 
     // check protocol version
-    byte_t version = buf[0];
+    uint8_t version = buf[0];
     if( version != 1 )
     {
 	// Wrong protocol:
@@ -114,7 +114,7 @@ shared_ptr<PDU> PDU::parse_pdu(data_t buf)
     }
 
     // read endianess flag
-    byte_t flags = buf[2];
+    uint8_t flags = buf[2];
     bool big_endian = ( flags & (1<<4) ) ? true : false;
 
     // read payload length
@@ -130,7 +130,7 @@ shared_ptr<PDU> PDU::parse_pdu(data_t buf)
     }
 
     // read PDU type
-    byte_t type = buf[1];
+    uint8_t type = buf[1];
 
     // create PDU (TODO: complete the list!)
     shared_ptr<PDU> pdu;
@@ -200,7 +200,7 @@ void PDU::add_header(type_t type, data_t& payload) const
     header.push_back(type);
 
     // flags
-    byte_t flags = 0;
+    uint8_t flags = 0;
     if(instance_registration) flags |= (1<<0);
     if(new_index)             flags |= (1<<1);
     if(any_index)             flags |= (1<<2);

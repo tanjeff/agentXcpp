@@ -37,10 +37,10 @@ namespace agentxcpp
     class RegisterPDU : public PDUwithContext
     {
 	private:
-	    byte_t timeout;
-	    byte_t priority;
+	    uint8_t timeout;
+	    uint8_t priority;
 	    oid subtree;
-	    byte_t range_subid;
+	    uint8_t range_subid;
 	    uint32_t upper_bound;
 
 	public:
@@ -77,14 +77,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the range_subid.
 	     */
-	    void set_range_subid(byte_t range_subid)
+	    void set_range_subid(uint8_t range_subid)
 	    {
 		this->range_subid = range_subid;
 	    }
 	    /**
 	     * \brief Get the range_subid.
 	     */
-	    byte_t get_range_subid()
+	    uint8_t get_range_subid()
 	    {
 		return this->range_subid;
 	    }
@@ -92,14 +92,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the priority.
 	     */
-	    void set_priority(byte_t priority)
+	    void set_priority(uint8_t priority)
 	    {
 		this->priority = priority;
 	    }
 	    /**
 	     * \brief Get the priority.
 	     */
-	    byte_t get_priority()
+	    uint8_t get_priority()
 	    {
 		return this->priority;
 	    }
@@ -107,14 +107,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the timeout.
 	     */
-	    void set_timeout(byte_t timeout)
+	    void set_timeout(uint8_t timeout)
 	    {
 		this->timeout = timeout;
 	    }
 	    /**
 	     * \brief Get the timeout.
 	     */
-	    byte_t get_timeout()
+	    uint8_t get_timeout()
 	    {
 		return this->timeout;
 	    }

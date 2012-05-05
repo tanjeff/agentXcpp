@@ -33,9 +33,9 @@ using namespace agentxcpp;
 using boost::uint16_t;
 
 
-data_t varbind::serialize() const
+binary varbind::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // encode type
     serialized.push_back( type << 8 & 0xff );
@@ -98,8 +98,8 @@ varbind::varbind(const oid& o, type_t t)
     }
 }
 
-varbind::varbind(data_t::const_iterator& pos,
-		 const data_t::const_iterator& end,
+varbind::varbind(binary::const_iterator& pos,
+		 const binary::const_iterator& end,
 		 bool big_endian)
 {
     uint16_t type;

@@ -19,15 +19,15 @@
 #ifndef _MASTER_PROXY_H_
 #define _MASTER_PROXY_H_
 
-#include <boost/asio.hpp>
-#include <boost/cstdint.hpp>
-
 #include <fstream>
 #include <string>
 #include <map>
 #include <list>
+
 #include <boost/shared_ptr.hpp>
-#include "types.hpp"
+#include <boost/asio.hpp>
+#include <boost/cstdint.hpp>
+
 #include "oid.hpp"
 #include "variable.hpp"
 #include "ClosePDU.hpp"

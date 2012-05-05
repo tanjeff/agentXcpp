@@ -60,8 +60,8 @@ PDU::PDU()
 
 }
 
-PDU::PDU(data_t::const_iterator& pos,
-	 const data_t::const_iterator& end,
+PDU::PDU(binary::const_iterator& pos,
+	 const binary::const_iterator& end,
 	 bool big_endian)
 {
     if(end - pos < 20)
@@ -99,10 +99,10 @@ PDU::PDU(data_t::const_iterator& pos,
 
 
 
-shared_ptr<PDU> PDU::parse_pdu(data_t buf)
+shared_ptr<PDU> PDU::parse_pdu(binary buf)
 {
     // needed for parsing
-    data_t::const_iterator pos;
+    binary::const_iterator pos;
 
     // check protocol version
     uint8_t version = buf[0];
@@ -135,7 +135,7 @@ shared_ptr<PDU> PDU::parse_pdu(data_t buf)
     // create PDU (TODO: complete the list!)
     shared_ptr<PDU> pdu;
     pos = buf.begin();
-    const data_t::const_iterator end = buf.end();
+    const binary::const_iterator end = buf.end();
     switch(type)
     {
 	case agentxOpenPDU:
@@ -188,10 +188,10 @@ shared_ptr<PDU> PDU::parse_pdu(data_t buf)
 
 
 
-void PDU::add_header(type_t type, data_t& payload) const
+void PDU::add_header(type_t type, binary& payload) const
 {
     /* Construct header */
-    data_t header;
+    binary header;
 
     // Protocol version
     header.push_back(1);

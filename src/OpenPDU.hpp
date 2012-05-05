@@ -58,8 +58,8 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    OpenPDU(data_t::const_iterator& pos,
-		    const data_t::const_iterator& end,
+	    OpenPDU(binary::const_iterator& pos,
+		    const binary::const_iterator& end,
 		    bool big_endian);
 
 	    /**
@@ -134,7 +134,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    data_t serialize() const;
+	    binary serialize() const;
     };
 }
 

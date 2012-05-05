@@ -23,7 +23,6 @@
 #include <boost/cstdint.hpp>
 
 #include "exceptions.hpp"
-#include "types.hpp"
 #include "PDU.hpp"
 
 using boost::uint32_t;
@@ -113,15 +112,15 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    ClosePDU(data_t::const_iterator& pos,
-		     const data_t::const_iterator& end,
+	    ClosePDU(binary::const_iterator& pos,
+		     const binary::const_iterator& end,
 		     bool big_endian);
 
 
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    virtual data_t serialize() const;
+	    virtual binary serialize() const;
     };
 }
 

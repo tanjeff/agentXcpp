@@ -22,8 +22,8 @@
 
 using namespace agentxcpp;
 
-NotifyPDU::NotifyPDU(data_t::const_iterator& pos,
-		     const data_t::const_iterator& end,
+NotifyPDU::NotifyPDU(binary::const_iterator& pos,
+		     const binary::const_iterator& end,
 		     bool big_endian)
     : PDUwithContext(pos, end, big_endian)
 {
@@ -37,9 +37,9 @@ NotifyPDU::NotifyPDU(data_t::const_iterator& pos,
 
 
 
-data_t NotifyPDU::serialize() const
+binary NotifyPDU::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // Add VarBind's
     vector<varbind>::const_iterator i;

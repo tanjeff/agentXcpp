@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( init_constructor_and_get_value )
 BOOST_AUTO_TEST_CASE( serialize )
 {
     agentxcpp::Integer object(0x11223344);
-    data_t blob = object.serialize();
+    binary blob = object.serialize();
     
     // We expect big endian!
     BOOST_CHECK_EQUAL(blob.size(), 4);
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( serialize )
 BOOST_AUTO_TEST_CASE( parse_constructor )
 {
     // Create some serialized data
-    data_t blob;
+    binary blob;
     blob.push_back(0x11);
     blob.push_back(0x22);
     blob.push_back(0x33);
@@ -70,8 +70,8 @@ BOOST_AUTO_TEST_CASE( parse_constructor )
     blob.push_back(0x66);
     blob.push_back(0x77);
 
-    data_t::const_iterator begin;
-    data_t::const_iterator end   = blob.end();
+    binary::const_iterator begin;
+    binary::const_iterator end   = blob.end();
     
     // Create Integer from beginning, little endian
     begin = blob.begin();

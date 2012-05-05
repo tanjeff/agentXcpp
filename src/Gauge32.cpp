@@ -21,9 +21,9 @@
 
 using namespace agentxcpp;
 
-data_t Gauge32::serialize() const
+binary Gauge32::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // encode value (big endian)
     serialized.push_back(value >> 24 & 0xff);
@@ -35,8 +35,8 @@ data_t Gauge32::serialize() const
 }
 
 
-Gauge32::Gauge32(data_t::const_iterator& pos,
-		 const data_t::const_iterator& end,
+Gauge32::Gauge32(binary::const_iterator& pos,
+		 const binary::const_iterator& end,
 		 bool big_endian)
 {
     // Are there at least 4 bytes in the buffer?

@@ -27,7 +27,6 @@
 #include <boost/cstdint.hpp>
 
 #include "variable.hpp"
-#include "types.hpp"
 #include "exceptions.hpp"
 
 using boost::uint32_t;
@@ -217,7 +216,7 @@ namespace agentxcpp
 	     * \brief Encode an OID object as described in RFC 2741,
 	     *        section 5.1.
 	     */
-	    data_t serialize() const;
+	    binary serialize() const;
 
 	    /**
 	     * \internal
@@ -247,8 +246,8 @@ namespace agentxcpp
 	     *                        iterator is left at an undefined 
 	     *                        position.
 	     */
-	    oid(data_t::const_iterator& pos,
-		const data_t::const_iterator& end,
+	    oid(binary::const_iterator& pos,
+		const binary::const_iterator& end,
 		bool big_endian=true);
 
 	    /**

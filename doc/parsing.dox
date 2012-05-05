@@ -34,8 +34,8 @@ C++ object accordingly.  Along the way, the iterator is modified to point
 behind the object which was just deserialized.
 
 An example of such a constructor is 
-agentxcpp::varbind::varbind(data_t::const_iterator& pos, 
-data_t::const_iterator& end, bool big_endian).  It takes an iterator ('pos') 
+agentxcpp::varbind::varbind(binary::const_iterator& pos, 
+binary::const_iterator& end, bool big_endian).  It takes an iterator ('pos') 
 and begins parsing at where 'pos' points to.  While reading, the varbind object 
 is constructed. A varbind always contains (at least) an oid.  The varbind 
 constructor therefore creates an oid object by passing the 'pos' iterator to 
@@ -69,7 +69,7 @@ inherits from PDU. The constructor of such a concrete class must call the
 constructor of the PDU class, which parses the header. Example:
 
 \code
-OpenPDU::OpenPDU(data_t::const_iterator& pos, bool big_endian)
+OpenPDU::OpenPDU(binary::const_iterator& pos, bool big_endian)
     : PDU(pos, big_endian) // parse header
 {
     timeout = *pos++;                      // parse timeout field

@@ -44,8 +44,8 @@ ClosePDU::ClosePDU(uint32_t _sessionID,
 }
 
 
-ClosePDU::ClosePDU(data_t::const_iterator& pos,
-		   const data_t::const_iterator& end,
+ClosePDU::ClosePDU(binary::const_iterator& pos,
+		   const binary::const_iterator& end,
 		   bool big_endian)
     : PDU(pos, end, big_endian)
 {
@@ -67,9 +67,9 @@ ClosePDU::ClosePDU(data_t::const_iterator& pos,
 }
 
 
-data_t ClosePDU::serialize() const
+binary ClosePDU::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // Encode reason and reserved fields
     serialized.push_back(reason);

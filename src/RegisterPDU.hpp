@@ -21,7 +21,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "types.hpp"
 #include "oid.hpp"
 #include "PDUwithContext.hpp"
 
@@ -139,14 +138,14 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    RegisterPDU(data_t::const_iterator& pos,
-			const data_t::const_iterator& end,
+	    RegisterPDU(binary::const_iterator& pos,
+			const binary::const_iterator& end,
 			bool big_endian);
 	    
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    data_t serialize() const;
+	    binary serialize() const;
 	    
 	    /**
 	     * \brief Default Constructor

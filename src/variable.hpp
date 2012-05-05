@@ -19,7 +19,7 @@
 #ifndef _VARIABLE_H_
 #define _VARIABLE_H_
 
-#include "types.hpp"
+#include "binary.hpp"
 
 namespace agentxcpp
 {
@@ -46,7 +46,7 @@ namespace agentxcpp
 	     * \exception None: The function shall not throw.
 	     */
 	    // Needed for encoding varbinds
-	    virtual data_t serialize() const = 0;
+	    virtual binary serialize() const = 0;
 
             /**
              * \brief Destructor.

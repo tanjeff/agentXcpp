@@ -22,7 +22,6 @@
 
 #include <boost/cstdint.hpp>
 
-#include "types.hpp"
 #include "variable.hpp"
 #include "exceptions.hpp"
 
@@ -74,8 +73,8 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    IpAddress(data_t::const_iterator& pos,
-		      const data_t::const_iterator& end,
+	    IpAddress(binary::const_iterator& pos,
+		      const binary::const_iterator& end,
 		      bool big_endian=true);
 
 	    /**
@@ -87,7 +86,7 @@ namespace agentxcpp
 	     * Note:
 	     * We always use big endian.
 	     */
-	    data_t serialize() const;
+	    binary serialize() const;
 
 	    /**
              * \brief Construct an IpAddress object.

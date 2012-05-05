@@ -51,8 +51,8 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    CommitSetPDU(data_t::const_iterator& pos,
-			 const data_t::const_iterator& end,
+	    CommitSetPDU(binary::const_iterator& pos,
+			 const binary::const_iterator& end,
 			 bool big_endian)
 		: PDU(pos, end, big_endian)
 	    {
@@ -61,9 +61,9 @@ namespace agentxcpp
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    virtual data_t serialize() const
+	    virtual binary serialize() const
 	    {
-		data_t serialized;
+		binary serialized;
     
 		// Add header
 		add_header(PDU::agentxCommitSetPDU, serialized);

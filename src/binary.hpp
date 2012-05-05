@@ -20,7 +20,6 @@
 #define _TYPES_H_
 
 #include <string>
-#include <istream>
 #include <ostream>
 
 #include <boost/cstdint.hpp>
@@ -28,23 +27,30 @@
 
 
 /**
- * \brief A type representing a contigous byte stream
+ * \brief A type representing a contigous byte stream.
+ *
+ * This class is used as container for binary data.
  */
-class data_t : public std::basic_string<boost::uint8_t> { };
+class binary : public std::basic_string<boost::uint8_t>
+{
+};
 
-inline std::ostream& operator<<(std::ostream& out, const data_t& stream)
+/**
+ * \brief Output operator for binary.
+ */
+inline std::ostream& operator<<(std::ostream& out, const binary& data)
 {
     out << "+----------+----------+----------+----------+" << std::endl;
     out << "| ";//begin line
-    for(size_t i = 0; i < stream.size(); i++)
+    for(size_t i = 0; i < data.size(); i++)
     {
 	out.width(8);// 8 chars per field
-	out << (int)stream[i] << " | ";
+	out << (int)data[i] << " | ";
 	if( (i+1)%4 == 0 )
 	{
 	    out << std::endl;   // end line
 	    out << "+----------+----------+----------+----------+";
-	    if( i != stream.size() - 1 )
+	    if( i != data.size() - 1 )
 	    {
 		// We have further data; begin a new line
 		out << std::endl << "| ";

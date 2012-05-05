@@ -24,9 +24,9 @@
 using namespace agentxcpp;
 using boost::uint64_t;
 
-data_t Counter64::serialize() const
+binary Counter64::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // encode value (big endian)
     serialized.push_back(value >> 56 & 0xff);
@@ -42,8 +42,8 @@ data_t Counter64::serialize() const
 }
 
 
-Counter64::Counter64(data_t::const_iterator& pos,
-		    const data_t::const_iterator& end,
+Counter64::Counter64(binary::const_iterator& pos,
+		    const binary::const_iterator& end,
 		    bool big_endian)
 {
     // Are there at least 8 bytes in the buffer?

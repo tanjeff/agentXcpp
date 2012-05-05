@@ -24,42 +24,44 @@
 
 #include <boost/cstdint.hpp>
 
-
-
-/**
- * \brief A type representing a contigous byte stream.
- *
- * This class is used as container for binary data.
- */
-class binary : public std::basic_string<boost::uint8_t>
+namespace agentxcpp
 {
-};
 
-/**
- * \brief Output operator for binary.
- */
-inline std::ostream& operator<<(std::ostream& out, const binary& data)
-{
-    out << "+----------+----------+----------+----------+" << std::endl;
-    out << "| ";//begin line
-    for(size_t i = 0; i < data.size(); i++)
-    {
-	out.width(8);// 8 chars per field
-	out << (int)data[i] << " | ";
-	if( (i+1)%4 == 0 )
+	/**
+	 * \brief A type representing a contigous byte stream.
+	 *
+	 * This class is used as container for binary data.
+	 */
+	class binary : public std::basic_string<boost::uint8_t>
 	{
-	    out << std::endl;   // end line
-	    out << "+----------+----------+----------+----------+";
-	    if( i != data.size() - 1 )
-	    {
-		// We have further data; begin a new line
-		out << std::endl << "| ";
-	    }
-	}
-    }
-    out << std::endl;
+	};
 
-    return out;
+	/**
+	 * \brief Output operator for binary.
+	 */
+	inline std::ostream& operator<<(std::ostream& out, const binary& data)
+	{
+		out << "+----------+----------+----------+----------+" << std::endl;
+		out << "| ";//begin line
+		for(size_t i = 0; i < data.size(); i++)
+		{
+			out.width(8);// 8 chars per field
+			out << (int)data[i] << " | ";
+			if( (i+1)%4 == 0 )
+			{
+				out << std::endl;   // end line
+				out << "+----------+----------+----------+----------+";
+				if( i != data.size() - 1 )
+				{
+					// We have further data; begin a new line
+					out << std::endl << "| ";
+				}
+			}
+		}
+		out << std::endl;
+
+		return out;
+	}
 }
 
 #endif

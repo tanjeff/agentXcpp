@@ -27,73 +27,78 @@
 using boost::uint16_t;
 using boost::uint32_t;
 
-inline uint32_t read32(binary::const_iterator& pos, bool big_endian)
+namespace agentxcpp
 {
-    uint32_t value;
-    if( big_endian )
-    {
-	value =  *pos++ << 24;
-	value |= *pos++ << 16;
-	value |= *pos++ << 8;
-	value |= *pos++ << 0;
-    }
-    else
-    {
-	value =  *pos++ << 0;
-	value |= *pos++ << 8;
-	value |= *pos++ << 16;
-	value |= *pos++ << 24;
-    }
-
-    return value;
-}
-
-/**
- * \brief Write a 32-bit value into a string
- *
- * \param serialized The string to which the value is appended.
- * 
- * \param value The value which is appended to the string.
- */
-inline void write32(binary& serialized, uint32_t value)
-{
-    // always big endian
-    serialized.push_back(value >> 24 & 0xff);
-    serialized.push_back(value >> 16 & 0xff);
-    serialized.push_back(value >> 8 & 0xff);
-    serialized.push_back(value >> 0 & 0xff);
-}
-
-inline uint16_t read16(binary::const_iterator& pos, bool big_endian)
-{
-    uint16_t value = 0;
-    if( big_endian )
-    {
-	value |= *pos++ << 8;
-	value |= *pos++ << 0;
-    }
-    else
-    {
-	value =  *pos++ << 0;
-	value |= *pos++ << 8;
-    }
-
-    return value;
-}
 
 
-/**
- * \brief Write a 16-bit value into a string
- *
- * \param serialized The string to which the value is appended.
- * 
- * \param value The value which is appended to the string.
- */
-inline void write16(binary& serialized, uint16_t value)
-{
-    // always big endian
-    serialized.push_back(value >> 8 & 0xff);
-    serialized.push_back(value >> 0 & 0xff);
+	inline uint32_t read32(binary::const_iterator& pos, bool big_endian)
+	{
+		uint32_t value;
+		if( big_endian )
+		{
+			value =  *pos++ << 24;
+			value |= *pos++ << 16;
+			value |= *pos++ << 8;
+			value |= *pos++ << 0;
+		}
+		else
+		{
+			value =  *pos++ << 0;
+			value |= *pos++ << 8;
+			value |= *pos++ << 16;
+			value |= *pos++ << 24;
+		}
+
+		return value;
+	}
+
+	/**
+	 * \brief Write a 32-bit value into a string
+	 *
+	 * \param serialized The string to which the value is appended.
+	 *
+	 * \param value The value which is appended to the string.
+	 */
+	inline void write32(binary& serialized, uint32_t value)
+	{
+		// always big endian
+		serialized.push_back(value >> 24 & 0xff);
+		serialized.push_back(value >> 16 & 0xff);
+		serialized.push_back(value >> 8 & 0xff);
+		serialized.push_back(value >> 0 & 0xff);
+	}
+
+	inline uint16_t read16(binary::const_iterator& pos, bool big_endian)
+	{
+		uint16_t value = 0;
+		if( big_endian )
+		{
+			value |= *pos++ << 8;
+			value |= *pos++ << 0;
+		}
+		else
+		{
+			value =  *pos++ << 0;
+			value |= *pos++ << 8;
+		}
+
+		return value;
+	}
+
+
+	/**
+	 * \brief Write a 16-bit value into a string
+	 *
+	 * \param serialized The string to which the value is appended.
+	 *
+	 * \param value The value which is appended to the string.
+	 */
+	inline void write16(binary& serialized, uint16_t value)
+	{
+		// always big endian
+		serialized.push_back(value >> 8 & 0xff);
+		serialized.push_back(value >> 0 & 0xff);
+	}
 }
 
 #endif

@@ -59,6 +59,55 @@ inline void write32(data_t& serialized, uint32_t value)
     serialized.push_back(value >> 0 & 0xff);
 }
 
+inline uint64_t read64(data_t::const_iterator& pos, bool big_endian)
+{
+	uint64_t value;
+	if( big_endian )
+	{
+		value =  static_cast<uint64_t>(*pos++) << 56;
+		value |= static_cast<uint64_t>(*pos++) << 48;
+		value |= static_cast<uint64_t>(*pos++) << 40;
+		value |= static_cast<uint64_t>(*pos++) << 32;
+		value |= static_cast<uint64_t>(*pos++) << 24;
+		value |= static_cast<uint64_t>(*pos++) << 16;
+		value |= static_cast<uint64_t>(*pos++) << 8;
+		value |= static_cast<uint64_t>(*pos++) << 0;
+	}
+	else
+	{
+		value =  static_cast<uint64_t>(*pos++) << 0;
+		value |= static_cast<uint64_t>(*pos++) << 8;
+		value |= static_cast<uint64_t>(*pos++) << 16;
+		value |= static_cast<uint64_t>(*pos++) << 24;
+		value |= static_cast<uint64_t>(*pos++) << 32;
+		value |= static_cast<uint64_t>(*pos++) << 40;
+		value |= static_cast<uint64_t>(*pos++) << 48;
+		value |= static_cast<uint64_t>(*pos++) << 56;
+	}
+	return value;
+}
+
+
+/**
+ * \brief Write a 64-bit value into a string
+ *
+ * \param serialized The string to which the value is appended.
+ *
+ * \param value The value which is appended to the string.
+ */
+inline void write64(data_t& serialized, uint64_t value)
+{
+    // always big endian
+    serialized.push_back(value >> 56 & 0xff);
+    serialized.push_back(value >> 48 & 0xff);
+    serialized.push_back(value >> 40 & 0xff);
+    serialized.push_back(value >> 32 & 0xff);
+    serialized.push_back(value >> 24 & 0xff);
+    serialized.push_back(value >> 16 & 0xff);
+    serialized.push_back(value >> 8 & 0xff);
+    serialized.push_back(value >> 0 & 0xff);
+}
+
 inline uint16_t read16(data_t::const_iterator& pos, bool big_endian)
 {
     uint16_t value = 0;

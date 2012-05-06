@@ -122,6 +122,38 @@ proc = subprocess.Popen(["git", "describe", "--always", "--dirty"],
 env['revision'] = out.strip()
 
 #################################################
+## Check dependencies
+
+conf = Configure(env)
+
+# Check for boost::asio (header-only lib)
+if not conf.CheckHeader('boost/asio.hpp', '<>', 'C++'):
+    print """
+The boost::asio library is required to build agentXcpp.
+Note: For Linux, install a package named libboostX.Y-dev (debian/ubuntu) or 
+      boost (ArchLinux)."""
+    Exit(1)
+
+# Check for boost::bind (header-only lib)
+if not conf.CheckHeader('boost/bind.hpp', '<>', 'C++'):
+    print """
+The boost::bind library is required to build agentXcpp.
+Note: For Linux, install a package named libboostX.Y-dev (debian/ubuntu) or 
+      boost (ArchLinux)."""
+    Exit(1)
+
+# Check for boost::smart_ptr (header-only lib)
+if not conf.CheckHeader('boost/shared_ptr.hpp', '<>', 'C++'):
+    print """
+The boost::smart_ptr library is required to build agentXcpp.
+Note: For Linux, install a package named libboostX.Y-dev (debian/ubuntu) or 
+      boost (ArchLinux)."""
+    Exit(1)
+
+env = conf.Finish()
+
+
+#################################################
 ## Include SCronscripts from subdirectories
 
 # (export env to them):

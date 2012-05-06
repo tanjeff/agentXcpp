@@ -22,11 +22,14 @@
 #include <vector>
 #include <utility>
 
-using std::vector;
-using std::pair;
+#include <boost/cstdint.hpp>
 
 #include "PDUwithContext.hpp"
 #include "oid.hpp"
+
+using std::vector;
+using std::pair;
+using boost::uint16_t;
 
 namespace agentxcpp
 {
@@ -80,8 +83,8 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    GetBulkPDU(data_t::const_iterator& pos,
-		       const data_t::const_iterator& end,
+	    GetBulkPDU(binary::const_iterator& pos,
+		       const binary::const_iterator& end,
 		       bool big_endian);
 
 	    /**
@@ -145,7 +148,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    virtual data_t serialize() const;
+	    virtual binary serialize() const;
     };
 }
 

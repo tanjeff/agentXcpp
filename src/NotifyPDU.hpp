@@ -20,10 +20,14 @@
 #define _NOTIFYPDU_H_
 
 #include <vector>
-using std::vector;
+
+#include <boost/cstdint.hpp>
 
 #include "PDUwithContext.hpp"
 #include "varbind.hpp"
+
+using boost::uint32_t;
+using std::vector;
 
 namespace agentxcpp
 {
@@ -61,8 +65,8 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    NotifyPDU(data_t::const_iterator& pos,
-		      const data_t::const_iterator& end,
+	    NotifyPDU(binary::const_iterator& pos,
+		      const binary::const_iterator& end,
 		      bool big_endian);
 
 	    /**
@@ -100,7 +104,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    virtual data_t serialize() const;
+	    virtual binary serialize() const;
 
 	    /**
 	     * \brief The allowed values for specific-trap.

@@ -21,13 +21,17 @@
 #define _RESPONSEPDU_H_
 
 #include <vector>
-using std::vector;
+
+#include <boost/cstdint.hpp>
 
 #include "PDU.hpp"
 #include "oid.hpp"
 #include "Octet_String.hpp"
 #include "varbind.hpp"
 
+using std::vector;
+using boost::uint16_t;
+using boost::uint32_t;
 
 namespace agentxcpp
 {
@@ -139,8 +143,8 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    ResponsePDU(data_t::const_iterator& pos,
-			const data_t::const_iterator& end,
+	    ResponsePDU(binary::const_iterator& pos,
+			const binary::const_iterator& end,
 			bool big_endian);
 
 	    /**
@@ -206,7 +210,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    data_t serialize() const;
+	    binary serialize() const;
     };
 }
 

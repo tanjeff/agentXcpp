@@ -20,10 +20,11 @@
 #define _INDEXALLOCATEPDU_H_
 
 #include <vector>
-using std::vector;
 
 #include "PDUwithContext.hpp"
 #include "varbind.hpp"
+
+using std::vector;
 
 namespace agentxcpp
 {
@@ -62,8 +63,8 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    IndexAllocatePDU(data_t::const_iterator& pos,
-			     const data_t::const_iterator& end,
+	    IndexAllocatePDU(binary::const_iterator& pos,
+			     const binary::const_iterator& end,
 			     bool big_endian);
 
 	    /**
@@ -92,7 +93,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    virtual data_t serialize();
+	    virtual binary serialize();
     };
 }
 

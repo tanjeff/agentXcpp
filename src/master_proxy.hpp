@@ -19,14 +19,15 @@
 #ifndef _MASTER_PROXY_H_
 #define _MASTER_PROXY_H_
 
-#include <boost/asio.hpp>
-
 #include <fstream>
 #include <string>
 #include <map>
 #include <list>
+
 #include <boost/shared_ptr.hpp>
-#include "types.hpp"
+#include <boost/asio.hpp>
+#include <boost/cstdint.hpp>
+
 #include "oid.hpp"
 #include "variable.hpp"
 #include "ClosePDU.hpp"
@@ -34,6 +35,9 @@
 #include "RegisterPDU.hpp"
 #include "UnregisterPDU.hpp"
 #include "connector.hpp"
+
+using boost::uint8_t;
+using boost::uint32_t;
 
 namespace agentxcpp
 {
@@ -250,7 +254,7 @@ namespace agentxcpp
 	     *
 	     * A value of 0 indicates that there is no session-wide default.
 	     */
-	    byte_t default_timeout;
+	    uint8_t default_timeout;
 
 	    /**
 	     * \brief An Object Identifier that identifies the subagent. May be
@@ -416,7 +420,7 @@ namespace agentxcpp
 	     */
 	    master_proxy(boost::asio::io_service* io_service,
 		   std::string description="",
-		   byte_t default_timeout=0,
+		   uint8_t default_timeout=0,
 		   oid ID=oid(),
 		   std::string unix_domain_socket="/var/agentx/master");
 
@@ -452,7 +456,7 @@ namespace agentxcpp
 	     *                           "Well-known Values".
 	     */
 	    master_proxy(std::string description="",
-		   byte_t default_timeout=0,
+		   uint8_t default_timeout=0,
 		   oid ID=oid(),
 		   std::string unix_domain_socket="/var/agentx/master");
 
@@ -514,8 +518,8 @@ namespace agentxcpp
              *       io_service object.
 	     */
 	    void register_subtree(oid subtree,
-				  byte_t priority=127,
-				  byte_t timeout=0);
+				  uint8_t priority=127,
+				  uint8_t timeout=0);
 
 	    /**
 	     * \brief Unregister a subtree with the master agent
@@ -562,7 +566,7 @@ namespace agentxcpp
             // TODO: the 'priority' parameter can possibly be omitted: the 
             // value can be stored by master_agent upon subtree registration.
 	    void unregister_subtree(oid subtree,
-				    byte_t priority=127);
+				    uint8_t priority=127);
 
 	    /**
 	     * \brief Get the io_service object used by this master_proxy.

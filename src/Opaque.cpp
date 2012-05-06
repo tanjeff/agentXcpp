@@ -21,9 +21,9 @@
 
 using namespace agentxcpp;
 
-data_t Opaque::serialize() const
+binary Opaque::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // encode size (big endian)
     int size = value.size();
@@ -46,8 +46,8 @@ data_t Opaque::serialize() const
 }
 
 
-Opaque::Opaque(data_t::const_iterator& pos,
-	       const data_t::const_iterator& end,
+Opaque::Opaque(binary::const_iterator& pos,
+	       const binary::const_iterator& end,
 	       bool big_endian)
 {
     int size;
@@ -82,7 +82,7 @@ Opaque::Opaque(data_t::const_iterator& pos,
     }
 
     // We want to read (size) more bytes
-    if((end - pos) < static_cast<data_t::iterator::difference_type>(size))
+    if((end - pos) < static_cast<binary::iterator::difference_type>(size))
     {
 	throw(parse_error());
     }

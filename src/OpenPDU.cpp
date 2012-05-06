@@ -22,8 +22,8 @@
 
 using namespace agentxcpp;
 
-OpenPDU::OpenPDU(data_t::const_iterator& pos,
-		 const data_t::const_iterator& end,
+OpenPDU::OpenPDU(binary::const_iterator& pos,
+		 const binary::const_iterator& end,
 		 bool big_endian)
     : PDU(pos, end, big_endian)
 {
@@ -49,9 +49,9 @@ OpenPDU::OpenPDU()
 }
 
 
-data_t OpenPDU::serialize() const
+binary OpenPDU::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // timeout and reserved fields
     serialized.push_back(timeout);

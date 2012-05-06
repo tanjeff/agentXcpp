@@ -20,11 +20,14 @@
 #define _VARBIND_H_
 
 #include <istream>
-#include <boost/shared_ptr.hpp>
 
-#include "types.hpp"
+#include <boost/shared_ptr.hpp>
+#include <boost/cstdint.hpp>
+
 #include "oid.hpp"
 #include "variable.hpp"
+
+using boost::uint16_t;
 
 namespace agentxcpp
 {
@@ -120,8 +123,8 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    varbind(data_t::const_iterator& pos,
-		    const data_t::const_iterator& end,
+	    varbind(binary::const_iterator& pos,
+		    const binary::const_iterator& end,
 		    bool big_endian=true);
 
 	    /**
@@ -131,7 +134,7 @@ namespace agentxcpp
 	     *
 	     * This creates the binary representation of the varbind.
 	     */
-	    data_t serialize() const;
+	    binary serialize() const;
 
     };
 

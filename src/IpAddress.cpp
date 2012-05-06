@@ -22,9 +22,9 @@
 
 using namespace agentxcpp;
 
-data_t IpAddress::serialize() const
+binary IpAddress::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // encode size (big endian) (size is always 4)
     serialized.push_back(0);
@@ -42,8 +42,8 @@ data_t IpAddress::serialize() const
 }
 
 
-IpAddress::IpAddress(data_t::const_iterator& pos,
-		     const data_t::const_iterator& end,
+IpAddress::IpAddress(binary::const_iterator& pos,
+		     const binary::const_iterator& end,
 		     bool big_endian)
 {
     uint32_t size;

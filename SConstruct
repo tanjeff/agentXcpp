@@ -130,24 +130,33 @@ conf = Configure(env)
 if not conf.CheckHeader('boost/asio.hpp', '<>', 'C++'):
     print """
 The boost::asio library is required to build agentXcpp.
-Note: For Linux, install a package named libboostX.Y-dev (debian/ubuntu) or 
-      boost (ArchLinux)."""
+Note: For Linux, install a package named libboost-dev (debian/ubuntu) or boost 
+      (ArchLinux)."""
     Exit(1)
 
 # Check for boost::bind (header-only lib)
 if not conf.CheckHeader('boost/bind.hpp', '<>', 'C++'):
     print """
 The boost::bind library is required to build agentXcpp.
-Note: For Linux, install a package named libboostX.Y-dev (debian/ubuntu) or 
-      boost (ArchLinux)."""
+Note: For Linux, install a package named libboost-dev (debian/ubuntu) or boost 
+      (ArchLinux)."""
     Exit(1)
 
 # Check for boost::smart_ptr (header-only lib)
 if not conf.CheckHeader('boost/shared_ptr.hpp', '<>', 'C++'):
     print """
 The boost::smart_ptr library is required to build agentXcpp.
-Note: For Linux, install a package named libboostX.Y-dev (debian/ubuntu) or 
-      boost (ArchLinux)."""
+Note: For Linux, install a package named libboost-dev (debian/ubuntu) or boost 
+      (ArchLinux)."""
+    Exit(1)
+
+# Check for boost::test
+if not conf.CheckLibWithHeader('boost_unit_test_framework', 
+    'boost/test/unit_test.hpp', 'C++', autoadd=0):
+    print """
+The boost::test library is required to build agentXcpp.
+Note: For Linux, install packages named libboost-dev and libboost-test-dev 
+      (debian/ubuntu) or boost (ArchLinux)."""
     Exit(1)
 
 env = conf.Finish()

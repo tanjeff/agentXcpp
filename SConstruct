@@ -21,6 +21,34 @@ import subprocess
 import sys
 import os
 
+
+#################################################
+## Define a Check for executables
+
+def CheckExe(context, executable):
+    context.Message("Checking for executable " + executable[0])
+    log = open('config.log', 'a')
+    log.write('Checking for ' + executable[0] + ':')
+    log.write('')
+    try:
+        result = subprocess.call(executable, stdout=log, stderr=log)
+    except:
+        # Call failed, maybe the executable is not available.
+        # We set result to -1 to indicate that the call failed.
+        result = -1
+    log.close()
+    if result == 0:
+        success = True
+    else:
+        success = False
+    context.Result(success)
+    return success
+
+
+
+
+
+
 #################################################
 ## Our Environment
 env = DefaultEnvironment()
@@ -124,7 +152,7 @@ env['revision'] = out.strip()
 #################################################
 ## Check dependencies
 
-conf = Configure(env)
+conf = Configure(env, custom_tests={'CheckExe' : CheckExe})
 
 # Check for boost::asio (header-only lib)
 if not conf.CheckHeader('boost/asio.hpp', '<>', 'C++'):
@@ -157,6 +185,14 @@ if not conf.CheckLibWithHeader('boost_unit_test_framework',
 The boost::test library is required to build agentXcpp.
 Note: For Linux, install packages named libboost-dev and libboost-test-dev 
       (debian/ubuntu) or boost (ArchLinux)."""
+    Exit(1)
+
+# Check for doxygen executable
+# Note: we call 'doxygen --version' so no input file is required
+if not conf.CheckExe(['doxygen', '--version']):
+    print """
+The doxygen program is required to build agentXcpp's documentation.
+Note: For Linux, install a package named doxygen."""
     Exit(1)
 
 env = conf.Finish()

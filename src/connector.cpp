@@ -92,7 +92,7 @@ template<typename AsyncReadStream,
          typename MutableBufferSequence>
 static void read_with_timeout(AsyncReadStream& s,
 			      const MutableBufferSequence& buffers,
-			      unsigned int timeout)
+			      unsigned timeout)
 {
     //
     // What this function does:

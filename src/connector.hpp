@@ -189,7 +189,7 @@ namespace agentxcpp
 	     * the user of this class.
 	     */
 	    boost::shared_ptr<boost::asio::io_service> io_service;
-	    
+
 	    /**
 	     * \brief The socket.
 	     *
@@ -201,9 +201,9 @@ namespace agentxcpp
 	     * \brief The endpoint used for unix domain sockets.
 	     */
 	    boost::asio::local::stream_protocol::endpoint endpoint;
-	    
+
 	    /**
-	     * \brief Callback function to receive a %PDU.
+             * \brief Callback function to receive a %PDU.
 	     *
 	     * See the class documentation to learn about the receive 
 	     * mechanism.
@@ -277,7 +277,7 @@ namespace agentxcpp
 	     * We need an io_service object to function properly.
 	     */
 	    connector();
-	    
+
 	public:
 
 	    /**

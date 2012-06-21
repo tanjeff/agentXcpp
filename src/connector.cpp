@@ -37,8 +37,8 @@ using namespace agentxcpp;
  * \brief Helper type for *_with_timeout() functions.
  */
 enum status_t {
-    in_progress = 0,
-    success     = 1,
+    in_progress_old = 0,
+    success_old     = 1,
     fail        = 2
 };
 
@@ -52,8 +52,8 @@ static void callback(const boost::system::error_code& result,
 {
     if( result.value() == 0 )
     {
-	// success
-	*retval = success;
+        // success
+	*retval = success_old;
     }
     else
     {
@@ -111,7 +111,7 @@ static void read_with_timeout(AsyncReadStream& s,
     
     // 1) Start timeout timer
     boost::asio::deadline_timer timer(s.get_io_service());
-    timer_result = in_progress;
+    timer_result = in_progress_old;
     try
     {
 	// throws system_error in boost 1.45.0
@@ -127,7 +127,7 @@ static void read_with_timeout(AsyncReadStream& s,
 				  &timer_result) );
 
     // 2) Start read
-    read_result = in_progress;
+    read_result = in_progress_old;
     // doesn't throw in boost 1.45.0:
     async_read(s,
 	       buffers,
@@ -143,7 +143,7 @@ static void read_with_timeout(AsyncReadStream& s,
 	    // throws system_error in boost 1.45.0:
 	    s.get_io_service().run_one();
 	}
-	while(read_result == in_progress && timer_result == in_progress);
+	while(read_result == in_progress_old && timer_result == in_progress_old);
     }
     catch(boost::system::system_error)
     {
@@ -168,7 +168,7 @@ static void read_with_timeout(AsyncReadStream& s,
     // 4) Check read result
     switch(read_result)
     {
-	case success:
+	case success_old:
 	    // Read succeeded: OK
 	    try
 	    {
@@ -202,12 +202,12 @@ static void read_with_timeout(AsyncReadStream& s,
 	    }
 	    throw( network_error() );
 
-	case in_progress:
+	case in_progress_old:
 
 	    // Look at timer_result:
 	    switch(timer_result)
 	    {
-		case success:
+		case success_old:
 		    // timer fired while reading
 		    
 		    // TODO: how to cancel the async read operation?
@@ -223,7 +223,7 @@ static void read_with_timeout(AsyncReadStream& s,
 		    
 		    throw( network_error() );
 
-		case in_progress:
+		case in_progress_old:
 		    // It didn't happen -> ignore
 		    break;
 	    }
@@ -279,7 +279,7 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
     
     // doesn't throw in boost 1.45.0:
     boost::asio::deadline_timer timer(s.get_io_service());
-    timer_result = in_progress;
+    timer_result = in_progress_old;
     try
     {
 	// throws system_error in boost 1.45.0
@@ -295,7 +295,7 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
 				  &timer_result) );
 
     // 2) Start send
-    send_result = in_progress;
+    send_result = in_progress_old;
     // doesn't throw in boost 1.45.0:
     s.async_send(buffers,
 		 boost::bind(callback,
@@ -310,7 +310,7 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
 	    // throws system_error in boost 1.45.0:
 	    s.get_io_service().run_one();
 	}
-	while(send_result == in_progress && timer_result == in_progress);
+	while(send_result == in_progress_old && timer_result == in_progress_old);
     }
     catch(boost::system::system_error)
     {
@@ -335,7 +335,7 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
     // 4) Check result
     switch(send_result)
     {
-	case success:
+	case success_old:
 	    // Send succeeded:
 	    try
 	    {
@@ -369,12 +369,12 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
 	    }
 	    throw( network_error() );
 
-	case in_progress:
+	case in_progress_old:
 
 	    // Sending still in progress, look at timer_result:
 	    switch(timer_result)
 	    {
-		case success:
+		case success_old:
 		    // timer fired while reading
 		    
 		    // TODO: how to cancel the async send operation?
@@ -391,7 +391,7 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
 		    
 		    throw( network_error() );
 
-		case in_progress:
+		case in_progress_old:
 		    // It didn't happen -> ignore
 		    break;
 	    }
@@ -405,7 +405,30 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
   Implentation of class connector
  ********************************************
  */
-	    
+
+
+void connector::check_deadline()
+{
+    // Check whether the deadline has passed. We compare the deadline against 
+    // the current time since a new asynchronous operation may have moved the
+    // deadline before this callback had a chance to run.
+    if (timeout_timer.expires_at() <= boost::asio::deadline_timer::traits_type::now())
+    {
+        // The deadline has passed.
+        // -> set status to "expired"
+        timeout_status = expired;
+
+        // There is no longer an active deadline. The expiry is set to positive
+        // infinity so that the callback is not invoked until a new deadline is 
+        // set.
+        timeout_timer.expires_at(boost::posix_time::pos_infin);
+    }
+
+    // Re-start timer
+    timeout_timer.async_wait(boost::bind(&connector::check_deadline, this));
+}
+
+
 
 connector::connector(boost::shared_ptr<boost::asio::io_service> io_service,
 		       const std::string& unix_domain_socket,
@@ -414,7 +437,9 @@ connector::connector(boost::shared_ptr<boost::asio::io_service> io_service,
     io_service(io_service),
     socket(0),
     endpoint(unix_domain_socket.c_str()),
-    handler(0)
+    handler(0),
+    timeout_status(unused),
+    timeout_timer(*io_service)
 {
 }
 
@@ -703,8 +728,8 @@ static void callback_for_response(const boost::system::error_code& result,
 {
     if( result.value() == 0 )
     {
-	// success
-	*retval = success;
+        // success
+	*retval = success_old;
     }
     else
     {
@@ -718,7 +743,7 @@ static void callback_for_response(const boost::system::error_code& result,
  * The timeout handling is realized using a boost::asio::deadline_timer 
  * object, which is set up to call the callback_for_response() function when 
  * it expires (or when it fails). The variable 'timer_result' is intially set 
- * to 'in_progress'.  The callback will set it to 'success' or 'fail' when the 
+ * to 'in_progress_old'.  The callback will set it to 'success_old' or 'fail' when the 
  * timer expires respectively fails.
  *
  * Then the io_service.run_one() function is invoked repeatedly until either 
@@ -744,7 +769,7 @@ connector::wait_for_response(uint32_t packetID)
 
     // Start timeout timer
     boost::asio::deadline_timer timer(*(this->io_service));
-    status_t timer_result = in_progress; // callback stores result here
+    status_t timer_result = in_progress_old; // callback stores result here
     timer.expires_from_now( boost::posix_time::seconds(this->timeout) );
     timer.async_wait( boost::bind(callback_for_response,
 				  boost::asio::placeholders::error,
@@ -754,7 +779,7 @@ connector::wait_for_response(uint32_t packetID)
     try
     {
 	while(   this->responses[packetID].get() == 0 // no response was stored
-		 && timer_result == in_progress)
+		 && timer_result == in_progress_old)
 	{
 	    this->io_service->run_one();
 	}

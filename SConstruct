@@ -154,28 +154,32 @@ env['revision'] = out.strip()
 
 conf = Configure(env, custom_tests={'CheckExe' : CheckExe})
 
+# Check for C++ compiler
+if env['CXX'] == None:
+    print """
+Scons didn't find a usable C++ compiler.
+Note: For Linux, install a package named 'build-essential' or 'g++'."""
+    Exit(1)
+
 # Check for boost::asio (header-only lib)
 if not conf.CheckHeader('boost/asio.hpp', '<>', 'C++'):
     print """
 The boost::asio library is required to build agentXcpp.
-Note: For Linux, install a package named libboost-dev (debian/ubuntu) or boost 
-      (ArchLinux)."""
+Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
     Exit(1)
 
 # Check for boost::bind (header-only lib)
 if not conf.CheckHeader('boost/bind.hpp', '<>', 'C++'):
     print """
 The boost::bind library is required to build agentXcpp.
-Note: For Linux, install a package named libboost-dev (debian/ubuntu) or boost 
-      (ArchLinux)."""
+Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
     Exit(1)
 
 # Check for boost::smart_ptr (header-only lib)
 if not conf.CheckHeader('boost/shared_ptr.hpp', '<>', 'C++'):
     print """
 The boost::smart_ptr library is required to build agentXcpp.
-Note: For Linux, install a package named libboost-dev (debian/ubuntu) or boost 
-      (ArchLinux)."""
+Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
     Exit(1)
 
 # Check for boost::test
@@ -183,8 +187,8 @@ if not conf.CheckLibWithHeader('boost_unit_test_framework',
     'boost/test/unit_test.hpp', 'C++', autoadd=0):
     print """
 The boost::test library is required to build agentXcpp.
-Note: For Linux, install packages named libboost-dev and libboost-test-dev 
-      (debian/ubuntu) or boost (ArchLinux)."""
+Note: For Linux, install packages named 'libboost-dev' and 'libboost-test-dev'
+      or a package named 'boost'."""
     Exit(1)
 
 # Check for doxygen executable
@@ -192,7 +196,7 @@ Note: For Linux, install packages named libboost-dev and libboost-test-dev
 if not conf.CheckExe(['doxygen', '--version']):
     print """
 The doxygen program is required to build agentXcpp's documentation.
-Note: For Linux, install a package named doxygen."""
+Note: For Linux, install a package named 'doxygen'."""
     Exit(1)
 
 # Check for dot executable
@@ -200,7 +204,7 @@ Note: For Linux, install a package named doxygen."""
 if not conf.CheckExe(['dot', '-V']):
     print """
 The dot program is required to build agentXcpp's documentation.
-Note: For Linux, install a package named graphviz."""
+Note: For Linux, install a package named 'graphviz'."""
     Exit(1)
 
 env = conf.Finish()

@@ -34,7 +34,7 @@ namespace agentxcpp
      * (giving an absolute time) or expires_from_now() (giving a time span) 
      * methods, which changes the status to "running". When the timer expires, 
      * the status changes to "expired". The timer can be disabled at any time 
-     * using stop(), which changes the status back to "standby" (this works 
+     * using cancel(), which changes the status back to "standby" (this works 
      * also with an expired timer).
      *
      * This class uses the boost::asio library and therefore needs an 
@@ -58,7 +58,7 @@ namespace agentxcpp
      * according time, and status is set to "running". If the timer expires, 
      * the callback function check_deadline() is invoked, which sets the expiry 
      * back to "infinite" and status to "expired". If the operation completes 
-     * before the timer expires, stop() can be invoked to set the expiry back 
+     * before the timer expires, cancel() can be invoked to set the expiry back 
      * to "infinite" and the status to "standby".
      *
      * Note that the callback check_deadline() may be invoked errornously, e.g.  
@@ -66,7 +66,7 @@ namespace agentxcpp
      * -# The monitored operation completes
      * -# The timer expires in the backround and check_deadline() is scheduled 
      *  for invokation at the next call to io_service::run()
-     * -# The stop() function is invoked
+     * -# The cancel() function is invoked
      * The monitored operation thus completed without a timeout condition, but 
      * check_deadline() will nevertheless be invoked later. Therefore, it 
      * compares the expiry date of the timer with the current timestamp to 
@@ -138,7 +138,7 @@ namespace agentxcpp
              *
              * \exception None.
              */
-            void stop();
+            void cancel();
 
             /**
              * \brief Get the current timer status.
@@ -176,7 +176,7 @@ namespace agentxcpp
              *
              * This function is used as callback handler for 'timer'. It 
              * compares the timer's expiry time with the current system time to 
-             * detect errornous invokation (in case stop() set the expiry to 
+             * detect errornous invokation (in case cancel() set the expiry to 
              * "infinite" before check_deadline() was invoked). If a real 
              * timeout is detected, the status is set to "expired" and the 
              * expiry is set to "infinite".

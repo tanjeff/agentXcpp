@@ -132,7 +132,7 @@ void timeout_timer::check_deadline()
 
 
 // Throws boost::system::system_error:
-void timeout_timer::stop()
+void timeout_timer::cancel()
 {
     if(status == broken)
     {

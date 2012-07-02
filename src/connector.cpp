@@ -774,7 +774,7 @@ connector::wait_for_response(uint32_t packetID)
 	// 1. Cancel timer
 	// 2. Erase response from map
 	// 3. Return response
-	timer.stop(); // does nothing if timer broke
+	timer.cancel(); // does nothing if timer broke
 	shared_ptr<ResponsePDU> retval = this->responses[packetID];
 	this->responses.erase( packetID );
 	return retval;

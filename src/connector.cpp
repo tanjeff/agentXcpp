@@ -20,6 +20,7 @@
 #include <boost/bind.hpp>
 #include "connector.hpp"
 #include "helper.hpp"
+#include "timeout_timer.hpp"
 
 
 using namespace agentxcpp;
@@ -746,18 +747,14 @@ connector::wait_for_response(uint32_t packetID)
     responses[packetID] = boost::shared_ptr<ResponsePDU>();
 
     // Start timeout timer
-    boost::asio::deadline_timer timer(*(this->io_service));
-    status_t timer_result = in_progress_old; // callback stores result here
+    timeout_timer timer(this->io_service);
     timer.expires_from_now( boost::posix_time::seconds(this->timeout) );
-    timer.async_wait( boost::bind(callback_for_response,
-				  boost::asio::placeholders::error,
-				  &timer_result) );
 
     // process asio events until ResponsePDU arrives or timeout expires
     try
     {
 	while(   this->responses[packetID].get() == 0 // no response was stored
-		 && timer_result == in_progress_old)
+		 && timer.get_status() == timeout_timer::running) // no timeout yet
 	{
 	    this->io_service->run_one();
 	}
@@ -777,14 +774,14 @@ connector::wait_for_response(uint32_t packetID)
 	// 1. Cancel timer
 	// 2. Erase response from map
 	// 3. Return response
-	timer.cancel();
+	timer.stop();
 	shared_ptr<ResponsePDU> retval = this->responses[packetID];
 	this->responses.erase( packetID );
 	return retval;
     }
     else
     {
-	// Timer expired or failed before ResponsePDU arrived
+        // Timer expired before ResponsePDU arrived
 	throw(timeout_error());
     }
 }

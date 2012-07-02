@@ -700,39 +700,6 @@ void connector::send(const PDU& pdu)
 
 
 
-// Helper function for master_proxy::wait_for_response(). See there for an 
-// explanation.
-static void callback_for_response(const boost::system::error_code& result,
-                                 status_t* retval)
-{
-    if( result.value() == 0 )
-    {
-        // success
-	*retval = success_old;
-    }
-    else
-    {
-	// error
-	*retval = fail;
-    }
-}
-/*
- * Timeout handling:
- * 
- * The timeout handling is realized using a boost::asio::deadline_timer 
- * object, which is set up to call the callback_for_response() function when 
- * it expires (or when it fails). The variable 'timer_result' is intially set 
- * to 'in_progress_old'.  The callback will set it to 'success_old' or 'fail' when the 
- * timer expires respectively fails.
- *
- * Then the io_service.run_one() function is invoked repeatedly until either 
- * the timer expired or the desired ResponsePDU arrived. Note that 
- * io_service.run_one() may service other asynchronous operations first, e.g.  
- * a get request.
- *
- * Finally either the received ResponsePDU is returned or a timeout exception 
- * is thrown.
- */
 boost::shared_ptr<ResponsePDU>
 connector::wait_for_response(uint32_t packetID)
 {
@@ -786,7 +753,6 @@ connector::wait_for_response(uint32_t packetID)
             case timeout_timer::expired:
                 // Timer expired before ResponsePDU arrived
                 throw(timeout_error());
-                break;
             default:
                 // Timer broke or reported an insane status
                 // We go to disconnected state to indicate an error

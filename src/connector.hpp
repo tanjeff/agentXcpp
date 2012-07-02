@@ -305,34 +305,6 @@ namespace agentxcpp
 	     */
 	    connector();
 
-            /**
-             * @brief The timeout status type.
-             */
-            enum timeout_status_t
-            {
-                in_progress, // timer is running
-                expired,     // timer expired
-                unused       // timer currently not in use
-            };
-
-            /**
-             * @brief The timeout status
-             */
-            timeout_status_t timeout_status;
-    
-            /**
-             * @brief The timeout timer.
-             *
-             * This timer is used to detect timeout conditions.
-             */
-            boost::asio::deadline_timer timeout_timer;
-
-            /**
-             * @brief The timeout handler.
-             *
-             * This function is used as handler for timeout_timer.
-             */
-            void check_deadline();
 
 
 	public:

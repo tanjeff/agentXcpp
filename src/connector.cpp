@@ -407,26 +407,6 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
  */
 
 
-void connector::check_deadline()
-{
-    // Check whether the deadline has passed. We compare the deadline against 
-    // the current time since a new asynchronous operation may have moved the
-    // deadline before this callback had a chance to run.
-    if (timeout_timer.expires_at() <= boost::asio::deadline_timer::traits_type::now())
-    {
-        // The deadline has passed.
-        // -> set status to "expired"
-        timeout_status = expired;
-
-        // There is no longer an active deadline. The expiry is set to positive
-        // infinity so that the callback is not invoked until a new deadline is 
-        // set.
-        timeout_timer.expires_at(boost::posix_time::pos_infin);
-    }
-
-    // Re-start timer
-    timeout_timer.async_wait(boost::bind(&connector::check_deadline, this));
-}
 
 
 
@@ -437,9 +417,7 @@ connector::connector(boost::shared_ptr<boost::asio::io_service> io_service,
     io_service(io_service),
     socket(0),
     endpoint(unix_domain_socket.c_str()),
-    handler(0),
-    timeout_status(unused),
-    timeout_timer(*io_service)
+    handler(0)
 {
 }
 

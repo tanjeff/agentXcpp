@@ -25,29 +25,80 @@
 using namespace agentxcpp;
 
 
+// Throws boost::system::system_error:
 timeout_timer::timeout_timer(boost::shared_ptr<boost::asio::io_service> io_service)
     : status(standby),
       timer(*io_service)
 {
+    try
+    {
+        // Throws boost::system::system_error:
         timer.expires_at(boost::posix_time::pos_infin);
+    }
+    catch(boost::system::system_error)
+    {
+        // Timer broke
+        status = broken;
+    }
 }
 
+// Throws boost::system::system_error:
 void timeout_timer::expires_at(boost::asio::deadline_timer::time_type time)
 {
+    if(status == broken)
+    {
+        // Object is broken -> do nothing
+        return;
+    }
+
     status = running;
-    timer.expires_at(time);
+
+    try
+    {
+        // Throws boost::system::system_error:
+        timer.expires_at(time);
+    }
+    catch(boost::system::system_error)
+    {
+        // Timer broke
+        status = broken;
+    }
 }
 
 
+// Throws boost::system::system_error:
 void timeout_timer::expires_from_now(boost::asio::deadline_timer::duration_type duration)
 {
+    if(status == broken)
+    {
+        // Object is broken -> do nothing
+        return;
+    }
+
     status = running;
-    timer.expires_from_now(duration);
+
+    try
+    {
+        // Throws boost::system::system_error:
+        timer.expires_from_now(duration);
+    }
+    catch(boost::system::system_error)
+    {
+        // Timer broke
+        status = broken;
+    }
 }
 
 
+// Throws boost::system::system_error:
 void timeout_timer::check_deadline()
 {
+    if(status == broken)
+    {
+        // Object is broken, -> do nothing (not even restart the timer)
+        return;
+    }
+
     // Check whether the deadline has passed. We compare the deadline against 
     // the current time since a new asynchronous operation may have moved the
     // deadline before this callback had a chance to run.
@@ -60,7 +111,19 @@ void timeout_timer::check_deadline()
         // There is no longer an active deadline. The expiry is set to positive
         // infinity so that the callback is not invoked until a new deadline is 
         // set.
-        timer.expires_at(boost::posix_time::pos_infin);
+        try
+        {
+            // Throws boost::system::system_error:
+            timer.expires_at(boost::posix_time::pos_infin);
+        }
+        catch(boost::system::system_error)
+        {
+            // Object broke
+            status = broken;
+
+            // No further processing
+            return;
+        }
     }
 
     // Re-start timer
@@ -68,8 +131,25 @@ void timeout_timer::check_deadline()
 }
 
 
+// Throws boost::system::system_error:
 void timeout_timer::stop()
 {
+    if(status == broken)
+    {
+        // Object is broken, -> do nothing (not even restart the timer)
+        return;
+    }
+
     status = standby;
-    timer.expires_at(boost::posix_time::pos_infin);
+
+    try
+    {
+        // Throws boost::system::system_error:
+        timer.expires_at(boost::posix_time::pos_infin);
+    }
+    catch(boost::system::system_error)
+    {
+        // Timer broke
+        status = broken;
+    }
 }

@@ -42,6 +42,12 @@ namespace agentxcpp
      * io_service::run_one(). For the timeout_timer to work, the run() or 
      * run_one() method of the io_service object must be invoked by the user of 
      * timeout_timer.
+     * 
+     * The object can break, e.g. when something with the interally used 
+     * deadline_timer goes wrong. In this case the status changes to "broken".  
+     * A broken timeout_timer cannot be used anymore: a call to any member 
+     * function will do nothing (except for get_status(), which will report the 
+     * status "broken") and the status will be "broken" forever.
      *
      * \par How it works
      *
@@ -75,8 +81,12 @@ namespace agentxcpp
              *
              * This constructor sets the timer status to "standby".
              *
-             * \param io_service The io_service object which will be used by 
-             * the timer.
+             * \note If something goes wrong, the status is set to "broken".
+             *
+             * \param io_service The io_service object which will be used by
+             *                   the timer.
+             *
+             * \exception None.
              */
             timeout_timer(boost::shared_ptr<boost::asio::io_service> io_service);
 
@@ -87,7 +97,8 @@ namespace agentxcpp
             {
                 running,     // timer is running
                 expired,     // timer expired
-                standby      // timer currently not in use
+                standby,     // timer currently not in use
+                broken
             };
 
             /**
@@ -96,7 +107,11 @@ namespace agentxcpp
              * This function starts the timer and set its expiry time to 
              * 'time'. The status is set to 'running'.
              *
+             * \note If something goes wrong, the status is set to "broken".
+             *
              * \param time The time at which the timer shall expire.
+             *
+             * \exception None.
              */
             void expires_at(boost::asio::deadline_timer::time_type time);
 
@@ -106,7 +121,11 @@ namespace agentxcpp
              * This function starts the timer and set its expiry time to (now + 
              * 'duration'). The status is set to 'running'.
              *
+             * \note If something goes wrong, the status is set to "broken".
+             *
              * \param duration The duration after which the timer elapses.
+             *
+             * \exception None.
              */
             void expires_from_now(boost::asio::deadline_timer::duration_type duration);
 
@@ -114,11 +133,17 @@ namespace agentxcpp
              * \brief Stop the timer.
              *
              * This stops the timer. The status is set to "standby".
+             *
+             * \note If something goes wrong, the status is set to "broken".
+             *
+             * \exception None.
              */
             void stop();
 
             /**
              * \brief Get the current timer status.
+             *
+             * \exception None.
              */
             status_t get_status()
             {
@@ -158,6 +183,8 @@ namespace agentxcpp
              *
              * This callback also restarts the timer on each call to keep it 
              * running.
+             *
+             * If something goes wrong, the status is set to "broken".
              */
             void check_deadline();
 

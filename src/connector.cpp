@@ -774,14 +774,24 @@ connector::wait_for_response(uint32_t packetID)
 	// 1. Cancel timer
 	// 2. Erase response from map
 	// 3. Return response
-	timer.stop();
+	timer.stop(); // does nothing if timer broke
 	shared_ptr<ResponsePDU> retval = this->responses[packetID];
 	this->responses.erase( packetID );
 	return retval;
     }
     else
     {
-        // Timer expired before ResponsePDU arrived
-	throw(timeout_error());
+        switch(timer.get_status())
+        {
+            case timeout_timer::expired:
+                // Timer expired before ResponsePDU arrived
+                throw(timeout_error());
+                break;
+            default:
+                // Timer broke or reported an insane status
+                // We go to disconnected state to indicate an error
+                this->disconnect();
+                throw disconnected();
+        }
     }
 }

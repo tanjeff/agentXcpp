@@ -269,34 +269,18 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
     // 4) process result
     //
     
-    // The timer_result and send_result variables are static because in some 
-    // circumstances the callback (which manipulates them) might be called 
-    // after this function returned. We avoid a segfault this way.
-    static status_t timer_result;
-    static status_t send_result;
-
-
     // 1) Start timeout timer
     
-    // doesn't throw in boost 1.45.0:
-    boost::asio::deadline_timer timer(s.get_io_service());
-    timer_result = in_progress_old;
-    try
-    {
-	// throws system_error in boost 1.45.0
-	timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
-    }
-    catch(boost::system::system_error)
-    {
-	throw( network_error() );
-    }
-    // doesn't throw in boost 1.45.0:
-    timer.async_wait( boost::bind(callback,
-				  boost::asio::placeholders::error,
-				  &timer_result) );
-
+    timeout_timer timer(shared_ptr<boost::asio::io_service>(&s.get_io_service()));
+    timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
+    
     // 2) Start send
-    send_result = in_progress_old;
+    
+    // The send_result variable is static because in some circumstances the 
+    // callback (which manipulates it) might be called after this function 
+    // returned. We avoid a segfault this way.
+    static status_t send_result = in_progress_old;
+
     // doesn't throw in boost 1.45.0:
     s.async_send(buffers,
 		 boost::bind(callback,
@@ -304,6 +288,7 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
 			     &send_result));
 
     // 3) process asio events until send succeeds or timeout expires
+    
     try
     {
 	do
@@ -311,90 +296,50 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
 	    // throws system_error in boost 1.45.0:
 	    s.get_io_service().run_one();
 	}
-	while(send_result == in_progress_old && timer_result == in_progress_old);
+	while(send_result == in_progress_old &&
+              timer.get_status() == timeout_timer::running);
     }
     catch(boost::system::system_error)
     {
-	try
-	{
-	    // throws system_error in boost 1.45.0
-	    timer.cancel();
+        timer.cancel();
 
-	    // TODO: How to cancel the async_send operation?
-	}
-	catch(boost::system::system_error)
-	{
-	    // Is the timer uncancelled now? Will it possibly fire our 
-	    // callback? On the other hand, leaving this function will 
-	    // destroy the deadline_timer object anyway.
-
-	    // -> ignore
-	}
-	throw( network_error() );
+        // TODO: How to cancel the async_send operation?
+        throw( network_error() );
     }
 
     // 4) Check result
+
     switch(send_result)
     {
 	case success_old:
 	    // Send succeeded:
-	    try
-	    {
-		// throws system_error in bost 1.45.0:
-		timer.cancel();
-	    }
-	    catch(boost::system::system_error)
-	    {
-		// Is the timer uncancelled now? Will it possibly fire our 
-		// callback? On the other hand, leaving this function will 
-		// destroy the deadline_timer object anyway.
-
-		// -> ignore
-	    }
+            timer.cancel();
 	    return;
 
 	case fail:
 	    // send failed: cancel timer, throw exception
-	    try
-	    {
-		// throws system_error in bost 1.45.0:
-		timer.cancel();
-	    }
-	    catch(boost::system::system_error)
-	    {
-		// Is the timer uncancelled now? Will it possibly fire our 
-		// callback? On the other hand, leaving this function will 
-		// destroy the deadline_timer object anyway.
-
-		// -> ignore
-	    }
+            timer.cancel();
 	    throw( network_error() );
 
 	case in_progress_old:
-
-	    // Sending still in progress, look at timer_result:
-	    switch(timer_result)
+            // Sending still in progress, look at timer_result:
+	    switch(timer.get_status())
 	    {
-		case success_old:
-		    // timer fired while reading
+                case timeout_timer::expired:
+                    // timer fired while reading
 		    
 		    // TODO: how to cancel the async send operation?
 
 		    // throw exception
 		    throw( timeout_error() );
 
-		case fail:
-		    // timer failed while sending
-		    // what now?
-		    // I think we should fail with a network error
+		default:
+                    // Timer broke or reported an insane status
+                    // -> fail with a network error
 		    
 		    // TODO: how to cancel the async send operation?
 		    
 		    throw( network_error() );
-
-		case in_progress_old:
-		    // It didn't happen -> ignore
-		    break;
 	    }
     }
 }

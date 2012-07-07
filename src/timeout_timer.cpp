@@ -40,6 +40,9 @@ timeout_timer::timeout_timer(boost::shared_ptr<boost::asio::io_service> io_servi
         // Timer broke
         status = broken;
     }
+
+    // Start timer
+    timer.async_wait(boost::bind(&timeout_timer::check_deadline, this));
 }
 
 // Throws boost::system::system_error:

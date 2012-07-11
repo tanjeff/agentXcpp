@@ -88,7 +88,7 @@ namespace agentxcpp
              *
              * \exception None.
              */
-            timeout_timer(boost::shared_ptr<boost::asio::io_service> io_service);
+            timeout_timer(boost::asio::io_service & io_service);
 
             /**
              * \brief The timeout status type.

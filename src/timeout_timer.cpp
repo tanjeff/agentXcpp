@@ -26,9 +26,9 @@ using namespace agentxcpp;
 
 
 // Throws boost::system::system_error:
-timeout_timer::timeout_timer(boost::shared_ptr<boost::asio::io_service> io_service)
+timeout_timer::timeout_timer(boost::asio::io_service & io_service)
     : status(standby),
-      timer(*io_service)
+      timer(io_service)
 {
     try
     {

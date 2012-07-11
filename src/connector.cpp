@@ -105,7 +105,7 @@ static void read_with_timeout(AsyncReadStream& s,
     //
 
     // 1) Start timeout timer
-    timeout_timer timer(shared_ptr<boost::asio::io_service>(&s.get_io_service()));
+    timeout_timer timer(s.get_io_service());
     timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
 
     // 2) Start read
@@ -216,7 +216,7 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
     
     // 1) Start timeout timer
     
-    timeout_timer timer(shared_ptr<boost::asio::io_service>(&s.get_io_service()));
+    timeout_timer timer(s.get_io_service());
     timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
     
     // 2) Start send
@@ -604,7 +604,7 @@ connector::wait_for_response(uint32_t packetID)
     responses[packetID] = boost::shared_ptr<ResponsePDU>();
 
     // Start timeout timer
-    timeout_timer timer(this->io_service);
+    timeout_timer timer(*(this->io_service));
     timer.expires_from_now( boost::posix_time::seconds(this->timeout) );
 
     // process asio events until ResponsePDU arrives or timeout expires

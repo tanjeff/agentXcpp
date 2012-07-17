@@ -20,6 +20,7 @@
 #define _TIMEOUT_TIMER_H_
 
 
+#include <set>
 #include <boost/asio.hpp>
 
 namespace agentxcpp
@@ -41,36 +42,41 @@ namespace agentxcpp
      * io_service object. It never calls io_service::run() or 
      * io_service::run_one(). For the timeout_timer to work, the run() or 
      * run_one() method of the io_service object must be invoked by the user of 
-     * timeout_timer.
+     * timeout_timer. As long as neither of them are invoked, the timer will 
+     * not report the status "expired".
      * 
      * The object can break, e.g. when something with the interally used 
-     * deadline_timer goes wrong. In this case the status changes to "broken".  
-     * A broken timeout_timer cannot be used anymore: a call to any member 
-     * function will do nothing (except for get_status(), which will report the 
-     * status "broken") and the status will be "broken" forever.
+     * boost::asio::deadline_timer goes wrong. In this case the status changes 
+     * to "broken".  A broken timeout_timer cannot be used anymore: a call to 
+     * any member function will do nothing (except for get_status(), which will 
+     * report the status "broken") and the status will be "broken" forever.
      *
      * \par How it works
      *
-     * For timeout detection, a boost deadline timer is used together with the 
+     * For timeout detection, an asio deadline_timer is used together with the 
      * status member. While the timer is not in use, it's expiry time is set to 
-     * "infinite" and status is set to "standby". When starting operations 
-     * which need timeout detection, the deadline timer's expiry is set to the 
-     * according time, and status is set to "running". If the timer expires, 
-     * the callback function check_deadline() is invoked, which sets the expiry 
-     * back to "infinite" and status to "expired". If the operation completes 
-     * before the timer expires, cancel() can be invoked to set the expiry back 
-     * to "infinite" and the status to "standby".
+     * "infinite" and status is set to "standby". When starting the timer, the 
+     * deadline_timer's expiry is set to the according time, and status is set 
+     * to "running". If the deadline_timer expires, it invokes the 
+     * check_deadline() callback, which sets the expiry back to "infinite" and 
+     * status to "expired". If cancel() is invoked before the deadline_timer 
+     * expires, the expiry is set back to "infinite" and the status to 
+     * "standby".
      *
-     * Note that the callback check_deadline() may be invoked errornously, e.g.  
-     * in this situation:
-     * -# The monitored operation completes
-     * -# The timer expires in the backround and check_deadline() is scheduled 
-     *  for invokation at the next call to io_service::run()
-     * -# The cancel() function is invoked
-     * The monitored operation thus completed without a timeout condition, but 
-     * check_deadline() will nevertheless be invoked later. Therefore, it 
+     * The check_deadline() callback may be invoked errornously, e.g. when the 
+     * deadline_timer's expiry time is reset after the timer expired, but 
+     * before the callback actually is invoked. Therefore, check_deadline()  
      * compares the expiry date of the timer with the current timestamp to 
-     * determine whether the timer really expired. 
+     * determine whether the timer really expired.
+     *
+     * Also, check_deadline() is called after the deadline_timer object is 
+     * destroyed. This happens when a timeout_timer object is destroyed, which 
+     * means that the callback function must not be a member function. Instead 
+     * it is a static class function which takes a pointer to the timeout_timer 
+     * object for which it is called. To identify calls for destroyed objects, 
+     * the static mamber "available_timers" is used, which stores pointers to 
+     * all timeout_timer objects currently in existence. This is handled by the 
+     * constructors and destructor of the timeout_timer class. 
      */
     class timeout_timer
     {
@@ -79,7 +85,9 @@ namespace agentxcpp
             /**
              * \brief Constructor
              *
-             * This constructor sets the timer status to "standby".
+             * This constructor sets the timer status to "standby", the 
+             * deadline_timer's expiry to "infinite" and add the new object to 
+             * "available_timers". It also starts the deadline_timer.
              *
              * \note If something goes wrong, the status is set to "broken".
              *
@@ -98,7 +106,7 @@ namespace agentxcpp
                 running,     // timer is running
                 expired,     // timer expired
                 standby,     // timer currently not in use
-                broken
+                broken       // timer is broken
             };
 
             /**
@@ -118,8 +126,8 @@ namespace agentxcpp
             /**
              * \brief Time out at (now + duration).
              *
-             * This function starts the timer and set its expiry time to (now + 
-             * 'duration'). The status is set to 'running'.
+             * This function starts the deadline_timer and sets its expiry time 
+             * to (now + 'duration'). The status is set to 'running'.
              *
              * \note If something goes wrong, the status is set to "broken".
              *
@@ -132,7 +140,8 @@ namespace agentxcpp
             /**
              * \brief Stop the timer.
              *
-             * This stops the timer. The status is set to "standby".
+             * This stops the timer. The status is set to "standby", and the 
+             * deadline_timer's expiry time is set to "infinite".
              *
              * \note If something goes wrong, the status is set to "broken".
              *
@@ -150,7 +159,19 @@ namespace agentxcpp
                 return status;
             }
 
+            /**
+             * \brief Destructor
+             *
+             * The destructor removes the object from "available_timers".
+             */
+            ~timeout_timer();
+
         private:
+
+            /**
+             * \brief Set of timeout_timer objects currently in existence.
+             */
+            static std::set<timeout_timer*> available_timers;
 
             /**
              * \brief Hide default constructor.
@@ -175,21 +196,23 @@ namespace agentxcpp
              * \brief The timeout handler.
              *
              * This function is used as callback handler for 'timer'. It 
-             * compares the timer's expiry time with the current system time to 
-             * detect errornous invokation (in case cancel() set the expiry to 
-             * "infinite" before check_deadline() was invoked). If a real 
-             * timeout is detected, the status is set to "expired" and the 
-             * expiry is set to "infinite".
+             * compares the deadline_timer's expiry time with the current 
+             * system time to detect errornous invokation. It also checks 
+             * whether the timeout_timer object exists (and does nothing if 
+             * not). If a real timeout is detected, the status is set to 
+             * "expired" and the deadline_timer's expiry is set to 
+             * "infinite".
              *
              * This callback also restarts the timer on each call to keep it 
              * running.
              *
              * If something goes wrong, the status is set to "broken".
+             *
+             * \param self The timeout_timer object which triggered the
+             *             callback.
              */
-            void check_deadline();
-
+            static void check_deadline(timeout_timer* self);
     };
-
 }
 
 #endif

@@ -24,6 +24,7 @@
 
 using namespace agentxcpp;
 
+std::set<timeout_timer*> timeout_timer::available_timers;
 
 // Throws boost::system::system_error:
 timeout_timer::timeout_timer(boost::asio::io_service & io_service)
@@ -43,6 +44,8 @@ timeout_timer::timeout_timer(boost::asio::io_service & io_service)
 
     // Start timer
     timer.async_wait(boost::bind(&timeout_timer::check_deadline, this));
+
+    available_timers.insert(this);
 }
 
 // Throws boost::system::system_error:
@@ -94,9 +97,15 @@ void timeout_timer::expires_from_now(boost::asio::deadline_timer::duration_type 
 
 
 // Throws boost::system::system_error:
-void timeout_timer::check_deadline()
+void timeout_timer::check_deadline(timeout_timer* self)
 {
-    if(status == broken)
+    if(self->available_timers.find(self) == self->available_timers.end())
+    {
+        // The timer was already destroyed
+        return;
+    }
+
+    if(self->status == broken)
     {
         // Object is broken, -> do nothing (not even restart the timer)
         return;
@@ -105,11 +114,12 @@ void timeout_timer::check_deadline()
     // Check whether the deadline has passed. We compare the deadline against 
     // the current time since a new asynchronous operation may have moved the
     // deadline before this callback had a chance to run.
-    if (timer.expires_at() <= boost::asio::deadline_timer::traits_type::now())
+    if (self->timer.expires_at() <= boost::asio::deadline_timer::traits_type::now())
     {
+
         // The deadline has passed.
         // -> set status to "expired"
-        status = expired;
+        self->status = expired;
 
         // There is no longer an active deadline. The expiry is set to positive
         // infinity so that the callback is not invoked until a new deadline is 
@@ -117,20 +127,21 @@ void timeout_timer::check_deadline()
         try
         {
             // Throws boost::system::system_error:
-            timer.expires_at(boost::posix_time::pos_infin);
+            self->timer.expires_at(boost::posix_time::pos_infin);
         }
         catch(boost::system::system_error)
         {
             // Object broke
-            status = broken;
+            self->status = broken;
 
             // No further processing
             return;
         }
+
     }
 
     // Re-start timer
-    timer.async_wait(boost::bind(&timeout_timer::check_deadline, this));
+    self->timer.async_wait(boost::bind(&timeout_timer::check_deadline, self));
 }
 
 
@@ -155,4 +166,10 @@ void timeout_timer::cancel()
         // Timer broke
         status = broken;
     }
+}
+
+
+timeout_timer::~timeout_timer()
+{
+    available_timers.erase(this);
 }

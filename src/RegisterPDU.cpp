@@ -17,7 +17,7 @@
  * for more details.
  */
 #include "RegisterPDU.hpp"
-#include "helper.hpp"
+#include "util.hpp"
 
 using namespace agentxcpp;
 

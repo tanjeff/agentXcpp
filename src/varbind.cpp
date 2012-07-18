@@ -25,7 +25,7 @@
 #include "TimeTicks.hpp"
 #include "Opaque.hpp"
 #include "IpAddress.hpp"
-#include "helper.hpp"
+#include "util.hpp"
 
 using namespace agentxcpp;
 

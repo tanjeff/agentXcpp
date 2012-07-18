@@ -24,7 +24,7 @@
 #include "ResponsePDU.hpp"
 #include "RegisterPDU.hpp"
 #include "GetPDU.hpp"
-#include "helper.hpp"
+#include "util.hpp"
 #include "types.hpp"
 
 #include <iostream>

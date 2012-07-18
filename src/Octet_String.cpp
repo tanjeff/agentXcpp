@@ -20,7 +20,7 @@
 #include <iterator>
 
 #include "Octet_String.hpp"
-#include "helper.hpp"
+#include "util.hpp"
 
 using namespace agentxcpp;
 

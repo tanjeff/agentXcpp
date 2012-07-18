@@ -18,7 +18,7 @@
  */
 
 #include "GetBulkPDU.hpp"
-#include "helper.hpp"
+#include "util.hpp"
 
 
 using namespace agentxcpp;

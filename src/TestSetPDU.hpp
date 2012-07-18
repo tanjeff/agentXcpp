@@ -20,10 +20,11 @@
 #define _TESTSETPDU_H_
 
 #include <vector>
-using std::vector;
 
 #include "PDUwithContext.hpp"
 #include "varbind.hpp"
+
+using std::vector;
 
 namespace agentxcpp
 {
@@ -64,8 +65,8 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    TestSetPDU(data_t::const_iterator& pos,
-		       const data_t::const_iterator& end,
+	    TestSetPDU(binary::const_iterator& pos,
+		       const binary::const_iterator& end,
 		       bool big_endian);
 
 	    /**
@@ -93,7 +94,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    data_t serialize() const;
+	    binary serialize() const;
     };
 }
 

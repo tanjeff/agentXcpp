@@ -18,13 +18,13 @@
  */
 
 #include "GetBulkPDU.hpp"
-#include "helper.hpp"
+#include "util.hpp"
 
 
 using namespace agentxcpp;
 
-GetBulkPDU::GetBulkPDU(data_t::const_iterator& pos,
-		       const data_t::const_iterator& end,
+GetBulkPDU::GetBulkPDU(binary::const_iterator& pos,
+		       const binary::const_iterator& end,
 		       bool big_endian)
     : PDUwithContext(pos, end, big_endian)
 {
@@ -56,9 +56,9 @@ GetBulkPDU::GetBulkPDU(data_t::const_iterator& pos,
 
 
 
-data_t GetBulkPDU::serialize() const
+binary GetBulkPDU::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // Add non_repeaters
     write16(serialized, this->non_repeaters);

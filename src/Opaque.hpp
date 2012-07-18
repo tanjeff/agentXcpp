@@ -19,7 +19,6 @@
 #ifndef _OPAQUE_H_
 #define _OPAQUE_H_
 
-#include "types.hpp"
 #include "variable.hpp"
 #include "exceptions.hpp"
 
@@ -37,7 +36,7 @@ namespace agentxcpp
 	     *
 	     * According to RFC 2578, Opaque is used to wrap any ASN.1-type.
 	     */
-	    data_t value;
+	    binary value;
 
 	public:
 	    /**
@@ -49,7 +48,7 @@ namespace agentxcpp
 	     * Note:
 	     * We always use big endian.
 	     */
-	    data_t serialize() const;
+	    binary serialize() const;
 	    
 	    /**
 	     * \internal
@@ -75,8 +74,8 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Opaque(data_t::const_iterator& pos,
-		   const data_t::const_iterator& end,
+	    Opaque(binary::const_iterator& pos,
+		   const binary::const_iterator& end,
 		   bool big_endian=true);
 
             /**
@@ -84,7 +83,7 @@ namespace agentxcpp
              *
              * \brief Constructor for initializing with data.
              */
-	    Opaque(data_t initial_value) : value(initial_value) {}
+	    Opaque(binary initial_value) : value(initial_value) {}
 
             /**
              * \internal
@@ -114,7 +113,7 @@ namespace agentxcpp
              * \exception generic_error If obtaining the current value fails.
              *                          No other exception shall be thrown.
              */
-	    virtual data_t get()
+	    virtual binary get()
 	    {
 		throw( generic_error() );
 	    }

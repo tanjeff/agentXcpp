@@ -1,5 +1,5 @@
 #include "ResponsePDU.hpp"
-#include "helper.hpp"
+#include "util.hpp"
 
 using namespace agentxcpp;
 
@@ -42,8 +42,8 @@ ResponsePDU::ResponsePDU()
 
 
 
-ResponsePDU::ResponsePDU(data_t::const_iterator& pos,
-			 const data_t::const_iterator& end,
+ResponsePDU::ResponsePDU(binary::const_iterator& pos,
+			 const binary::const_iterator& end,
 			 bool big_endian)
     : PDU(pos, end, big_endian)
 {
@@ -89,9 +89,9 @@ ResponsePDU::ResponsePDU(data_t::const_iterator& pos,
 
 
 
-data_t ResponsePDU::serialize() const
+binary ResponsePDU::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // Encode simple fields
     write32(serialized, this->sysUpTime);

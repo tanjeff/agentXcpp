@@ -63,8 +63,8 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    RemoveAgentCapsPDU(data_t::const_iterator& pos,
-			    const data_t::const_iterator& end,
+	    RemoveAgentCapsPDU(binary::const_iterator& pos,
+			    const binary::const_iterator& end,
 			    bool big_endian);
 
 	    /**
@@ -110,7 +110,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    data_t serialize();
+	    binary serialize();
     };
 }
 

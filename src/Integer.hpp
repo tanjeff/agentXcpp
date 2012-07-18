@@ -20,9 +20,12 @@
 #ifndef _INTEGER_H_
 #define _INTEGER_H_
 
-#include "types.hpp"
+#include <boost/cstdint.hpp>
+
 #include "variable.hpp"
 #include "exceptions.hpp"
+
+using boost::int32_t;
 
 namespace agentxcpp
 {
@@ -58,7 +61,7 @@ namespace agentxcpp
 	     *
 	     * This function uses big endian.
 	     */
-	    virtual data_t serialize() const;
+	    virtual binary serialize() const;
 	    
 	    /**
 	     * \internal
@@ -84,8 +87,8 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Integer(data_t::const_iterator& pos,
-		    const data_t::const_iterator& end,
+	    Integer(binary::const_iterator& pos,
+		    const binary::const_iterator& end,
 		    bool big_endian=true);
 
 	    /**

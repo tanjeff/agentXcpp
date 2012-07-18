@@ -17,12 +17,12 @@
  * for more details.
  */
 #include "RegisterPDU.hpp"
-#include "helper.hpp"
+#include "util.hpp"
 
 using namespace agentxcpp;
 
-RegisterPDU::RegisterPDU(data_t::const_iterator& pos,
-			 const data_t::const_iterator& end,
+RegisterPDU::RegisterPDU(binary::const_iterator& pos,
+			 const binary::const_iterator& end,
 			 bool big_endian)
     :PDUwithContext(pos, end, big_endian)   // parse header
 {
@@ -50,9 +50,9 @@ RegisterPDU::RegisterPDU(data_t::const_iterator& pos,
 }
 
 
-data_t RegisterPDU::serialize() const
+binary RegisterPDU::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     serialized.push_back(timeout);
     serialized.push_back(priority);

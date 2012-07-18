@@ -37,6 +37,8 @@ The following software is needed to build agentXcpp, simply use the versions
 which are easily available for your system:
 - Standard build environment (compiler, linker, etc.)
 - Doxygen, to build the documentation
+- The dot tool from the graphviz package, which is used by doxygen to generate 
+  diagrams
 - SCons, to control the build process
 - The following boost libraries:
   - Asio

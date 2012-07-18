@@ -27,27 +27,27 @@ Before sending a PDU to the master agent, it must be serialized to a binary
 form, which is specified in RFC 2741.
 
 AgentXcpp defines some data types and helper functions to deal with 
-serialization. The type data_t can be used like an STL string, but is a series 
+serialization. The type binary can be used like an STL string, but is a series 
 of byte_t values.  The byte_t type in turn is defined to hold a single byte.  
 The write32() and write16() functions are used to append a 32-bit value 
-respectively a 16-bit-value to a data_t object, using big endian. The agentXcpp 
+respectively a 16-bit-value to a binary object, using big endian. The agentXcpp 
 library always uses big endian (this may change in future).
 
 Each %PDU has a serialize() member function to get the serialized form of that 
 %PDU. In addition, the PDU class (which is the base class of all concrete %PDU 
 classes) provides the add_header() member to add the serialized form of the PDU 
-header. The serialize() functions start with an empty data_t object and append 
+header. The serialize() functions start with an empty binary object and append 
 the 
 %PDU parts to it.  Other classes also provide a serialize() member, e.g.  the 
 oid and Integer classes.  PDU's typically call the serialize() functions of the 
-contained objects, receive a data_t object from that object and append it to 
-their own data_t object. Finally, PDU::add_header() is called to add the 
+contained objects, receive a binary object from that object and append it to 
+their own binary object. Finally, PDU::add_header() is called to add the 
 header.
 
 Let's take an example. When an OpenPDU is serialized, the OpenPDU::serialize() 
-function starts by creating an empty data_t object, named 'serialized':
+function starts by creating an empty binary object, named 'serialized':
 \code
-    data_t serialized;
+    binary serialized;
 \endcode
 Then the timeout field and 3 reserved fields are appended like this:
 \code

@@ -22,8 +22,8 @@
 
 using namespace agentxcpp;
 
-PingPDU::PingPDU(data_t::const_iterator& pos,
-		 const data_t::const_iterator& end,
+PingPDU::PingPDU(binary::const_iterator& pos,
+		 const binary::const_iterator& end,
 		 bool big_endian)
     : PDUwithContext(pos, end, big_endian)
 {
@@ -33,9 +33,9 @@ PingPDU::PingPDU(data_t::const_iterator& pos,
 
 
 
-data_t PingPDU::serialize()
+binary PingPDU::serialize()
 {
-    data_t serialized;
+    binary serialized;
 
     // No data to serialize :-)
 

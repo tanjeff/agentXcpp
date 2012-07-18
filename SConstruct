@@ -21,6 +21,34 @@ import subprocess
 import sys
 import os
 
+
+#################################################
+## Define a Check for executables
+
+def CheckExe(context, executable):
+    context.Message("Checking for executable " + executable[0])
+    log = open('config.log', 'a')
+    log.write('Checking for ' + executable[0] + ':')
+    log.write('')
+    try:
+        result = subprocess.call(executable, stdout=log, stderr=log)
+    except:
+        # Call failed, maybe the executable is not available.
+        # We set result to -1 to indicate that the call failed.
+        result = -1
+    log.close()
+    if result == 0:
+        success = True
+    else:
+        success = False
+    context.Result(success)
+    return success
+
+
+
+
+
+
 #################################################
 ## Our Environment
 env = DefaultEnvironment()
@@ -120,6 +148,67 @@ proc = subprocess.Popen(["git", "describe", "--always", "--dirty"],
                         stdout=subprocess.PIPE)
 (out,err) = proc.communicate()
 env['revision'] = out.strip()
+
+#################################################
+## Check dependencies
+
+conf = Configure(env, custom_tests={'CheckExe' : CheckExe})
+
+# Check for C++ compiler
+if env['CXX'] == None:
+    print """
+Scons didn't find a usable C++ compiler.
+Note: For Linux, install a package named 'build-essential' or 'g++'."""
+    Exit(1)
+
+# Check for boost::asio (header-only lib)
+if not conf.CheckHeader('boost/asio.hpp', '<>', 'C++'):
+    print """
+The boost::asio library is required to build agentXcpp.
+Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
+    Exit(1)
+
+# Check for boost::bind (header-only lib)
+if not conf.CheckHeader('boost/bind.hpp', '<>', 'C++'):
+    print """
+The boost::bind library is required to build agentXcpp.
+Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
+    Exit(1)
+
+# Check for boost::smart_ptr (header-only lib)
+if not conf.CheckHeader('boost/shared_ptr.hpp', '<>', 'C++'):
+    print """
+The boost::smart_ptr library is required to build agentXcpp.
+Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
+    Exit(1)
+
+# Check for boost::test
+if not conf.CheckLibWithHeader('boost_unit_test_framework', 
+    'boost/test/unit_test.hpp', 'C++', autoadd=0):
+    print """
+The boost::test library is required to build agentXcpp.
+Note: For Linux, install packages named 'libboost-dev' and 'libboost-test-dev'
+      or a package named 'boost'."""
+    Exit(1)
+
+# Check for doxygen executable
+# Note: we call 'doxygen --version' so no input file is required
+if not conf.CheckExe(['doxygen', '--version']):
+    print """
+The doxygen program is required to build agentXcpp's documentation.
+Note: For Linux, install a package named 'doxygen'."""
+    Exit(1)
+
+# Check for dot executable
+# Note: we call 'dot -V' so no input file is required
+if not conf.CheckExe(['dot', '-V']):
+    print """
+The dot program is required to build agentXcpp's documentation.
+Note: For Linux, install a package named 'graphviz'."""
+    Exit(1)
+
+env = conf.Finish()
+
 
 #################################################
 ## Include SCronscripts from subdirectories

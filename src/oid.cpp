@@ -115,7 +115,7 @@ std::ostream& agentxcpp::operator<<(std::ostream& out, const oid& o)
 
 
 
-data_t oid::serialize() const
+binary oid::serialize() const
 {
     // The serial representation of an OID is as follows (RFC 2741, section 
     // 5.1):
@@ -137,7 +137,7 @@ data_t oid::serialize() const
     const int reserved_idx = 3;
 
     // This is our binary data:
-    data_t serialized;
+    binary serialized;
     serialized.resize(4);	// we will need at least the header
 
     // Set reserved field to 0
@@ -186,8 +186,8 @@ data_t oid::serialize() const
     return serialized;
 }
 
-oid::oid(data_t::const_iterator& pos,
-	 const data_t::const_iterator& end,
+oid::oid(binary::const_iterator& pos,
+	 const binary::const_iterator& end,
 	 bool big_endian)
 {
     if(end - pos < 4)

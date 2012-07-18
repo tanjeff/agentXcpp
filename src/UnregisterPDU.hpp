@@ -19,8 +19,12 @@
 #ifndef _UNREGISTERPDU_H_
 #define _UNREGISTERPDU_H_
 
+#include <boost/cstdint.hpp>
+
 #include "PDUwithContext.hpp"
 #include "oid.hpp"
+
+using boost::uint32_t;
 
 namespace agentxcpp
 {
@@ -32,8 +36,8 @@ namespace agentxcpp
     class UnregisterPDU : public PDUwithContext
     {
 	private:
-	    byte_t priority;
-	    byte_t range_subid;
+	    uint8_t priority;
+	    uint8_t range_subid;
 	    oid subtree;
 	    uint32_t upper_bound;
 
@@ -71,14 +75,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the range_subid.
 	     */
-	    void set_range_subid(byte_t range_subid)
+	    void set_range_subid(uint8_t range_subid)
 	    {
 		this->range_subid = range_subid;
 	    }
 	    /**
 	     * \brief Get the range_subid.
 	     */
-	    byte_t get_range_subid()
+	    uint8_t get_range_subid()
 	    {
 		return this->range_subid;
 	    }
@@ -86,14 +90,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the priority.
 	     */
-	    void set_priority(byte_t priority)
+	    void set_priority(uint8_t priority)
 	    {
 		this->priority = priority;
 	    }
 	    /**
 	     * \brief Get the priority.
 	     */
-	    byte_t get_priority()
+	    uint8_t get_priority()
 	    {
 		return this->priority;
 	    }
@@ -118,14 +122,14 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    UnregisterPDU(data_t::const_iterator& pos,
-			  const data_t::const_iterator& end,
+	    UnregisterPDU(binary::const_iterator& pos,
+			  const binary::const_iterator& end,
 			  bool big_endian);
 	    
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    data_t serialize() const;
+	    binary serialize() const;
 	    
 	    /**
 	     * \brief Default Constructor

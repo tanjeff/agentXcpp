@@ -20,15 +20,16 @@
 #include <iterator>
 
 #include "Octet_String.hpp"
+#include "util.hpp"
 
 using namespace agentxcpp;
 
 Octet_String::Octet_String(std::string v)
 {
-    // Here we convert initial value to a data_t string. We do this in three 
+    // Here we convert initial value to a binary string. We do this in three
     // steps:
     // 1. get the bare data: v.data()
-    // 2. cast the data to the value type of data_t (i.e. byte_t)
+    // 2. cast the data to the value type of binary
     // 3. calculate the size of the data
     //    - v.size() gives us the number of characters
     //    - sizeof(std::string::value_type) gives us the size of an character
@@ -38,27 +39,23 @@ Octet_String::Octet_String(std::string v)
     // machine where a char is not 8 bit wide, i.e. when char has another size 
     // than byte_t.
     value.assign(
-	    reinterpret_cast<const data_t::value_type*>( v.data() ),
+	    reinterpret_cast<const binary::value_type*>( v.data() ),
 	    v.size() * sizeof( std::string::value_type )
 	        );
 }
 
-data_t Octet_String::serialize() const
+binary Octet_String::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // encode size (big endian)
-    int size = value.size();
-    serialized.push_back(size >> 24 & 0xff);
-    serialized.push_back(size >> 16 & 0xff);
-    serialized.push_back(size >> 8 & 0xff);
-    serialized.push_back(size >> 0 & 0xff);
+    write32(serialized, value.size());
 
     // encode value
     serialized += value;
 
     // Padding bytes
-    int padsize = 4 - (size % 4);
+    int padsize = 4 - (value.size() % 4);
     if( padsize == 4 ) padsize = 0; // avoid adding 4 padding bytes
     while( padsize-- )
     {
@@ -69,8 +66,8 @@ data_t Octet_String::serialize() const
 }
 
 
-Octet_String::Octet_String(data_t::const_iterator& pos,
-			   const data_t::const_iterator& end,
+Octet_String::Octet_String(binary::const_iterator& pos,
+			   const binary::const_iterator& end,
 			   bool big_endian)
 {
     int size;
@@ -82,20 +79,7 @@ Octet_String::Octet_String(data_t::const_iterator& pos,
     }
 
     // Get size
-    if( big_endian )
-    {
-	size =  *pos++ << 24;
-	size |= *pos++ << 16;
-	size |= *pos++ << 8;
-	size |= *pos++ << 0;
-    }
-    else
-    {
-	size =  *pos++ << 0;
-	size |= *pos++ << 8;
-	size |= *pos++ << 16;
-	size |= *pos++ << 24;
-    }
+    size = read32(pos, big_endian);
 
     // Octet String emtpy?
     if( size == 0 )
@@ -105,7 +89,7 @@ Octet_String::Octet_String(data_t::const_iterator& pos,
     }
 
     // We want to read (size) more bytes
-    if((end - pos) < static_cast<data_t::iterator::difference_type>(size))
+    if((end - pos) < static_cast<binary::iterator::difference_type>(size))
     {
 	throw(parse_error());
     }

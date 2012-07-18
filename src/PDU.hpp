@@ -20,13 +20,16 @@
 #ifndef _PDU_H_
 #define _PDU_H_
 
-#include "types.hpp"
-#include "exceptions.hpp"
-#include <boost/shared_ptr.hpp>
 #include <memory>
 
-// We use this smart pointer:
+#include <boost/shared_ptr.hpp>
+#include <boost/cstdint.hpp>
+
+#include "exceptions.hpp"
+#include "binary.hpp"
+
 using boost::shared_ptr;
+using boost::uint32_t;
 
 namespace agentxcpp
 {
@@ -174,8 +177,8 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    PDU(data_t::const_iterator& pos,
-		const data_t::const_iterator& end,
+	    PDU(binary::const_iterator& pos,
+		const binary::const_iterator& end,
 		bool big_endian);
 
 	    /**
@@ -199,7 +202,7 @@ namespace agentxcpp
 	     *                the payload, i.e. payload is altered by this 
 	     *                function.
 	     */
-	    void add_header(type_t type, data_t& payload) const;
+	    void add_header(type_t type, binary& payload) const;
 
 	    /**
 	     * \brief Default constructor
@@ -287,12 +290,12 @@ namespace agentxcpp
 	     * \exception version_mismatch If the AgentX version of the %PDU
 	     *                             is not 1.
 	     */
-	    static shared_ptr<PDU> parse_pdu(data_t buf);
+	    static shared_ptr<PDU> parse_pdu(binary buf);
 
 	    /**
 	     * \brief Serialize function for concrete PDUs.
 	     */
-	    virtual data_t serialize() const =0;
+	    virtual binary serialize() const =0;
     };
 }
 

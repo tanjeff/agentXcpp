@@ -18,25 +18,23 @@
  */
 
 #include "Integer.hpp"
+#include "util.hpp"
 
 using namespace agentxcpp;
 
-data_t Integer::serialize() const
+binary Integer::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // encode value (big endian)
-    serialized.push_back(value >> 24 & 0xff);
-    serialized.push_back(value >> 16 & 0xff);
-    serialized.push_back(value >> 8 & 0xff);
-    serialized.push_back(value >> 0 & 0xff);
+    write32(serialized, value);
 
     return serialized;
 }
 
 
-Integer::Integer(data_t::const_iterator& pos,
-		 const data_t::const_iterator& end,
+Integer::Integer(binary::const_iterator& pos,
+		 const binary::const_iterator& end,
 		 bool big_endian)
 {
     // Are there at least 4 bytes in the buffer?
@@ -46,18 +44,5 @@ Integer::Integer(data_t::const_iterator& pos,
     }
 
     // Get value
-    if( big_endian )
-    {
-	value =  *pos++ << 24;
-	value |= *pos++ << 16;
-	value |= *pos++ << 8;
-	value |= *pos++ << 0;
-    }
-    else
-    {
-	value =  *pos++ << 0;
-	value |= *pos++ << 8;
-	value |= *pos++ << 16;
-	value |= *pos++ << 24;
-    }
+    value = read32(pos, big_endian);
 }

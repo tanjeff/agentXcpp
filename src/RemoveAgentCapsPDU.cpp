@@ -22,8 +22,8 @@
 
 using namespace agentxcpp;
 
-RemoveAgentCapsPDU::RemoveAgentCapsPDU(data_t::const_iterator& pos,
-				       const data_t::const_iterator& end,
+RemoveAgentCapsPDU::RemoveAgentCapsPDU(binary::const_iterator& pos,
+				       const binary::const_iterator& end,
 				       bool big_endian)
     : PDUwithContext(pos, end, big_endian)
 {
@@ -34,9 +34,9 @@ RemoveAgentCapsPDU::RemoveAgentCapsPDU(data_t::const_iterator& pos,
 
 
 
-data_t RemoveAgentCapsPDU::serialize()
+binary RemoveAgentCapsPDU::serialize()
 {
-    data_t serialized;
+    binary serialized;
 
     // Serialize data
     serialized += id.serialize();

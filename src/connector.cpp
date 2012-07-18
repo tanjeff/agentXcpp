@@ -19,7 +19,7 @@
 
 #include <boost/bind.hpp>
 #include "connector.hpp"
-#include "helper.hpp"
+#include "util.hpp"
 #include "timeout_timer.hpp"
 
 
@@ -417,7 +417,7 @@ void connector::receive_callback(const boost::system::error_code& result)
     }
 
     // Copy header into PDU buffer
-    data_t buf;
+    binary buf;
     buf.append(this->header_buf, 20);
 
     // read endianess flag
@@ -425,7 +425,7 @@ void connector::receive_callback(const boost::system::error_code& result)
 
     // read payload length
     uint32_t payload_length;
-    data_t::const_iterator pos = buf.begin() + 16;
+    binary::const_iterator pos = buf.begin() + 16;
     payload_length = read32(pos, big_endian);
     if( payload_length % 4 != 0 )
     {
@@ -449,7 +449,7 @@ void connector::receive_callback(const boost::system::error_code& result)
     }
 
     // Read the payload (TODO: can we avoid the new() operator?)
-    byte_t* payload = new byte_t[payload_length];
+    uint8_t* payload = new uint8_t[payload_length];
     try
     {
 	read_with_timeout(*this->socket,
@@ -567,7 +567,7 @@ void connector::send(const PDU& pdu)
     try
     {
 	// throws timeout_error and network_error:
-	data_t buf = pdu.serialize();
+	binary buf = pdu.serialize();
 	send_with_timeout(*this->socket,
 			  boost::asio::buffer(buf.data(), buf.size()),
 			  this->timeout);

@@ -20,7 +20,6 @@
 #ifndef _OCTET_STRING_H_
 #define _OCTET_STRING_H_
 
-#include "types.hpp"
 #include "variable.hpp"
 #include "exceptions.hpp"
 
@@ -38,7 +37,7 @@ namespace agentxcpp
 	     * According to RFC 2578, Octet_String represents arbitrary binary 
 	     * or textual data.
 	     */
-	    data_t value;
+	    binary value;
 
 	public:
 	    /**
@@ -49,14 +48,14 @@ namespace agentxcpp
 	     * Note:
 	     * We always use big endian.
 	     */
-	    data_t serialize() const;
+	    binary serialize() const;
 
 	    /**
              * \internal
              *
              * \brief FIXME
 	     */
-	    Octet_String(data_t initial_value) : value(initial_value) {}
+	    Octet_String(binary initial_value) : value(initial_value) {}
 
             /**
              * \internal
@@ -96,8 +95,8 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Octet_String(data_t::const_iterator& pos,
-		         const data_t::const_iterator& end,
+	    Octet_String(binary::const_iterator& pos,
+		         const binary::const_iterator& end,
 			 bool big_endian=true);
 
 	    /**
@@ -105,14 +104,14 @@ namespace agentxcpp
              *
 	     * \brief Set the current value
 	     */
-	    void set_value(data_t new_value) { value = new_value; }
+	    void set_value(binary new_value) { value = new_value; }
 
 	    /**
              * \internal
              *
 	     * \brief get the current value
 	     */
-	    data_t get_value()
+	    binary get_value()
 	    {
 		return value;
 	    }
@@ -145,7 +144,7 @@ namespace agentxcpp
              * \exception generic_error If obtaining the current value fails.
              *                          No other exception shall be thrown.
              */
-	    virtual data_t get()
+	    virtual binary get()
 	    {
 		throw( generic_error() );
 	    }

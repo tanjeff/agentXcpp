@@ -20,9 +20,12 @@
 #ifndef _IPADDRESS_H_
 #define _IPADDRESS_H_
 
-#include "types.hpp"
+#include <boost/cstdint.hpp>
+
 #include "variable.hpp"
 #include "exceptions.hpp"
+
+using boost::uint32_t;
 
 namespace agentxcpp
 {
@@ -43,7 +46,7 @@ namespace agentxcpp
 	     *
 	     * According to RFC 2578, IpAddress is a 32-bit number.
 	     */
-	    uint8_t address[4]; // only IPv4
+            boost::uint8_t address[4]; // only IPv4
 
 	public:
 	    /**
@@ -70,8 +73,8 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    IpAddress(data_t::const_iterator& pos,
-		      const data_t::const_iterator& end,
+	    IpAddress(binary::const_iterator& pos,
+		      const binary::const_iterator& end,
 		      bool big_endian=true);
 
 	    /**
@@ -83,7 +86,7 @@ namespace agentxcpp
 	     * Note:
 	     * We always use big endian.
 	     */
-	    data_t serialize() const;
+	    binary serialize() const;
 
 	    /**
              * \brief Construct an IpAddress object.

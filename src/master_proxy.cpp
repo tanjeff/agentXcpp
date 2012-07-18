@@ -17,6 +17,7 @@
  * for more details.
  */
 #include <boost/bind.hpp>
+#include <boost/cstdint.hpp>
 
 #include "master_proxy.hpp"
 #include "OpenPDU.hpp"
@@ -25,14 +26,13 @@
 #include "RegisterPDU.hpp"
 #include "GetPDU.hpp"
 #include "util.hpp"
-#include "types.hpp"
 
 #include <iostream>
-using namespace std;
 
+using namespace std;
 using namespace agentxcpp;
-using namespace boost;
-using boost::shared_ptr;
+using namespace boost;  // Beside other things, this pulls boost::uint16_t
+
 
 
 
@@ -41,7 +41,7 @@ using boost::shared_ptr;
 
 master_proxy::master_proxy(boost::asio::io_service* _io_service,
 			   std::string _description,
-			   byte_t _default_timeout,
+			   uint8_t _default_timeout,
 			   oid _id,
 			   std::string _filename) :
     io_service(_io_service),
@@ -52,7 +52,7 @@ master_proxy::master_proxy(boost::asio::io_service* _io_service,
     id(_id)
 {
     // Initialize connector (never use timeout=0)
-    byte_t timeout;
+    uint8_t timeout;
     timeout = (this->default_timeout == 0) ? 1 : this->default_timeout;
     connection = new connector(shared_ptr<boost::asio::io_service>(io_service),
 			       _filename.c_str(),
@@ -76,7 +76,7 @@ master_proxy::master_proxy(boost::asio::io_service* _io_service,
 
 
 master_proxy::master_proxy(std::string _description,
-			   byte_t _default_timeout,
+			   uint8_t _default_timeout,
 			   oid _id,
 			   std::string _filename) :
     io_service(new boost::asio::io_service()),
@@ -87,7 +87,7 @@ master_proxy::master_proxy(std::string _description,
     id(_id)
 {
     // Initialize connector (never use timeout=0)
-    byte_t timeout;
+    uint8_t timeout;
     timeout = (this->default_timeout == 0) ? 1 : this->default_timeout;
     connection = new connector(shared_ptr<boost::asio::io_service>(io_service),
 			       _filename.c_str(),
@@ -314,8 +314,8 @@ void master_proxy::do_registration(boost::shared_ptr<RegisterPDU> pdu)
 
 
 void master_proxy::register_subtree(oid subtree,
-		      byte_t priority,
-		      byte_t timeout)
+		      uint8_t priority,
+		      uint8_t timeout)
 {
     // Build PDU
     boost::shared_ptr<RegisterPDU> pdu(new RegisterPDU);
@@ -349,7 +349,7 @@ void master_proxy::register_subtree(oid subtree,
 
 
 void master_proxy::unregister_subtree(oid subtree,
-				      byte_t priority)
+				      uint8_t priority)
 {
     // The UnregisterPDU
     boost::shared_ptr<UnregisterPDU> pdu;
@@ -555,8 +555,8 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 
 	// Iterate over list and handle each oid separately
 	vector<oid>::const_iterator i;
-        uint16_t index = 1;     // Index is 1-based (RFC 2741,
-                                // 5.4. "Value Representation"):
+        uint16_t index = 1;  // Index is 1-based (RFC 2741,
+                             // 5.4. "Value Representation"):
 	for(i = sr.begin(); i != sr.end(); i++)
 	{
 	    // The name

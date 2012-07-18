@@ -22,9 +22,9 @@
 
 using namespace agentxcpp;
 
-data_t TimeTicks::serialize() const
+binary TimeTicks::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // encode value (big endian)
     write32(serialized, value);
@@ -33,8 +33,8 @@ data_t TimeTicks::serialize() const
 }
 
 
-TimeTicks::TimeTicks(data_t::const_iterator& pos,
-		     const data_t::const_iterator& end,
+TimeTicks::TimeTicks(binary::const_iterator& pos,
+		     const binary::const_iterator& end,
 		     bool big_endian)
 {
     // We need 4 bytes

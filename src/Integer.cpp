@@ -22,9 +22,9 @@
 
 using namespace agentxcpp;
 
-data_t Integer::serialize() const
+binary Integer::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // encode value (big endian)
     write32(serialized, value);
@@ -33,8 +33,8 @@ data_t Integer::serialize() const
 }
 
 
-Integer::Integer(data_t::const_iterator& pos,
-		 const data_t::const_iterator& end,
+Integer::Integer(binary::const_iterator& pos,
+		 const binary::const_iterator& end,
 		 bool big_endian)
 {
     // Are there at least 4 bytes in the buffer?

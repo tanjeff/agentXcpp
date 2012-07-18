@@ -20,10 +20,11 @@
 #define _GETPDU_H_
 
 #include <vector>
-using std::vector;
 
 #include "PDUwithContext.hpp"
 #include "oid.hpp"
+
+using std::vector;
 
 namespace agentxcpp
 {
@@ -65,8 +66,8 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    GetPDU(data_t::const_iterator& pos,
-		   const data_t::const_iterator& end,
+	    GetPDU(binary::const_iterator& pos,
+		   const binary::const_iterator& end,
 		   bool big_endian);
 
 	    /**
@@ -94,7 +95,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    virtual data_t serialize() const;
+	    virtual binary serialize() const;
     };
 }
 

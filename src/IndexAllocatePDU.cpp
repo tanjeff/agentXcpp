@@ -22,8 +22,8 @@
 
 using namespace agentxcpp;
 
-IndexAllocatePDU::IndexAllocatePDU(data_t::const_iterator& pos,
-				   const data_t::const_iterator& end,
+IndexAllocatePDU::IndexAllocatePDU(binary::const_iterator& pos,
+				   const binary::const_iterator& end,
 				   bool big_endian)
     : PDUwithContext(pos, end, big_endian)
 {
@@ -37,9 +37,9 @@ IndexAllocatePDU::IndexAllocatePDU(data_t::const_iterator& pos,
 
 
 
-data_t IndexAllocatePDU::serialize()
+binary IndexAllocatePDU::serialize()
 {
-    data_t serialized;
+    binary serialized;
 
     // Add VarBind's
     vector<varbind>::const_iterator i;

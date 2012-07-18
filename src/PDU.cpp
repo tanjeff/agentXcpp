@@ -60,8 +60,8 @@ PDU::PDU()
 
 }
 
-PDU::PDU(data_t::const_iterator& pos,
-	 const data_t::const_iterator& end,
+PDU::PDU(binary::const_iterator& pos,
+	 const binary::const_iterator& end,
 	 bool big_endian)
 {
     if(end - pos < 20)
@@ -74,7 +74,7 @@ PDU::PDU(data_t::const_iterator& pos,
     pos += 2;
 
     // read flags
-    byte_t flags = *pos++;
+    uint8_t flags = *pos++;
     instance_registration    = ( flags & (1<<0) ) ? true : false;
     new_index                = ( flags & (1<<1) ) ? true : false;
     any_index                = ( flags & (1<<2) ) ? true : false;
@@ -99,13 +99,13 @@ PDU::PDU(data_t::const_iterator& pos,
 
 
 
-shared_ptr<PDU> PDU::parse_pdu(data_t buf)
+shared_ptr<PDU> PDU::parse_pdu(binary buf)
 {
     // needed for parsing
-    data_t::const_iterator pos;
+    binary::const_iterator pos;
 
     // check protocol version
-    byte_t version = buf[0];
+    uint8_t version = buf[0];
     if( version != 1 )
     {
 	// Wrong protocol:
@@ -114,7 +114,7 @@ shared_ptr<PDU> PDU::parse_pdu(data_t buf)
     }
 
     // read endianess flag
-    byte_t flags = buf[2];
+    uint8_t flags = buf[2];
     bool big_endian = ( flags & (1<<4) ) ? true : false;
 
     // read payload length
@@ -130,12 +130,12 @@ shared_ptr<PDU> PDU::parse_pdu(data_t buf)
     }
 
     // read PDU type
-    byte_t type = buf[1];
+    uint8_t type = buf[1];
 
     // create PDU (TODO: complete the list!)
     shared_ptr<PDU> pdu;
     pos = buf.begin();
-    const data_t::const_iterator end = buf.end();
+    const binary::const_iterator end = buf.end();
     switch(type)
     {
 	case agentxOpenPDU:
@@ -188,10 +188,10 @@ shared_ptr<PDU> PDU::parse_pdu(data_t buf)
 
 
 
-void PDU::add_header(type_t type, data_t& payload) const
+void PDU::add_header(type_t type, binary& payload) const
 {
     /* Construct header */
-    data_t header;
+    binary header;
 
     // Protocol version
     header.push_back(1);
@@ -200,7 +200,7 @@ void PDU::add_header(type_t type, data_t& payload) const
     header.push_back(type);
 
     // flags
-    byte_t flags = 0;
+    uint8_t flags = 0;
     if(instance_registration) flags |= (1<<0);
     if(new_index)             flags |= (1<<1);
     if(any_index)             flags |= (1<<2);

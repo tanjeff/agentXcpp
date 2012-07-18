@@ -22,8 +22,8 @@
 
 using namespace agentxcpp;
 
-GetPDU::GetPDU(data_t::const_iterator& pos,
-		const data_t::const_iterator& end,
+GetPDU::GetPDU(binary::const_iterator& pos,
+		const binary::const_iterator& end,
 		bool big_endian)
     : PDUwithContext(pos, end, big_endian)
 {
@@ -51,9 +51,9 @@ GetPDU::GetPDU(data_t::const_iterator& pos,
 
 
 
-data_t GetPDU::serialize() const
+binary GetPDU::serialize() const
 {
-    data_t serialized;
+    binary serialized;
 
     // Add OID's
     vector<oid>::const_iterator i;

@@ -51,8 +51,8 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    UndoSetPDU(data_t::const_iterator& pos,
-			 const data_t::const_iterator& end,
+	    UndoSetPDU(binary::const_iterator& pos,
+			 const binary::const_iterator& end,
 			 bool big_endian)
 		: PDU(pos, end, big_endian)
 	    {
@@ -61,9 +61,9 @@ namespace agentxcpp
 	    /**
 	     * \brief Serialize the %PDU
 	     */
-	    data_t serialize() const
+	    binary serialize() const
 	    {
-		data_t serialized;
+		binary serialized;
     
 		// Add header
 		add_header(PDU::agentxUndoSetPDU, serialized);

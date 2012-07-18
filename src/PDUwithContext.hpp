@@ -72,8 +72,8 @@ namespace agentxcpp
 	     *			      reading the stream fails or the %PDU is 
 	     *			      malformed.
 	     */
-	    PDUwithContext(data_t::const_iterator& pos,
-			   const data_t::const_iterator& end,
+	    PDUwithContext(binary::const_iterator& pos,
+			   const binary::const_iterator& end,
 			   bool big_endian)
 		: PDU(pos, end, big_endian)
 	    {
@@ -105,7 +105,7 @@ namespace agentxcpp
 	     *                the payload, i.e. payload is altered by this 
 	     *                function.
 	     */
-	    void add_header(type_t type, data_t& payload) const
+	    void add_header(type_t type, binary& payload) const
 	    {
 		// Prepend context to payload, if present
 		if( non_default_context )

@@ -36,7 +36,7 @@
 #include "GetNextPDU.hpp"
 #include "GetBulkPDU.hpp"
 #include "NotifyPDU.hpp"
-#include "helper.hpp"
+#include "util.hpp"
 
 using namespace agentxcpp;
 using boost::shared_ptr;

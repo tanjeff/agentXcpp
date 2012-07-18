@@ -16,7 +16,9 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
+
 #include "TimeTicks.hpp"
+#include "util.hpp"
 
 using namespace agentxcpp;
 
@@ -25,10 +27,7 @@ binary TimeTicks::serialize() const
     binary serialized;
 
     // encode value (big endian)
-    serialized.push_back(value >> 24 & 0xff);
-    serialized.push_back(value >> 16 & 0xff);
-    serialized.push_back(value >> 8 & 0xff);
-    serialized.push_back(value >> 0 & 0xff);
+    write32(serialized, value);
 
     return serialized;
 }
@@ -45,18 +44,5 @@ TimeTicks::TimeTicks(binary::const_iterator& pos,
     }
 
     // Get value
-    if( big_endian )
-    {
-	value =  *pos++ << 24;
-	value |= *pos++ << 16;
-	value |= *pos++ << 8;
-	value |= *pos++ << 0;
-    }
-    else
-    {
-	value =  *pos++ << 0;
-	value |= *pos++ << 8;
-	value |= *pos++ << 16;
-	value |= *pos++ << 24;
-    }
+    value = read32(pos, big_endian);
 }

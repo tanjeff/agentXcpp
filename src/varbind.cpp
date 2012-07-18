@@ -27,7 +27,7 @@
 #include "TimeTicks.hpp"
 #include "Opaque.hpp"
 #include "IpAddress.hpp"
-#include "helper.hpp"
+#include "util.hpp"
 
 using namespace agentxcpp;
 using boost::uint16_t;

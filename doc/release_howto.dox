@@ -1,0 +1,54 @@
+/*
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ *
+ * This file is part of the agentXcpp library.
+ *
+ * AgentXcpp is free software: you can redistribute it and/or modify
+ * it under the terms of the AgentXcpp library license, version 1, which 
+ * consists of the GNU General Public License and some additional 
+ * permissions.
+ *
+ * AgentXcpp is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * See the AgentXcpp library license in the LICENSE file of this package 
+ * for more details.
+ */
+
+/*! 
+
+
+\page release_howto How to create an agentXcpp release
+
+Creating releases should be a process which creates packages reproducible, 
+consistent packages of the software.
+
+-# Update the ChangeLog. Check it in.
+-# Choose a git commit which shall be released.
+-# Test the chosen commit:<br/>
+   -# Clone the repo to a fresh directory, avoid having untracked files.  
+   Alternatively, remove ALL untracked files from your working copy.
+   -# Checkout the chosen commit
+   -# Build the software
+   -# Perform the howto (\ref subagent_howto).
+   -# If the test fails: no release possible; fix it and re-start from the 
+      beginning. If the test succeeds: continue.
+-# Create a git tag for the release.<br/>
+   Each release shall have a tag to uniqely identify it.
+-# Create the packages, preferably using the create-release.sh script.<br/>
+   The packages shall have the names agentXcpp-&lt;version&gt;.tar.gz and 
+   agentXcpp-&lt;version&gt;.zip respectively, where &lt;version&gt; is the 
+   tag name.  The contents shall be a single directory named 
+   agentXcpp-&lt;version&gt;.  This directory shall contain the source code.  
+   This is all ensured by the create_release.sh script.
+-# Test one of the packages.<br/>
+   -# Unpack it
+   -# Build the contained software
+   -# Perform the howto (\ref subagent_howto).
+   -# If the test fails: no release possible; fix it and re-start from the 
+      beginning.
+-# If the test succeeds, the release can be published.
+
+*/

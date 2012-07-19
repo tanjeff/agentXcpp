@@ -215,7 +215,6 @@ namespace agentxcpp
 	     * the constructor used, the object is either provided by the user 
 	     * or generated automatically.
 	     */
-	    // TODO: use shared_ptr<>
 	    boost::asio::io_service* io_service;
 
 	    /**

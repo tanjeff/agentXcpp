@@ -219,7 +219,7 @@ namespace agentxcpp
 	     * This object is needed for boost::asio sockets. It is provided by 
 	     * the user of this class.
 	     */
-	    boost::shared_ptr<boost::asio::io_service> io_service;
+	    boost::asio::io_service* io_service;
 
 	    /**
 	     * \brief The socket.
@@ -330,7 +330,7 @@ namespace agentxcpp
 	     *
 	     * \exception None.
 	     */
-	    connector(boost::shared_ptr<boost::asio::io_service> io_service,
+	    connector(boost::asio::io_service* io_service,
 		       const std::string& unix_domain_socket,
 		       unsigned timeout);
 

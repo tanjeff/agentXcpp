@@ -301,7 +301,7 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
 
 
 
-connector::connector(boost::shared_ptr<boost::asio::io_service> io_service,
+connector::connector(boost::asio::io_service* io_service,
 		       const std::string& unix_domain_socket,
 		       unsigned timeout) :
     timeout(timeout),

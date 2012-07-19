@@ -1,4 +1,14 @@
 
+= Version 0.1.1 =
+
+  - Reworked the networking code. This fixes a bug which appeared on debian
+    systems.
+  - SCons now checks for the tools and libraries required for building
+    agentXcpp.
+  - Start using portable types from the boost libraries (e.g. uint8_t). This
+    makes the code more portable.
+  - Code Cleanup
+
 = Version 0.1 =
 
   This version supports writing subagents which can handle 'Get' requests for 
@@ -12,3 +22,4 @@
  
   This version is not usable for real-world projects, since it doesn't support 
   'Set' requests and notifications.
+

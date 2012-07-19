@@ -54,9 +54,9 @@ master_proxy::master_proxy(boost::asio::io_service* _io_service,
     // Initialize connector (never use timeout=0)
     uint8_t timeout;
     timeout = (this->default_timeout == 0) ? 1 : this->default_timeout;
-    connection = new connector(shared_ptr<boost::asio::io_service>(io_service),
+    connection = new connector(io_service,
 			       _filename.c_str(),
-			       timeout);
+			       timeout*1000);
 
     // Register this object as %PDU handler
     this->connection->register_handler( this );
@@ -89,9 +89,9 @@ master_proxy::master_proxy(std::string _description,
     // Initialize connector (never use timeout=0)
     uint8_t timeout;
     timeout = (this->default_timeout == 0) ? 1 : this->default_timeout;
-    connection = new connector(shared_ptr<boost::asio::io_service>(io_service),
+    connection = new connector(io_service,
 			       _filename.c_str(),
-			       timeout);
+			       timeout*1000);
 
     // Register this object as %PDU handler
     this->connection->register_handler( this );

@@ -20,6 +20,7 @@
 #include <boost/bind.hpp>
 #include "connector.hpp"
 #include "util.hpp"
+#include "timeout_timer.hpp"
 
 
 using namespace agentxcpp;
@@ -37,8 +38,8 @@ using namespace agentxcpp;
  * \brief Helper type for *_with_timeout() functions.
  */
 enum status_t {
-    in_progress = 0,
-    success     = 1,
+    in_progress_old = 0,
+    success_old     = 1,
     fail        = 2
 };
 
@@ -52,8 +53,8 @@ static void callback(const boost::system::error_code& result,
 {
     if( result.value() == 0 )
     {
-	// success
-	*retval = success;
+        // success
+	*retval = success_old;
     }
     else
     {
@@ -92,7 +93,7 @@ template<typename AsyncReadStream,
          typename MutableBufferSequence>
 static void read_with_timeout(AsyncReadStream& s,
 			      const MutableBufferSequence& buffers,
-			      unsigned int timeout)
+			      unsigned timeout)
 {
     //
     // What this function does:
@@ -103,31 +104,16 @@ static void read_with_timeout(AsyncReadStream& s,
     // 4) process result
     //
 
-    // The timer_result and read_result variables are static because in some 
-    // circumstances the callback (which manipulates them) might be called 
-    // after this function returned. We avoid a segfault this way.
-    static status_t timer_result;
-    static status_t read_result;
-    
     // 1) Start timeout timer
-    boost::asio::deadline_timer timer(s.get_io_service());
-    timer_result = in_progress;
-    try
-    {
-	// throws system_error in boost 1.45.0
-	timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
-    }
-    catch(boost::system::system_error)
-    {
-	throw( network_error() );
-    }
-    // doesn't throw in boost 1.45.0:
-    timer.async_wait( boost::bind(callback,
-				  boost::asio::placeholders::error,
-				  &timer_result) );
+    timeout_timer timer(s.get_io_service());
+    timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
 
     // 2) Start read
-    read_result = in_progress;
+    
+    // The read_result variable is static because in some circumstances the 
+    // callback (which manipulates it) might be called after this function 
+    // returned. We avoid a segfault this way.
+    static status_t read_result = in_progress_old;
     // doesn't throw in boost 1.45.0:
     async_read(s,
 	       buffers,
@@ -143,89 +129,49 @@ static void read_with_timeout(AsyncReadStream& s,
 	    // throws system_error in boost 1.45.0:
 	    s.get_io_service().run_one();
 	}
-	while(read_result == in_progress && timer_result == in_progress);
+	while(read_result == in_progress_old &&
+              timer.get_status() == timeout_timer::running);
     }
     catch(boost::system::system_error)
     {
-	try
-	{
-	    // throws system_error in boost 1.45.0
-	    timer.cancel();
+        timer.cancel();
 
-	    // TODO: How to cancel the async_read operation?
-	}
-	catch(boost::system::system_error)
-	{
-	    // Is the timer uncancelled now? Will it possibly fire our 
-	    // callback? On the other hand, leaving this function will 
-	    // destroy the deadline_timer object anyway.
-
-	    // -> ignore
-	}
-	throw( network_error() );
+        // TODO: How to cancel the async_read operation?
+        throw( network_error() );
     }
 
     // 4) Check read result
     switch(read_result)
     {
-	case success:
+	case success_old:
 	    // Read succeeded: OK
-	    try
-	    {
-		// throws system_error in bost 1.45.0:
-		timer.cancel();
-	    }
-	    catch(boost::system::system_error)
-	    {
-		// Is the timer uncancelled now? Will it possibly fire our 
-		// callback? On the other hand, leaving this function will 
-		// destroy the deadline_timer object anyway.
-
-		// -> ignore
-	    }
+            timer.cancel();
 	    return;
 
 	case fail:
 	    // read failed: cancel timer, throw exception
-	    try
-	    {
-		// throws system_error in bost 1.45.0:
-		timer.cancel();
-	    }
-	    catch(boost::system::system_error)
-	    {
-		// Is the timer uncancelled now? Will it possibly fire our 
-		// callback? On the other hand, leaving this function will 
-		// destroy the deadline_timer object anyway.
-
-		// -> ignore
-	    }
+            timer.cancel();
 	    throw( network_error() );
 
-	case in_progress:
+	case in_progress_old:
 
 	    // Look at timer_result:
-	    switch(timer_result)
+	    switch(timer.get_status())
 	    {
-		case success:
+		case timeout_timer::expired:
 		    // timer fired while reading
 		    
 		    // TODO: how to cancel the async read operation?
 		    
 		    throw( timeout_error() );
 
-		case fail:
-		    // timer failed while reading
-		    // what now?
-		    // I think we should fail with a network error
-		    
-		    // TODO: how to cancel the async read operation?
-		    
-		    throw( network_error() );
+                default:
+                    // Timer broke or reported an insane status
+                    // -> fail with a network error
 
-		case in_progress:
-		    // It didn't happen -> ignore
-		    break;
+                    // TODO: how to cancel the async read operation?
+
+		    throw( network_error() );
 	    }
     }
 
@@ -268,34 +214,18 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
     // 4) process result
     //
     
-    // The timer_result and send_result variables are static because in some 
-    // circumstances the callback (which manipulates them) might be called 
-    // after this function returned. We avoid a segfault this way.
-    static status_t timer_result;
-    static status_t send_result;
-
-
     // 1) Start timeout timer
     
-    // doesn't throw in boost 1.45.0:
-    boost::asio::deadline_timer timer(s.get_io_service());
-    timer_result = in_progress;
-    try
-    {
-	// throws system_error in boost 1.45.0
-	timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
-    }
-    catch(boost::system::system_error)
-    {
-	throw( network_error() );
-    }
-    // doesn't throw in boost 1.45.0:
-    timer.async_wait( boost::bind(callback,
-				  boost::asio::placeholders::error,
-				  &timer_result) );
-
+    timeout_timer timer(s.get_io_service());
+    timer.expires_from_now( boost::posix_time::milliseconds(timeout) );
+    
     // 2) Start send
-    send_result = in_progress;
+    
+    // The send_result variable is static because in some circumstances the 
+    // callback (which manipulates it) might be called after this function 
+    // returned. We avoid a segfault this way.
+    static status_t send_result = in_progress_old;
+
     // doesn't throw in boost 1.45.0:
     s.async_send(buffers,
 		 boost::bind(callback,
@@ -303,6 +233,7 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
 			     &send_result));
 
     // 3) process asio events until send succeeds or timeout expires
+    
     try
     {
 	do
@@ -310,90 +241,50 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
 	    // throws system_error in boost 1.45.0:
 	    s.get_io_service().run_one();
 	}
-	while(send_result == in_progress && timer_result == in_progress);
+	while(send_result == in_progress_old &&
+              timer.get_status() == timeout_timer::running);
     }
     catch(boost::system::system_error)
     {
-	try
-	{
-	    // throws system_error in boost 1.45.0
-	    timer.cancel();
+        timer.cancel();
 
-	    // TODO: How to cancel the async_send operation?
-	}
-	catch(boost::system::system_error)
-	{
-	    // Is the timer uncancelled now? Will it possibly fire our 
-	    // callback? On the other hand, leaving this function will 
-	    // destroy the deadline_timer object anyway.
-
-	    // -> ignore
-	}
-	throw( network_error() );
+        // TODO: How to cancel the async_send operation?
+        throw( network_error() );
     }
 
     // 4) Check result
+
     switch(send_result)
     {
-	case success:
+	case success_old:
 	    // Send succeeded:
-	    try
-	    {
-		// throws system_error in bost 1.45.0:
-		timer.cancel();
-	    }
-	    catch(boost::system::system_error)
-	    {
-		// Is the timer uncancelled now? Will it possibly fire our 
-		// callback? On the other hand, leaving this function will 
-		// destroy the deadline_timer object anyway.
-
-		// -> ignore
-	    }
+            timer.cancel();
 	    return;
 
 	case fail:
 	    // send failed: cancel timer, throw exception
-	    try
-	    {
-		// throws system_error in bost 1.45.0:
-		timer.cancel();
-	    }
-	    catch(boost::system::system_error)
-	    {
-		// Is the timer uncancelled now? Will it possibly fire our 
-		// callback? On the other hand, leaving this function will 
-		// destroy the deadline_timer object anyway.
-
-		// -> ignore
-	    }
+            timer.cancel();
 	    throw( network_error() );
 
-	case in_progress:
-
-	    // Sending still in progress, look at timer_result:
-	    switch(timer_result)
+	case in_progress_old:
+            // Sending still in progress, look at timer_result:
+	    switch(timer.get_status())
 	    {
-		case success:
-		    // timer fired while reading
+                case timeout_timer::expired:
+                    // timer fired while reading
 		    
 		    // TODO: how to cancel the async send operation?
 
 		    // throw exception
 		    throw( timeout_error() );
 
-		case fail:
-		    // timer failed while sending
-		    // what now?
-		    // I think we should fail with a network error
+		default:
+                    // Timer broke or reported an insane status
+                    // -> fail with a network error
 		    
 		    // TODO: how to cancel the async send operation?
 		    
 		    throw( network_error() );
-
-		case in_progress:
-		    // It didn't happen -> ignore
-		    break;
 	    }
     }
 }
@@ -405,9 +296,12 @@ static void send_with_timeout(boost::asio::local::stream_protocol::socket& s,
   Implentation of class connector
  ********************************************
  */
-	    
 
-connector::connector(boost::shared_ptr<boost::asio::io_service> io_service,
+
+
+
+
+connector::connector(boost::asio::io_service* io_service,
 		       const std::string& unix_domain_socket,
 		       unsigned timeout) :
     timeout(timeout),
@@ -696,39 +590,6 @@ void connector::send(const PDU& pdu)
 
 
 
-// Helper function for master_proxy::wait_for_response(). See there for an 
-// explanation.
-static void callback_for_response(const boost::system::error_code& result,
-                                 status_t* retval)
-{
-    if( result.value() == 0 )
-    {
-	// success
-	*retval = success;
-    }
-    else
-    {
-	// error
-	*retval = fail;
-    }
-}
-/*
- * Timeout handling:
- * 
- * The timeout handling is realized using a boost::asio::deadline_timer 
- * object, which is set up to call the callback_for_response() function when 
- * it expires (or when it fails). The variable 'timer_result' is intially set 
- * to 'in_progress'.  The callback will set it to 'success' or 'fail' when the 
- * timer expires respectively fails.
- *
- * Then the io_service.run_one() function is invoked repeatedly until either 
- * the timer expired or the desired ResponsePDU arrived. Note that 
- * io_service.run_one() may service other asynchronous operations first, e.g.  
- * a get request.
- *
- * Finally either the received ResponsePDU is returned or a timeout exception 
- * is thrown.
- */
 boost::shared_ptr<ResponsePDU>
 connector::wait_for_response(uint32_t packetID)
 {
@@ -743,18 +604,14 @@ connector::wait_for_response(uint32_t packetID)
     responses[packetID] = boost::shared_ptr<ResponsePDU>();
 
     // Start timeout timer
-    boost::asio::deadline_timer timer(*(this->io_service));
-    status_t timer_result = in_progress; // callback stores result here
+    timeout_timer timer(*(this->io_service));
     timer.expires_from_now( boost::posix_time::seconds(this->timeout) );
-    timer.async_wait( boost::bind(callback_for_response,
-				  boost::asio::placeholders::error,
-				  &timer_result) );
 
     // process asio events until ResponsePDU arrives or timeout expires
     try
     {
 	while(   this->responses[packetID].get() == 0 // no response was stored
-		 && timer_result == in_progress)
+		 && timer.get_status() == timeout_timer::running) // no timeout yet
 	{
 	    this->io_service->run_one();
 	}
@@ -774,14 +631,23 @@ connector::wait_for_response(uint32_t packetID)
 	// 1. Cancel timer
 	// 2. Erase response from map
 	// 3. Return response
-	timer.cancel();
+	timer.cancel(); // does nothing if timer broke
 	shared_ptr<ResponsePDU> retval = this->responses[packetID];
 	this->responses.erase( packetID );
 	return retval;
     }
     else
     {
-	// Timer expired or failed before ResponsePDU arrived
-	throw(timeout_error());
+        switch(timer.get_status())
+        {
+            case timeout_timer::expired:
+                // Timer expired before ResponsePDU arrived
+                throw(timeout_error());
+            default:
+                // Timer broke or reported an insane status
+                // We go to disconnected state to indicate an error
+                this->disconnect();
+                throw disconnected();
+        }
     }
 }

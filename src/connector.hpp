@@ -60,7 +60,7 @@ namespace agentxcpp
      * Note: The send() function invokes io_service->run_one() one or several
      *       times.
      *
-     * Receiving %PDU's works as follows:
+     * \par Receiving %PDU's
      *
      * - Upon connecting to the remote entity, an asynchronous read operation 
      *   is started to receive the %PDU header (fixed size). On disconnect, the 
@@ -92,7 +92,7 @@ namespace agentxcpp
     /**
      * \internal
      *
-     * Receiving %ResponsePDU's works as follows:
+     * \par Receiving %ResponsePDU's
      *
      * The function wait_for_response() supports the request-response 
      * communication model. After sending a request to the remote entity (using 
@@ -127,8 +127,35 @@ namespace agentxcpp
      *   for a received ResponsePDU. If it finds one, the entry is erased from 
      *   the map and returned to the caller.
      *
+     * \par Timeout detection
+     *
      * The same timeout value is used by all operations which deal with 
      * timeouts. The value is stored in the timeout member.
+     *
+     * For timeout detection, a boost deadline timer is used together with the 
+     * timeout_status member. While the timer is not in use, it's expiry time 
+     * is set to "infinite" and timeout_status is set to "unused". When 
+     * starting operations which need timeout detection, the deadline timer's 
+     * expiry is set to the according time, and timeout_status is set to 
+     * "in_progress". If the timer expires, the callback function 
+     * check_deadline() is invoked, which sets the expiry back to "infinite" 
+     * and timeout_status to "expired". If the operation completes before the 
+     * timer expires, the expiry is set back to "infinite" and timeout_status 
+     * is reset to "unused".
+     *
+     * Note that the callback check_deadline() may be invoked errornously, e.g.  
+     * in this situation:
+     * -# The network operation completes
+     * -# The timer expires in the backround and check_deadline() is scheduled 
+     *  for invokation at the next call to io_service::run()
+     * -# The network operation set the timer's expiry to "infinite"
+     * The operation thus completed without a timeout condition, but 
+     * check_deadline() will nevertheless be invoked later. Therefore, it 
+     * compares the expiry date of the timer with the current timestamp to 
+     * determine whether the timer really expired.
+     *
+     * The check_deadline() callback also restarts the timer on each call to 
+     * keep it running.
      */
     class connector
     {
@@ -192,7 +219,7 @@ namespace agentxcpp
 	     * This object is needed for boost::asio sockets. It is provided by 
 	     * the user of this class.
 	     */
-	    boost::shared_ptr<boost::asio::io_service> io_service;
+	    boost::asio::io_service* io_service;
 
 	    /**
 	     * \brief The socket.
@@ -207,7 +234,7 @@ namespace agentxcpp
 	    boost::asio::local::stream_protocol::endpoint endpoint;
 
 	    /**
-	     * \brief Callback function to receive a %PDU.
+             * \brief Callback function to receive a %PDU.
 	     *
 	     * See the class documentation to learn about the receive 
 	     * mechanism.
@@ -282,7 +309,8 @@ namespace agentxcpp
 	     */
 	    connector();
 
-	public:
+	
+        public:
 
 	    /**
 	     * \brief The constructor
@@ -302,7 +330,7 @@ namespace agentxcpp
 	     *
 	     * \exception None.
 	     */
-	    connector(boost::shared_ptr<boost::asio::io_service> io_service,
+	    connector(boost::asio::io_service* io_service,
 		       const std::string& unix_domain_socket,
 		       unsigned timeout);
 

@@ -51,7 +51,7 @@ Now let's see how easy this can be implemented with agentXcpp!
 
 \section implementing Implementing the Subagent
 
-
+We implement the subagent within a single file - <tt>simpleagent.cpp</tt>.
 
 \subsection headers The Headers
 
@@ -144,7 +144,7 @@ The class \ref agentxcpp::master_proxy "master_proxy" is used to communicate wit
 A master_proxy can be thought of a local C++ object representing the remote 
 master agent. The master_proxy can be in disconnected state at any time, or 
 become disconnected, which means that most operations could possibly fail with 
-a agentxcpp::disconnected exception.
+an agentxcpp::disconnected exception.
 
 The default constructor of \ref agentxcpp::master_proxy "master_proxy" tries to 
 connect to the master agent via the unix domain socket 
@@ -251,7 +251,7 @@ implementation is independent of the used SNMP version.
 
 
 
-\subsection starting_master Starting the master agent
+\subsection starting_master Starting the Net-SNMP master agent
 
 First, we add the following lines to its config file 
 <tt>/etc/snmp/snmpd.conf</tt>:

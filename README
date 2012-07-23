@@ -122,6 +122,7 @@ To build agentXcpp, the following is needed:
   - Bind
   - Smart Ptr
   - Test
+  - Integer
 
 
 Documentation

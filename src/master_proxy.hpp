@@ -271,8 +271,7 @@ namespace agentxcpp
 	    std::list< boost::shared_ptr<RegisterPDU> > registrations;
 
 	    /**
-	     * \brief Storage for all SNMP variables known to the agentXcpp
-	     *        library.
+	     * \brief Storage for all SNMP variables known to the master_proxy.
 	     */
 	    std::map< oid, shared_ptr<variable> > variables;
 
@@ -381,6 +380,8 @@ namespace agentxcpp
 	     *
 	     * This method implements pdu_handler::handle_pdu() and is invoked 
 	     * by the connector object when PDU's are received.
+             *
+             * Note: Error numbers are documented in connector.hpp
 	     */
 	    virtual void handle_pdu(shared_ptr<PDU>, int error);
 

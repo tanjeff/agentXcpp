@@ -373,8 +373,32 @@ namespace agentxcpp
 	    boost::shared_ptr<UnregisterPDU> create_unregister_pdu(
 				    boost::shared_ptr<RegisterPDU> pdu);
 
+            /**
+             * \brief Handle incoming GetPDU's.
+             *
+             * This method is called by handle_pdu(). It processes the given 
+             * GetPDU and stores the results in the given ResponsePDU (i.e. it 
+             * adds Varbinds to the ResponsePDU).
+             *
+             * \param response The pre-initialized ResponsePDU. Varbinds are
+             *                 added to this PDU during processing.
+             *
+             * \param get_pdu The GetPDU to be processed.
+             */
             void handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_pdu);
 
+            /**
+             * \brief Handle incoming GetNextPDU's.
+             *
+             * This method is called by handle_pdu(). It processes the given 
+             * GetNextPDU and stores the results in the given ResponsePDU (i.e.  
+             * it adds Varbinds to the ResponsePDU).
+             *
+             * \param response The pre-initialized ResponsePDU. Varbinds are
+             *                 added to this PDU during processing.
+             *
+             * \param getnext_pdu The GetNextPDU to be processed.
+             */
             void handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPDU> getnext_pdu);
 
 
@@ -387,6 +411,13 @@ namespace agentxcpp
              * This method implements pdu_handler::handle_pdu() and is invoked 
              * by the connector object when PDU's (except for ResponsePDU's) 
              * are received. 
+             *
+             * This method performs the steps described in RFC 2741, 7.2.2.  
+             * "Subagent Processing" (except for the steps neccessary for 
+             * ResponsePDU handling) and calls the methods handle_*() to handle 
+             * the individual PDU types. A ResponsePDU is created here and 
+             * given to the specialized methods to add their results. Finally 
+             * handle_pdu() sends the response.
              *
              * Note: Error numbers are documented in connector.hpp
 	     */

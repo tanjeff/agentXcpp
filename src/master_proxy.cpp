@@ -637,36 +637,34 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
     // Here we process all PDU's except ResponsePDU's, according to RFC 2741, 
     // 7.2.2. "Subagent Processing".
 
+    // Step 2) Was there a parse error?
+    //
+    // Note: Error numbers are documented in connector.hpp
+    if(error == -1)
+    {
+        // Step 4b) Stop processing, don't send reply.
+	//
+	// Note: we cannot determine whether the header was sucessfully
+	//       parsed, therefore we simply ignore the PDU. We don't send a 
+	//       parseError indication to the master agent.
+	return;
+    }
+
     // Step 1) Create a response and copy header from received pdu
     //
     // Notes:
+    //   - Only if no parse error was detected
     //   - The version, type and payload_length fields are filled
     //     automatically
     //   - The flags are not copied, because they have
     //     other meanings in ResponsePDU's.
-    //   - Context is not yet supported.
+    //   - TODO: Context is not yet supported.
     ResponsePDU response;
     response.set_sessionID( pdu->get_sessionID() );
     response.set_transactionID( pdu->get_transactionID() );
     response.set_packetID( pdu->get_packetID() );
     response.set_error(ResponsePDU::noAgentXError);
     response.set_index(0);
-
-    // Step 2) Was there a parse error?
-    //
-    // Note: Error numbers are documented in connector.hpp
-    if(error == -1)
-    {
-	// Step 4b) Stop processing, don't send reply.
-	//
-	// Note: we cannot determine whether the header was sucessfully
-	//       parsed, therefore we simply ignore the PDU. We don't send a 
-	//       parseError indication to the master agent.
-	//
-	// TODO: Send response if the header was parsed sucessfully.
-	response.set_error(ResponsePDU::parseError);
-	return;
-    }
 
     // Step 3) Is the session valid?
     if(pdu->get_sessionID() != this->sessionID)
@@ -678,23 +676,21 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 	{
 	    this->connection->send(response);
 	}
-	catch(timeout_error)
-	{
-	    // connection loss. Ignore.
-	}
-	catch(disconnected)
-	{
-	    // No connection. Ignore.
-	}
+	catch(timeout_error) { /* connection loss. Ignore.*/ }
+	catch(disconnected) { /* connection loss. Ignore.*/ }
 
 	return;
     }
 
+    //
+    // Next thing to do: determine PDU type and handle it.
+    //
 
     // Is it a GetPDU?
     shared_ptr<GetPDU> get_pdu;
     if( (get_pdu = dynamic_pointer_cast<GetPDU>(pdu)) != 0 )
     {
+        // (response is modified in-place)
         this->handle_getpdu(response, get_pdu);
     }
 
@@ -702,24 +698,19 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
     shared_ptr<GetNextPDU> getnext_pdu;
     if( (getnext_pdu = dynamic_pointer_cast<GetNextPDU>(pdu)) != 0 )
     {
+        // (response is modified in-place)
         this->handle_getnextpdu(response, getnext_pdu);
     }
+
+    // TODO: handle other PDU types
 
     // Finally: send the response
     try
     {
         this->connection->send(response);
     }
-    catch(timeout_error)
-    {
-        // connection loss. Ignore.
-    }
-    catch(disconnected)
-    {
-        // No connection. Ignore.
-    }
-
-    // TODO: handle other PDU types
+    catch(timeout_error) { /* connection loss. Ignore.*/ }
+    catch(disconnected) { /* connection loss. Ignore.*/ }
 }
 
 

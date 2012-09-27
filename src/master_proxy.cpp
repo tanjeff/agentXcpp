@@ -476,6 +476,152 @@ boost::shared_ptr<UnregisterPDU> master_proxy::create_unregister_pdu(
 }
 
 
+void master_proxy::handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_pdu)
+{
+        // Handling according to
+	// RFC 2741, 7.2.3.1 "Subagent Processing of the agentx-Get-PDU"
+
+	// Extract searchRange list
+	vector<oid> sr = get_pdu->get_sr();
+
+	// Iterate over list and handle each oid separately
+	vector<oid>::const_iterator i;
+        uint16_t index = 1;  // Index is 1-based (RFC 2741,
+                             // 5.4. "Value Representation"):
+	for(i = sr.begin(); i != sr.end(); i++)
+	{
+	    // The name
+	    const oid& name = *i;
+
+	    // Find variable for current OID
+	    map< oid, shared_ptr<variable> >::const_iterator var;
+	    var = variables.find(name);
+	    if(var != variables.end())
+	    {
+		// Step (2): We have a variable for this oid
+
+		// update variable
+                try
+                {
+                    var->second->update();
+
+                    // Add variable to response (Step (1): include name)
+                    response.varbindlist.push_back( varbind(name, var->second) );
+                }
+                catch(...)
+                {
+                    // An error occurred
+                    response.set_error( ResponsePDU::genErr );
+                    response.set_index( index );
+                    // Leave response.varbindlist empty
+                }
+
+	    }
+	    else
+	    {
+		// Interpret 'name' as prefix:
+		// append .0 and check whether we have a variable
+		// with this name
+		oid name_copy(name, 0);
+
+		var = variables.find(name_copy);
+		if(var != variables.end())
+		{
+		    // Step (4): We have a variable with the object
+		    //           identifier prefix 'name': Send noSuchInstance 
+		    //           error (Step (1): include name)
+		    response.varbindlist.push_back( varbind(name, varbind::noSuchInstance) );
+		}
+		else
+		{
+		    // Step (3): we have no variable with the object
+		    //           identifier prefix 'name': Send noSuchObject 
+		    //           error (Step (1): include name)
+		    response.varbindlist.push_back( varbind(name, varbind::noSuchObject) );
+		}
+	    }
+
+            index++;
+	}
+}
+
+
+
+void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPDU> getnext_pdu)
+{
+        // Handling according to
+	// RFC 2741, 7.2.3.2 "Subagent Processing of the agentx-GetNext-PDU"
+
+	// Extract searchRange list
+	vector< pair<oid,oid> >& sr = getnext_pdu->get_sr();
+
+	// Iterate over list and handle each SearchRange separately
+	vector< pair<oid,oid> >::const_iterator i;
+        uint16_t index = 1;  // Index is 1-based (RFC 2741,
+                             // 5.4. "Value Representation"):
+	for(i = sr.begin(); i != sr.end(); i++)
+	{
+	    // The names
+	    const oid& starting_oid = i->first;
+            const oid& ending_oid   = i->second;
+
+            // Find "next" variable
+	    map< oid, shared_ptr<variable> >::const_iterator next_var;
+	    if( ! starting_oid.get_include())
+            {
+                // Find the closest lexicographical successor to the starting 
+                // OID (excluding the starting OID itself)
+                next_var = variables.upper_bound(starting_oid);
+            }
+            else
+            {
+                // Find the exact variable or, if not present, find the 
+                // lexicographical successor of it
+                next_var = variables.lower_bound(starting_oid);
+            }
+            if( ! ending_oid.is_null() )
+            {
+                // The "next" variable must precede the ending OID (it must not 
+                // be greather or equal than the ending OID)
+                if( next_var->first >= ending_oid )
+                {
+                    // The found "next" variable doesn't precede the ending 
+                    // OID, which means that we didn't found a suitable 
+                    // variable.
+                    next_var = variables.end(); // indicate "not found"
+                }
+            }
+
+	    if(next_var != variables.end())
+	    {
+                // "Next" variable was found
+
+		// update variable
+                try
+                {
+                    next_var->second->update();
+
+                    response.varbindlist.push_back( varbind(next_var->first, next_var->second) );
+                }
+                catch(...)
+                {
+                    // An error occurred
+                    response.set_error( ResponsePDU::genErr );
+                    response.set_index( index );
+                    // Leave response.varbindlist empty
+                }
+
+	    }
+	    else
+	    {
+                // "Next" variable was NOT found
+		response.varbindlist.push_back( varbind(starting_oid, varbind::endOfMibView) );
+	    }
+
+            index++;
+	}
+}
+
 
 
 void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
@@ -549,176 +695,28 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
     shared_ptr<GetPDU> get_pdu;
     if( (get_pdu = dynamic_pointer_cast<GetPDU>(pdu)) != 0 )
     {
-	// Handling according to
-	// RFC 2741, 7.2.3.1 "Subagent Processing of the agentx-Get-PDU"
-
-	// Extract searchRange list
-	vector<oid> sr = get_pdu->get_sr();
-
-	// Iterate over list and handle each oid separately
-	vector<oid>::const_iterator i;
-        uint16_t index = 1;  // Index is 1-based (RFC 2741,
-                             // 5.4. "Value Representation"):
-	for(i = sr.begin(); i != sr.end(); i++)
-	{
-	    // The name
-	    const oid& name = *i;
-
-	    // Find variable for current OID
-	    map< oid, shared_ptr<variable> >::const_iterator var;
-	    var = variables.find(name);
-	    if(var != variables.end())
-	    {
-		// Step (2): We have a variable for this oid
-
-		// update variable
-                try
-                {
-                    var->second->update();
-
-                    // Add variable to response (Step (1): include name)
-                    response.varbindlist.push_back( varbind(name, var->second) );
-                }
-                catch(...)
-                {
-                    // An error occurred
-                    response.set_error( ResponsePDU::genErr );
-                    response.set_index( index );
-                    // Leave response.varbindlist empty
-                }
-
-	    }
-	    else
-	    {
-		// Interpret 'name' as prefix:
-		// append .0 and check whether we have a variable
-		// with this name
-		oid name_copy(name, 0);
-
-		var = variables.find(name_copy);
-		if(var != variables.end())
-		{
-		    // Step (4): We have a variable with the object
-		    //           identifier prefix 'name': Send noSuchInstance 
-		    //           error (Step (1): include name)
-		    response.varbindlist.push_back( varbind(name, varbind::noSuchInstance) );
-		}
-		else
-		{
-		    // Step (3): we have no variable with the object
-		    //           identifier prefix 'name': Send noSuchObject 
-		    //           error (Step (1): include name)
-		    response.varbindlist.push_back( varbind(name, varbind::noSuchObject) );
-		}
-	    }
-
-            index++;
-	}
-
-	// Finally: send the response
-	try
-	{
-	    this->connection->send(response);
-	}
-	catch(timeout_error)
-	{
-	    // connection loss. Ignore.
-	}
-	catch(disconnected)
-	{
-	    // No connection. Ignore.
-	}
+        this->handle_getpdu(response, get_pdu);
     }
 
     // Is it a GetNextPDU?
     shared_ptr<GetNextPDU> getnext_pdu;
     if( (getnext_pdu = dynamic_pointer_cast<GetNextPDU>(pdu)) != 0 )
     {
-	// Handling according to
-	// RFC 2741, 7.2.3.2 "Subagent Processing of the agentx-GetNext-PDU"
+        this->handle_getnextpdu(response, getnext_pdu);
+    }
 
-	// Extract searchRange list
-	vector< pair<oid,oid> >& sr = getnext_pdu->get_sr();
-
-	// Iterate over list and handle each SearchRange separately
-	vector< pair<oid,oid> >::const_iterator i;
-        uint16_t index = 1;  // Index is 1-based (RFC 2741,
-                             // 5.4. "Value Representation"):
-	for(i = sr.begin(); i != sr.end(); i++)
-	{
-	    // The names
-	    const oid& starting_oid = i->first;
-            const oid& ending_oid   = i->second;
-
-            // Find "next" variable
-	    map< oid, shared_ptr<variable> >::const_iterator next_var;
-	    if( ! starting_oid.get_include())
-            {
-                // Find the closest lexicographical successor to the starting 
-                // OID (excluding the starting OID itself)
-                next_var = variables.upper_bound(starting_oid);
-            }
-            else
-            {
-                // Find the exact variable or, if not present, find the 
-                // lexicographical successor of it
-                next_var = variables.lower_bound(starting_oid);
-            }
-            if( ! ending_oid.is_null() )
-            {
-                // The "next" variable must precede the ending OID (it must not 
-                // be greather or equal than the ending OID)
-                if( next_var->first >= ending_oid )
-                {
-                    // The found "next" variable doesn't precede the ending 
-                    // OID, which means that we didn't found a suitable 
-                    // variable.
-                    next_var = variables.end(); // indicate "not found"
-                }
-            }
-
-	    if(next_var != variables.end())
-	    {
-                // "Next" variable was found
-
-		// update variable
-                try
-                {
-                    next_var->second->update();
-
-                    response.varbindlist.push_back( varbind(next_var->first, next_var->second) );
-                }
-                catch(...)
-                {
-                    // An error occurred
-                    response.set_error( ResponsePDU::genErr );
-                    response.set_index( index );
-                    // Leave response.varbindlist empty
-                }
-
-	    }
-	    else
-	    {
-                // "Next" variable was NOT found
-		response.varbindlist.push_back( varbind(starting_oid, varbind::endOfMibView) );
-	    }
-
-            index++;
-	}
-
-	// Finally: send the response
-	try
-	{
-	    this->connection->send(response);
-	}
-	catch(timeout_error)
-	{
-	    // connection loss. Ignore.
-	}
-	catch(disconnected)
-	{
-	    // No connection. Ignore.
-	}
+    // Finally: send the response
+    try
+    {
+        this->connection->send(response);
+    }
+    catch(timeout_error)
+    {
+        // connection loss. Ignore.
+    }
+    catch(disconnected)
+    {
+        // No connection. Ignore.
     }
 
     // TODO: handle other PDU types

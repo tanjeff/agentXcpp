@@ -34,6 +34,8 @@
 #include "ResponsePDU.hpp"
 #include "RegisterPDU.hpp"
 #include "UnregisterPDU.hpp"
+#include "GetPDU.hpp"
+#include "GetNextPDU.hpp"
 #include "connector.hpp"
 
 using boost::uint8_t;
@@ -371,6 +373,10 @@ namespace agentxcpp
 	    boost::shared_ptr<UnregisterPDU> create_unregister_pdu(
 				    boost::shared_ptr<RegisterPDU> pdu);
 
+            void handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_pdu);
+
+            void handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPDU> getnext_pdu);
+
 
 	public:
 	    /**
@@ -378,8 +384,9 @@ namespace agentxcpp
              *
 	     * \brief The dispatcher for incoming %PDU's.
 	     *
-	     * This method implements pdu_handler::handle_pdu() and is invoked 
-	     * by the connector object when PDU's are received.
+             * This method implements pdu_handler::handle_pdu() and is invoked 
+             * by the connector object when PDU's (except for ResponsePDU's) 
+             * are received. 
              *
              * Note: Error numbers are documented in connector.hpp
 	     */

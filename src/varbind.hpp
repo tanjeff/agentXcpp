@@ -127,6 +127,14 @@ namespace agentxcpp
 		    const binary::const_iterator& end,
 		    bool big_endian=true);
 
+            /**
+             * \brief Get the name (the OID) stored within the varbind.
+             */
+            oid get_name() const
+            {
+                return name;
+            }
+
 	    /**
 	     * \internal
 	     *

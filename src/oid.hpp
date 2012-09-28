@@ -382,6 +382,31 @@ namespace agentxcpp
 	    }
 
             /**
+             * \brief Perform TestSet operation.
+             *
+             * This member function can be overriden by classes representing 
+             * SNMP variables.  It shall validate that a Set operation on this 
+             * object would succeed and should allocate all resources which are 
+             * necessary to perform the Set operation.  Later on, either 
+             * cleanupset() or undoset() will be called to deallocate the 
+             * resources again.
+             *
+             * The function shall return an error code conforming to the 
+             * documentation of the testset_result_t enumeration.
+             *
+             * The default behaviour is to return noAccess, indicating that the 
+             * variable is read-only. Thus, implementation of a read-only 
+             * variable need not to override this function.
+             * 
+             * \return A value as described in the testset_result_t
+             *         documentation.
+             */
+            virtual testset_result_t testset()
+            {
+                return noAccess;
+            }
+
+            /**
              * \brief Obtain the current value for the object.
              *
              * This member function is derived by classes representing SNMP 

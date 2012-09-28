@@ -624,6 +624,52 @@ void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPD
 
 
 
+void master_proxy::handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPDU> testset_pdu)
+{
+    // Handling according to
+    // RFC 2741, 7.2.4.1 "Subagent Processing of the agentx-TestSet-PDU"
+
+    // Extract Varbind list
+    vector<varbind>& vb = testset_pdu->get_vb();
+
+    // Initially, no Varbind failed:
+    response.set_error(ResponsePDU::noAgentXError);
+
+    // Iterate over list and handle each Varbind separately. Return on the 
+    // first varbind which doesn't validate correctly.
+    vector<varbind>::const_iterator i;
+    uint16_t index;
+    for(i = vb.begin(), index = 1; i != vb.end(); i++, index++)
+    {
+        // Find the associated variable
+        map< oid, shared_ptr<variable> >::const_iterator var;
+	var = variables.find(i->get_name());
+        if(var == variables.end())
+        {
+            // error: variable unknown
+            response.set_error(ResponsePDU::notWritable);
+            response.set_index(index);
+            return;
+        }
+
+        // Perform validation, store result within response
+        // Note: ResponsePDU::error_t and variable::testset_result_t are in 
+        // sync, therefore the static cast works.
+        response.set_error(static_cast<ResponsePDU::error_t>(var->second->testset()));
+        if(response.get_error() != ResponsePDU::noAgentXError)
+        {
+            response.set_index(index);
+            return;
+        }
+    }
+
+    // At this point, all VarBinds validated correctly. The response was filled 
+    // correctly, and we simply return.
+    return;
+}
+
+
+
 void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 {
     if(error == -2)
@@ -700,6 +746,14 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
     {
         // (response is modified in-place)
         this->handle_getnextpdu(response, getnext_pdu);
+    }
+
+    // Is it a TestSetPDU?
+    shared_ptr<TestSetPDU> testset_pdu;
+    if( (testset_pdu = dynamic_pointer_cast<TestSetPDU>(pdu)) != 0 )
+    {
+        // (response is modified in-place)
+        this->handle_testsetpdu(response, testset_pdu);
     }
 
     // TODO: handle other PDU types

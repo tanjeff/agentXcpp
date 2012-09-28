@@ -36,6 +36,7 @@
 #include "UnregisterPDU.hpp"
 #include "GetPDU.hpp"
 #include "GetNextPDU.hpp"
+#include "TestSetPDU.hpp"
 #include "connector.hpp"
 
 using boost::uint8_t;
@@ -401,6 +402,17 @@ namespace agentxcpp
              */
             void handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPDU> getnext_pdu);
 
+            /**
+             * \brief Handle incoming TestSetPDU's.
+             *
+             * This method is called by handle_pdu(). It processes the given 
+             * TestSetPDU and stores the results in the given ResponsePDU.
+             *
+             * \param response The pre-initialized ResponsePDU.
+             *
+             * \param testset_pdu The TestSetPDU to be processed.
+             */
+            void handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPDU> testset_pdu);
 
 	public:
 	    /**

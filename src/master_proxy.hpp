@@ -38,6 +38,7 @@
 #include "GetNextPDU.hpp"
 #include "TestSetPDU.hpp"
 #include "CleanupSetPDU.hpp"
+#include "CommitSetPDU.hpp"
 #include "connector.hpp"
 
 using boost::uint8_t;
@@ -430,16 +431,22 @@ namespace agentxcpp
             /**
              * \brief Handle incoming CleanupSetPDU's.
              *
-             * This method is called by handle_pdu(). It processes the given 
-             * CleanupSetPDU and stores the results in the given ResponsePDU.
-             *
-             * \param cleanupset_pdu The CleanupSetPDU to be processed. This
-             *                       may be an empty shared_ptr<> (which is 
-             *                       also the default).
+             * This method is called by handle_pdu(). It calls the CleanupSet 
+             * handler for each variable in 'setlist'.
              */
-            void handle_cleanupsetpdu(
-                        shared_ptr<CleanupSetPDU> cleanupset_pdu =
-                        shared_ptr<CleanupSetPDU>());
+            void handle_cleanupsetpdu();
+
+            /**
+             * \brief Handle incoming CommitSetPDU's.
+             *
+             * This method is called by handle_pdu(). It processes the given 
+             * CommitSetPDU and stores the results in the given ResponsePDU.
+             *
+             * \param response The pre-initialized ResponsePDU.
+             *
+             * \param commitset_pdu The CommitSetPDU to be processed.
+             */
+            void handle_commitsetpdu(ResponsePDU& response, shared_ptr<CommitSetPDU> commitset_pdu);
 
 	public:
 	    /**

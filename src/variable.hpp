@@ -188,6 +188,19 @@ namespace agentxcpp
             {
                 // do nothing
             }
+
+            /**
+             * \brief Actually perform the set operation.
+             *
+             * This function implements the set operation. It must report 
+             * whether the operation succeeded.
+             *
+             * \return True on success, false otherwise.
+             */
+            virtual bool commitset()
+            {
+                return false;
+            }
     };
 }
 

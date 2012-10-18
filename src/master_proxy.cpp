@@ -683,18 +683,45 @@ void master_proxy::handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPD
 }
 
 
-void master_proxy::handle_cleanupsetpdu(shared_ptr<CleanupSetPDU> cleanupset_pdu)
+void master_proxy::handle_cleanupsetpdu()
 {
     // Handling according to
     // RFC 2741, 7.2.4.4 "Subagent Processing of the agentx-CleanupSet-PDU"
 
     // Iterate over list and handle each Varbind separately. We iterate 
-    // backwards, so that ressources are released in the reverse order of their 
+    // backwards, so that resources are released in the reverse order of their
     // allocation.
     list< shared_ptr<variable> >::const_reverse_iterator i;
     for(i = setlist.rbegin(); i != setlist.rend(); i++)
     {
         (*i)->cleanupset();
+    }
+}
+
+void master_proxy::handle_commitsetpdu(ResponsePDU& response, shared_ptr<CommitSetPDU> commitset_pdu)
+{
+    // Handling according to RFC 2741, 7.2.4.2 "Subagent Processing of the 
+    // agentx-CommitSet-PDU"
+
+    // Iterate over list and handle each Varbind separately.
+    list< shared_ptr<variable> >::iterator i;
+    uint16_t index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
+    for(i = setlist.begin(); i != setlist.end(); i++)
+    {
+        if( (*i)->commitset() )
+        {
+            // operation succeeded
+            response.set_error(ResponsePDU::noAgentXError);
+            response.set_index(0);
+        }
+        else
+        {
+            // operation failed: store index of failed varbind and do not process further variables.
+            response.set_error(ResponsePDU::commitFailed);
+            response.set_index(index);
+            return;
+        }
+        index++;
     }
 }
 
@@ -790,10 +817,18 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
     shared_ptr<CleanupSetPDU> cleanupset_pdu;
     if( (cleanupset_pdu = dynamic_pointer_cast<CleanupSetPDU>(pdu)) != 0 )
     {
-        this->handle_cleanupsetpdu(cleanupset_pdu);
+        this->handle_cleanupsetpdu();
 
         // Do not send a response:
         return;
+    }
+
+    // Is it a CommitSetPDU?
+    shared_ptr<CommitSetPDU> commitset_pdu;
+    if( (commitset_pdu = dynamic_pointer_cast<CommitSetPDU>(pdu)) != 0 )
+    {
+        // (response is modified in-place)
+        this->handle_commitsetpdu(response, commitset_pdu);
     }
 
     // TODO: handle other PDU types

@@ -649,8 +649,16 @@ void master_proxy::handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPD
             // error: variable unknown
             response.set_error(ResponsePDU::notWritable);
             response.set_index(index);
+
+            // Some variables may have allocated ressources, which must be 
+            // released again. This is the same as handle_cleanupsetpdu() does, 
+            // so we are lazy here and call this function:
+            this->handle_cleanupsetpdu();
             return;
         }
+
+        // Remember the fonud variable for later operations
+        setlist.push_back(var->second);
 
         // Perform validation, store result within response
         // Note: ResponsePDU::error_t and variable::testset_result_t are in 
@@ -659,6 +667,12 @@ void master_proxy::handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPD
         if(response.get_error() != ResponsePDU::noAgentXError)
         {
             response.set_index(index);
+
+            // Some variables may have allocated ressources, which must be 
+            // released again. This is the same as handle_cleanupsetpdu() does, 
+            // so we are lazy here and call this function:
+            this->handle_cleanupsetpdu();
+
             return;
         }
     }
@@ -666,6 +680,22 @@ void master_proxy::handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPD
     // At this point, all VarBinds validated correctly. The response was filled 
     // correctly, and we simply return.
     return;
+}
+
+
+void master_proxy::handle_cleanupsetpdu(shared_ptr<CleanupSetPDU> cleanupset_pdu)
+{
+    // Handling according to
+    // RFC 2741, 7.2.4.4 "Subagent Processing of the agentx-CleanupSet-PDU"
+
+    // Iterate over list and handle each Varbind separately. We iterate 
+    // backwards, so that ressources are released in the reverse order of their 
+    // allocation.
+    list< shared_ptr<variable> >::const_reverse_iterator i;
+    for(i = setlist.rbegin(); i != setlist.rend(); i++)
+    {
+        (*i)->cleanupset();
+    }
 }
 
 
@@ -754,6 +784,16 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
     {
         // (response is modified in-place)
         this->handle_testsetpdu(response, testset_pdu);
+    }
+
+    // Is it a CleanupSetPDU?
+    shared_ptr<CleanupSetPDU> cleanupset_pdu;
+    if( (cleanupset_pdu = dynamic_pointer_cast<CleanupSetPDU>(pdu)) != 0 )
+    {
+        this->handle_cleanupsetpdu(cleanupset_pdu);
+
+        // Do not send a response:
+        return;
     }
 
     // TODO: handle other PDU types

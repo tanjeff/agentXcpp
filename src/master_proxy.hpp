@@ -37,6 +37,7 @@
 #include "GetPDU.hpp"
 #include "GetNextPDU.hpp"
 #include "TestSetPDU.hpp"
+#include "CleanupSetPDU.hpp"
 #include "connector.hpp"
 
 using boost::uint8_t;
@@ -278,6 +279,18 @@ namespace agentxcpp
 	     */
 	    std::map< oid, shared_ptr<variable> > variables;
 
+            /**
+             * \brief The variables affected by the Set operation currently
+             *        in progress.
+             *
+             * The CommitSet, UndoSet and CleanupSet PDU's do not contain the 
+             * affected variables but operate on the variables denominated in 
+             * the preceding TestSet PDU.
+             *
+             * These are the variables denominated in that TestSet PDU.
+             */
+            std::list< shared_ptr<variable> > setlist;
+
 	    /**
 	     * \brief Send a RegisterPDU to the master agent.
 	     *
@@ -413,6 +426,20 @@ namespace agentxcpp
              * \param testset_pdu The TestSetPDU to be processed.
              */
             void handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPDU> testset_pdu);
+
+            /**
+             * \brief Handle incoming CleanupSetPDU's.
+             *
+             * This method is called by handle_pdu(). It processes the given 
+             * CleanupSetPDU and stores the results in the given ResponsePDU.
+             *
+             * \param cleanupset_pdu The CleanupSetPDU to be processed. This
+             *                       may be an empty shared_ptr<> (which is 
+             *                       also the default).
+             */
+            void handle_cleanupsetpdu(
+                        shared_ptr<CleanupSetPDU> cleanupset_pdu =
+                        shared_ptr<CleanupSetPDU>());
 
 	public:
 	    /**

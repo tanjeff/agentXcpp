@@ -173,6 +173,21 @@ namespace agentxcpp
              *         the possible values.
              */
             virtual testset_result_t testset()=0;
+
+            /**
+             * \brief Release resources after a Set operation.
+             *
+             * This function is called after a Set operation. The variable 
+             * should release all resources which were allocated during the 
+             * testset() function.
+             *
+             * The default behaviour is to do nothing, thus a variable need not 
+             * to override this method if it doesn't need to release resources.
+             */
+            virtual void cleanupset()
+            {
+                // do nothing
+            }
     };
 }
 

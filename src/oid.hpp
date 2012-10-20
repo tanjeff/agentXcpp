@@ -26,7 +26,7 @@
 
 #include <boost/cstdint.hpp>
 
-#include "variable.hpp"
+#include "value.hpp"
 #include "exceptions.hpp"
 
 using boost::uint32_t;
@@ -90,7 +90,7 @@ namespace agentxcpp
      * \endcode
      *
      */
-    class oid: public variable, public std::vector<uint32_t>
+    class oid: public value, public std::vector<uint32_t>
     {
 	private:
 
@@ -102,8 +102,8 @@ namespace agentxcpp
 	    /**
 	     * \brief Parse an OID from a string and append it.
 	     *
-	     * The OID contained within the string 's' is parsed and appended 
-	     * this object. The format of the string is described above 
+	     * The OID contained within the string 's' is parsed and appended to
+	     * this object. The format of the string is described above.
 	     *
 	     * \param s The OID to be parsed.
 	     *
@@ -366,63 +366,6 @@ namespace agentxcpp
 	    friend std::ostream& operator<<(std::ostream& out,
 					    const agentxcpp::oid& o);
 
-	    /**
-             * \internal
-             *
-	     * \brief Update the internal state of the object.
-	     *
-	     * This function calls get() to obtain a new value and stores that 
-	     * value within this object.
-	     *
-             * \exception generic_error If obtaining the new value failed.
-	     */
-	    virtual void update()
-	    {
-		*this = this->get();
-	    }
-
-            /**
-             * \brief Perform TestSet operation.
-             *
-             * This member function can be overriden by classes representing 
-             * SNMP variables.  It shall validate that a Set operation on this 
-             * object would succeed and should allocate all resources which are 
-             * necessary to perform the Set operation.  Later on, either 
-             * cleanupset() or undoset() will be called to deallocate the 
-             * resources again.
-             *
-             * The function shall return an error code conforming to the 
-             * documentation of the testset_result_t enumeration.
-             *
-             * The default behaviour is to return noAccess, indicating that the 
-             * variable is read-only. Thus, implementation of a read-only 
-             * variable need not to override this function.
-             * 
-             * \return A value as described in the testset_result_t
-             *         documentation.
-             */
-            virtual testset_result_t testset()
-            {
-                return noAccess;
-            }
-
-            /**
-             * \brief Obtain the current value for the object.
-             *
-             * This member function is derived by classes representing SNMP 
-             * variables and shall return the current value of the object.
-             *
-             * The default implementation throws generic_error.
-             *
-             * \return The current value of the object.
-             *
-             * \exception generic_error If obtaining the current value fails.
-             *                          No other exception shall be thrown.
-             */
-	    virtual oid get()
-	    {
-		throw( generic_error() );
-	    }
     };
 
     /**

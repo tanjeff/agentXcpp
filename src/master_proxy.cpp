@@ -503,10 +503,8 @@ void master_proxy::handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_p
 		// update variable
                 try
                 {
-                    var->second->update();
-
                     // Add variable to response (Step (1): include name)
-                    response.varbindlist.push_back( varbind(name, var->second) );
+                    response.varbindlist.push_back( varbind(name, var->second->internal_get()) );
                 }
                 catch(...)
                 {
@@ -582,7 +580,7 @@ void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPD
             if( ! ending_oid.is_null() )
             {
                 // The "next" variable must precede the ending OID (it must not 
-                // be greather or equal than the ending OID)
+                // be greater or equal than the ending OID)
                 if( next_var->first >= ending_oid )
                 {
                     // The found "next" variable doesn't precede the ending 
@@ -599,9 +597,7 @@ void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPD
 		// update variable
                 try
                 {
-                    next_var->second->update();
-
-                    response.varbindlist.push_back( varbind(next_var->first, next_var->second) );
+                    response.varbindlist.push_back( varbind(next_var->first, next_var->second->internal_get()) );
                 }
                 catch(...)
                 {
@@ -663,7 +659,7 @@ void master_proxy::handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPD
         // Perform validation, store result within response
         // Note: ResponsePDU::error_t and variable::testset_result_t are in 
         // sync, therefore the static cast works.
-        response.set_error(static_cast<ResponsePDU::error_t>(var->second->testset()));
+        response.set_error(static_cast<ResponsePDU::error_t>(var->second->testset(i->get_var())));
         if(response.get_error() != ResponsePDU::noAgentXError)
         {
             response.set_index(index);

@@ -650,14 +650,14 @@ void master_proxy::handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPD
             response.set_error(ResponsePDU::notWritable);
             response.set_index(index);
 
-            // Some variables may have allocated ressources, which must be 
+            // Some variables may have allocated resources, which must be
             // released again. This is the same as handle_cleanupsetpdu() does, 
             // so we are lazy here and call this function:
             this->handle_cleanupsetpdu();
             return;
         }
 
-        // Remember the fonud variable for later operations
+        // Remember the found variable for later operations
         setlist.push_back(var->second);
 
         // Perform validation, store result within response
@@ -696,6 +696,9 @@ void master_proxy::handle_cleanupsetpdu()
     {
         (*i)->cleanupset();
     }
+
+    // Finally: remove all variables from the list
+    setlist.clear();
 }
 
 void master_proxy::handle_commitsetpdu(ResponsePDU& response, shared_ptr<CommitSetPDU> commitset_pdu)

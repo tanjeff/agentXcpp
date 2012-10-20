@@ -135,7 +135,18 @@ namespace agentxcpp
                 return name;
             }
 
-	    /**
+            /**
+             * \brief Get the variable stored within the varbind.
+             *
+             * \note This returns a smart pointer to the variable, i.e. the
+             *       variable can be modified in-place.
+             */
+            boost::shared_ptr<variable> get_var() const
+            {
+                return var;
+            }
+
+            /**
 	     * \internal
 	     *
 	     * \brief Serialize the varbind.

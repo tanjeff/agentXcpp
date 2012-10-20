@@ -109,7 +109,7 @@ namespace agentxcpp
             /**
              * \brief Perform TestSet operation.
              *
-             * This member function can be overriden by classes representing 
+             * This member function can be overridden by classes representing
              * SNMP variables.  It shall validate that a Set operation on this 
              * object would succeed and should allocate all resources which are 
              * necessary to perform the Set operation.  Later on, either 
@@ -121,7 +121,7 @@ namespace agentxcpp
              *
              * The default behaviour is to return noAccess, indicating that the 
              * variable is read-only. Thus, implementation of a read-only 
-             * variable need not to override this function.
+             * variable need not to override this method.
              * 
              * \return A value as described in the testset_result_t
              *         documentation.

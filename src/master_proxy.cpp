@@ -504,7 +504,7 @@ void master_proxy::handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_p
                 try
                 {
                     // Add variable to response (Step (1): include name)
-                    response.varbindlist.push_back( varbind(name, var->second->internal_get()) );
+                    response.varbindlist.push_back( varbind(name, var->second->handle_get()) );
                 }
                 catch(...)
                 {
@@ -597,7 +597,7 @@ void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPD
 		// update variable
                 try
                 {
-                    response.varbindlist.push_back( varbind(next_var->first, next_var->second->internal_get()) );
+                    response.varbindlist.push_back( varbind(next_var->first, next_var->second->handle_get()) );
                 }
                 catch(...)
                 {
@@ -659,7 +659,7 @@ void master_proxy::handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPD
         // Perform validation, store result within response
         // Note: ResponsePDU::error_t and variable::testset_result_t are in 
         // sync, therefore the static cast works.
-        response.set_error(static_cast<ResponsePDU::error_t>(var->second->testset(i->get_var())));
+        response.set_error(static_cast<ResponsePDU::error_t>(var->second->handle_testset(i->get_var())));
         if(response.get_error() != ResponsePDU::noAgentXError)
         {
             response.set_index(index);
@@ -690,7 +690,7 @@ void master_proxy::handle_cleanupsetpdu()
     list< shared_ptr<variable> >::const_reverse_iterator i;
     for(i = setlist.rbegin(); i != setlist.rend(); i++)
     {
-        (*i)->cleanupset();
+        (*i)->handle_cleanupset();
     }
 
     // Finally: remove all variables from the list
@@ -707,7 +707,7 @@ void master_proxy::handle_commitsetpdu(ResponsePDU& response, shared_ptr<CommitS
     uint16_t index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
     for(i = setlist.begin(); i != setlist.end(); i++)
     {
-        if( (*i)->commitset() )
+        if( (*i)->handle_commitset() )
         {
             // operation succeeded
             response.set_error(ResponsePDU::noAgentXError);

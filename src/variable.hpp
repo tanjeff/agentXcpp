@@ -27,43 +27,59 @@ using boost::shared_ptr;
 
 namespace agentxcpp
 {
+    /**
+     * \brief Base class for SNMP variables.
+     *
+     * This class is the base class for SNMP variable implementations. It 
+     * provides the interface which is used internally by agentXcpp to perform 
+     * operations on variables.
+     * 
+     * \note In general, implementations should not inherit directly from
+     *       this class. Rather they should inherit from one of the derived 
+     *       classes (e.g. primitive_variable).
+     */
     class variable
     {
 
         public:
-            /**
-             * \brief Obtain the current value for the object.
-             *
-             * This member function is derived by classes representing SNMP
-             * variables and shall return the current value of the object.
-             *
-             * The default implementation throws generic_error.
-             *
-             * \return The current value of the object.
-             *
-             * \exception generic_error If obtaining the current value fails.
-             *                          No other exception shall be thrown.
-             */
-            virtual shared_ptr<value> internal_get() = 0;
 
+            /**
+             * \brief Destructor.
+             */
             virtual ~variable()
             {
             }
 
             /**
+             * \brief Handle AgentX Get request.
+             *
+             * This method is called when a get request is received for the 
+             * variable. It shall return the current value of the variable.
+             *
+             * \return The current value of the variable.
+             *
+             * \exception generic_error If obtaining the current value fails.
+             *                          No other exception shall be thrown.
+             */
+            virtual shared_ptr<value> handle_get() = 0;
+
+
+            /**
              * \brief Result type for the TestSet validation.
              *
-             * A value of this type is returned during a TestSet operation.
+             * A value of this type is returned during a TestSet operation 
+             * according to  RFC 2741, 7.2.4.1. "Subagent Processing of the 
+             * agentx-TestSet-PDU".
              *
-             * Note that the result 'wrongEncoding' is not used within the
-             * agentXcpp implementation and is therefore not part of this
-             * enumeration.
+             * \note The value 'wrongEncoding' is not used within the
+             *       agentXcpp implementation and is therefore not part of this 
+             *       enumeration.
              *
              * \internal
              *
-             * The numeric values are given in RFC 2741, 7.2.4.1. "Subagent
-             * Processing of the agentx-TestSet-PDU" and are in sync with the
-             * corresponding errors defined in ResponsePDU::error_t.
+             * The numeric values are given in RFC 2741, 7.2.4.1. "Subagent 
+             * Processing of the agentx-TestSet-PDU" and must be in sync with 
+             * the corresponding errors defined in ResponsePDU::error_t.
              */
             enum testset_result_t
             {
@@ -141,52 +157,53 @@ namespace agentxcpp
             };
 
             /**
-             * \internal
+             * \brief Validate whether a Set operation would be successful.
              *
-             * \brief Validate whether a set operation would be successful.
+             * This method is called when a TestSet request is received. It 
+             * shall check whether a Set operation is possible for the 
+             * variable. It shall acquire the resources needed to perform the 
+             * Set operation (but the Set shall not yet performed).
              *
-             * This function implements the validation step performed during a
-             * TestSet operation. This step checks whether a real Set operation
-             * is possible for the variable and acquires the resources needed
-             * to perform a Set operation.
+             * \note This is the only method which receives the new value to be
+             *       set. An implementation must save the new value for 
+             *       subsequent operations (i.e.  handle_commitset()).
              *
-             * The default action is to return noAccess, to indicate that
-             * the variable is read-only. Thus, for read-only variables, the
-             * derived class need not overwrite this method.
-             *
-             * \return The result of the validation. See testset_result_t for
-             *         the possible values.
+             * \return The result of the validation.
              */
-            virtual testset_result_t testset(shared_ptr<value>) = 0;
+            virtual testset_result_t handle_testset(shared_ptr<value>) = 0;
 
             /**
              * \brief Release resources after a Set operation.
              *
-             * This function is called after a Set operation. The variable
-             * should release all resources which were allocated during the
-             * testset() function.
-             *
-             * The default behavior is to do nothing, thus a variable need not
-             * to override this method if it doesn't need to release resources.
+             * This method is called when a CleanupSet request is received. It 
+             * shall release all resources previously allocated by 
+             * handle_testset() (if any). If no resources were allocated, this 
+             * method is not required to do anything.
              */
-            virtual void cleanupset() = 0;
+            virtual void handle_cleanupset() = 0;
 
             /**
-             * \brief Actually perform the set operation.
+             * \brief Actually perform the Set operation.
              *
-             * This function implements the set operation. It must report
-             * whether the operation succeeded.
+             * This method is called when a CommitSet request is received for 
+             * the variable. It shall perform the Set operation. It shall 
+             * report whether the operation succeeded.
              *
-             * Default action is to return false, to indicate that setting
-             * the new value failed. To make a variable writable, this method
-             * must be overridden.
+             * \note The new value is given to handle_testset() prior to
+             *       calling handle_commitset().
              *
              * \return True on success, false otherwise.
              */
-            virtual bool commitset()= 0;
+            virtual bool handle_commitset()= 0;
+
+            /**
+             * \brief Undo a Set operation which was already performed.
+             *
+             * This method is called when an UndoSet request is received. It 
+             * shall undo the operation performed by handle_commitset(). 
+             */
+            virtual void handle_undoset() = 0;
     };
-
-
 }
 
 

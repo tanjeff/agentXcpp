@@ -90,7 +90,7 @@ namespace agentxcpp
      * \endcode
      *
      */
-    class oid: public value, public std::vector<uint32_t>
+    class oid: public value_t, public std::vector<uint32_t>
     {
 	private:
 
@@ -221,7 +221,7 @@ namespace agentxcpp
 	    /**
 	     * \internal
 	     *
-	     * \brief Construct the object from input stream
+	     * \brief Parse Constructor.
 	     *
 	     * This constructor parses the serialized form of the object.
 	     * It takes an iterator, starts parsing at the position of the 

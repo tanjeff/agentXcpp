@@ -29,7 +29,7 @@ namespace agentxcpp
      * This class is used as base class for the specific value types (such as
      * Octet_String or Integer).
      */
-    class value
+    class value_t
     {
 	public:
 	    /**
@@ -48,8 +48,10 @@ namespace agentxcpp
 
             /**
              * \brief Destructor.
+             *
+             * The default implementation of this desctructor is empty.
              */
-            virtual ~value()
+            virtual ~value_t()
             {
             }
     };

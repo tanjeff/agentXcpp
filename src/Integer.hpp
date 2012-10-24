@@ -32,7 +32,7 @@ namespace agentxcpp
     /**
      * \brief Represents an Integer as described in RFC 2741
      */
-    class Integer : public value
+    class Integer : public value_t
     {
 	public:
 	    /**
@@ -65,7 +65,7 @@ namespace agentxcpp
 	    /**
 	     * \internal
 	     *
-	     * \brief Construct the object from input stream
+	     * \brief Parse Constructor.
 	     *
 	     * This constructor parses the serialized form of the object.
 	     * It takes an iterator, starts parsing at the position of the 

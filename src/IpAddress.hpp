@@ -32,7 +32,7 @@ namespace agentxcpp
     /**
      * \brief Represents an IP address as described in RFC 2741, section 5.4
      */
-    class IpAddress : public value
+    class IpAddress : public value_t
     {
 	private:
 	    /**
@@ -40,19 +40,18 @@ namespace agentxcpp
 	     */
 	    IpAddress();
 
-	private:
 	    /**
 	     * \brief The IP address.
 	     *
 	     * According to RFC 2578, IpAddress is a 32-bit number.
 	     */
-            boost::uint8_t address[4]; // only IPv4
+            uint8_t address[4]; // only IPv4
 
 	public:
 	    /**
 	     * \internal
 	     *
-	     * \brief Construct the object from input stream
+	     * \brief Parse Constructor.
 	     *
 	     * This constructor parses the serialized form of the object.
 	     * It takes an iterator, starts parsing at the position of the 
@@ -96,14 +95,56 @@ namespace agentxcpp
              * \exception None.
 	     */
 	    IpAddress(uint8_t a,
-		    uint8_t b,
-		    uint8_t c,
-		    uint8_t d)
+		      uint8_t b,
+		      uint8_t c,
+		      uint8_t d)
 	    {
 		address[0] = a;
 		address[1] = b;
 		address[2] = c;
 		address[3] = d;
+	    }
+
+            /**
+             * \brief Set the IpAddress.
+             *
+             * The stored IpAddress is updated to "a.b.c.d".
+             *
+             * \exception None.
+             */
+	    void set_value(uint8_t a,
+                           uint8_t b,
+                           uint8_t c,
+                           uint8_t d)
+            {
+                address[0] = a;
+                address[1] = b;
+                address[2] = c;
+                address[3] = d;
+            }
+
+	    /**
+	     * \brief Access a component of the stored IpAddress.
+	     *
+	     * This function returns the component with the given index. Note
+	     * that exactly 4 components are stored. The return value is a
+	     * reference to the component, so that it can be read/written, in
+	     * other words, the IpAddress object can be accessed like an
+	     * ordinary array.
+	     *
+	     * \param index The index (value in the range 0...3).
+	     *
+	     * \return A reference to the component.
+	     *
+	     * \exception inval_param If the index is out of bound.
+	     */
+	    uint8_t& operator[](unsigned index)
+	    {
+	        if(index > 3)
+	        {
+	            throw(inval_param());
+	        }
+	        return address[index];
 	    }
     };
 }

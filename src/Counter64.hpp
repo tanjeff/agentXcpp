@@ -32,9 +32,9 @@ namespace agentxcpp
     /**
      * \brief Represents an Integer as descibed in RFC 2741
      */
-    class Counter64 : public value
+    class Counter64 : public value_t
     {
-	private:
+	public:
 	    /**
 	     * \brief The counter value.
 	     *
@@ -43,7 +43,6 @@ namespace agentxcpp
 	     */
 	    uint64_t value;
 
-	public:
 	    /**
              * \internal
              *
@@ -56,7 +55,7 @@ namespace agentxcpp
 	    /**
 	     * \internal
 	     *
-	     * \brief Construct the object from input stream
+	     * \brief Parse Constructor.
 	     *
 	     * This constructor parses the serialized form of the object.
 	     * It takes an iterator, starts parsing at the position of the 

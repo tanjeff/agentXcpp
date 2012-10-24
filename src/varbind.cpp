@@ -55,7 +55,7 @@ binary varbind::serialize() const
 }
 
 
-varbind::varbind(const oid& o, boost::shared_ptr<value> v)
+varbind::varbind(const oid& o, boost::shared_ptr<value_t> v)
 {
     name = o;
     var = v;

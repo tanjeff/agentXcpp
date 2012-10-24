@@ -31,9 +31,9 @@ namespace agentxcpp
     /**
      * \brief Represents an TimeTicks as described in RFC 2741
      */
-    class TimeTicks : public value
+    class TimeTicks : public value_t
     {
-	private:
+	public:
             /**
 	     * \brief The TimeTicks value.
 	     *
@@ -42,20 +42,17 @@ namespace agentxcpp
 	     */
 	    uint32_t value;
 
-	public:
 	    /**
-             * \internal
-             *
 	     * \brief Create an TimeTicks without initialization.
 	     *
-	     * The value after creation is undefined.
+	     * The value is initialized to 0.
 	     */
 	    TimeTicks() : value(0) {}
 	    
 	    /**
 	     * \internal
 	     *
-	     * \brief Construct the object from input stream
+	     * \brief Parse Constructor.
 	     *
 	     * This constructor parses the serialized form of the object.
 	     * It takes an iterator, starts parsing at the position of the 

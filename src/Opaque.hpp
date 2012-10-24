@@ -26,11 +26,17 @@ namespace agentxcpp
 {
     /**
      * \brief Represents an Opaque object as described in RFC 2741, section
-     * 5.4
+     * 5.4.
+     *
+     * This class represent binary data.
+     *
+     * \note There are no functions to convert the binary data to/from
+     *       std::string. If that is needed, Octet_String might be a better
+     *       choice.
      */
-    class Opaque : public value
+    class Opaque : public value_t
     {
-	private:
+	public:
 	    /**
 	     * \brief The string.
 	     *
@@ -38,7 +44,6 @@ namespace agentxcpp
 	     */
 	    binary value;
 
-	public:
 	    /**
 	     * \internal
 	     *
@@ -53,7 +58,7 @@ namespace agentxcpp
 	    /**
 	     * \internal
 	     *
-	     * \brief Construct the object from input stream
+	     * \brief Parse Constructor.
 	     *
 	     * This constructor parses the serialized form of the object.
 	     * It takes an iterator, starts parsing at the position of the 
@@ -79,8 +84,6 @@ namespace agentxcpp
 		   bool big_endian=true);
 
             /**
-             * \internal
-             *
              * \brief Constructor for initializing with data.
              */
 	    Opaque(binary initial_value) : value(initial_value) {}

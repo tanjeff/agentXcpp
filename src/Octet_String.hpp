@@ -28,7 +28,7 @@ namespace agentxcpp
     /**
      * \brief Represents an Octet String as described in RFC 2741, section 5.3
      */
-    class Octet_String : public value
+    class Octet_String : public value_t
     {
 	private:
 	    /**
@@ -45,36 +45,29 @@ namespace agentxcpp
 	     *
 	     * \brief Encode the object as described in RFC 2741, section 5.3
 	     *
-	     * Note:
-	     * We always use big endian.
+	     * \note We always use big endian.
 	     */
 	    binary serialize() const;
 
 	    /**
-             * \internal
-             *
-             * \brief FIXME
+             * \brief Construct object from binary data.
 	     */
 	    Octet_String(binary initial_value) : value(initial_value) {}
 
             /**
-             * \internal
-             *
-             * \brief FIXME
+             * \brief Construct object from a string.
              */
 	    Octet_String(std::string initial_value);
 
 	    /**
-             * \internal
-             *
-	     * \brief FIXME
+	     * \brief Create empty Octet_String object.
 	     */
 	    Octet_String() { }
 	    
 	    /**
 	     * \internal
 	     *
-	     * \brief Construct the object from input stream
+	     * \brief Parse Constructor.
 	     *
 	     * This constructor parses the serialized form of the object.
 	     * It takes an iterator, starts parsing at the position of the 
@@ -100,21 +93,27 @@ namespace agentxcpp
 			 bool big_endian=true);
 
 	    /**
-             * \internal
-             *
-	     * \brief Set the current value
+	     * \brief Set the current value.
 	     */
 	    void set_value(binary new_value) { value = new_value; }
 
-	    /**
-             * \internal
-             *
-	     * \brief get the current value
+            /**
+             * \brief Set the current value.
+             */
+            void set_value(std::string new_value);
+
+            /**
+	     * \brief Get the current value
 	     */
-	    binary get_value()
+	    binary get_value() const
 	    {
 		return value;
 	    }
+
+	    /**
+	     * \brief Get the current value as string.
+	     */
+	    std::string str() const;
     };
 }
 

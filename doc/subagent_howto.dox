@@ -36,7 +36,7 @@ IMPORTS OBJECT-TYPE FROM SNMPv2-SMI
 
 simpleCounter OBJECT-TYPE
     SYNTAX INTEGER
-    ACCESS read-only
+    ACCESS read-write
     STATUS mandatory
     DESCRIPTION "A simple counter which is incremented each time
                  it is queried. Starts with 0."
@@ -51,13 +51,16 @@ Now let's see how easy this can be implemented with agentXcpp!
 
 \section implementing Implementing the Subagent
 
-We implement the subagent within a single file - <tt>simpleagent.cpp</tt>.
+We implement the subagent within a single file: <tt>simpleagent.cpp</tt>.
 
 \subsection headers The Headers
 
 First of all, we need to include some header files for our subagent:
 
 \code
+// Make the class agentxcpp::primitive_variable available:
+#include <agentxcpp/primitive_variable.hpp>
+
 // Make the class agentxcpp::Integer available:
 #include <agentxcpp/Integer.hpp>
 
@@ -92,42 +95,33 @@ Therefore, to implement simpleCounter, we start with a class (later we will
 make an object of the class):
 
 \code
-class simpleCounter : public Integer
+class simpleCounter : public primitive_variable<Integer>
 {
 \endcode
 
-The simpleCounter has a type which is given in the SYNTAX clause in the MIB.  
+The simpleCounter has a value type which is given in the SYNTAX clause in the MIB.  
 AgentXcpp provides various classes to match standard SYNTAX types, all of which 
-inherit from the \ref agentxcpp::variable "variable" class. Our simpleCounter 
-class  inherits from \ref agentxcpp::Integer "Integer", which makes it an 
-INTEGER.
+inherit from the \ref agentxcpp::value_t "value_t" class. Our simpleCounter 
+class uses agentxcpp::Integer as its value type.
 
-Next, the get() method from \ref agentxcpp::Integer "Integer" must be overridden. This method 
-is called on SNMP GET requests and returns the current value of the object.  In 
-our case, it returns the value of a member variable and increments this 
-variable afterwards:
+Next, the get() method from \ref agentxcpp::primitive_variable 
+"primitive_variable" must be overridden. This method is invoked on SNMP GET 
+requests and returns the current value of the object.  In our case, it 
+increments the member variable "counter" and returns the old value:
 
 \code
     private:
-        int32_t counter;
+        Integer counter;
 
     public:
-        virtual int32_t get()
+        virtual Integer get()
         {
-            return counter++;
-        }
-\endcode
-
-Finally, we add a constructor which initializes the 'counter' member to zero:
-
-\code
-        simpleCounter()
-          : counter(0)
-        {
+            Integer current = counter;
+            counter.value++;
+            return current;
         }
 };
 \endcode
-
 
 
 \subsection main_function The main() Function
@@ -140,11 +134,11 @@ int main(void)
     master_proxy master;
 \endcode
 
-The class \ref agentxcpp::master_proxy "master_proxy" is used to communicate with the master agent.  
-A master_proxy can be thought of a local C++ object representing the remote 
-master agent. The master_proxy can be in disconnected state at any time, or 
-become disconnected, which means that most operations could possibly fail with 
-an agentxcpp::disconnected exception.
+The class \ref agentxcpp::master_proxy "master_proxy" is used to communicate 
+with the master agent.  A master_proxy can be thought of as a local C++ object 
+representing the remote master agent. The master_proxy can be in disconnected 
+state at any time, or become disconnected, which means that most operations 
+could possibly fail with an agentxcpp::disconnected exception.
 
 The default constructor of \ref agentxcpp::master_proxy "master_proxy" tries to 
 connect to the master agent via the unix domain socket 

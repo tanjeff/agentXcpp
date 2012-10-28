@@ -1,0 +1,225 @@
+/*
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ *
+ * This file is part of the agentXcpp library.
+ *
+ * AgentXcpp is free software: you can redistribute it and/or modify
+ * it under the terms of the AgentXcpp library license, version 1, which 
+ * consists of the GNU General Public License and some additional 
+ * permissions.
+ *
+ * AgentXcpp is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * See the AgentXcpp library license in the LICENSE file of this package 
+ * for more details.
+ */
+
+/*! 
+
+
+\page writeable_var_rw_howto How to implement a writeable variable
+
+The tutorial \ref subagent_howto described how a read-only variable can be 
+implemented. Here we will continue this work and add write support to the 
+simpleCounter variable. Writing to the variable will set it to a new value, and 
+it will continue to count from there.
+
+The updated MIB looks like that:
+
+\verbatim
+SIMPLE-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS OBJECT-TYPE FROM SNMPv2-SMI
+
+simpleCounter OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION "A simple counter which is incremented each time
+                 it is queried. Starts with 0."
+    ::={ enterprises 42 1 }
+
+END
+\endverbatim
+
+This is the same as before, but with "ACCESS read-write".
+
+\section the_set_steps The anatomy of a Set request
+
+A single SNMP Set request may set multiple variables at once (possibly 
+distributed over multiple subagents), and SNMP guarantees an atomic operation 
+in that case.  This means that, should any variable fail to perform the Set 
+operation, no other variable is allowed to perform the set operation either.  
+Therefore, the Set operation is carried out in multiple distinct steps:
+
+-# \b TestSet checks whether the variable could be set at all. This step is 
+   performed for all variables (in all affected subagents) affected by the 
+   single SNMP request.  If any variable is not able to accept a new value, the 
+   Set operation is aborted (and no variable gets updated). In addition, during 
+   this step resources may be allocated by subagents if needed to carry out the 
+   actual Set operation.
+-# \b CommitSet Actually sets the new value. This step may fail for a variable, 
+   even if the TestSet step announced that the CommitSet would work. If that 
+   happens, all other variables which already performed the CommitSet must undo 
+   their action. It is strongly recommended to implement variables in such a 
+   way that CommitSet does not fail, when possible.
+-# The third step is one of the following:
+   - \b CleanupSet is usually the last step, performed after CommitSet was 
+     successful for all affected variables. CleanupSet is used to release any 
+     resources which where allocated by TestSet.
+   - \b UndoSet is performed after CommitSet failed for any variable. UndoSet 
+     is then called for all variables which already performed CommitSet and 
+     therefore must undo this action. For variables which didn't perform 
+     CommitSet yet, CleanupSet is called instead. Like CleanupSet, UndoSet also 
+     releases all resources which were allocated by TestSet. 
+     
+
+To implement these actions, the \ref agentxcpp::primitive_variable 
+"primitive_variable" class provides the methods \ref 
+agentxcpp::primitive_variable::undoset "testset()", \ref 
+agentxcpp::primitive_variable::undoset "commitset()", \ref 
+agentxcpp::primitive_variable::undoset "cleanupset()" and \ref 
+agentxcpp::primitive_variable::undoset "undoset()" which can be overridden by a 
+concrete implementation.
+
+\section extend_simplecounter Extending the simpleCounter class
+
+To implement write support for the simpleCounter class, we implement all four 
+methods. The \ref agentxcpp::primitive_variable::undoset "testset()" 
+implementation allocates an Integer value, which is deallocated by \ref 
+agentxcpp::primitive_variable::undoset "cleanupset()" respectively \ref 
+agentxcpp::primitive_variable::undoset "undoset()". This is not very realistic, 
+but it demonstrates the usage of \ref agentxcpp::primitive_variable::undoset 
+"cleanupset()".
+
+
+\subsection TestSet
+
+The \ref agentxcpp::primitive_variable::undoset "testset()" function must be 
+overridden by any variable which should be writeable. If it is not overridden, 
+agentXcpp assumes that the variable is read-only. Hence, we implement it for 
+our simpleCounter class:
+
+\code
+    private:
+        Integer* old_value;
+
+    public:
+        virtual testset_result_t testset(shared_ptr<Integer> new_value)
+        {
+            try
+            {
+                // Allocate space to store the old value
+                old_value = new Integer;
+            }
+            catch(bad_alloc)
+            {
+                // Resource allocation failed.
+                return resourceUnavailable;
+            }
+
+            // setting the variable will succeed
+            return noError;
+        }
+\endcode
+
+The \ref agentxcpp::primitive_variable::testset "testset()" method receives the 
+value and can check whether setting the variable to this value would work.  
+Here, we don't check the value, but we allocate an Integer to store the old 
+value, which is needed for \ref agentxcpp::primitive_variable::undoset 
+"undoset()". If allocation fails, we return the appropriate error.
+
+
+\subsection CommitSet
+
+The \ref agentxcpp::primitive_variable::commitset "commitset()" method must 
+also be implemented for writeable variables. In the simpleCounter class, this 
+method sets the internal value and stores the old one (for the \ref 
+agentxcpp::primitive_variable::undoset "undoset()" method):
+\code
+        virtual bool commitset(shared_ptr<Integer> new_value)
+        {
+            // Remember old value for rollback
+            *old_value = counter;
+
+            // Set new value
+            counter = new_value
+
+            // Operation succeeded
+            return true;
+        }
+\endcode
+
+\subsection CleanupSet
+
+The \ref agentxcpp::primitive_variable::cleanupset "cleanupset()" method 
+releases old_value again:
+
+\code
+        virtual void cleanupset(shared_ptr<Integer> new_value)
+        {
+            // Release old value
+            delete old_value;
+        }
+\endcode
+
+If old_value were an Integer (instead of a pointer to Integer) no allocation 
+and deallocation would be necessary. The \ref 
+agentxcpp::primitive_variable::cleanupset "cleanupset()" method would not be 
+implemented that.  In fact, this method is the only one which is optional.
+
+\subsection UndoSet
+
+The \ref agentxcpp::primitive_variable::undoset "undoset()" method must be 
+implemented by each variable (although it is technically possible to omit it; 
+the compiler has no way to detect a missing implementation) and perform a 
+rollback.  For simpleCounter this is easy:
+
+\code
+        virtual void undoset(shared_ptr<Integer> new_value)
+        {
+            // Restore old value
+            counter = old_value;
+            
+            // Release old value
+            delete old_value;
+        }
+\endcode
+
+It's important to note that the method releases old_value.
+
+\section try_it_out Testing the extended subagent
+
+Again, we compile and run the subagent. This is exactly the same as in the 
+first tutorial (it is assumed that your system is already setup accordingly):
+
+\verbatim
+g++ simpleagent.cpp -o simpleagent -lboost_system -lpthread -lagentxcpp
+./simpleagent
+\endverbatim
+
+Now we query the variable:
+
+\verbatim
+snmpget -v1 -c rw localhost 1.3.6.1.4.1.42.1.0
+\endverbatim
+
+Each time the variable is queried, the counter increments. Now, let's set the 
+counter to, say, 42:
+
+\verbatim
+snmpset -v1 -c rw localhost 1.3.6.1.4.1.42.1.0 i 42
+\endverbatim
+
+Now, we continue to query it again several times and the counter should 
+continue at 42, further incrementing.
+
+Et voilá: a read-write variable.
+
+
+
+
+*/

@@ -43,5 +43,5 @@ Table of Contents
 
 -# \subpage installation "Install agentXcpp to your computer, or make a package for your system."
 -# \subpage subagent_howto "Learn how to write subagents with agentXcpp."
-
+-# \subpage writeable_var_rw_howto "Learn how to implement writeable SNMP variables."
 */

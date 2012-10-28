@@ -36,7 +36,7 @@ IMPORTS OBJECT-TYPE FROM SNMPv2-SMI
 
 simpleCounter OBJECT-TYPE
     SYNTAX INTEGER
-    ACCESS read-write
+    ACCESS read-only
     STATUS mandatory
     DESCRIPTION "A simple counter which is incremented each time
                  it is queried. Starts with 0."
@@ -44,6 +44,10 @@ simpleCounter OBJECT-TYPE
 
 END
 \endverbatim
+
+As can be seen, this variable is read-only, to keep things as simple as 
+possible. The tutorial \ref writeable_var_rw_howto explains how to implement 
+write access for a variable.
 
 Now let's see how easy this can be implemented with agentXcpp!
 

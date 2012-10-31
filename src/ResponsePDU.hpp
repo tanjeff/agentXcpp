@@ -164,9 +164,12 @@ namespace agentxcpp
 	     *
 	     * \param error The new error status.
 	     *
-	     * \exception inval_param If the error value is not allowed.
+	     * \exception None.
 	     */
-	    void set_error(error_t error);
+	    void set_error(error_t error)
+	    {
+	        this->error = error;
+	    }
 
 	    /**
 	     * \brief Get the error status.

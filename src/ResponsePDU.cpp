@@ -4,33 +4,6 @@
 using namespace agentxcpp;
 
 
-void ResponsePDU::set_error(error_t e)
-{
-    /* We accept only allowed values: */
-    switch(e)
-    {
-	// fall-through technology :-)
-	case noAgentXError:
-	case openFailed:
-	case notOpen:
-	case indexWrongType:
-	case indexAlreadyAllocated:
-	case indexNoneAvailable:
-	case indexNotAllocated:
-	case unsupportedContext:
-	case duplicateRegistration:
-	case unknownRegistration:
-	case unknownAgentCaps:
-	case parseError:
-	case requestDenied:
-	case processingError:
-	    error = e;
-	    break;
-	default:
-	    throw(inval_param());
-    }
-}
-
 
 ResponsePDU::ResponsePDU()
 {
@@ -62,29 +35,49 @@ ResponsePDU::ResponsePDU(binary::const_iterator& pos,
 	varbindlist.push_back(varbind(pos, end, big_endian));
     }
     
+    /* We accept only allowed values: */
     switch(err)
     {
-	// fall-through technology :-)
-	case noAgentXError:
-	case openFailed:
-	case notOpen:
-	case indexWrongType:
-	case indexAlreadyAllocated:
-	case indexNoneAvailable:
-	case indexNotAllocated:
-	case unsupportedContext:
-	case duplicateRegistration:
-	case unknownRegistration:
-	case unknownAgentCaps:
-	case parseError:
-	case requestDenied:
-	case processingError:
-	    this->error = static_cast<error_t>(err);
-	    break;
-	default:
-	    throw(inval_param());
+        // fall-through technology :-)
+        case noAgentXError:
+        case openFailed:
+        case notOpen:
+        case indexWrongType:
+        case indexAlreadyAllocated:
+        case indexNoneAvailable:
+        case indexNotAllocated:
+        case unsupportedContext:
+        case duplicateRegistration:
+        case unknownRegistration:
+        case unknownAgentCaps:
+        case parseError:
+        case requestDenied:
+        case processingError:
+        case tooBig:
+        case noSuchName:
+        case badValue:
+        case readOnly:
+        case genErr:
+        case noAccess:
+        case wrongType:
+        case wrongLength:
+        case wrongEncoding:
+        case wrongValue:
+        case noCreation:
+        case inconsistentValue:
+        case resourceUnavailable:
+        case commitFailed:
+        case undoFailed:
+        case authorizationError:
+        case notWritable:
+        case inconsistentName:
+            // Value is ok
+            error = static_cast<error_t>(err);
+            break;
+        default:
+            // Invalid value: PDU is malformed:
+            throw(inval_param());
     }
-
 }
 
 

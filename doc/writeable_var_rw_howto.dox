@@ -115,7 +115,7 @@ our simpleCounter class:
                 // Allocate space to store the old value
                 old_value = new Integer;
             }
-            catch(bad_alloc)
+            catch(std::bad_alloc)
             {
                 // Resource allocation failed.
                 return resourceUnavailable;
@@ -146,7 +146,7 @@ agentxcpp::primitive_variable::undoset "undoset()" method):
             *old_value = counter;
 
             // Set new value
-            counter = new_value
+            counter = *new_value;
 
             // Operation succeeded
             return true;
@@ -179,10 +179,10 @@ the compiler has no way to detect a missing implementation) and perform a
 rollback.  For simpleCounter this is easy:
 
 \code
-        virtual void undoset(shared_ptr<Integer> new_value)
+        virtual bool undoset(shared_ptr<Integer> new_value)
         {
             // Restore old value
-            counter = old_value;
+            counter = *old_value;
 
             // Release old value
             delete old_value;

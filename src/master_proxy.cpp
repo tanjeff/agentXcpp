@@ -725,6 +725,44 @@ void master_proxy::handle_commitsetpdu(ResponsePDU& response, shared_ptr<CommitS
 }
 
 
+void master_proxy::handle_undosetpdu(ResponsePDU& response, shared_ptr<UndoSetPDU> undoset_pdu)
+{
+    // Handling according to RFC 2741, 7.2.4.3 "Subagent Processing of the
+    // agentx-UndoSet-PDU"
+
+    bool failed = false;
+
+    // Iterate over list and handle each Varbind separately.
+    list< shared_ptr<variable> >::iterator i;
+    uint16_t index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
+    for(i = setlist.begin(); i != setlist.end(); i++)
+    {
+        if( (*i)->handle_undoset() )
+        {
+            // operation succeeded
+            response.set_error(ResponsePDU::noAgentXError);
+            response.set_index(0);
+        }
+        else
+        {
+            if(failed == false)
+            {
+                // operation failed: store index of failed varbind and do not process further variables.
+                response.set_error(ResponsePDU::undoFailed);
+                response.set_index(index);
+
+                // Note: it is unclear whether processing should stop immediately
+                //       after the first failed UndoSet. We risk that some variables
+                //       get neither an UndoSet nor a CleanupSet call. Therefore,
+                //       we continue processing and report the first failed
+                //       variable for now.
+                failed = true;
+            }
+        }
+        index++;
+    }
+}
+
 
 void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
 {
@@ -828,6 +866,14 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
     {
         // (response is modified in-place)
         this->handle_commitsetpdu(response, commitset_pdu);
+    }
+
+    // Is it an UndoSetPDU?
+    shared_ptr<UndoSetPDU> undoset_pdu;
+    if( (undoset_pdu = dynamic_pointer_cast<UndoSetPDU>(pdu)) != 0 )
+    {
+        // (response is modified in-place)
+        this->handle_undosetpdu(response, undoset_pdu);
     }
 
     // TODO: handle other PDU types

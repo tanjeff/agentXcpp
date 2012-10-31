@@ -200,9 +200,11 @@ namespace agentxcpp
              * \brief Undo a Set operation which was already performed.
              *
              * This method is called when an UndoSet request is received. It 
-             * shall undo the operation performed by handle_commitset(). 
+             * shall undo the operation performed by handle_commitset().
+             *
+             * \return True on success, false otherwise.
              */
-            virtual void handle_undoset() = 0;
+            virtual bool handle_undoset() = 0;
     };
 }
 

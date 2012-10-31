@@ -39,6 +39,7 @@
 #include "TestSetPDU.hpp"
 #include "CleanupSetPDU.hpp"
 #include "CommitSetPDU.hpp"
+#include "UndoSetPDU.hpp"
 #include "connector.hpp"
 
 using boost::uint8_t;
@@ -447,6 +448,18 @@ namespace agentxcpp
              * \param commitset_pdu The CommitSetPDU to be processed.
              */
             void handle_commitsetpdu(ResponsePDU& response, shared_ptr<CommitSetPDU> commitset_pdu);
+
+            /**
+             * \brief Handle incoming UndoSetPDU's.
+             *
+             * This method is called by handle_pdu(). It processes the given
+             * UndoSetPDU and stores the results in the given ResponsePDU.
+             *
+             * \param response The pre-initialized ResponsePDU.
+             *
+             * \param undoset_pdu The UndoSetPDU to be processed.
+             */
+            void handle_undosetpdu(ResponsePDU& response, shared_ptr<UndoSetPDU> undoset_pdu);
 
 	public:
 	    /**

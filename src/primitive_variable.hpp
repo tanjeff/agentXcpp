@@ -232,7 +232,7 @@ namespace agentxcpp
              * \brief Handle a CommitSet request.
              *
              * This function calls commitset() with the value from the last 
-             * handle_testset() invokation and returns its return value.
+             * handle_testset() Invocation and returns its return value.
              */
             virtual bool handle_commitset()
             {
@@ -246,7 +246,7 @@ namespace agentxcpp
              * shall perform the actual write operation.
              *
              * The default implementation returns false to indicate that the 
-             * operation failed. To implement a writeable SNMP variable this 
+             * operation failed. To implement a writable SNMP variable this
              * method must be overridden.
              *
              * \param v The new value for the object.
@@ -264,29 +264,39 @@ namespace agentxcpp
              * \brief Handle a UndoSet request.
              *
              * This function calls undoset() with the value from the last 
-             * handle_testset() invokation.
+             * handle_testset() invocation and returns its return value.
+             *
              */
-            virtual void handle_undoset()
+            virtual bool handle_undoset()
             {
-                undoset(new_value);
+                return undoset(new_value);
             }
             
             /**
              * \brief Handle an UndoSet request.
              *
              * This method is called to handle an SNMP UndoSet request. It 
-             * shall undo whatever commitset() performed.
+             * shall undo whatever commitset() performed. It shall also release
+             * all resources allocated by testset().
              *
-             * The default implementation does nothing. A default 
-             * implementation is provided to allow implementing read-only 
-             * variables. It is strongly recommended that writeable variables 
-             * override this method.
+             * The default implementation returns false to indicate that
+             * the operation failed. It is strongly recommended that writable
+             * variables override this method.
+             *
+             * \internal
+             *
+             * A default implementation is provided to allow implementing
+             * read-only variables.
+             *
+             * \endinternal
              *
              * \param v The new value for the object.
+             *
+             * \return True on success, false otherwise.
              */
-            virtual void undoset(shared_ptr<V> v)
+            virtual bool undoset(shared_ptr<V> v)
             {
-                return;
+                return false;
             }
 
     };

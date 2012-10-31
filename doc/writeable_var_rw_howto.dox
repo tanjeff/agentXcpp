@@ -169,7 +169,7 @@ releases old_value again:
 If old_value were an Integer (instead of a pointer to Integer) no allocation 
 and deallocation would be necessary. The \ref 
 agentxcpp::primitive_variable::cleanupset "cleanupset()" method would not be 
-implemented that.  In fact, this method is the only one which is optional.
+implemented then.  In fact, this method is the only one which is optional.
 
 \subsection UndoSet
 
@@ -183,9 +183,12 @@ rollback.  For simpleCounter this is easy:
         {
             // Restore old value
             counter = old_value;
-            
+
             // Release old value
             delete old_value;
+
+            // Rollback succeded
+            return true;
         }
 \endcode
 

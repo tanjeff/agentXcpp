@@ -502,6 +502,57 @@ namespace agentxcpp
      *        RFC 1155.
      */
     const oid enterprises_oid(private_oid, "1");
+
+    /**
+     * \memberof oid
+     *
+     * \brief The 'snmpMIBObjects' OID according to RFC 1907/RFC 2578.
+     *
+     * \internal
+     *
+     * This OID are used in the context of notifications.
+     *
+     * According to RFC 1907:
+     * snmpTrapOID ::= snmpTrap.1
+     * snmpTrap ::= snmpMIBObjects.4
+     * snmpMIBObjects ::= snmpMIB.1
+     * snmpMIB ::= snmpModules.1
+     *
+     * According to RFC 2578 (SNMPv2-SMI):
+     * snmpModules ::= snmpV2.3
+     * snmpV2 ::= internet.6
+     *
+     * conclusion:
+     * snmpMIBObjects ::= internet.6.3.1.1
+     * snmpTrapOID ::= internet.snmpMIBObjects.4.1
+     */
+    const oid snmpMIBObjects_oid(internet_oid, "6.3.1.1");
+
+    /**
+     * \memberof oid
+     *
+     * \brief The 'snmpTrapOID' OIDs according to RFC 1907/RFC 2578.
+     *
+     * \internal
+     *
+     * This OID are used in the context of notifications.
+     *
+     * According to RFC 1907:
+     * snmpTrapOID ::= snmpTrap.1
+     * snmpTrap ::= snmpMIBObjects.4
+     * snmpMIBObjects ::= snmpMIB.1
+     * snmpMIB ::= snmpModules.1
+     *
+     * According to RFC 2578 (SNMPv2-SMI):
+     * snmpModules ::= snmpV2.3
+     * snmpV2 ::= internet.6
+     *
+     * conclusion:
+     * snmpMIBObjects ::= internet.6.3.1.1
+     * snmpTrapOID ::= internet.snmpMIBObjects.4.1
+     */
+    const oid snmpTrapOID_oid(snmpMIBObjects_oid, "4.1");
+
 }
 
 

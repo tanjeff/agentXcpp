@@ -60,23 +60,6 @@ varbind NotifyPDU::trapToNotification(oid enterprise,
 				      generic_trap_t generic_trap,
 				      uint32_t specific_trap)
 {
-    // The snmpTrapOID type
-    //
-    // According to RFC 1907:
-    // snmpTrapOID ::= snmpTrap.1
-    // snmpTrap ::= snmpMIBObjects.4
-    // snmpMIBObjects ::= snmpMIB.1
-    // snmpMIB ::= snmpModules.1
-    //
-    // According to RFC 2578 (SNMPv2-SMI):
-    // snmpModules ::= snmpV2.3
-    // snmpV2 ::= internet.6
-    // 
-    // conclusion:
-    static const oid snmpMIBObjects_oid(internet_oid, "6.3.1.1");
-    static const oid snmpTrapOID_oid(snmpMIBObjects_oid, "4.1");
-
-
     // We need the OID of the SNMPv1 traps. These are defined here.
     //
     // First we define a "helper" OID:

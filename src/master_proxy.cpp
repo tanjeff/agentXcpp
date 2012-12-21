@@ -26,6 +26,7 @@
 #include "RegisterPDU.hpp"
 #include "GetPDU.hpp"
 #include "GetNextPDU.hpp"
+#include "NotifyPDU.hpp"
 #include "util.hpp"
 
 #include <iostream>
@@ -759,4 +760,103 @@ void master_proxy::remove_variable(const oid& id)
 
     // Remove variable
     variables.erase(i);
+}
+
+
+
+oid master_proxy::generate_snmpTrapOID(oid enterprise,
+                                       generic_trap_t generic_trap,
+                                       uint32_t specific_trap)
+{
+    // We need the OID of the SNMPv1 traps. These are defined here.
+    //
+    // First we define a "helper" OID:
+    static const oid snmpTraps_oid(snmpMIBObjects_oid, "5");
+    //
+    // Some traps according to RFC 1907:
+    static const oid snmpTraps_coldStart_oid(snmpTraps_oid, "1");
+    static const oid snmpTraps_warmStart_oid(snmpTraps_oid, "2");
+    static const oid snmpTraps_authenticationFailure_oid(snmpTraps_oid, "5");
+    //
+    // Some traps according to RFC 1573:
+    static const oid snmpTraps_linkDown_oid(snmpTraps_oid, "3");
+    static const oid snmpTraps_linkUp_oid(snmpTraps_oid, "4");
+
+    // Finally, egpNeighborLoss. According to RC 1907 it is defined in RFC
+    // 1213, however, the latter doesn't in fact define it. On the other hand,
+    // RFC 2089 defines egpNeighborLoss as 1.3.6.1.6.3.1.1.5.6, which is
+    // snmpTraps.6 and corresponds to the comment in RFC 1907, so we use this
+    // one:
+    static const oid snmpTraps_egpNeighborLoss_oid(snmpTraps_oid, "6");
+
+    // calculate the value of snmpTrapOID.0 according to RFC 1908:
+    oid value;
+
+    switch(generic_trap)
+    {
+        case coldStart:
+            value.push_back(coldStart);
+            break;
+        case warmStart:
+            value.push_back(warmStart);
+            break;
+        case linkDown:
+            value.push_back(linkDown);
+            break;
+        case linkUp:
+            value.push_back(linkUp);
+            break;
+        case authenticationFailure:
+            value.push_back(authenticationFailure);
+            break;
+        case egpNeighborLoss:
+            value.push_back(egpNeighborLoss);
+            break;
+        case enterpriseSpecific:
+            value = enterprises_oid;
+            value.push_back(0);
+            value.push_back(specific_trap);
+            break;
+        default:
+            // invalid generic_trap value!
+            throw(inval_param());
+    }
+
+    // Create and return varbind
+    return value;
+}
+
+
+
+void master_proxy::send_notification(const oid& snmpTrapOID,
+                                     vector<varbind> varbinds)
+{
+    NotifyPDU pdu;
+    pdu.set_sessionID(this->sessionID);
+
+    vector<varbind>& vb = pdu.get_vb();
+
+    // First of all: add mandatory snmpTrapOID
+    shared_ptr<oid> trapoid(new oid(snmpTrapOID));
+    vb.push_back(varbind(oid(snmpTrapOID_oid, "0"), trapoid));
+
+    // Append given varbinds
+    vb.insert(vb.end(), varbinds.begin(), varbinds.end());
+
+    // Send notification
+    // Note: timeout_exception and disconnected exceptions are forwarded.
+    binary pdu_serialized = pdu.serialize();
+    connection->send(pdu);
+
+    // Wait for response
+    // Note: timeout_exception and disconnected exceptions are forwarded.
+    shared_ptr<ResponsePDU> response;
+    response = connection->wait_for_response(pdu.get_packetID());
+
+    // TODO: handle response
+    binary response_serialized = response->serialize();
+    cout << "Received Response to Notification: \n"
+            << response_serialized
+            << "error: " << response->get_error() << endl
+            << "index: " << response->get_index() << endl;
 }

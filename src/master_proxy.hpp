@@ -728,6 +728,67 @@ namespace agentxcpp
 	     * \exception None.
 	     */
 	    void remove_variable(const oid& id);
+
+	    /**
+	     * \brief The allowed values for specific-trap.
+	     *
+	     * According to RFC 1157, these values can be used for the
+	     * generic-trap field in SNMPv1 Traps.
+	     */
+	    enum generic_trap_t
+	    {
+	        coldStart=0,
+	        warmStart=1,
+	        linkDown=2,
+	        linkUp=3,
+	        authenticationFailure=4,
+	        egpNeighborLoss=5,
+	        enterpriseSpecific=6
+	    };
+
+	    /**
+	     * \brief Create snmpTrapOID.0 from SNMPv1 Trap data
+	     *
+	     * Each notification must have an snmpTrapOID.0 object. In SNMPv1
+	     * no notifications were available; instead Traps were used.  This
+	     * function takes parameters which would be present in an SNMPv1
+	     * Trap and converts them to the corresponding an snmpTrapOID.0
+	     * value.
+	     *
+	     * Note that the master agent will convert the snmpTrapOID.0 value
+	     * back when sending SNMPv1 traps; nevertheless the AgentX protocol
+	     * requires the snmpTrapOID.0 object.
+	     *
+	     * The conversion is done according to RFC 1908,
+	     * 3.1.2 "SNMPv1 -> SNMPv2".
+	     *
+	     * \param enterprise Type of object generating trap, see RFC 1155,
+	     *                   4.1.6. "The Trap-PDU".
+	     *
+	     * \param generic_trap
+	     *
+	     * \param specific_trap
+	     *
+	     * \return A value for the snmpTrapOID.0 object to be added to
+	     *         the VarBind list.
+	     *
+	     * \exception inval_param If the generic_trap parameter has an
+	     *                        invalid value.
+	     */
+	    static oid generate_snmpTrapOID(oid enterprise,
+	                                    generic_trap_t generic_trap,
+	                                    uint32_t specific_trap = 0);
+
+
+	    /**
+	     * \brief Send a notification.
+	     *
+	     * This function sends a notification to the master agent, which
+	     * in turn sends an SNMP trap. The notification must at least
+	     * contain the snmpTrapOID, and may contain additional varbinds.
+	     */
+	    void send_notification(const oid& snmpTrapOID_oid,
+	                           vector<varbind> varbinds=vector<varbind>());
     };
 }
 

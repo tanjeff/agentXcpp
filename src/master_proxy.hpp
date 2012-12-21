@@ -747,7 +747,7 @@ namespace agentxcpp
 	    };
 
 	    /**
-	     * \brief Create snmpTrapOID.0 from SNMPv1 Trap data
+	     * \brief Create snmpTrapOID.0 from SNMPv1 Trap data.
 	     *
 	     * Each notification must have an snmpTrapOID.0 object. In SNMPv1
 	     * no notifications were available; instead Traps were used.  This
@@ -779,9 +779,8 @@ namespace agentxcpp
 	     * \exception inval_param If the generic_trap parameter has an
 	     *                        invalid value.
 	     */
-            static oid generate_snmpTrapOID(oid enterprise,
-	                                    generic_trap_t generic_trap,
-	                                    uint32_t specific_trap = 0);
+            static oid generate_v1_snmpTrapOID(generic_trap_t generic_trap,
+	                                       uint32_t specific_trap = 0);
 
 
 	    /**

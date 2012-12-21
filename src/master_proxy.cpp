@@ -764,9 +764,8 @@ void master_proxy::remove_variable(const oid& id)
 
 
 
-oid master_proxy::generate_snmpTrapOID(oid enterprise,
-                                       generic_trap_t generic_trap,
-                                       uint32_t specific_trap)
+oid master_proxy::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
+                                          uint32_t specific_trap)
 {
     // We need the OID of the SNMPv1 traps. These are defined here.
     //

@@ -795,22 +795,22 @@ oid master_proxy::generate_snmpTrapOID(oid enterprise,
     switch(generic_trap)
     {
         case coldStart:
-            value.push_back(coldStart);
+            value = snmpTraps_coldStart_oid;
             break;
         case warmStart:
-            value.push_back(warmStart);
+            value = snmpTraps_warmStart_oid;
             break;
         case linkDown:
-            value.push_back(linkDown);
+            value = snmpTraps_linkDown_oid;
             break;
         case linkUp:
-            value.push_back(linkUp);
+            value = snmpTraps_linkUp_oid;
             break;
         case authenticationFailure:
-            value.push_back(authenticationFailure);
+            value = snmpTraps_authenticationFailure_oid;
             break;
         case egpNeighborLoss:
-            value.push_back(egpNeighborLoss);
+            value = snmpTraps_egpNeighborLoss_oid;
             break;
         case enterpriseSpecific:
             value = enterprises_oid;

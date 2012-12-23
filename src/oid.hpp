@@ -553,6 +553,21 @@ namespace agentxcpp
      */
     const oid snmpTrapOID_oid(snmpMIBObjects_oid, "4.1");
 
+    /**
+     *
+     * \memberof oid
+     *
+     * \brief The sysUpTime_oid OID accoring to RFC 1902/RFC 1907.
+     *
+     * RFC 1902
+     * mib-2 = mgmt.1
+     *
+     * RFC 1907:
+     * sysUpTime = system.3
+     * system = mib-2.1
+     */
+    const oid sysUpTime_oid(mgmt_oid, "1.1.3");
+
 }
 
 

@@ -777,79 +777,79 @@ namespace agentxcpp
 
 
 	    /**
-	     * \brief Send a notification.
+	     * \brief Send a notification or trap.
 	     *
-             * This function sends a notification/trap to the
+             * This function sends a notification to the
              * master agent, which in turn sends an SNMP notification or trap, 
              * depending on its configuration.
              *
              * Each notification must at least contain the sysUpTime.0 object
              * and the snmpTrapOID.0 object. The value of both objects are given
-             * to this function.
+             * to this function. You can also use the
+             * \ref master_proxy::send_notification(const oid&, const vector<varbind>&) function
+             * if you don't want to calculate sysUpTime.0 yourself.
              *
-             * You can also use the
-             * \ref master_proxy::send_notification(const oid&, 
-             * vector<varbind>) function
-             * if you don't want to calculate sysUpTime yourself.
-             *
-             * \param sysUpTime The value of the sysUpTime.0 object, according
-             *                  to RFC 1907, which says: "The time (in 
-             *                  hundredths of a second) since the network 
+             * \param sysUpTime The value of the sysUpTime.0 object according
+             *                  to RFC 1907, which says: "<em>The time (in
+             *                  hundreths of a second) since the network
              *                  management portion of the system was last 
-             *                  re-initialized."
+             *                  re-initialized.</em>"
 	     *
              * \param snmpTrapOID The value of  snmpTrapOID.0 according to
-             *                    RFC 1907, which says: "The authoritative 
+             *                    RFC 1907, which says: "<em>The authoritative
              *                    identification of the notification currently 
-             *                    being sent." This is normally the Trap OID as 
+             *                    being sent.</em>" This is normally the Trap OID as
              *                    specified in the corresponding MIB.  However, 
-             *                    for SNMPv1 traps the snmpTrapOID value must 
+             *                    if the notification shall be converted to an SNMPv1
+             *                    trap (this conversion is done by the master agent),
+             *                    the snmpTrapOID.0 value must
              *                    meet certain requirements. You can use 
-             *                    generate_snmpTrapOID() to construct a valid 
-             *                    value in that case.
+             *                    generate_v1_snmpTrapOID()
+             *                    to construct a valid value in that case.
              *
              * \param varbinds Additional varbinds which are included in the
              *                 notification.
 	     */
 	    void send_notification(const TimeTicks& sysUpTime,
 	                           const oid& snmpTrapOID,
-	                           const vector<varbind> varbinds=vector<varbind>());
+	                           const vector<varbind>& varbinds=vector<varbind>());
 
 
             /**
-	     * \brief Send a notification.
+	     * \brief Send a notification or trap.
 	     *
-             * This function sends a notification/trap to the
+             * This function sends a notification to the
              * master agent, which in turn sends an SNMP notification or trap, 
              * depending on its configuration.
              *
              * Each notification must at least contain the sysUpTime.0 object
              * and the snmpTrapOID.0 object. This function calculates the 
-             * sysUpTime.0 value and then calls \ref 
-             * master_proxy::send_notification(const TimeTicks&, const oid&,
-             * vector<varbind>) .
+             * sysUpTime.0 value and then calls
+             * \ref master_proxy::send_notification(const TimeTicks&, const oid&, const vector<varbind>&) .
              *
-             * /internal
+             * \internal
              * The sysUpTime.0 value is the running time of the current 
-             * process. This time is measured by a global variable which is 
+             * process. This time is measured using a global variable which is
              * initialized to the current time just be before main() starts.
              * \endinternal
              *
              * \param snmpTrapOID The value of  snmpTrapOID.0 according to
-             *                    RFC 1907, which says: "The authoritative 
+             *                    RFC 1907, which says: "<em>The authoritative
              *                    identification of the notification currently 
-             *                    being sent." This is normally the Trap OID as 
+             *                    being sent.</em>" This is normally the Trap OID as
              *                    specified in the corresponding MIB.  However, 
-             *                    for SNMPv1 traps the snmpTrapOID value must 
+             *                    if the notification shall be converted to an SNMPv1
+             *                    trap (this conversion is done by the master agent),
+             *                    the snmpTrapOID.0 value must
              *                    meet certain requirements. You can use 
-             *                    generate_snmpTrapOID() to construct a valid 
-             *                    value in that case.
+             *                    generate_v1_snmpTrapOID()
+             *                    to construct a valid value in that case.
              *
              * \param varbinds Additional varbinds which are included in the
              *                 notification.
 	     */
             void send_notification(const oid& snmpTrapOID,
-                                   const vector<varbind> varbinds=vector<varbind>());
+                                   const vector<varbind>& varbinds=vector<varbind>());
     };
 }
 

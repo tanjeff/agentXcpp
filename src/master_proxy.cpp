@@ -846,7 +846,7 @@ oid master_proxy::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
 
 
 void master_proxy::send_notification(const oid& snmpTrapOID,
-                                     const vector<varbind> varbinds)
+                                     const vector<varbind>& varbinds)
 {
     // Calculate uptime
     time_duration uptime = microsec_clock<ptime>::universal_time()
@@ -862,7 +862,7 @@ void master_proxy::send_notification(const oid& snmpTrapOID,
 
 void master_proxy::send_notification(const TimeTicks& sysUpTime,
                                      const oid& snmpTrapOID,
-                                     const vector<varbind> varbinds)
+                                     const vector<varbind>& varbinds)
 {
     NotifyPDU pdu;
     pdu.set_sessionID(this->sessionID);

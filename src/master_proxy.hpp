@@ -814,6 +814,23 @@ namespace agentxcpp
 	                           const oid& snmpTrapOID,
 	                           const vector<varbind>& varbinds=vector<varbind>());
 
+	    /**
+	     * \brief Calculate the value of sysUpTime.0.
+	     *
+	     * Each notification must have an SysUpTime.0 object. This function
+	     * calculates the value of sysUpTime.0 as the running time of the
+	     * current process, in hundreths of a second.
+             *
+             * \internal
+             * The sysUpTime.0 value is the running time of the current
+             * process. This time is measured using a global variable which is
+             * initialized to the current time just be before main() starts.
+             * \endinternal
+             *
+             * \return The current value of sysUpTime.0.
+	     */
+	    TimeTicks calculate_sysUpTime();
+
 
             /**
 	     * \brief Send a notification or trap.

@@ -860,6 +860,20 @@ void master_proxy::send_notification(const oid& snmpTrapOID,
 }
 
 
+TimeTicks master_proxy::calculate_sysUpTime()
+{
+    // Calculate uptime
+    time_duration uptime = microsec_clock<ptime>::universal_time()
+                           - process_start_time;
+
+    // Convert uptime to hundreths of seconds
+    TimeTicks sysuptime( uptime.total_milliseconds()/10 );
+
+    // Return result
+    return sysuptime;
+}
+
+
 void master_proxy::send_notification(const TimeTicks& sysUpTime,
                                      const oid& snmpTrapOID,
                                      const vector<varbind>& varbinds)

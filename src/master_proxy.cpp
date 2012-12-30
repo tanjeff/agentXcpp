@@ -784,7 +784,7 @@ void master_proxy::remove_variable(const oid& id)
 
 
 oid master_proxy::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
-                                          uint32_t specific_trap)
+                                          optional<uint32_t> specific_trap)
 {
     // We need the OID of the SNMPv1 traps. These are defined here.
     //
@@ -831,9 +831,13 @@ oid master_proxy::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
             value = snmpTraps_egpNeighborLoss_oid;
             break;
         case enterpriseSpecific:
+            if(!specific_trap)
+            {
+                throw(inval_param());
+            }
             value = enterprises_oid;
             value.push_back(0);
-            value.push_back(specific_trap);
+            value.push_back(*specific_trap);
             break;
         default:
             // invalid generic_trap value!

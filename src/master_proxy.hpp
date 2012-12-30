@@ -771,10 +771,12 @@ namespace agentxcpp
              * \return The value of the snmpTrapOID.0 object.
 	     *
 	     * \exception inval_param If the generic_trap parameter has an
-	     *                        invalid value.
+	     *                        invalid value or if generic_trap is
+	     *                        <tt>enterpriseSpecific</tt> and
+	     *                        specific_trap was not given.
 	     */
             static oid generate_v1_snmpTrapOID(generic_trap_t generic_trap,
-	                                       uint32_t specific_trap = 0);
+	                                       boost::optional<uint32_t> specific_trap = boost::optional<uint32_t>());
 
 
 	    /**

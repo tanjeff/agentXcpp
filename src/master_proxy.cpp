@@ -846,21 +846,6 @@ oid master_proxy::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
 
 
 
-void master_proxy::send_notification(const oid& snmpTrapOID,
-                                     const vector<varbind>& varbinds)
-{
-    // Calculate uptime
-    time_duration uptime = microsec_clock<ptime>::universal_time()
-                           - process_start_time;
-
-    // Convert uptime to hundreths of seconds
-    TimeTicks sysuptime( uptime.total_milliseconds()/10 );
-
-    // Send notification
-    send_notification(sysuptime, snmpTrapOID, varbinds);
-}
-
-
 TimeTicks master_proxy::calculate_sysUpTime()
 {
     // Calculate uptime

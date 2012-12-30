@@ -37,6 +37,7 @@ using namespace boost;  // Beside other things, this pulls boost::uint16_t
 using boost::date_time::microsec_clock;
 using boost::posix_time::ptime;
 using boost::posix_time::time_duration;
+using boost::optional;
 
 
 namespace agentxcpp
@@ -874,7 +875,7 @@ TimeTicks master_proxy::calculate_sysUpTime()
 }
 
 
-void master_proxy::send_notification(const TimeTicks& sysUpTime,
+void master_proxy::send_notification(const optional<TimeTicks>& sysUpTime,
                                      const oid& snmpTrapOID,
                                      const vector<varbind>& varbinds)
 {
@@ -883,9 +884,12 @@ void master_proxy::send_notification(const TimeTicks& sysUpTime,
 
     vector<varbind>& vb = pdu.get_vb();
 
-    // First of all: add mandatory sysUpTime
-    shared_ptr<TimeTicks> sysuptime(new TimeTicks(sysUpTime));
-    vb.push_back(varbind(oid(sysUpTime_oid, "0"), sysuptime));
+    // First of all: add mandatory sysUpTime (if given)
+    if(sysUpTime)
+    {
+        shared_ptr<TimeTicks> value(new TimeTicks(*sysUpTime));
+        vb.push_back(varbind(oid(sysUpTime_oid, "0"), value));
+    }
 
     // Second of all: add mandatory snmpTrapOID
     shared_ptr<oid> trapoid(new oid(snmpTrapOID));

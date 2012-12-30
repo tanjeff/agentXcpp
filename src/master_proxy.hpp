@@ -27,6 +27,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/asio.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/optional/optional.hpp>
 
 #include "oid.hpp"
 #include "variable.hpp"
@@ -783,17 +784,22 @@ namespace agentxcpp
              * master agent, which in turn sends an SNMP notification or trap, 
              * depending on its configuration.
              *
-             * Each notification must at least contain the sysUpTime.0 object
-             * and the snmpTrapOID.0 object. The value of both objects are given
-             * to this function. You can also use the
-             * \ref master_proxy::send_notification(const oid&, const vector<varbind>&) function
-             * if you don't want to calculate sysUpTime.0 yourself.
+             * Each notification contains the sysUpTime.0 object (optional)
+             * and the snmpTrapOID.0 object (mandatory). The values of both
+             * objects are given as parameters.
              *
              * \param sysUpTime The value of the sysUpTime.0 object according
              *                  to RFC 1907, which says: "<em>The time (in
              *                  hundreths of a second) since the network
              *                  management portion of the system was last 
-             *                  re-initialized.</em>"
+             *                  re-initialized.</em>" This parameter is optional.
+             *                  You can use You can use
+             *                  \ref master_proxy::calculate_sysUpTime() to get
+             *                  to get the uptime of the current process. If it
+             *                  the parameter is not provided, the sysUpTime.0
+             *                  will not be included in the notification, and
+             *                  the master agent will insert an sysUpTime.0 value
+             *                  (e.g. the uptime of the OS).
 	     *
              * \param snmpTrapOID The value of  snmpTrapOID.0 according to
              *                    RFC 1907, which says: "<em>The authoritative
@@ -810,7 +816,7 @@ namespace agentxcpp
              * \param varbinds Additional varbinds which are included in the
              *                 notification.
 	     */
-	    void send_notification(const TimeTicks& sysUpTime,
+	    void send_notification(const boost::optional<TimeTicks>& sysUpTime,
 	                           const oid& snmpTrapOID,
 	                           const vector<varbind>& varbinds=vector<varbind>());
 
@@ -842,7 +848,7 @@ namespace agentxcpp
              * Each notification must at least contain the sysUpTime.0 object
              * and the snmpTrapOID.0 object. This function calculates the 
              * sysUpTime.0 value and then calls
-             * \ref master_proxy::send_notification(const TimeTicks&, const oid&, const vector<varbind>&) .
+             * \ref master_proxy::send_notification(const boost::optional<TimeTicks>&, const oid&, const vector<varbind>&) .
              *
              * \internal
              * The sysUpTime.0 value is the running time of the current 

@@ -506,50 +506,42 @@ namespace agentxcpp
     /**
      * \memberof oid
      *
-     * \brief The 'snmpMIBObjects' OID according to RFC 1907/RFC 2578.
+     * \brief The 'snmpMIBObjects' OID according to RFC 1907.
      *
      * \internal
      *
-     * This OID are used in the context of notifications.
+     * This OID is used in the context of notifications.
      *
-     * According to RFC 1907:
-     * snmpTrapOID ::= snmpTrap.1
-     * snmpTrap ::= snmpMIBObjects.4
-     * snmpMIBObjects ::= snmpMIB.1
-     * snmpMIB ::= snmpModules.1
+     * According to RFC 1907:<br/>
+     * snmpTrapOID ::= snmpTrap.1<br/>
+     * snmpTrap ::= snmpMIBObjects.4<br/>
+     * snmpMIBObjects ::= snmpMIB.1<br/>
+     * snmpMIB ::= snmpModules.1<br/>
      *
-     * According to RFC 2578 (SNMPv2-SMI):
-     * snmpModules ::= snmpV2.3
+     * According to RFC 2578 (SNMPv2-SMI):<br/>
+     * snmpModules ::= snmpV2.3<br/>
      * snmpV2 ::= internet.6
      *
-     * conclusion:
+     * Conclusion:<br/>
      * snmpMIBObjects ::= internet.6.3.1.1
-     * snmpTrapOID ::= internet.snmpMIBObjects.4.1
      */
     const oid snmpMIBObjects_oid(internet_oid, "6.3.1.1");
 
     /**
      * \memberof oid
      *
-     * \brief The 'snmpTrapOID' OIDs according to RFC 1907/RFC 2578.
+     * \brief The 'snmpTrapOID' OID according to RFC 1907.
      *
      * \internal
      *
-     * This OID are used in the context of notifications.
+     * This OID is used in the context of notifications.
      *
-     * According to RFC 1907:
-     * snmpTrapOID ::= snmpTrap.1
-     * snmpTrap ::= snmpMIBObjects.4
-     * snmpMIBObjects ::= snmpMIB.1
-     * snmpMIB ::= snmpModules.1
+     * According to RFC 1907:<br/>
+     * snmpTrapOID ::= snmpTrap.1<br/>
+     * snmpTrap ::= snmpMIBObjects.4<br/>
      *
-     * According to RFC 2578 (SNMPv2-SMI):
-     * snmpModules ::= snmpV2.3
-     * snmpV2 ::= internet.6
-     *
-     * conclusion:
-     * snmpMIBObjects ::= internet.6.3.1.1
-     * snmpTrapOID ::= internet.snmpMIBObjects.4.1
+     * Conclusion:<br/>
+     * snmpTrapOID ::= snmpMIBObjects.4.1
      */
     const oid snmpTrapOID_oid(snmpMIBObjects_oid, "4.1");
 
@@ -557,14 +549,21 @@ namespace agentxcpp
      *
      * \memberof oid
      *
-     * \brief The sysUpTime_oid OID accoring to RFC 1902/RFC 1907.
+     * \brief The sysUpTime_oid OID according to RFC 1907.
      *
-     * RFC 1902
+     * \internal
+     *
+     * This OID is used in the context of notifications.
+     *
+     * According to RFC 1907:<br/>
+     * sysUpTime = system.3<br/>
+     * system = mib-2.1
+     *
+     * According to RFC 1902:<br/>
      * mib-2 = mgmt.1
      *
-     * RFC 1907:
-     * sysUpTime = system.3
-     * system = mib-2.1
+     * Conclusion:
+     * sysUpTime = mgmt.1.1.3
      */
     const oid sysUpTime_oid(mgmt_oid, "1.1.3");
 

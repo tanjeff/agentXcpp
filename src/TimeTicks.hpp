@@ -29,7 +29,7 @@ using boost::uint32_t;
 namespace agentxcpp
 {
     /**
-     * \brief Represents an TimeTicks as descibed in RFC 2741
+     * \brief Represents an TimeTicks as described in RFC 2741
      */
     class TimeTicks : public variable
     {
@@ -48,9 +48,12 @@ namespace agentxcpp
              *
 	     * \brief Create an TimeTicks without initialization.
 	     *
-	     * The value after creation is undefined.
+	     * \param initial_value The initial value of the object.
 	     */
-	    TimeTicks() {}
+	    TimeTicks(uint32_t initial_value = 0)
+	    : value(initial_value)
+	    {
+	    }
 	    
 	    /**
 	     * \internal

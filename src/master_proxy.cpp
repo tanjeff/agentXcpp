@@ -29,13 +29,31 @@
 #include "NotifyPDU.hpp"
 #include "util.hpp"
 
-#include <iostream>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 using namespace std;
 using namespace agentxcpp;
 using namespace boost;  // Beside other things, this pulls boost::uint16_t
+using boost::date_time::microsec_clock;
+using boost::posix_time::ptime;
+using boost::posix_time::time_duration;
 
 
+namespace agentxcpp
+{
+    /**
+     * \internal
+     *
+     * \brief Variable to measure the uptime of the subagent.
+     *
+     * This variable is initialized when the executable starts up
+     * and holds the time at which this happened. Afterwards,
+     * the uptime of the subagent can be calculated.
+     *
+     * The uptime is needed for Notify-PDUs.
+     */
+    static ptime process_start_time(microsec_clock<ptime>::universal_time());
+}
 
 
 
@@ -828,14 +846,34 @@ oid master_proxy::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
 
 
 void master_proxy::send_notification(const oid& snmpTrapOID,
-                                     vector<varbind> varbinds)
+                                     const vector<varbind> varbinds)
+{
+    // Calculate uptime
+    time_duration uptime = microsec_clock<ptime>::universal_time()
+                           - process_start_time;
+
+    // Convert uptime to hundreths of seconds
+    TimeTicks sysuptime( uptime.total_milliseconds()/10 );
+
+    // Send notification
+    send_notification(sysuptime, snmpTrapOID, varbinds);
+}
+
+
+void master_proxy::send_notification(const TimeTicks& sysUpTime,
+                                     const oid& snmpTrapOID,
+                                     const vector<varbind> varbinds)
 {
     NotifyPDU pdu;
     pdu.set_sessionID(this->sessionID);
 
     vector<varbind>& vb = pdu.get_vb();
 
-    // First of all: add mandatory snmpTrapOID
+    // First of all: add mandatory sysUpTime
+    shared_ptr<TimeTicks> sysuptime(new TimeTicks(sysUpTime));
+    vb.push_back(varbind(oid(sysUpTime_oid, "0"), sysuptime));
+
+    // Second of all: add mandatory snmpTrapOID
     shared_ptr<oid> trapoid(new oid(snmpTrapOID));
     vb.push_back(varbind(oid(snmpTrapOID_oid, "0"), trapoid));
 

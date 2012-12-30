@@ -30,6 +30,7 @@
 
 #include "oid.hpp"
 #include "variable.hpp"
+#include "TimeTicks.hpp"
 #include "ClosePDU.hpp"
 #include "ResponsePDU.hpp"
 #include "RegisterPDU.hpp"
@@ -747,34 +748,26 @@ namespace agentxcpp
 	    };
 
 	    /**
-	     * \brief Create snmpTrapOID.0 from SNMPv1 Trap data.
+             * \brief Create snmpTrapOID.0 value from SNMPv1 trap data.
 	     *
 	     * Each notification must have an snmpTrapOID.0 object. In SNMPv1
-	     * no notifications were available; instead Traps were used.  This
-	     * function takes parameters which would be present in an SNMPv1
-	     * Trap and converts them to the corresponding an snmpTrapOID.0
-	     * value.
-	     *
-	     * Note that the master agent will convert the snmpTrapOID.0 value
-	     * back when sending SNMPv1 traps.
-	     *
+             * no notifications were available; traps were used instead.  This
+             * function takes parameters which would be present in an SNMPv1
+             * trap and converts them to the corresponding an snmpTrapOID.0
+             * value.
+             *
 	     * The conversion is done according to RFC 1908,
 	     * 3.1.2 "SNMPv1 -> SNMPv2".
 	     *
-             * \param enterprise The trap OID. This is defined in the
-             *                   corresponding MIB. See also RFC 1155, 4.1.6. 
-             *                   "The Trap-PDU".
-	     *
-	     * \param generic_trap The type of trap. If it is
+             * \param generic_trap The type of trap. If it is
              *                     <tt>enterpriseSpecific</tt>, then the 
-             *                     parameter specific_trap must be given.
+             *                     parameter specific_trap must also be given.
 	     *
              * \param specific_trap Only used if generic_trap is
              *                      <tt>enterpriseSpecific</tt>. It can be any 
-             *                      value.
+             *                      value specific to the subagent.
 	     *
-	     * \return A value for the snmpTrapOID.0 object to be added to
-	     *         the VarBind list.
+             * \return The value of the snmpTrapOID.0 object.
 	     *
 	     * \exception inval_param If the generic_trap parameter has an
 	     *                        invalid value.
@@ -786,14 +779,31 @@ namespace agentxcpp
 	    /**
 	     * \brief Send a notification.
 	     *
-             * This function sends a notification/Trap/InformRequest to the 
+             * This function sends a notification/trap to the
              * master agent, which in turn sends an SNMP notification or trap, 
              * depending on its configuration.
+             *
+             * Each notification must at least contain the sysUpTime.0 object
+             * and the snmpTrapOID.0 object. The value of both objects are given
+             * to this function.
+             *
+             * You can also use the
+             * \ref master_proxy::send_notification(const oid&, 
+             * vector<varbind>) function
+             * if you don't want to calculate sysUpTime yourself.
+             *
+             * \param sysUpTime The value of the sysUpTime.0 object, according
+             *                  to RFC 1907, which says: "The time (in 
+             *                  hundredths of a second) since the network 
+             *                  management portion of the system was last 
+             *                  re-initialized."
 	     *
              * \param snmpTrapOID The value of  snmpTrapOID.0 according to
-             *                    RFC 1907. This is normally the Trap OID as 
-             *                    specified in the corresponding MIB. However, 
-             *                    for SNMPv1 Traps the snmpTrapOID value must 
+             *                    RFC 1907, which says: "The authoritative 
+             *                    identification of the notification currently 
+             *                    being sent." This is normally the Trap OID as 
+             *                    specified in the corresponding MIB.  However, 
+             *                    for SNMPv1 traps the snmpTrapOID value must 
              *                    meet certain requirements. You can use 
              *                    generate_snmpTrapOID() to construct a valid 
              *                    value in that case.
@@ -801,8 +811,45 @@ namespace agentxcpp
              * \param varbinds Additional varbinds which are included in the
              *                 notification.
 	     */
-	    void send_notification(const oid& snmpTrapOID,
-	                           vector<varbind> varbinds=vector<varbind>());
+	    void send_notification(const TimeTicks& sysUpTime,
+	                           const oid& snmpTrapOID,
+	                           const vector<varbind> varbinds=vector<varbind>());
+
+
+            /**
+	     * \brief Send a notification.
+	     *
+             * This function sends a notification/trap to the
+             * master agent, which in turn sends an SNMP notification or trap, 
+             * depending on its configuration.
+             *
+             * Each notification must at least contain the sysUpTime.0 object
+             * and the snmpTrapOID.0 object. This function calculates the 
+             * sysUpTime.0 value and then calls \ref 
+             * master_proxy::send_notification(const TimeTicks&, const oid&,
+             * vector<varbind>) .
+             *
+             * /internal
+             * The sysUpTime.0 value is the running time of the current 
+             * process. This time is measured by a global variable which is 
+             * initialized to the current time just be before main() starts.
+             * \endinternal
+             *
+             * \param snmpTrapOID The value of  snmpTrapOID.0 according to
+             *                    RFC 1907, which says: "The authoritative 
+             *                    identification of the notification currently 
+             *                    being sent." This is normally the Trap OID as 
+             *                    specified in the corresponding MIB.  However, 
+             *                    for SNMPv1 traps the snmpTrapOID value must 
+             *                    meet certain requirements. You can use 
+             *                    generate_snmpTrapOID() to construct a valid 
+             *                    value in that case.
+             *
+             * \param varbinds Additional varbinds which are included in the
+             *                 notification.
+	     */
+            void send_notification(const oid& snmpTrapOID,
+                                   const vector<varbind> varbinds=vector<varbind>());
     };
 }
 

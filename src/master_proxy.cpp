@@ -880,7 +880,7 @@ void master_proxy::send_notification(const optional<TimeTicks>& sysUpTime,
         vb.push_back(varbind(oid(sysUpTime_oid, "0"), value));
     }
 
-    // Second of all: add mandatory snmpTrapOID
+    // Second: add mandatory snmpTrapOID
     shared_ptr<oid> trapoid(new oid(snmpTrapOID));
     vb.push_back(varbind(oid(snmpTrapOID_oid, "0"), trapoid));
 
@@ -888,19 +888,43 @@ void master_proxy::send_notification(const optional<TimeTicks>& sysUpTime,
     vb.insert(vb.end(), varbinds.begin(), varbinds.end());
 
     // Send notification
-    // Note: timeout_exception and disconnected exceptions are forwarded.
+    // Note: timeout_error and disconnected exceptions are forwarded.
     binary pdu_serialized = pdu.serialize();
     connection->send(pdu);
 
     // Wait for response
-    // Note: timeout_exception and disconnected exceptions are forwarded.
+    // Note: timeout_error and disconnected exceptions are forwarded.
     shared_ptr<ResponsePDU> response;
     response = connection->wait_for_response(pdu.get_packetID());
 
-    // TODO: handle response
-    binary response_serialized = response->serialize();
-    cout << "Received Response to Notification: \n"
-            << response_serialized
-            << "error: " << response->get_error() << endl
-            << "index: " << response->get_index() << endl;
+    // Handle response
+    switch(response->get_error())
+    {
+        case ResponsePDU::processingError:
+            // Can occur when snmpTrapOID.0 was missing in notification (but
+            // we know that we don't make mistakes ^^) or when master could
+            // not allocate resources.
+            throw(master_is_unable());
+            break;
+
+        case ResponsePDU::unsupportedContext:
+            // context not supported by master
+            throw(unsupported_context());
+            break;
+
+        case ResponsePDU::noAgentXError:
+            // All went well
+            break;
+
+        case ResponsePDU::parseError:
+            // We sent garbage
+        case ResponsePDU::notOpen:
+            // Session was not open
+        default:
+            // We don't expect other errors as the ones handled above
+            // Close connection
+            disconnect(ClosePDU::reasonProtocolError);
+            throw(disconnected());
+            break;
+    }
 }

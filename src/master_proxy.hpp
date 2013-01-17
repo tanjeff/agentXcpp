@@ -61,8 +61,8 @@ namespace agentxcpp
      * \par Connection State
      *
      * The master_proxy is always in one of the following states:
-     * -# connected
-     * -# disconnected
+     * - connected
+     * - disconnected
      * .
      * The session to the master agent is established when creating a 
      * master_proxy object, thus the object usually starts in connected state.  
@@ -110,7 +110,7 @@ namespace agentxcpp
      * Before the master agent sends requests to a subagent, the subagent must 
      * register a subtree. Doing so informs the master agent that the subagent 
      * wishes to handle requests for these OIDs. A subtree is an OID which 
-     * denotes the root of a subtree in which some of the offered objects 
+     * denotes the root of a subtree in which the offered objects
      * resides. For example, when two objects shall be offered with the OIDs 
      * 1.3.6.1.4.1.42<b>.1.1</b> and 1.3.6.1.4.1.42<b>.1.2</b>, then a subtree 
      * with OID 1.3.6.1.4.1.42<b>.1</b> should be registered, which includes 
@@ -817,6 +817,14 @@ namespace agentxcpp
              *
              * \param varbinds Additional varbinds which are included in the
              *                 notification.
+             *
+             * \exception timeout_error
+             *
+             * \exception disconnected
+             *
+             * \exception master_is_unable
+             *
+             * \exception unsupported_context
 	     */
 	    void send_notification(const boost::optional<TimeTicks>& sysUpTime,
 	                           const oid& snmpTrapOID,

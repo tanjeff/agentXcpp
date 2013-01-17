@@ -32,7 +32,7 @@ goals of the library are:
 
 Table of contents
 - \subpage license
-- \subpage subagent_howto
+- \subpage how_to_write_a_subagent
 - \subpage documentation
 - \subpage installation
 - \subpage buildsystem

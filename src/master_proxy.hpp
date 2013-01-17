@@ -786,29 +786,20 @@ namespace agentxcpp
 	    /**
 	     * \brief Writing aid: Send notification without sysUpTime.0
 	     *
-	     * This calls \ref send_notification(const boost::optional<TimeTicks>&,
-	     * const oid&, const vector<varbind>&) with an empty sysUpTime parameter.
-	     * Without the writing aid it would be neccessary to construct an empty
-	     * parameter, like so:
+	     * This calls \ref send_notification(
+	     * const boost::optional<TimeTicks>&,
+	     * const oid&, const vector<varbind>&) with an empty sysUpTime.0
+	     * parameter. Without the writing aid it would be neccessary to
+	     * construct an empty parameter, like so:
 	     * \code
 	     * master.send_notification(optional<TimeTicks>(),
 	     *                          mySubagentOid);
 	     * \endcode
 	     *
-	     * \param snmpTrapOID The value of  snmpTrapOID.0 according to
-             *                    RFC 1907, which says: "<em>The authoritative
-             *                    identification of the notification currently
-             *                    being sent.</em>" This is normally the Trap OID as
-             *                    specified in the corresponding MIB.  However,
-             *                    if the notification shall be converted to an SNMPv1
-             *                    trap (this conversion is done by the master agent),
-             *                    the snmpTrapOID.0 value must
-             *                    meet certain requirements. You can use
-             *                    generate_v1_snmpTrapOID()
-             *                    to construct a valid value in that case.
-             *
-             * \param varbinds Additional varbinds which are included in the
-             *                 notification.
+	     * For the documentation of the parameters and exceptions go to
+	     * \ref send_notification(
+             * const boost::optional<TimeTicks>&,
+             * const oid&, const vector<varbind>&)
 	     */
 	    void send_notification(const oid& snmpTrapOID,
                                    const vector<varbind>& varbinds=vector<varbind>())

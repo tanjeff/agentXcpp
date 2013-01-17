@@ -732,54 +732,6 @@ namespace agentxcpp
 	    void remove_variable(const oid& id);
 
 	    /**
-	     * \brief The allowed values for specific-trap.
-	     *
-	     * According to RFC 1157, these values can be used for the
-	     * generic-trap field in SNMPv1 Traps.
-	     */
-	    enum generic_trap_t
-	    {
-	        coldStart=0,
-	        warmStart=1,
-	        linkDown=2,
-	        linkUp=3,
-	        authenticationFailure=4,
-	        egpNeighborLoss=5,
-	        enterpriseSpecific=6
-	    };
-
-	    /**
-             * \brief Create snmpTrapOID.0 value from SNMPv1 trap data.
-	     *
-	     * Each notification must have an snmpTrapOID.0 object. In SNMPv1
-             * no notifications were available; traps were used instead.  This
-             * function takes parameters which would be present in an SNMPv1
-             * trap and converts them to the corresponding an snmpTrapOID.0
-             * value.
-             *
-	     * The conversion is done according to RFC 1908,
-	     * 3.1.2 "SNMPv1 -> SNMPv2".
-	     *
-             * \param generic_trap The type of trap. If it is
-             *                     <tt>enterpriseSpecific</tt>, then the 
-             *                     parameter specific_trap must also be given.
-	     *
-             * \param specific_trap Only used if generic_trap is
-             *                      <tt>enterpriseSpecific</tt>. It can be any 
-             *                      value specific to the subagent.
-	     *
-             * \return The value of the snmpTrapOID.0 object.
-	     *
-	     * \exception inval_param If the generic_trap parameter has an
-	     *                        invalid value or if generic_trap is
-	     *                        <tt>enterpriseSpecific</tt> and
-	     *                        specific_trap was not given.
-	     */
-            static oid generate_v1_snmpTrapOID(generic_trap_t generic_trap,
-	                                       boost::optional<uint32_t> specific_trap = boost::optional<uint32_t>());
-
-
-	    /**
 	     * \brief Send a notification or trap.
 	     *
              * This function sends a notification to the

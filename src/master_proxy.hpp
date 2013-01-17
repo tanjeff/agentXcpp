@@ -796,12 +796,13 @@ namespace agentxcpp
              *                  management portion of the system was last 
              *                  re-initialized.</em>" This parameter is optional.
              *                  You can use You can use
-             *                  \ref master_proxy::calculate_sysUpTime() to get
-             *                  to get the uptime of the current process. If it
+             *                  \ref agentxcpp::processUpTime() to get
+             *                  to get the uptime of the current process. If
              *                  the parameter is not provided, the sysUpTime.0
              *                  will not be included in the notification, and
-             *                  the master agent will insert an sysUpTime.0 value
-             *                  (e.g. the uptime of the OS).
+             *                  the master agent will insert an sysUpTime.0
+             *                  value (e.g. the uptime of the OS, depeding on
+             *                  the master agent).
 	     *
              * \param snmpTrapOID The value of  snmpTrapOID.0 according to
              *                    RFC 1907, which says: "<em>The authoritative
@@ -864,23 +865,6 @@ namespace agentxcpp
 	                          snmpTrapOID,
 	                          varbinds);
 	    }
-
-	    /**
-	     * \brief Calculate the value of sysUpTime.0.
-	     *
-	     * Each notification must have an SysUpTime.0 object. This function
-	     * calculates the value of sysUpTime.0 as the running time of the
-	     * current process, in hundreths of a second.
-             *
-             * \internal
-             * The sysUpTime.0 value is the running time of the current
-             * process. This time is measured using a global variable which is
-             * initialized to the current time just be before main() starts.
-             * \endinternal
-             *
-             * \return The current value of sysUpTime.0.
-	     */
-	    TimeTicks calculate_sysUpTime();
     };
 }
 

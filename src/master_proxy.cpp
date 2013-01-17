@@ -16,7 +16,6 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#include <boost/bind.hpp>
 #include <boost/cstdint.hpp>
 
 #include "master_proxy.hpp"
@@ -29,32 +28,13 @@
 #include "NotifyPDU.hpp"
 #include "util.hpp"
 
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 using namespace std;
 using namespace agentxcpp;
 using namespace boost;  // Beside other things, this pulls boost::uint16_t
-using boost::date_time::microsec_clock;
-using boost::posix_time::ptime;
-using boost::posix_time::time_duration;
 using boost::optional;
 
 
-namespace agentxcpp
-{
-    /**
-     * \internal
-     *
-     * \brief Variable to measure the uptime of the subagent.
-     *
-     * This variable is initialized when the executable starts up
-     * and holds the time at which this happened. Afterwards,
-     * the uptime of the subagent can be calculated.
-     *
-     * The uptime is needed for Notify-PDUs.
-     */
-    static ptime process_start_time(microsec_clock<ptime>::universal_time());
-}
 
 
 
@@ -850,18 +830,6 @@ oid master_proxy::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
 
 
 
-TimeTicks master_proxy::calculate_sysUpTime()
-{
-    // Calculate uptime
-    time_duration uptime = microsec_clock<ptime>::universal_time()
-                           - process_start_time;
-
-    // Convert uptime to hundreths of seconds
-    TimeTicks sysuptime( uptime.total_milliseconds()/10 );
-
-    // Return result
-    return sysuptime;
-}
 
 
 void master_proxy::send_notification(const optional<TimeTicks>& sysUpTime,

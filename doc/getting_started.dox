@@ -17,26 +17,17 @@
  * for more details.
  */
 
-/*! 
+/*!
 
-\mainpage AgentXcpp internals documentation
+\page getting_started Getting Started
 
-The AgentXcpp library is intended to implement SNMP MIB implementation. This is 
-achieved by implementing the AgentX protocol as defined in RFC 2741. The main 
-goals of the library are:
+This chapter provides an introduction to agentXcpp. Read through the following 
+sections:
 
-  - Compliance to RFC 2741
-  - Provide a clean, easy to use API
-  - Provide full documentation of the API
-  - Ensure stable operation
+-# \subpage installation "Building and installing agentXcpp".
+-# \subpage how_to_write_a_subagent "Learn how to write subagents with agentXcpp."
+-# \subpage how_to_send_notifications "Learn how to send traps and notifications with agentXcpp."
 
-Table of contents
-- \subpage license
-- \subpage getting_started
-- \subpage documentation
-- \subpage buildsystem
-- \subpage pdus
-- \subpage exceptions
-- \subpage variables
+Finally, start writing your own subagents. Happy hacking!
 
 */

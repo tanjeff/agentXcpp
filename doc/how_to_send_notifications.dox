@@ -1,0 +1,257 @@
+/*
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ *
+ * This file is part of the agentXcpp library.
+ *
+ * AgentXcpp is free software: you can redistribute it and/or modify
+ * it under the terms of the AgentXcpp library license, version 1, which 
+ * consists of the GNU General Public License and some additional 
+ * permissions.
+ *
+ * AgentXcpp is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * See the AgentXcpp library license in the LICENSE file of this package 
+ * for more details.
+ */
+
+/*! 
+
+
+\page how_to_send_notifications How to send notifications and traps
+
+\note This is a follow-up tutorial to \ref how_to_write_a_subagent .
+
+This HOWTO explains how to send notifications (SNMP v2, v2c and v3) and traps 
+(SNMP v1). Luckily, from a subagent's point of view, there is nearly no 
+difference between traps and notifications. In the following text, the term 
+"notification" is used for notifications \e and traps.
+
+When a subagent detects some condition, it may send a notification to the 
+master agent. The master agent will then forward it to some SNMP managers, 
+depending on its configuration (it may be configured to not forward the 
+notification at all). The master agent decides where the notifications are sent 
+to. The subagent has no influence on the targets.
+
+In this howto, we augment the SIMPLE-MIB from \ref how_to_write_a_subagent with
+a notification. Here is the complete MIB:
+
+\verbatim
+SIMPLE-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS OBJECT-TYPE, NOTIFICATION-TYPE FROM SNMPv2-SMI
+IMPORTS enterprises FROM RFC1155-SMI
+
+simpleCounter OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "A simple counter which is incremented each time
+                 it is queried. Starts with 0."
+    ::={ enterprises 42 1 }
+
+simpleCounterChange NOTIFICATION-TYPE
+    OBJECTS { simpleCounter }
+    STATUS current
+    DESCRIPTION "A notification sent whenever simpleCounter changes."
+
+END
+\endverbatim
+
+
+\section implementing Implementation
+
+First of all, here is the code for the simpleCounter class:
+
+
+\code
+// Make the class agentxcpp::Integer available:
+#include <agentxcpp/Integer.hpp>
+
+// Make the class agentxcpp::master_proxy available:
+#include <agentxcpp/master_proxy.hpp>
+
+// We want to output error messages:
+#include <iostream>
+
+class simpleCounter : public Integer
+{
+    private:
+        int32_t counter;
+
+    public:
+        virtual int32_t get()
+        {
+            return counter++;
+        }
+
+        simpleCounter()
+          : counter(0)
+        {
+        }
+};
+\endcode
+
+The counter is incremented in the get() method. Thus it would be obvious to 
+send a notification within that method. However, this is not very smart, 
+because sending a notification takes some time, and the caller of get() (i.e.  
+the master agent) is waiting for an answer. We risk a timeout if we do 
+networking stuff within get(). Furthermore, we need a reference to the master 
+agent plus the simpleCounter's OID, which would bloat our \e simple counter 
+class.
+
+Therefore, we will send the notifications within the main loop in main(). For 
+this purpose, we add a member and two methods to the simpleCounter class. Here 
+is the code:
+
+\code
+class simpleCounter : public Integer
+{
+    private:
+        int32_t counter;
+        bool dirty;
+
+    public:
+        virtual int32_t get()
+        {
+            return counter++;
+        }
+
+        simpleCounter()
+          : counter(0), dirty(false)
+        {
+        }
+
+        int32_t value()
+        {
+            return counter;
+        }
+
+        is_dirty()
+        {
+            bool status = dirty;
+            dirty = false;
+            return status;
+        }
+};
+\endcode
+
+We added a value() method which gives us the current value. And we added the \c 
+dirty flag, which is initialized to \c false and then set to \c true each time 
+the value changes. The is_dirty() method gives us the \c dirty flag and resets 
+it.
+
+Next, we augment the main() function with code to send notifications. We do 
+this in the main loop:
+
+\code
+    while( master.is_connected() )
+    {
+        master.get_io_service()->run_one();
+        if(sc->is_dirty())
+        {
+            vector<varbind> objects;
+            objects.push_back(varbind(simpleCounter_oid, sc));
+            master.send_notification(simpleCounter_oid, objects);
+        }
+    }
+\endcode
+
+Here is what happens in this code fragment: If the counter's value changed, a 
+vector<varbind> is created, and a \ref agentxcpp::varbind varbind is added with 
+the simpleCounter's OID and the simpleCounter itself (the \c sc variable).  
+Then a notification is sent, which includes the varbind vector.
+
+\todo Which OID must be given to send_notification()?
+
+
+
+\section compiling Compiling the Subagent
+
+Compiling subagent works exactly the same as in \ref how_to_write_a_subagent 
+(depending on your development environment):
+
+\code
+g++ simpleagent.cpp -o simpleagent -lboost_system -lpthread -lagentxcpp
+\endcode
+
+
+
+\section running Running the Subagent
+
+The subagent is run as described in \ref how_to_write_a_subagent, but to make 
+notifications work, you need additional configuration for the master agent. For 
+the NET-SNMP master agent, add the following line to its configuration file 
+<tt>/etc/snmp/snmpd.conf</tt>:
+
+\verbatim
+informsink udp:127.0.0.1 rw
+\endverbatim
+
+This line means that notifications are sent to the address 127.0.0.1, using the 
+default port (which is 162) and the community string "rw" (which we also using 
+in \ref how_to_write_a_subagent). Next, we (re)start the master agent using its 
+init scripts:
+
+\verbatim
+/etc/init.d/snmpd stop
+/etc/init.d/snmpd start
+\endverbatim
+
+Note that the path depends on your system. For example in ArchLinux, it is 
+/etc/rc.d/snmpd.
+
+
+\subsection starting snmptrapd
+
+To receive notifications, we use the snmptrapd program from the NET-SNMP 
+package. First, we have to configure it. Make sure that the following line is 
+contained in <tt>/etc/snmp/snmptrapd.conf</tt>:
+
+\verbatim
+authCommunity log rw
+\endverbatim
+
+That line enables logging for notifications with the community string "rw". Now 
+start the program as root. The program must be run as root, because it needs to 
+listen on the privileged port 162.
+
+\verbatim
+snmptrapd -f -Le
+\endverbatim
+
+The <tt>-f</tt> parameter forces the program to stay in the foreground, so we 
+can see its output. The <tt>-Le</tt> parameter redirects the logging messages 
+to stderr (i.e. to the console window).
+
+
+\subsection starting_subagent Starting the Subagent
+
+The subagent is started as last time:
+
+\verbatim
+./simpleagent
+\endverbatim
+
+
+
+
+
+\subsection provoke_notifications Provoking Notifications
+
+We now provoke notifications by sending GET requests for the simpleCounter 
+object:
+
+\verbatim
+snmpget -v1 -c rw localhost 1.3.6.1.4.1.42.1.0
+\endverbatim
+
+Each time the command is executed, the simpleCounter object reports the 
+incremented number, and the snmptrapd program reports that a notification was 
+received. The notification contains the current counter value.
+
+
+
+*/

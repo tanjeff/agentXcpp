@@ -32,12 +32,14 @@ described within the minimal MIB called 'SIMPLE-MIB':
 \verbatim
 SIMPLE-MIB DEFINITIONS ::= BEGIN
 
-IMPORTS OBJECT-TYPE FROM SNMPv2-SMI
+IMPORTS
+    OBJECT-TYPE FROM SNMPv2-SMI
+    enterprises FROM SNMPv2-SMI;
 
 simpleCounter OBJECT-TYPE
     SYNTAX INTEGER
     ACCESS read-only
-    STATUS mandatory
+    STATUS current
     DESCRIPTION "A simple counter which is incremented each time
                  it is queried. Starts with 0."
     ::={ enterprises 42 1 }
@@ -51,7 +53,7 @@ Now let's see how easy this can be implemented with agentXcpp!
 
 \section implementing Implementing the Subagent
 
-We implement the subagent within a single file - <tt>simpleagent.cpp</tt>.
+We implement the subagent within a single file: <tt>simpleagent.cpp</tt>
 
 \subsection headers The Headers
 
@@ -87,7 +89,7 @@ description of the object, not the object itself. The OID of simpleCounter is
 In C++, objects are described by their classes (note the difference between 
 classes and objects). The class-object-relation in C++ is similar to the 
 "OBJECT-TYPE"-"object"-relation in SNMP. Therefore, OBJEC-TYPEs are represented 
-by classes in agentXcpp, while SNMP objects are represented by C++ objects.  
+by C++ classes, while SNMP objects are represented by C++ objects.  
 Therefore, to implement simpleCounter, we start with a class (later we will 
 make an object of the class):
 
@@ -159,7 +161,9 @@ the standard OID "1.3.6.1.4.1".  The master will then send all SNMP requests
 within that subtree to our subagent (e.g.  "enterprises.42.1.0" or 
 "enterprises.42.1.1.2.0"), regardless of whether the subagent actually can 
 serve them. If a request cannot be served, the \ref agentxcpp::master_proxy 
-"master_proxy" will send an appropriate error message to the master agent.
+"master_proxy" will send an appropriate error message to the master agent, 
+which means that our simpleCounter implementation does not have to deal with 
+that.
 
 And here is the code for subtree registration:
 
@@ -168,19 +172,19 @@ And here is the code for subtree registration:
     master.register_subtree(simpleagent_oid);
 \endcode
 
-As you see, an \ref agentxcpp::oid "oid" object can be created by giving it the 
-"enterprises_oid" object (which is provided by agentXcpp for convenience) and 
-an additional string with further subids.
+As you can see, an \ref agentxcpp::oid "oid" object can be created by giving it 
+the "enterprises_oid" object (which is provided by agentXcpp for convenience) 
+and an additional string with further subids.
 
 Next, we create a simpleCounter variable and register it with agentXcpp:
 
 \code
     oid simpleCounter_oid(simpleagent_oid, "0");
-    shared_ptr<simpleCounter> sc(new simpleCounter);
-    master.add_variable( simpleCounter_oid, sc);
+    shared_ptr<simpleCounter> counter(new simpleCounter);
+    master.add_variable( simpleCounter_oid, counter);
 \endcode
 
-This is the place where we create the real SNMP variable 'sc'. This variable is 
+This is the place where we create the real SNMP variable 'counter'. This variable is 
 then registered with the master agent by providing its OID (the one with .0) 
 and the object itself. Note that the object is given in form of a shared 
 pointer, which means that is must be created using the 'new' operator.
@@ -223,8 +227,8 @@ Now, let's store the program as <tt>simpleagent.cpp</tt> and compile it!
 \section compiling Compiling the Subagent
 
 When compiling the subagent, we need to link against the boost library 
-'system_error', 'pthread' and, of course, against the agentXcpp library. In 
-linux, you can type the following command:
+'system_error', 'pthread' and, of course, against the agentXcpp library. On a 
+GNU/Linux system, you can type the following command:
 
 \code
 g++ simpleagent.cpp -o simpleagent -lboost_system -lpthread -lagentxcpp
@@ -244,8 +248,8 @@ agent, and some command line tools, which can be used to query the SNMP
 agent.
 
 We will configure the NET-SNMP agent to act as AgentX master agent. To keep 
-this guide simple, we will use the SNMPv1 protocol using "rw" as read-write 
-community name, but our subagent can of course be queried using SNMPv2c or 
+this guide simple, we will use the SNMPv2c protocol using "rw" as read-write 
+community name, but our subagent can of course be queried using SNMPv1 or 
 SNMPv3, as long as the master is configured accordingly. The subagent 
 implementation is independent of the used SNMP version.
 
@@ -303,13 +307,13 @@ Our little subagent exposes an INTERGER object with the OID
 the NET-SNMP utility snmpget (but you can use any tool you wish, of course):
 
 \verbatim
-snmpget -v1 -c rw localhost 1.3.6.1.4.1.42.1.0
+snmpget -v2c -c rw localhost 1.3.6.1.4.1.42.1.0
 \endverbatim
 
 Or, if the MIB above is put into a file in the right directory, we can also do:
 
 \verbatim
-snmpget -v1 -c rw localhost enterprises.42.1.0
+snmpget -v2c -c rw localhost SIMPLE-MIB::simpleCounter.0
 \endverbatim
 
 Each time the command is executed, the simpleCounter object reports the 

@@ -22,7 +22,7 @@
 
 \page how_to_send_notifications How to send notifications and traps
 
-\note This is a follow-up tutorial to \ref how_to_write_a_subagent .
+\note This is a follow-up tutorial to \ref how_to_write_a_subagent.
 
 This HOWTO explains how to send notifications (SNMP v2, v2c and v3) and traps 
 (SNMP v1). Luckily, from a subagent's point of view, there is nearly no 
@@ -31,23 +31,29 @@ difference between traps and notifications. In the following text, the term
 
 When a subagent detects some condition, it may send a notification to the 
 master agent. The master agent will then forward it to some SNMP managers, 
-depending on its configuration (it may be configured to not forward the 
-notification at all). The master agent decides where the notifications are sent 
-to. The subagent has no influence on the targets.
+depending on its configuration. The destination of the SNMP notification (or 
+trap) is determined solely by the master agent.
 
-In this howto, we augment the SIMPLE-MIB from \ref how_to_write_a_subagent with
-a notification. Here is the complete MIB:
+We start with the subagent developed in \ref how_to_write_a_subagent, which 
+provides the SNMP variable simpleCounter. This counter is incremented each time 
+it is read. Next we will enhance our implementation to send a notification each 
+time the counter value changes.
+
+First of all, let's augment the SIMPLE-MIB known from \ref 
+how_to_write_a_subagent. Here is the complete MIB:
 
 \verbatim
 SIMPLE-MIB DEFINITIONS ::= BEGIN
 
-IMPORTS OBJECT-TYPE, NOTIFICATION-TYPE FROM SNMPv2-SMI
-IMPORTS enterprises FROM RFC1155-SMI
+IMPORTS
+    OBJECT-TYPE FROM SNMPv2-SMI
+    enterprises FROM SNMPv2-SMI
+    NOTIFICATION-TYPE FROM SNMPv2-SMI;
 
 simpleCounter OBJECT-TYPE
     SYNTAX INTEGER
     ACCESS read-only
-    STATUS mandatory
+    STATUS current
     DESCRIPTION "A simple counter which is incremented each time
                  it is queried. Starts with 0."
     ::={ enterprises 42 1 }
@@ -56,119 +62,146 @@ simpleCounterChange NOTIFICATION-TYPE
     OBJECTS { simpleCounter }
     STATUS current
     DESCRIPTION "A notification sent whenever simpleCounter changes."
+    ::={ enterprises 42 0 1 }
 
 END
 \endverbatim
 
+As can be seen, we added the simpleCounterChange notification, which will 
+include the simpleCounter value when sent. Note that the next-to-last 
+subidentifier for notifications must be 0 according to RFC 1902, 8.5. "Mapping 
+of the NOTIFICATION-TYPE value".
 
-\section implementing Implementation
 
-First of all, here is the code for the simpleCounter class:
+\section implementing_notification The Implementation
 
+
+
+
+Now, how do we implement a notification? Normally, a subagent is just sitting 
+there, waiting for SNMP requests and handling them. Notifications typically 
+arise outside of this mechanism. The subagent might use another thread watching 
+out for important events, and sending notifications (note, however, that 
+agentXcpp is currently not thread-safe). Or, the subagent might be 
+single-threaded, sharing an boost::asio::io_service object with the 
+master_agent, so that events outside agentXcpp are handled together with 
+agentXcpp internal events.
+
+Our case is simpler, though, because \c simpleCounterChange notifications are
+triggered by Get-Requests and thus synchronized with the SNMP activities. The 
+easiest is to replace <tt>master.get_io_service()->run();</tt> by 
+<tt>master.get_io_service()->run_one();</tt>, so that after each SNMP request, 
+the main loop is left and control is given back to our program. Then, we test 
+whether a notification must be sent, and if so, send it.
+
+\note Sending notifications from within <tt>simpleCounter::get()</tt> doesn't 
+      work.
+
+Here is the new code, placed within the <tt>main()</tt> function:
 
 \code
-// Make the class agentxcpp::Integer available:
-#include <agentxcpp/Integer.hpp>
+    while( master.is_connected() )
+    {
+        master.get_io_service()->run_one(); // serve one SNMP request
 
-// Make the class agentxcpp::master_proxy available:
-#include <agentxcpp/master_proxy.hpp>
-
-// We want to output error messages:
-#include <iostream>
-
-class simpleCounter : public Integer
-{
-    private:
-        int32_t counter;
-
-    public:
-        virtual int32_t get()
+        // Send Notification if needed:
+        if(counter->is_dirty())
         {
-            return counter++;
+            std::cout << "Counter changed to " << counter->value() << std::endl;
+            vector<varbind> objects;
+            objects.push_back(varbind(simpleCounter_oid, counter));
+            master.send_notification(oid(enterprises_oid, "42.0.1"), objects);
         }
-
-        simpleCounter()
-          : counter(0)
-        {
-        }
-};
+    }
 \endcode
 
-The counter is incremented in the get() method. Thus it would be obvious to 
-send a notification within that method. However, this is not very smart, 
-because sending a notification takes some time, and the caller of get() (i.e.  
-the master agent) is waiting for an answer. We risk a timeout if we do 
-networking stuff within get(). Furthermore, we need a reference to the master 
-agent plus the simpleCounter's OID, which would bloat our \e simple counter 
-class.
+\todo Which OID must be given to send_notification()?
 
-Therefore, we will send the notifications within the main loop in main(). For 
-this purpose, we add a member and two methods to the simpleCounter class. Here 
-is the code:
+For this to work, we must implement the <tt>simpleCounter::is_dirty()</tt> and 
+<tt>simpleCounter::value()</tt> methods, which we'll do in a moment.
+
+Here is what happens in this code fragment: The <tt>run_one()</tt> method 
+blocks until one SNMP request is handled (while <tt>run()</tt> blocks forever 
+as long as no error happens).  After this single event, <tt>run_one()</tt> 
+returns, and a notification can be sent if needed.
+
+If the counter is "dirty" (i.e. the value changed since the last call to 
+<tt>is_dirty()</tt>), a vector<varbind> is created, and a \ref 
+agentxcpp::varbind varbind is added with the simpleCounter's OID and the 
+simpleCounter itself (the \c counter variable).  Then a notification is sent, 
+which includes the varbind vector.
+
+After that, the loop is repeated and <tt>run_one()</tt> is called to wait for 
+the next SNMP request.
+
+Next, we augment the class simpleCounter. Here is the complete class 
+definition:
 
 \code
 class simpleCounter : public Integer
 {
     private:
         int32_t counter;
-        bool dirty;
+        bool dirty;     // <-- NEW!
 
     public:
         virtual int32_t get()
         {
-            return counter++;
-        }
-
-        simpleCounter()
-          : counter(0), dirty(false)
-        {
-        }
-
-        int32_t value()
-        {
+            // NEW: set dirty to true
+            counter++;
+            dirty = true;
             return counter;
         }
 
-        is_dirty()
+        simpleCounter()
+            : counter(0), dirty(false) // add initialization of 'dirty'
+        {
+        }
+
+        // NEW:
+        bool is_dirty()
         {
             bool status = dirty;
             dirty = false;
             return status;
         }
+
+        // New:
+        int32_t value()
+        {
+            return counter;
+        }
 };
 \endcode
 
-We added a value() method which gives us the current value. And we added the \c 
-dirty flag, which is initialized to \c false and then set to \c true each time 
-the value changes. The is_dirty() method gives us the \c dirty flag and resets 
-it.
-
-Next, we augment the main() function with code to send notifications. We do 
-this in the main loop:
-
-\code
-    while( master.is_connected() )
-    {
-        master.get_io_service()->run_one();
-        if(sc->is_dirty())
-        {
-            vector<varbind> objects;
-            objects.push_back(varbind(simpleCounter_oid, sc));
-            master.send_notification(simpleCounter_oid, objects);
-        }
-    }
-\endcode
-
-Here is what happens in this code fragment: If the counter's value changed, a 
-vector<varbind> is created, and a \ref agentxcpp::varbind varbind is added with 
-the simpleCounter's OID and the simpleCounter itself (the \c sc variable).  
-Then a notification is sent, which includes the varbind vector.
-
-\todo Which OID must be given to send_notification()?
+The new <tt>value()</tt> method simply returns the current value. Further, we 
+added the \c dirty flag, which is initially initialized to false. When the 
+value is incremented (within <tt>get()</tt>), the \dirty flag is set to true.  
+Asking for the flag with <tt>is_dirty()</tt> returns the state and resets the 
+flag to false.
 
 
 
-\section compiling Compiling the Subagent
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section compiling_notification Compiling the Subagent
 
 Compiling subagent works exactly the same as in \ref how_to_write_a_subagent 
 (depending on your development environment):
@@ -179,7 +212,7 @@ g++ simpleagent.cpp -o simpleagent -lboost_system -lpthread -lagentxcpp
 
 
 
-\section running Running the Subagent
+\section running_notification Running the Subagent
 
 The subagent is run as described in \ref how_to_write_a_subagent, but to make 
 notifications work, you need additional configuration for the master agent. For 
@@ -191,7 +224,7 @@ informsink udp:127.0.0.1 rw
 \endverbatim
 
 This line means that notifications are sent to the address 127.0.0.1, using the 
-default port (which is 162) and the community string "rw" (which we also using 
+default port (which is 162) and the community string "rw" (which we also used
 in \ref how_to_write_a_subagent). Next, we (re)start the master agent using its 
 init scripts:
 

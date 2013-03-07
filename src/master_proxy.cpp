@@ -55,12 +55,16 @@ master_proxy::master_proxy(boost::asio::io_service* _io_service,
     // Initialize connector (never use timeout=0)
     uint8_t timeout;
     timeout = (this->default_timeout == 0) ? 1 : this->default_timeout;
-    connection = new connector(io_service,
+    connection = new UnixDomainConnector(
 			       _filename.c_str(),
 			       timeout*1000);
+    cout << "Moving connection to thread " << &m_thread << endl;
+    connection->moveToThread(&m_thread);
+    m_thread.start();
+
 
     // Register this object as %PDU handler
-    this->connection->register_handler( this );
+    //this->connection->register_handler( this );
 
     // Try to connect
     try
@@ -72,6 +76,7 @@ master_proxy::master_proxy(boost::asio::io_service* _io_service,
     {
 	// Ignore, stay disconnected
     }
+
 }
 
 
@@ -90,12 +95,16 @@ master_proxy::master_proxy(std::string _description,
     // Initialize connector (never use timeout=0)
     uint8_t timeout;
     timeout = (this->default_timeout == 0) ? 1 : this->default_timeout;
-    connection = new connector(io_service,
+    connection = new UnixDomainConnector(
 			       _filename.c_str(),
 			       timeout*1000);
+    cout << "Moving connection to thread " << &m_thread << endl;
+    connection->moveToThread(&m_thread);
+    m_thread.start();
+
 
     // Register this object as %PDU handler
-    this->connection->register_handler( this );
+    //this->connection->register_handler( this );
 
     // Try to connect
     try
@@ -111,16 +120,17 @@ master_proxy::master_proxy(std::string _description,
     {
 	// Ignore, stay disconnected
     }
+
 }
 
 
 void master_proxy::connect()
 {
-    if( this->connection->is_connected() )
-    {
-	// we are already connected -> nothing to do
-	return;
-    }
+//    if( this->connection->is_connected() )
+//    {
+//	// we are already connected -> nothing to do
+//	return;
+//    }
 
     // Clear registrations and variables
     registrations.clear();
@@ -141,15 +151,15 @@ void master_proxy::connect()
     try
     {
 	// Send OpenPDU
-	OpenPDU openpdu;
-	openpdu.set_timeout(default_timeout);
-	openpdu.set_id(id);
+	boost::shared_ptr<OpenPDU> openpdu(new OpenPDU);
+	openpdu->set_timeout(default_timeout);
+	openpdu->set_id(id);
 	// throws disconnected and timeout_error:
-	this->connection->send(openpdu);
+	response = this->connection->request(openpdu);
 
-	// Wait for response
-	// throws disconnected and timeout_error:
-	response = this->connection->wait_for_response(openpdu.get_packetID());
+//	// Wait for response
+//	// throws disconnected and timeout_error:
+//	response = this->connection->wait_for_response(openpdu.get_packetID());
     }
     catch(disconnected)
     {
@@ -163,13 +173,18 @@ void master_proxy::connect()
     // Check for errors
     if(response->get_error() != ResponsePDU::noAgentXError)
     {
-	// Some error occured, disconnect
-	this->connection->disconnect();
+//	// Some error occured, disconnect
+//	this->connection->disconnect();
 	throw disconnected();
     }
 
     // All went fine, we are connected now
     this->sessionID = response->get_sessionID();
+
+    QObject::connect(connection,
+                     SIGNAL(pduArrived(shared_ptr<PDU>)),
+                     this,
+                     SLOT(handle_pdu(shared_ptr<PDU>)));
 }
 
 
@@ -177,11 +192,11 @@ void master_proxy::connect()
 
 void master_proxy::disconnect(ClosePDU::reason_t reason)
 {
-    if( ! this->connection->is_connected() )
-    {
-	// we are already disconnected -> nothing to do
-	return;
-    }
+//    if( ! this->connection->is_connected() )
+//    {
+//	// we are already disconnected -> nothing to do
+//	return;
+//    }
 
     // According to RFC 2741, 7.1.8. "Processing the agentx-Close-PDU", the 
     // master agent unregisters all MIB regions, frees all index values and all 
@@ -203,13 +218,13 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
 	}
 
 	// Send ClosePDU
-	ClosePDU closepdu(this->sessionID, reason);
+	boost::shared_ptr<ClosePDU> closepdu(new ClosePDU(this->sessionID, reason));
 	// throws disconnected and timeout_error:
-	this->connection->send(closepdu);
+	response = this->connection->request(closepdu);
 	
-	// Wait for response
-	// throws disconnected and timeout_error:
-	response = this->connection->wait_for_response(closepdu.get_packetID());
+//	// Wait for response
+//	// throws disconnected and timeout_error:
+//	response = this->connection->wait_for_response(closepdu.get_packetID());
 
 	// Check for errors
 	if(response->get_error() != ResponsePDU::noAgentXError)
@@ -226,7 +241,7 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
     }
 
     // Finally: disconnect
-    this->connection->disconnect();
+//    this->connection->disconnect();
 }
 
 master_proxy::~master_proxy()
@@ -249,19 +264,19 @@ master_proxy::~master_proxy()
 void master_proxy::do_registration(boost::shared_ptr<RegisterPDU> pdu)
 {
     // Are we connected?
-    if( ! is_connected())
-    {
-	throw(disconnected());
-    }
+//    if( ! is_connected())
+//    {
+//	throw(disconnected());
+//    }
 
     // Send RegisterPDU
     // (forward exceptions timeout_error and disconnected)
-    this->connection->send(*pdu);
-
-    // Wait for response
-    // (forward exceptions timeout_error and disconnected)
     boost::shared_ptr<ResponsePDU> response;
-    response = this->connection->wait_for_response(pdu->get_packetID());
+    response = this->connection->request(pdu);
+
+//    // Wait for response
+//    // (forward exceptions timeout_error and disconnected)
+//    response = this->connection->wait_for_response(pdu->get_packetID());
 
     // Check Response
     switch(response->get_error())
@@ -325,7 +340,7 @@ void master_proxy::register_subtree(oid subtree,
     pdu->set_timeout(timeout);
     pdu->set_sessionID(this->sessionID);
 
-    // Sent PDU
+    // Send PDU
     try
     {
 	this->do_registration(pdu);
@@ -403,19 +418,20 @@ void master_proxy::unregister_subtree(oid subtree,
 void master_proxy::undo_registration(boost::shared_ptr<UnregisterPDU> pdu)
 {
     // Are we connected?
-    if( ! is_connected())
-    {
-	throw(disconnected());
-    }
+//    if( ! is_connected())
+//    {
+//	throw(disconnected());
+//    }
 
     // Send UnregisterPDU
     // (forward exceptions timeout_error and disconnected)
-    this->connection->send(*pdu);
-
-    // Wait for response
-    // (forward exceptions timeout_error and disconnected)
     boost::shared_ptr<ResponsePDU> response;
-    response = this->connection->wait_for_response(pdu->get_packetID());
+    response = this->connection->request(pdu);
+
+//    // Wait for response
+//    // (forward exceptions timeout_error and disconnected)
+//    boost::shared_ptr<ResponsePDU> response;
+//    response = this->connection->wait_for_response(pdu->get_packetID());
 
     // Check Response
     switch(response->get_error())
@@ -624,8 +640,9 @@ void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPD
 
 
 
-void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
+void master_proxy::handle_pdu(shared_ptr<PDU> pdu)
 {
+    int error = 0; // 0 is "success"
     if(error == -2)
     {
 	// Version error
@@ -659,22 +676,23 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
     //   - The flags are not copied, because they have
     //     other meanings in ResponsePDU's.
     //   - TODO: Context is not yet supported.
-    ResponsePDU response;
-    response.set_sessionID( pdu->get_sessionID() );
-    response.set_transactionID( pdu->get_transactionID() );
-    response.set_packetID( pdu->get_packetID() );
-    response.set_error(ResponsePDU::noAgentXError);
-    response.set_index(0);
+    shared_ptr<ResponsePDU> response(new ResponsePDU);
+    response->set_sessionID( pdu->get_sessionID() );
+    response->set_transactionID( pdu->get_transactionID() );
+    response->set_packetID( pdu->get_packetID() );
+    response->set_error(ResponsePDU::noAgentXError);
+    response->set_index(0);
 
     // Step 3) Is the session valid?
     if(pdu->get_sessionID() != this->sessionID)
     {
-	response.set_error(ResponsePDU::notOpen);
+	response->set_error(ResponsePDU::notOpen);
 
 	// Step 4a) Stop processing the PDU. Send response.
 	try
 	{
-	    this->connection->send(response);
+//	    this->connection->send(response);
+	    QMetaObject::invokeMethod(connection, "send", Q_ARG(boost::shared_ptr<PDU>, response));
 	}
 	catch(timeout_error) { /* connection loss. Ignore.*/ }
 	catch(disconnected) { /* connection loss. Ignore.*/ }
@@ -691,7 +709,7 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
     if( (get_pdu = dynamic_pointer_cast<GetPDU>(pdu)) != 0 )
     {
         // (response is modified in-place)
-        this->handle_getpdu(response, get_pdu);
+        this->handle_getpdu(*response, get_pdu);
     }
 
     // Is it a GetNextPDU?
@@ -699,7 +717,7 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
     if( (getnext_pdu = dynamic_pointer_cast<GetNextPDU>(pdu)) != 0 )
     {
         // (response is modified in-place)
-        this->handle_getnextpdu(response, getnext_pdu);
+        this->handle_getnextpdu(*response, getnext_pdu);
     }
 
     // TODO: handle other PDU types
@@ -707,7 +725,8 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu, int error)
     // Finally: send the response
     try
     {
-        this->connection->send(response);
+        QMetaObject::invokeMethod(connection, "send", Q_ARG(boost::shared_ptr<PDU>, response));
+        //this->connection->send(response);
     }
     catch(timeout_error) { /* connection loss. Ignore.*/ }
     catch(disconnected) { /* connection loss. Ignore.*/ }
@@ -767,10 +786,10 @@ void master_proxy::send_notification(const optional<TimeTicks>& sysUpTime,
                                      const oid& snmpTrapOID,
                                      const vector<varbind>& varbinds)
 {
-    NotifyPDU pdu;
-    pdu.set_sessionID(this->sessionID);
+    shared_ptr<NotifyPDU> pdu(new NotifyPDU);
+    pdu->set_sessionID(this->sessionID);
 
-    vector<varbind>& vb = pdu.get_vb();
+    vector<varbind>& vb = pdu->get_vb();
 
     // First of all: add mandatory sysUpTime (if given)
     if(sysUpTime)
@@ -788,13 +807,13 @@ void master_proxy::send_notification(const optional<TimeTicks>& sysUpTime,
 
     // Send notification
     // Note: timeout_error and disconnected exceptions are forwarded.
-    binary pdu_serialized = pdu.serialize();
-    connection->send(pdu);
-
-    // Wait for response
-    // Note: timeout_error and disconnected exceptions are forwarded.
     shared_ptr<ResponsePDU> response;
-    response = connection->wait_for_response(pdu.get_packetID());
+    response = connection->request(pdu);
+
+//    // Wait for response
+//    // Note: timeout_error and disconnected exceptions are forwarded.
+//    shared_ptr<ResponsePDU> response;
+//    response = connection->wait_for_response(pdu.get_packetID());
 
     // Handle response
     switch(response->get_error())

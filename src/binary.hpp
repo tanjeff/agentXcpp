@@ -46,7 +46,7 @@ namespace agentxcpp
 		for(size_t i = 0; i < data.size(); i++)
 		{
 			out.width(8);// 8 chars per field
-			out << (int)data[i] << " | ";
+			out << std::hex << (int)data[i] << " | ";
 			if( (i+1)%4 == 0 )
 			{
 				out << std::endl;   // end line

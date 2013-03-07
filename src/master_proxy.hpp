@@ -39,6 +39,10 @@
 #include "GetPDU.hpp"
 #include "GetNextPDU.hpp"
 #include "connector.hpp"
+#include "UnixDomainConnector.hpp"
+
+#include <qt4/QtCore/QObject>
+#include <qt4/QtCore/QThread>
 
 using boost::uint8_t;
 using boost::uint32_t;
@@ -208,9 +212,13 @@ namespace agentxcpp
      */
     // TODO: describe timeout handling
     // TODO: byte ordering is constant for a session. See rfc 2741, 7.1.1
-    class master_proxy : public connector::pdu_handler
+    class master_proxy : public QObject
     {
+        Q_OBJECT
+
 	private:
+
+            QThread m_thread;
 
 	    /**
 	     * \brief The mandatory io_service object.
@@ -236,7 +244,8 @@ namespace agentxcpp
 	     *
 	     * Created by constructors, destroyed by destructor.
 	     */
-	    connector* connection;
+	    //connector* connection;
+	    UnixDomainConnector* connection;
 
 	    /**
 	     * \brief The session ID of the current session.
@@ -404,7 +413,7 @@ namespace agentxcpp
             void handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPDU> getnext_pdu);
 
 
-	public:
+	public slots:
 	    /**
              * \internal
              *
@@ -423,7 +432,9 @@ namespace agentxcpp
              *
              * Note: Error numbers are documented in connector.hpp
 	     */
-	    virtual void handle_pdu(shared_ptr<PDU>, int error);
+	    virtual void handle_pdu(shared_ptr<PDU>);
+
+	public:
 
 	    /**
 	     * \brief Create a session object connected via unix domain
@@ -621,10 +632,10 @@ namespace agentxcpp
 	     *
 	     * \returns true if the session is connected, false otherwise.
 	     */
-	    bool is_connected()
-	    {
-		return this->connection->is_connected();
-	    }
+//	    bool is_connected()
+//	    {
+//		return this->connection->is_connected();
+//	    }
 
 	    /**
 	     * \brief Connect to the master agent.

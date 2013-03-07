@@ -45,7 +45,7 @@ namespace agentxcpp
      * timeout_timer. As long as neither of them are invoked, the timer will 
      * not report the status "expired".
      * 
-     * The object can break, e.g. when something with the interally used 
+     * The object can break, e.g. when something with the internally used
      * boost::asio::deadline_timer goes wrong. In this case the status changes 
      * to "broken".  A broken timeout_timer cannot be used anymore: a call to 
      * any member function will do nothing (except for get_status(), which will 
@@ -74,7 +74,7 @@ namespace agentxcpp
      * means that the callback function must not be a member function. Instead 
      * it is a static class function which takes a pointer to the timeout_timer 
      * object for which it is called. To identify calls for destroyed objects, 
-     * the static mamber "available_timers" is used, which stores pointers to 
+     * the static member "available_timers" is used, which stores pointers to
      * all timeout_timer objects currently in existence. This is handled by the 
      * constructors and destructor of the timeout_timer class. 
      */

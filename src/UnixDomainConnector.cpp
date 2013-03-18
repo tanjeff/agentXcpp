@@ -22,6 +22,9 @@
 
 #include <qt4/QtCore/qthread.h>
 #include <qt4/QtCore/QEventLoop>
+#include <qt4/QtCore/QMutexLocker>
+
+#include <boost/shared_array.hpp>
 
 using namespace agentxcpp;
 using namespace std;
@@ -31,209 +34,272 @@ UnixDomainConnector::UnixDomainConnector(
         const std::string& _unix_domain_socket,
         unsigned _timeout)
 : QObject(),
-  socket(this),
-  filename(QString::fromStdString(_unix_domain_socket)),
-  timeout(_timeout)
+  m_socket(this),
+  m_filename(QString::fromStdString(_unix_domain_socket)),
+  m_timeout(_timeout),
+  m_is_connected(false)
 {
-    connect();
+    // We want to deliver this types within a signal:
+    qRegisterMetaType< boost::shared_ptr<PDU> >("boost::shared_ptr<PDU>");
+    qRegisterMetaType< boost::shared_ptr<PDU> >("shared_ptr<PDU>");
 
-    //QObject::connect(&socket, SIGNAL(readyRead()), this, SLOT(receive()));
+    QObject::connect(&m_socket, SIGNAL(readyRead()), this, SLOT(do_receive()));
 }
 
 
-void UnixDomainConnector::connect()
+void UnixDomainConnector::do_connect()
 {
-    cout << "Connecting ... " << flush;
-    switch(socket.state())
+    // Inspect socket state
+    switch(m_socket.state())
     {
         case QLocalSocket::UnconnectedState:
-            socket.connectToServer(filename);
+            // Currently not connected. Start connecting:
+            m_socket.connectToServer(m_filename);
             break;
         case QLocalSocket::ConnectedState:
-            // Already connected.
-            cout << "OK" << endl;
+            // Already connected. Wake connect() and return.
+            m_connection_waitcondition.wakeAll();
             return;
         case QLocalSocket::ConnectingState:
             // Seems that last attempt for connection timed out
             // and is still unfinished. We will wait again.
-            cout << "OK" << endl;
             break;
         case QLocalSocket::ClosingState:
             // Last disconnect seems still unfinished.
-            cout << "FAIL" << endl;
-            throw disconnected();
+            // Wake connect() and return.
+            m_connection_waitcondition.wakeAll();
+            return;
     }
 
-    if(!socket.waitForConnected(timeout))
+    // Protect m_is_connected
+    QMutexLocker locker(&m_mutex_is_connected);
+
+    // Wait for connection establishment
+    if(m_socket.waitForConnected(m_timeout))
     {
-        // timeout!
-        cout << "timeout" << endl;
-        throw disconnected();
+        // OK: Set state to 'connected' and wake connect()
+        m_is_connected = true;
+        m_connection_waitcondition.wakeAll();
     }
-    cout << "OK" << endl;
-    QObject::connect(&socket, SIGNAL(readyRead()), this, SLOT(receive()));
+    else
+    {
+        // Error: Set state to 'disconnected' and wake connect()
+        m_is_connected = false;
+        m_connection_waitcondition.wakeAll();
+    }
+}
+
+
+bool UnixDomainConnector::connect()
+{
+    // Start do_connect()
+    QMetaObject::invokeMethod(this, "do_connect");
+
+    // Wait until do_connect() finishes
+    m_connection_mutex.lock();
+    m_connection_waitcondition.wait(&m_connection_mutex, m_timeout);
+    m_connection_mutex.unlock();
+
+    // Return status (i.e. whether connection was established)
+    return is_connected();
+}
+
+
+void UnixDomainConnector::do_disconnect()
+{
+    // Disconnect
+    m_socket.disconnectFromServer();
+    if(!m_socket.waitForDisconnected(m_timeout))
+    {
+        // error: what to do?
+        qDebug() << "Error while disconnecting from unix domain socket: "
+                << m_socket.errorString();
+    }
+
+    // Update connection state
+    QMutexLocker locker(&m_mutex_is_connected);
+    m_is_connected = false; // Set this to false in any case
+
+    // Wake disconnect()
+    m_connection_waitcondition.wakeAll();
 }
 
 
 void UnixDomainConnector::disconnect()
 {
-    cout << "Disconnecting ... " << flush;
-    socket.disconnectFromServer();
-    if(!socket.waitForDisconnected(timeout))
-    {
-        cout << "timeout" << endl;
-        // timeout
-    }
-    cout << "OK" << endl;
+    // Start do_disconnect()
+    QMetaObject::invokeMethod(this, "do_disconnect");
+
+    // Wait until do_disconnect() finishes
+    m_connection_mutex.lock();
+    m_connection_waitcondition.wait(&m_connection_mutex, m_timeout);
+    m_connection_mutex.unlock();
 }
 
+bool UnixDomainConnector::is_connected()
+{
+    QMutexLocker locker(&m_mutex_is_connected);
+    bool state = m_is_connected;
 
-//bool UnixDomainConnector::is_connected()
-//{
-//    return socket.state() == QLocalSocket::ConnectedState;
-//}
-
+    return state;
+}
 
 UnixDomainConnector::~UnixDomainConnector()
 {
 }
 
 
-void UnixDomainConnector::receive()
+void UnixDomainConnector::do_receive()
 {
-    cout << "Data arrived, reading header ... " << flush;
-    char header[20];
-    if(socket.read(header, 20) != 20)
+    // If a header was read from the socket, but the payload did not
+    // yet arrive completely, the read header is stored here until
+    // more data arrived:
+    static binary last_header;
+
+    // Read all PDUs into distinct buffers
+    std::list<binary> queue;
+    do
     {
-        std::cout << "Could not read header" << std::endl;
-        throw disconnected();
-    }
-    binary buf;
-    buf.append(reinterpret_cast<uint8_t*>(header), 20);
+        binary buf;
 
-    // read endianness flag
-    bool big_endian = ( header[2] & (1<<4) ) ? true : false;
-
-    // read payload length
-    uint32_t payload_length;
-    binary::const_iterator pos = buf.begin() + 16;
-    payload_length = read32(pos, big_endian);
-    if( payload_length % 4 != 0 )
-    {
-        // payload length must be a multiple of 4!
-        // See RFC 2741, 6.1. "AgentX PDU Header"
-        // -> close socket
-        cout << "Invalid payload length." << endl;
-
-        this->disconnect();
-    }
-
-    cout << buf.size() << " bytes, reading payload (expecting "
-            << payload_length << " bytes) ... " << flush;
-
-//    if(!socket.waitForReadyRead(this->timeout))
-//    {
-//        std::cout << "Timeout." << endl;
-//        return;
-//    }
-    char* payload = new char[payload_length];
-    qint64 bytes_read = socket.read(payload, payload_length);
-    if(bytes_read != payload_length)
-    {
-        std::cout << "Could not read payload (" << bytes_read << ")." << std::endl;
-        throw disconnected();
-    }
-    std::cout << "received " << bytes_read << " bytes ... " << flush;
-    buf.append(reinterpret_cast<uint8_t*>(payload), payload_length);
-    delete[] payload;
-
-    cout << "packet has " << buf.size() << " in total: "
-            << buf << " now parsing PDU ... " << flush;
-
-
-    // Parse PDU
-    shared_ptr<PDU> pdu;
-    try
-    {
-        pdu = PDU::parse_pdu(buf);
-    }
-    catch(version_error)
-    {
-        cout << "version error." << endl;
-
-    }
-    catch(parse_error)
-    {
-        cout << "parse error." << endl;
-        // disconnect
-        this->disconnect();
-    }
-
-
-
-    // Special case: ResponsePDU's
-    shared_ptr<ResponsePDU> response;
-    response = boost::dynamic_pointer_cast<ResponsePDU>(pdu);
-    if(response)
-    {
-        cout << "was a response ... " << flush;
-        // Was a response
-        std::map< uint32_t, boost::shared_ptr<ResponsePDU> >::iterator i;
-        i = this->responses.find( response->get_packetID() );
-        if(i != this->responses.end())
+        // Read header
+        if(last_header.size() != 0)
         {
-            // Someone is waiting for this response
-            cout << "inserting into response queue." << endl;
-            i->second = response;
-            response_arrived.wakeAll();
+            // Last time, we read a header, but no payload yet.
+            // Therefore we don't read the header here, but continue
+            // with reading the payload.
+            buf = last_header;
+            last_header.clear();
         }
         else
         {
-            cout << "ignoring." << endl;
-            // Nobody was waiting for the response
-            // -> ignore it
+            // No header read last time.
+            char header[20];
+            if(m_socket.read(header, 20) != 20)
+            {
+                disconnect(); // error!
+                break; // Stop reading PDUs
+            }
+            buf.append(reinterpret_cast<uint8_t*>(header), 20);
         }
+
+        // Extract endianness flag
+        bool big_endian = ( buf[2] & (1<<4) ) ? true : false;
+
+        // Extract payload length
+        uint32_t payload_length;
+        binary::const_iterator pos = buf.begin() + 16;
+        payload_length = read32(pos, big_endian);
+        if( payload_length % 4 != 0 )
+        {
+            // payload length must be a multiple of 4!
+            // See RFC 2741, 6.1. "AgentX PDU Header"
+            // We don't know where next PDU starts within the byte stream,
+            // therefore we disconnect.
+            disconnect(); // error!
+            // stop reading PDU's (but process the ones we got so far)
+            break;
+        }
+
+        // Read payload
+        if(m_socket.bytesAvailable() < payload_length)
+        {
+            // Payload did not completely arrive. We store the header until
+            // more data arrived:
+            last_header = buf;
+            break;
+        }
+        boost::shared_array<char> payload(new char[payload_length]);
+        qint64 bytes_read = m_socket.read(payload.get(), payload_length);
+        if(bytes_read != payload_length)
+        {
+            disconnect();
+            return;
+        }
+        buf.append(reinterpret_cast<uint8_t*>(payload.get()), payload_length);
+
+        queue.push_back(buf);
     }
-    else
+    while(m_socket.bytesAvailable() >= 20); // still enough data for next header
+
+    // Process all received PDU's
+    for(list<binary>::const_iterator i = queue.begin(); i != queue.end(); i++)
     {
-        cout << "emitting pduArrived() ... " << flush;
-        // Was not a Response
-        // -> emit signal
-        emit pduArrived(pdu);
-        cout << "OK" << endl;
+        // Parse PDU
+        shared_ptr<PDU> pdu;
+        try
+        {
+            pdu = PDU::parse_pdu(*i);
+        }
+        catch(version_error)
+        {
+            return;
+        }
+        catch(parse_error)
+        {
+            return;
+        }
+
+        // Special case: ResponsePDU's
+        shared_ptr<ResponsePDU> response;
+        response = boost::dynamic_pointer_cast<ResponsePDU>(pdu);
+        if(response)
+        {
+            // Was a response
+            std::map< uint32_t, boost::shared_ptr<ResponsePDU> >::iterator i;
+            i = this->m_responses.find( response->get_packetID() );
+            if(i != this->m_responses.end())
+            {
+                // Someone is waiting for this response
+                i->second = response;
+                m_response_arrived.wakeAll();
+            }
+            else
+            {
+                // Nobody was waiting for the response
+                // -> ignore it
+            }
+        }
+        else
+        {
+            // Was not a Response
+            // -> emit signal
+            emit pduArrived(pdu);
+        }
     }
 }
 
 boost::shared_ptr<ResponsePDU> UnixDomainConnector::request(boost::shared_ptr<PDU> pdu)
 {
-    cout << "Request in thread " << QThread::currentThread() << ": invoking send() ... " << flush;
-    QMetaObject::invokeMethod(this, "send", Q_ARG(boost::shared_ptr<PDU>, pdu));
+    QMetaObject::invokeMethod(this, "do_send", Q_ARG(boost::shared_ptr<PDU>, pdu));
 
-    cout << " ... " << flush;
     std::map<uint32_t, boost::shared_ptr<ResponsePDU> >::iterator i;
-    cout << " ... " << flush;
-    responses[pdu->get_packetID()] = shared_ptr<ResponsePDU>();
+    m_responses[pdu->get_packetID()] = shared_ptr<ResponsePDU>();
     do
     {
-        cout << "waiting for response ... " << flush;
-        response_arrived.wait(&response_arrival_mutex);
-        cout << "something arrived, checking ... " << flush;
+        m_response_arrived.wait(&m_response_arrival_mutex);
     }
-    while ( ! (responses[pdu->get_packetID()]) );
+    while ( ! (m_responses[pdu->get_packetID()]) );
 
-    cout << "OK." << endl;
-    shared_ptr<ResponsePDU> response = responses[pdu->get_packetID()];
-    responses.erase(responses.find(pdu->get_packetID()));
+    shared_ptr<ResponsePDU> response = m_responses[pdu->get_packetID()];
+    m_responses.erase(m_responses.find(pdu->get_packetID()));
 
     return response;
 }
 
 
 
-void UnixDomainConnector::send(boost::shared_ptr<PDU> pdu)
+void UnixDomainConnector::do_send(boost::shared_ptr<PDU> pdu)
 {
     binary data = pdu->serialize();
 
-    socket.write(reinterpret_cast<const char*>(data.c_str()),
+    m_socket.write(reinterpret_cast<const char*>(data.c_str()),
             data.size());
+}
+
+
+void UnixDomainConnector::send(boost::shared_ptr<PDU> pdu)
+{
+    // Start do_disconnect()
+    QMetaObject::invokeMethod(this, "do_send", Q_ARG(boost::shared_ptr<PDU>, pdu));
 }

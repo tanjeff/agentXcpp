@@ -692,7 +692,8 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu)
 	try
 	{
 //	    this->connection->send(response);
-	    QMetaObject::invokeMethod(connection, "send", Q_ARG(boost::shared_ptr<PDU>, response));
+	    connection->send(response);
+	    //QMetaObject::invokeMethod(connection, "do_send", Q_ARG(boost::shared_ptr<PDU>, response));
 	}
 	catch(timeout_error) { /* connection loss. Ignore.*/ }
 	catch(disconnected) { /* connection loss. Ignore.*/ }
@@ -725,7 +726,8 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu)
     // Finally: send the response
     try
     {
-        QMetaObject::invokeMethod(connection, "send", Q_ARG(boost::shared_ptr<PDU>, response));
+        connection->send(response);
+        //QMetaObject::invokeMethod(connection, "do_send", Q_ARG(boost::shared_ptr<PDU>, response));
         //this->connection->send(response);
     }
     catch(timeout_error) { /* connection loss. Ignore.*/ }

@@ -79,7 +79,7 @@ namespace agentxcpp
      * for a QWaitCondition to be triggered. The disconnect() method works the 
      * same way.
      *
-     * The connction state is tracked with the m_is_connected member, which is 
+     * The connection state is tracked with the m_is_connected member, which is
      * protected by a mutex. The is_connected() method can access 
      * m_is_connected to inspect the state.
      */
@@ -140,7 +140,7 @@ namespace agentxcpp
 	    /**
              * \brief A waitcondition to synchronize connect actions.
 	     *
-             * This condition is used to synchonize connect() and do_connect() 
+             * This condition is used to synchronize connect() and do_connect()
              * respectively disconnect() and do_disconnect(). It is used in 
              * conjunction with m_connection_mutex.
 	     */

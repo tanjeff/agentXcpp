@@ -38,7 +38,6 @@
 #include "UnregisterPDU.hpp"
 #include "GetPDU.hpp"
 #include "GetNextPDU.hpp"
-#include "connector.hpp"
 #include "UnixDomainConnector.hpp"
 
 #include <qt4/QtCore/QObject>

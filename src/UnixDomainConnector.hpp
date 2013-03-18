@@ -19,14 +19,15 @@
 #ifndef _UNIX_DOMAIN_CONNECTOR_H_
 #define _UNIX_DOMAIN_CONNECTOR_H_
 
-#include <boost/shared_ptr.hpp>
 #include <string>
-#include <qt4/QtNetwork/QLocalSocket>
-#include <qt4/QtCore/QSharedPointer>
-#include <qt4/QtCore/QWaitCondition>
-#include <qt4/QtCore/QThread>
-#include <qt4/QtCore/QMutex>
-#include <qt4/QtCore/QString>
+
+#include <boost/shared_ptr.hpp>
+
+#include <QObject>
+#include <QLocalSocket>
+#include <QWaitCondition>
+#include <QMutex>
+#include <QString>
 
 #include "PDU.hpp"
 #include "ResponsePDU.hpp"

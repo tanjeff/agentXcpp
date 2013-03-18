@@ -18,13 +18,13 @@
  */
 
 #include "UnixDomainConnector.hpp"
+
+#include <QThread>
+#include <QEventLoop>
+#include <QMutexLocker>
+#include <QScopedArrayPointer>
+
 #include "util.hpp"
-
-#include <qt4/QtCore/qthread.h>
-#include <qt4/QtCore/QEventLoop>
-#include <qt4/QtCore/QMutexLocker>
-
-#include <boost/shared_array.hpp>
 
 using namespace agentxcpp;
 using namespace std;
@@ -209,14 +209,14 @@ void UnixDomainConnector::do_receive()
             last_header = buf;
             break;
         }
-        boost::shared_array<char> payload(new char[payload_length]);
-        qint64 bytes_read = m_socket.read(payload.get(), payload_length);
+        QScopedArrayPointer<char> payload(new char[payload_length]);
+        qint64 bytes_read = m_socket.read(payload.data(), payload_length);
         if(bytes_read != payload_length)
         {
             disconnect();
             return;
         }
-        buf.append(reinterpret_cast<uint8_t*>(payload.get()), payload_length);
+        buf.append(reinterpret_cast<uint8_t*>(payload.data()), payload_length);
 
         queue.push_back(buf);
     }

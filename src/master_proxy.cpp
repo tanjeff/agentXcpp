@@ -40,54 +40,13 @@ using boost::optional;
 
 
 
-master_proxy::master_proxy(boost::asio::io_service* _io_service,
-			   std::string _description,
-			   uint8_t _default_timeout,
-			   oid _id,
-			   std::string _filename) :
-    io_service(_io_service),
-    io_service_by_user(true),
-    socket_file(_filename.c_str()),
-    description(_description),
-    default_timeout(_default_timeout),
-    id(_id)
-{
-    // Initialize connector (never use timeout=0)
-    uint8_t timeout;
-    timeout = (this->default_timeout == 0) ? 1 : this->default_timeout;
-    connection = new UnixDomainConnector(
-			       _filename.c_str(),
-			       timeout*1000);
-    cout << "Moving connection to thread " << &m_thread << endl;
-    connection->moveToThread(&m_thread);
-    m_thread.start();
-
-
-    // Register this object as %PDU handler
-    //this->connection->register_handler( this );
-
-    // Try to connect
-    try
-    {
-	// throws disconnected:
-	this->connect();
-    }
-    catch(disconnected)
-    {
-	// Ignore, stay disconnected
-    }
-
-}
-
-
 
 master_proxy::master_proxy(std::string _description,
 			   uint8_t _default_timeout,
 			   oid _id,
 			   std::string _filename) :
-    io_service(new boost::asio::io_service()),
-    io_service_by_user(false),
     socket_file(_filename.c_str()),
+    sessionID(0),
     description(_description),
     default_timeout(_default_timeout),
     id(_id)
@@ -137,14 +96,8 @@ void master_proxy::connect()
     variables.clear();
 
     // Connect to endpoint
-    try
-    {
-	this->connection->connect();
-    }
-    catch(boost::system::system_error)
-    {
-    	throw;
-    }
+    this->connection->connect();
+
     // The response we expect from the master
     boost::shared_ptr<ResponsePDU> response;
 
@@ -252,12 +205,6 @@ master_proxy::~master_proxy()
     // Destroy connection
     // Unregistering this object as %PDU handler is unneeded.
     delete this->connection;
-
-    // Destroy io_service object if needed
-    if( ! this->io_service_by_user )
-    {
-	delete this->io_service;
-    }
 }
 
 

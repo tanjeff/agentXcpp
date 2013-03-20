@@ -37,11 +37,13 @@ which are easily available for your system:
   diagrams
 - SCons, to control the build process
 - The following boost libraries:
-  - Asio
   - Bind
   - Smart Ptr
   - Test
   - Integer
+- The following QT4 libraries:
+  - QtCore
+  - QNetwork
 
 
 

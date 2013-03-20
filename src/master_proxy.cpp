@@ -57,7 +57,6 @@ master_proxy::master_proxy(std::string _description,
     connection = new UnixDomainConnector(
 			       _filename.c_str(),
 			       timeout*1000);
-    cout << "Moving connection to thread " << &m_thread << endl;
     connection->moveToThread(&m_thread);
     m_thread.start();
 

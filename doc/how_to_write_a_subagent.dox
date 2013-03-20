@@ -68,6 +68,10 @@ First of all, we need to include some header files for our subagent:
 
 // We want to output error messages:
 #include <iostream>
+
+// We need the QCoreApplication class:
+#include <QCoreApplication>
+
 \endcode
 
 All agentXcpp classes are in the namespace 'agentxcpp'. To make the code more 
@@ -134,11 +138,20 @@ Finally, we add a constructor which initializes the 'counter' member to zero:
 
 \subsection main_function The main() Function
 
-In the main() function, we create a master_proxy object:
+The first thing to do in main() is creating a QCoreApplication object:
+\code
+int main(int argc, char** argv)
+{
+    QCoreApplication app(argc, argv);
+\endcode
+
+The agentXcpp library uses QT, and SNMP request handling is done within the 
+main event loop. Therefore, a QCoreApplication object is needed to provide the 
+event loop. For more information about QCoreApplication refer to the QT documentation.
+
+Next, we create a master_proxy object:
 
 \code
-int main(void)
-{
     master_proxy master;
 \endcode
 
@@ -180,7 +193,7 @@ Next, we create a simpleCounter variable and register it with agentXcpp:
 
 \code
     oid simpleCounter_oid(simpleagent_oid, "0");
-    shared_ptr<simpleCounter> counter(new simpleCounter);
+    boost::shared_ptr<simpleCounter> counter(new simpleCounter);
     master.add_variable( simpleCounter_oid, counter);
 \endcode
 
@@ -189,36 +202,14 @@ then registered with the master agent by providing its OID (the one with .0)
 and the object itself. Note that the object is given in form of a shared 
 pointer, which means that is must be created using the 'new' operator.
 
-Finally we give control to the agentXcpp library in order to receive requests 
-from the master agent:
+Finally we start the main event loop in order to receive requests from the 
+master agent:
 
 \code
-    while( master.is_connected() )
-    {
-        master.get_io_service()->run();
-    }
-
-    std::cerr << "I lost the connection to the master agent." << std::endl;
-}
+app.exec();
 \endcode
 
-The \ref agentxcpp::master_proxy "master_proxy" uses boost::asio for 
-networking, therefore a boost::asio::io_service object is utilized to give 
-control to boost::asio, which in turn informs agentXcpp about incoming data.  
-If you plan to use boost::asio in your real subagent, you can integrate with 
-agentXcpp. For example, you can use the same boost::asio::io_service object as 
-the master_proxy, or tell the master_proxy to use a boost::asio::io_service 
-object that you provide.
-
-The main loop is left if the 'master' object ever gets disconnected.  In this 
-case, an error message is output, and the subagent exits.  A real subagent 
-might try to reconnect to the master agent with <tt>master.reconnect()</tt>.
-
-If the connection fails earlier (e.g. upon creation of the 'master' object), 
-exceptions are thrown by the <tt>master.register_subtree()</tt> or 
-<tt>master.add_variable()</tt> calls, which will abort the subagent.  This 
-should be fine for the first time; a more realistic subagent should of course 
-handle exceptions properly.
+This function blocks forever.
 
 Now, let's store the program as <tt>simpleagent.cpp</tt> and compile it!
 
@@ -226,16 +217,18 @@ Now, let's store the program as <tt>simpleagent.cpp</tt> and compile it!
 
 \section compiling Compiling the Subagent
 
-When compiling the subagent, we need to link against the boost library 
-'system_error', 'pthread' and, of course, against the agentXcpp library. On a 
+When compiling the subagent, we need to link against the boost libraries
+'system_error', 'pthread', the needed Qt libraries and, of course, against the agentXcpp library. On a 
 GNU/Linux system, you can type the following command:
 
 \code
-g++ simpleagent.cpp -o simpleagent -lboost_system -lpthread -lagentxcpp
+g++ simpleagent.cpp -o simpleagent -lboost_system -lpthread -lagentxcpp \
+    `pkg-config --cflags --libs QtNetwork QtCore QtGui`
 \endcode
 
 This assumes that the agentxcpp library is installed properly, so that the 
-compiler can find the headers and the shared object file.
+compiler can find the headers and the shared object file. The pkg-config tool 
+is used here to add the compiler flags for QT.
 
 
 
@@ -291,18 +284,13 @@ Now the subagent can be started:
 ./simpleagent
 \endverbatim
 
-If the subagent can't connect to the master, or another error is detected, it 
-will terminate with an exception (since our code doesn't catch any exceptions).  
-Or, if connection is lost, it will leave the main loop and exit with the error 
-message we implemented.
-
-Otherwise, the subagent is now connected, and we can try if it works.
+If the subagent keeps sitting in the console,  we can try if it works.
 
 
 
 \subsection querying Querying the Subagent
 
-Our little subagent exposes an INTERGER object with the OID 
+Our little subagent exposes an INTEGER object with the OID 
 "1.3.6.1.4.1.42.1.0". We can query this object with an SNMP GET request. We use 
 the NET-SNMP utility snmpget (but you can use any tool you wish, of course):
 

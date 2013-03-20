@@ -53,6 +53,14 @@ def CheckExe(context, executable):
 ## Our Environment
 env = DefaultEnvironment()
 
+# We need the Qt4 tool
+#env['QT4DIR'] = ''
+env.Tool('qt4')
+env.EnableQt4Modules(['QtCore',
+                      'QtNetwork'])
+
+
+
 
 #################################################
 ## Command-line magic
@@ -206,13 +214,6 @@ if not conf.CheckExe(['dot', '-V']):
 The dot program is required to build agentXcpp's documentation.
 Note: For Linux, install a package named 'graphviz'."""
     Exit(1)
-
-# Qt4
-env['QT4DIR'] = ''
-env.Tool('qt4')
-env.EnableQt4Modules(['QtCore',
-                      'QtNetwork'])
-
 
 env = conf.Finish()
 

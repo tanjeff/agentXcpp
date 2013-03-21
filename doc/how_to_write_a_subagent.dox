@@ -223,7 +223,7 @@ GNU/Linux system, you can type the following command:
 
 \code
 g++ simpleagent.cpp -o simpleagent -lboost_system -lpthread -lagentxcpp \
-    `pkg-config --cflags --libs QtNetwork QtCore QtGui`
+    `pkg-config --cflags --libs QtNetwork QtCore`
 \endcode
 
 This assumes that the agentxcpp library is installed properly, so that the 

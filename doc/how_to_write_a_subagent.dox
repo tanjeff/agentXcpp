@@ -1,0 +1,312 @@
+/*
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ *
+ * This file is part of the agentXcpp library.
+ *
+ * AgentXcpp is free software: you can redistribute it and/or modify
+ * it under the terms of the AgentXcpp library license, version 1, which 
+ * consists of the GNU General Public License and some additional 
+ * permissions.
+ *
+ * AgentXcpp is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * See the AgentXcpp library license in the LICENSE file of this package 
+ * for more details.
+ */
+
+/*! 
+
+
+\page how_to_write_a_subagent How to write a Subagent
+
+\note It is assumed that agentXcpp is installed properly; see \ref installation 
+for how to do that.
+
+This HOWTO explains how to implement, compile and run a trivial subagent. Our 
+trivial subagent has only one variable called 'simpleCounter' which is 
+described within the minimal MIB called 'SIMPLE-MIB':
+
+\verbatim
+SIMPLE-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    OBJECT-TYPE FROM SNMPv2-SMI
+    enterprises FROM SNMPv2-SMI;
+
+simpleCounter OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-only
+    STATUS current
+    DESCRIPTION "A simple counter which is incremented each time
+                 it is queried. Starts with 0."
+    ::={ enterprises 42 1 }
+
+END
+\endverbatim
+
+Now let's see how easy this can be implemented with agentXcpp!
+
+
+
+\section implementing Implementing the Subagent
+
+We implement the subagent within a single file: <tt>simpleagent.cpp</tt>
+
+\subsection headers The Headers
+
+First of all, we need to include some header files for our subagent:
+
+\code
+// Make the class agentxcpp::Integer available:
+#include <agentxcpp/Integer.hpp>
+
+// Make the class agentxcpp::master_proxy available:
+#include <agentxcpp/master_proxy.hpp>
+
+// We want to output error messages:
+#include <iostream>
+
+// We need the QCoreApplication class:
+#include <QCoreApplication>
+
+\endcode
+
+All agentXcpp classes are in the namespace 'agentxcpp'. To make the code more 
+readable, we make the namespace globally available:
+
+\code
+using namespace agentxcpp;
+\endcode
+
+
+
+\subsection implement_class Implementing the simpleCounter Variable
+
+The simpleCounter thing described above is an OBJECT-TYPE. OBJECT-TYPE is a 
+description of the object, not the object itself. The OID of simpleCounter is 
+"enterprises.42.1", while the real object will be accessible with OID 
+"enterprises.42.1.0".
+
+In C++, objects are described by their classes (note the difference between 
+classes and objects). The class-object-relation in C++ is similar to the 
+"OBJECT-TYPE"-"object"-relation in SNMP. Therefore, OBJEC-TYPEs are represented 
+by C++ classes, while SNMP objects are represented by C++ objects.  
+Therefore, to implement simpleCounter, we start with a class (later we will 
+make an object of the class):
+
+\code
+class simpleCounter : public Integer
+{
+\endcode
+
+The simpleCounter has a type which is given in the SYNTAX clause in the MIB.  
+AgentXcpp provides various classes to match standard SYNTAX types, all of which 
+inherit from the \ref agentxcpp::variable "variable" class. Our simpleCounter 
+class  inherits from \ref agentxcpp::Integer "Integer", which makes it an 
+INTEGER.
+
+Next, the get() method from \ref agentxcpp::Integer "Integer" must be overridden. This method 
+is called on SNMP GET requests and returns the current value of the object.  In 
+our case, it returns the value of a member variable and increments this 
+variable afterwards:
+
+\code
+    private:
+        int32_t counter;
+
+    public:
+        virtual int32_t get()
+        {
+            return counter++;
+        }
+\endcode
+
+Finally, we add a constructor which initializes the 'counter' member to zero:
+
+\code
+        simpleCounter()
+          : counter(0)
+        {
+        }
+};
+\endcode
+
+
+
+\subsection main_function The main() Function
+
+The first thing to do in main() is creating a QCoreApplication object:
+\code
+int main(int argc, char** argv)
+{
+    QCoreApplication app(argc, argv);
+\endcode
+
+The agentXcpp library uses QT, and SNMP request handling is done within the 
+main event loop. Therefore, a QCoreApplication object is needed to provide the 
+event loop. For more information about QCoreApplication refer to the QT documentation.
+
+Next, we create a master_proxy object:
+
+\code
+    master_proxy master;
+\endcode
+
+The class \ref agentxcpp::master_proxy "master_proxy" is used to communicate with the master agent.  
+A master_proxy can be thought of a local C++ object representing the remote 
+master agent. The master_proxy can be in disconnected state at any time, or 
+become disconnected, which means that most operations could possibly fail with 
+an agentxcpp::disconnected exception.
+
+The default constructor of \ref agentxcpp::master_proxy "master_proxy" tries to 
+connect to the master agent via the unix domain socket 
+<tt>/var/agentx/master</tt>. Of course, another unix domain socket may be 
+chosen, but it cannot be changed once the master_proxy object is created.
+
+Now, as we have the \ref agentxcpp::master_proxy "master_proxy" object, we 
+register a subtree.  This means that we provide an OID to the master to 
+indicate that our subagent wishes to serve all requests to OIDs starting with 
+that OID. For our subagent we use "enterprises.42.1", where 'enterprises' is 
+the standard OID "1.3.6.1.4.1".  The master will then send all SNMP requests 
+within that subtree to our subagent (e.g.  "enterprises.42.1.0" or 
+"enterprises.42.1.1.2.0"), regardless of whether the subagent actually can 
+serve them. If a request cannot be served, the \ref agentxcpp::master_proxy 
+"master_proxy" will send an appropriate error message to the master agent, 
+which means that our simpleCounter implementation does not have to deal with 
+that.
+
+And here is the code for subtree registration:
+
+\code
+    oid simpleagent_oid = oid(enterprises_oid, "42.1");
+    master.register_subtree(simpleagent_oid);
+\endcode
+
+As you can see, an \ref agentxcpp::oid "oid" object can be created by giving it 
+the "enterprises_oid" object (which is provided by agentXcpp for convenience) 
+and an additional string with further subids.
+
+Next, we create a simpleCounter variable and register it with agentXcpp:
+
+\code
+    oid simpleCounter_oid(simpleagent_oid, "0");
+    boost::shared_ptr<simpleCounter> counter(new simpleCounter);
+    master.add_variable( simpleCounter_oid, counter);
+\endcode
+
+This is the place where we create the real SNMP variable 'counter'. This variable is 
+then registered with the master agent by providing its OID (the one with .0) 
+and the object itself. Note that the object is given in form of a shared 
+pointer, which means that is must be created using the 'new' operator.
+
+Finally we start the main event loop in order to receive requests from the 
+master agent:
+
+\code
+app.exec();
+\endcode
+
+This function blocks forever.
+
+Now, let's store the program as <tt>simpleagent.cpp</tt> and compile it!
+
+
+
+\section compiling Compiling the Subagent
+
+When compiling the subagent, we need to link against the boost libraries
+'system_error', 'pthread', the needed Qt libraries and, of course, against the agentXcpp library. On a 
+GNU/Linux system, you can type the following command:
+
+\code
+g++ simpleagent.cpp -o simpleagent -lboost_system -lpthread -lagentxcpp \
+    `pkg-config --cflags --libs QtNetwork QtCore`
+\endcode
+
+This assumes that the agentxcpp library is installed properly, so that the 
+compiler can find the headers and the shared object file. The pkg-config tool 
+is used here to add the compiler flags for QT.
+
+
+
+\section running Running the Subagent
+
+This step is difficult to describe, because it depends on your setup how to get 
+the subagent running. This howto describes the procedure using the NET-SNMP 
+package on linux. That package contains a daemon which can be used as master 
+agent, and some command line tools, which can be used to query the SNMP 
+agent.
+
+We will configure the NET-SNMP agent to act as AgentX master agent. To keep 
+this guide simple, we will use the SNMPv2c protocol using "rw" as read-write 
+community name, but our subagent can of course be queried using SNMPv1 or 
+SNMPv3, as long as the master is configured accordingly. The subagent 
+implementation is independent of the used SNMP version.
+
+
+
+\subsection starting_master Starting the Net-SNMP master agent
+
+First, we add the following lines to its config file 
+<tt>/etc/snmp/snmpd.conf</tt>:
+
+\verbatim
+rwcommunity rw        # use "rw" as read-write-community name
+master      agentx    # snmpd shall act as agentX master agent
+agentXPerms 0666 777  # make socket world-readable
+\endverbatim
+
+The community name is needed later, when issuing a SNMP GET request. We set it 
+to "rw" in the example, but you can use anything you wish.
+
+The agentXPerms are not strictly required, but making the socket world-readable 
+saves us some trouble regarding access restrictions. Next, we (re)start the 
+master agent using its init scripts:
+
+\verbatim
+/etc/init.d/snmpd stop
+/etc/init.d/snmpd start
+\endverbatim
+
+Note that the path depends on your system. For example in ArchLinux, it is 
+/etc/rc.d/snmpd.
+
+
+
+\subsection starting_subagent Starting the Subagent
+
+Now the subagent can be started:
+
+\verbatim
+./simpleagent
+\endverbatim
+
+If the subagent keeps sitting in the console,  we can try if it works.
+
+
+
+\subsection querying Querying the Subagent
+
+Our little subagent exposes an INTEGER object with the OID 
+"1.3.6.1.4.1.42.1.0". We can query this object with an SNMP GET request. We use 
+the NET-SNMP utility snmpget (but you can use any tool you wish, of course):
+
+\verbatim
+snmpget -v2c -c rw localhost 1.3.6.1.4.1.42.1.0
+\endverbatim
+
+Or, if the MIB above is put into a file in the right directory, we can also do:
+
+\verbatim
+snmpget -v2c -c rw localhost SIMPLE-MIB::simpleCounter.0
+\endverbatim
+
+Each time the command is executed, the simpleCounter object reports the 
+incremented number. The trivial subagent is working now, your installation have 
+proven to be usable, thus you can go and implement your own subagent!
+
+
+*/

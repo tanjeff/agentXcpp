@@ -81,7 +81,12 @@ customers, as long this is done under the terms of the GPL.
 
 \section license_agentxcppLicense The agentXcpp License
 
-The agentXcpp library is licenced under the GPL plus a linking exception:
+The agentXcpp library is licenced under the GPL plus a linking exception.  
+However, parts of the SCons project are disctributed together with agentXcpp, 
+and are licensed differently. The applicable license is stated within each 
+file distrubuted.
+
+Here is the license of the AgentXcpp project (\e not of the SCons code):
 
 \verbinclude LICENSE
 

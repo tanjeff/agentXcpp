@@ -25,10 +25,6 @@ If you are lucky, there is a package for your system which can be easily
 installed. If you are not so lucky, or if you are a package maintainer, you 
 have to compile agentXcpp yourself. Here is how to do this.
 
-\note The build process can be accelerated with the <tt>-j i</tt> parameter, 
-      where i is the maximum number of threads used. As a rule of thumb, use i 
-      = (number_of_cpus + 1).
-
 
 
 \section installation_prerequisites Prerequisites
@@ -41,11 +37,13 @@ which are easily available for your system:
   diagrams
 - SCons, to control the build process
 - The following boost libraries:
-  - Asio
   - Bind
   - Smart Ptr
   - Test
   - Integer
+- The following QT4 libraries:
+  - QtCore
+  - QNetwork
 
 
 
@@ -64,13 +62,19 @@ To install it into a linux system, the following command should work:
 scons install --prefix /usr
 \endverbatim
 
+\note The build process can be accelerated by givin the <tt>-j i</tt> parameter 
+      to SCons, where i is the maximum number of threads used. As a rule of 
+      thumb, use i = (number_of_cpus + 1).
+
+Instead of becoming root, you can also use the \c sudo command.
+
 \note Using the <tt>sudo</tt> command may fail on some systems, because the 
       environment provided by <tt>sudo</tt> may be insufficient for scons.
 
-This will install the headers into <tt>/usr/include/agentxcpp/</tt>, the shared 
-library to <tt>/usr/lib/</tt> and the API documentation to 
-<tt>/usr/share/doc/agentxcpp/</tt>. If want to install into a local directory, 
-use:
+The shown command will install the headers into 
+<tt>/usr/include/agentxcpp/</tt>, the shared library to <tt>/usr/lib/</tt> and 
+the API documentation to <tt>/usr/share/doc/agentxcpp/</tt>. If want to install 
+into a local directory, use:
 
 \verbatim
 # To install locally, do:
@@ -82,7 +86,7 @@ This will install the headers, shared library, and the API documentation to
 <tt>./usr/share/doc/agentxcpp/</tt>, respectively. You can pick them up there 
 for your package.
 
-In any case, you can control the individual installation directories like so:
+In addition, you can control the individual installation directories like so:
 
 \verbatim
 # To choose each directory separately:
@@ -91,9 +95,12 @@ scons install --libdir /usr/lib \
               --includedir /usr/include/agentxcpp \
 
 # This will do the same:
-scons install --prefix=/usr/lib \
+scons install --prefix=/usr \
               --docdir=/opt/agentxcpp/doc
 \endverbatim
 
+If completely omit the <tt>--prefix</tt>, <tt>--libdir</tt>, <tt>--docdir</tt> 
+and <tt>--includedir</tt> parameters, the default prefix will be used (the 
+default prefix can be obtained with <tt>scons --help</tt>).
 
 */

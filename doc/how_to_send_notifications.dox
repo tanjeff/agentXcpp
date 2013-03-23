@@ -75,15 +75,15 @@ of the NOTIFICATION-TYPE value".
 
 \section implementing_notification The Implementation
 
-Now, how do we implement a notification? Normally, a subagent is just sitting 
+So, how do we implement a notification? Normally, a subagent is just sitting 
 there, waiting for SNMP requests and handling them. Notifications typically 
 arise outside of this mechanism. We simulate that by using a timer which fires 
 every second and sends a notification. We will use a QTimer which can use the 
-event loop provided by QT. However, we need a class with a QT slot to which 
-the QTimer can be connected. We name that class <tt>NotificationSender</tt> 
-and put it into its own file: <tt>notification_sender.hpp</tt> (for 
-simplicitly we implement the whole class in the header, so we won't need an 
-implementation file. Here ist the <tt>notification_sender.hpp</tt> file:
+event loop provided by QT. However, we need a class with a QT slot to which the 
+QTimer can be connected. We name that class <tt>NotificationSender</tt> and put 
+it into its own file: <tt>NotificationSender.hpp</tt> (for simplicitly we 
+implement the whole class in the header, so we won't need an implementation 
+file). Here ist the <tt>NotificationSender.hpp</tt> file:
 
 \code
 #include <iostream>
@@ -107,7 +107,9 @@ class NotificationSender : public QObject
         void sendNotification()
         {
             std::cout << "notification!" << std::endl;
-            master->send_notification(oid(enterprises_oid, "42.0.1"), objects);
+            QMetaObject::invokeMethod(master, "send_notification",
+                            Q_ARG(const oid&, oid(enterprises_oid, "42.0.1")),
+                            Q_ARG(const std::vector<varbind>&, objects));
 
         }
     private:
@@ -129,13 +131,30 @@ notification each time it is invoked. Also, it performs an output to indicate
 that a notification is sent, which we will possibly miss if the master agent 
 is not yet configured properly.
 
-And don't forget to include QTimer:
+We use QMetaObject::invokeMethod() here to invoke the 
+master_proxy::send_notification() slot. This would even work if the 
+NotificationSender were running in a separate thread. In the example, were the 
+NotificationSender and the master_proxy run in the same thread, a simple call 
+also works:
 
-Next, we augment the code in <tt>main()</tt> function. But first, we need an 
-additional include:
+\code
+// Could be used instead of QMetaObject::invokeMethod(),
+// because NotificationSender and master_proxy run in
+// the same thread:
+master->send_notification(oid(enterprises_oid, "42.0.1"), objects);
+\endcode
+
+
+
+
+
+
+Next, we augment the code in <tt>main()</tt> function. But first, we need 
+additional includes in <tt>simpleagent.cpp</tt>:
 
 \code
 #include <QTimer>
+#include "NotificationSender.hpp"
 \endcode
 
 And this is the complete <tt>main()</tt> function:
@@ -154,16 +173,16 @@ int main(int argc, char** argv)
     boost::shared_ptr<simpleCounter> counter(new simpleCounter);
     master.add_variable( simpleCounter_oid, counter);
 
-    // New code:
+    // New code: ----------------------------------------
     std::vector<varbind> objects;
     objects.push_back(varbind(simpleCounter_oid, counter));
     NotificationSender sender(&master, objects);
 
-    // New code:
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), &sender, SLOT(sendNotification()));
     timer.setInterval(1000); // 1000 milliseconds
     timer.start();
+    // --------------------------------------------------
 
     app.exec();
 }
@@ -171,35 +190,35 @@ int main(int argc, char** argv)
 
 First, we build up the varbind vector and create a NotificationSender object.  
 Then, we create a QTimer object, connect its <tt>timeout()</tt> signal to the 
-NotificationSender's <tt>sendNotification()</tt> slot, configures its interval 
-to 1 second (the timer is repetitive by default), and starts it.
+NotificationSender's <tt>sendNotification()</tt> slot, configure its interval 
+to 1 second (the timer is repetitive by default), and start it.
 
 
 
 \section compiling_notification Compiling the Subagent
 
-Compiling subagent becomes a bit more complicated, because we need to invoke 
-QT's meta-object compiler (moc):
+Compiling the subagent becomes a bit more complicated, because we need to 
+invoke QT's meta-object compiler (moc):
 
 \code
 moc-qt4 `pkg-config --cflags QtCore QtNetwork` \
-        -o moc_notification_sender.cc \
-        notification_sender.hpp
+        -o moc_NotificationSender.cc \
+        NotificationSender.hpp
 \endcode
 
-This compiles the header <tt>notification_sender.hpp</tt> into the file 
-<tt>moc_notification_sender.cc</tt>. Next, we compile this file into an object 
+This compiles the header <tt>NotificationSender.hpp</tt> into the file 
+<tt>moc_NotificationSender.cc</tt>. Next, we compile this file into an object 
 file:
 
 \code
-g++ -c moc_notification_sender.cc `pkg-config --cflags QtCore QtNetwork`
+g++ -c moc_NotificationSender.cc `pkg-config --cflags QtCore QtNetwork`
 \endcode
 
 Now, we compile the <tt>simpleagent.cpp</tt> and link it against the generated 
 object file:
 
 \code
-g++ simpleagent.cpp -o simpleagent moc_notification_sender.o \
+g++ simpleagent.cpp -o simpleagent moc_NotificationSender.o \
         `pkg-config --cflags --libs QtNetwork QtCore` \
         -lboost_system -lpthread -lagentxcpp
 \endcode

@@ -2,7 +2,7 @@ About this README
 -----------------
 
 This README gives a short overview of the agentXcpp project, introduces the 
-repository's directory structure and describes how to build the documentation.  
+repository's directory structure and describes how to build the documentation. 
 Further information can then be found in the documentation.
 
 
@@ -10,6 +10,10 @@ About agentXcpp
 ---------------
 
 AgentXcpp is a C++ implementation of the AgentX protocol (RFC 2741).
+
+You may visit the project's website:
+
+    www.agentxcpp.org
 
 The AgentX protocol is used to implement SNMP MIBs as subagents, which are 
 separate processes connecting to a master agent, which in turn provides a SNMP 

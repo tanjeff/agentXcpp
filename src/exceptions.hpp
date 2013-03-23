@@ -103,6 +103,12 @@ namespace agentxcpp
      */
     class generic_error : public std::exception { };
 
+    /**
+     * \brief Exception to indicate that the master agent does not support
+     *        the context.
+     */
+    class unsupported_context : public std::exception { };
+
 } // namespace agentxcpp
 
 #endif

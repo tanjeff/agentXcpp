@@ -1,0 +1,34 @@
+/*
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ *
+ * This file is part of the agentXcpp library.
+ *
+ * AgentXcpp is free software: you can redistribute it and/or modify
+ * it under the terms of the AgentXcpp library license, version 1, which 
+ * consists of the GNU General Public License and some additional 
+ * permissions.
+ *
+ * AgentXcpp is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * See the AgentXcpp library license in the LICENSE file of this package 
+ * for more details.
+ */
+
+/*!
+
+\page getting_started Getting Started
+
+This chapter provides an introduction to agentXcpp. Read through the following 
+sections:
+
+-# \subpage installation "Building and installing agentXcpp".
+-# \subpage how_to_write_a_subagent "Learn how to write subagents with agentXcpp."
+-# \subpage writeable_var_rw_howto "Learn how to implement writeable SNMP variables."
+-# \subpage how_to_send_notifications "Learn how to send traps and notifications with agentXcpp."
+
+Finally, start writing your own subagents. Happy hacking!
+
+*/

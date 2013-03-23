@@ -53,6 +53,14 @@ def CheckExe(context, executable):
 ## Our Environment
 env = DefaultEnvironment()
 
+# We need the Qt4 tool
+#env['QT4DIR'] = ''
+env.Tool('qt4')
+env.EnableQt4Modules(['QtCore',
+                      'QtNetwork'])
+
+
+
 
 #################################################
 ## Command-line magic

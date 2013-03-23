@@ -45,10 +45,13 @@ namespace agentxcpp
 	    /**
 	     * \brief Create an TimeTicks without initialization.
 	     *
-	     * The value is initialized to 0.
+	     * \param initial_value The initial value of the object.
 	     */
-	    TimeTicks() : value(0) {}
-	    
+	    TimeTicks(uint32_t initial_value = 0)
+	    : value(initial_value)
+	    {
+	    }
+
 	    /**
 	     * \internal
 	     *

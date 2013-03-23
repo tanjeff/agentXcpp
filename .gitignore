@@ -6,4 +6,11 @@ main
 *.a
 *.so
 *.os
+*.pyc
+moc_*.cc
 .sconsign.dblite
+config.log
+.sconf_temp
+.cproject
+.project
+install-root

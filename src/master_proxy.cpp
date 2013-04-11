@@ -438,7 +438,7 @@ boost::shared_ptr<UnregisterPDU> master_proxy::create_unregister_pdu(
 }
 
 
-void master_proxy::handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_pdu)
+void master_proxy::handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetPDU> get_pdu)
 {
         // Handling according to
 	// RFC 2741, 7.2.3.1 "Subagent Processing of the agentx-Get-PDU"
@@ -466,13 +466,13 @@ void master_proxy::handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_p
                 try
                 {
                     // Add variable to response (Step (1): include name)
-                    response.varbindlist.push_back( varbind(name, var->second->handle_get()) );
+                    response->varbindlist.push_back( varbind(name, var->second->handle_get()) );
                 }
                 catch(...)
                 {
                     // An error occurred
-                    response.set_error( ResponsePDU::genErr );
-                    response.set_index( index );
+                    response->set_error( ResponsePDU::genErr );
+                    response->set_index( index );
                     // Leave response.varbindlist empty
                 }
 
@@ -490,14 +490,14 @@ void master_proxy::handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_p
 		    // Step (4): We have a variable with the object
 		    //           identifier prefix 'name': Send noSuchInstance 
 		    //           error (Step (1): include name)
-		    response.varbindlist.push_back( varbind(name, varbind::noSuchInstance) );
+		    response->varbindlist.push_back( varbind(name, varbind::noSuchInstance) );
 		}
 		else
 		{
 		    // Step (3): we have no variable with the object
 		    //           identifier prefix 'name': Send noSuchObject 
 		    //           error (Step (1): include name)
-		    response.varbindlist.push_back( varbind(name, varbind::noSuchObject) );
+		    response->varbindlist.push_back( varbind(name, varbind::noSuchObject) );
 		}
 	    }
 
@@ -507,7 +507,7 @@ void master_proxy::handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_p
 
 
 
-void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPDU> getnext_pdu)
+void master_proxy::handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetNextPDU> getnext_pdu)
 {
         // Handling according to
 	// RFC 2741, 7.2.3.2 "Subagent Processing of the agentx-GetNext-PDU"
@@ -559,13 +559,13 @@ void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPD
 		// update variable
                 try
                 {
-                    response.varbindlist.push_back( varbind(next_var->first, next_var->second->handle_get()) );
+                    response->varbindlist.push_back( varbind(next_var->first, next_var->second->handle_get()) );
                 }
                 catch(...)
                 {
                     // An error occurred
-                    response.set_error( ResponsePDU::genErr );
-                    response.set_index( index );
+                    response->set_error( ResponsePDU::genErr );
+                    response->set_index( index );
                     // Leave response.varbindlist empty
                 }
 
@@ -573,7 +573,7 @@ void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPD
 	    else
 	    {
                 // "Next" variable was NOT found
-		response.varbindlist.push_back( varbind(starting_oid, varbind::endOfMibView) );
+		response->varbindlist.push_back( varbind(starting_oid, varbind::endOfMibView) );
 	    }
 
             index++;
@@ -582,7 +582,7 @@ void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPD
 
 
 
-void master_proxy::handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPDU> testset_pdu)
+void master_proxy::handle_testsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<TestSetPDU> testset_pdu)
 {
     // Handling according to
     // RFC 2741, 7.2.4.1 "Subagent Processing of the agentx-TestSet-PDU"
@@ -591,7 +591,7 @@ void master_proxy::handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPD
     vector<varbind>& vb = testset_pdu->get_vb();
 
     // Initially, no Varbind failed:
-    response.set_error(ResponsePDU::noAgentXError);
+    response->set_error(ResponsePDU::noAgentXError);
 
     // Iterate over list and handle each Varbind separately. Return on the 
     // first varbind which doesn't validate correctly.
@@ -605,8 +605,8 @@ void master_proxy::handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPD
         if(var == variables.end())
         {
             // error: variable unknown
-            response.set_error(ResponsePDU::notWritable);
-            response.set_index(index);
+            response->set_error(ResponsePDU::notWritable);
+            response->set_index(index);
 
             // Some variables may have allocated resources, which must be
             // released again. This is the same as handle_cleanupsetpdu() does, 
@@ -621,12 +621,12 @@ void master_proxy::handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPD
         // Perform validation, store result within response
         // Note: ResponsePDU::error_t and variable::testset_result_t are in 
         // sync, therefore the static cast works.
-        response.set_error(static_cast<ResponsePDU::error_t>(var->second->handle_testset(i->get_var())));
-        if(response.get_error() != ResponsePDU::noAgentXError)
+        response->set_error(static_cast<ResponsePDU::error_t>(var->second->handle_testset(i->get_var())));
+        if(response->get_error() != ResponsePDU::noAgentXError)
         {
-            response.set_index(index);
+            response->set_index(index);
 
-            // Some variables may have allocated ressources, which must be 
+            // Some variables may have allocated resources, which must be
             // released again. This is the same as handle_cleanupsetpdu() does, 
             // so we are lazy here and call this function:
             this->handle_cleanupsetpdu();
@@ -659,7 +659,7 @@ void master_proxy::handle_cleanupsetpdu()
     setlist.clear();
 }
 
-void master_proxy::handle_commitsetpdu(ResponsePDU& response, shared_ptr<CommitSetPDU> commitset_pdu)
+void master_proxy::handle_commitsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<CommitSetPDU> commitset_pdu)
 {
     // Handling according to RFC 2741, 7.2.4.2 "Subagent Processing of the 
     // agentx-CommitSet-PDU"
@@ -672,14 +672,14 @@ void master_proxy::handle_commitsetpdu(ResponsePDU& response, shared_ptr<CommitS
         if( (*i)->handle_commitset() )
         {
             // operation succeeded
-            response.set_error(ResponsePDU::noAgentXError);
-            response.set_index(0);
+            response->set_error(ResponsePDU::noAgentXError);
+            response->set_index(0);
         }
         else
         {
             // operation failed: store index of failed varbind and do not process further variables.
-            response.set_error(ResponsePDU::commitFailed);
-            response.set_index(index);
+            response->set_error(ResponsePDU::commitFailed);
+            response->set_index(index);
             return;
         }
         index++;
@@ -687,7 +687,7 @@ void master_proxy::handle_commitsetpdu(ResponsePDU& response, shared_ptr<CommitS
 }
 
 
-void master_proxy::handle_undosetpdu(ResponsePDU& response, shared_ptr<UndoSetPDU> undoset_pdu)
+void master_proxy::handle_undosetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<UndoSetPDU> undoset_pdu)
 {
     // Handling according to RFC 2741, 7.2.4.3 "Subagent Processing of the
     // agentx-UndoSet-PDU"
@@ -702,16 +702,16 @@ void master_proxy::handle_undosetpdu(ResponsePDU& response, shared_ptr<UndoSetPD
         if( (*i)->handle_undoset() )
         {
             // operation succeeded
-            response.set_error(ResponsePDU::noAgentXError);
-            response.set_index(0);
+            response->set_error(ResponsePDU::noAgentXError);
+            response->set_index(0);
         }
         else
         {
             if(failed == false)
             {
                 // operation failed: store index of failed varbind and do not process further variables.
-                response.set_error(ResponsePDU::undoFailed);
-                response.set_index(index);
+                response->set_error(ResponsePDU::undoFailed);
+                response->set_index(index);
 
                 // Note: it is unclear whether processing should stop immediately
                 //       after the first failed UndoSet. We risk that some variables
@@ -796,7 +796,7 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu)
     if( (get_pdu = dynamic_pointer_cast<GetPDU>(pdu)) != 0 )
     {
         // (response is modified in-place)
-        this->handle_getpdu(*response, get_pdu);
+        this->handle_getpdu(response, get_pdu);
     }
 
     // Is it a GetNextPDU?
@@ -804,7 +804,7 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu)
     if( (getnext_pdu = dynamic_pointer_cast<GetNextPDU>(pdu)) != 0 )
     {
         // (response is modified in-place)
-        this->handle_getnextpdu(*response, getnext_pdu);
+        this->handle_getnextpdu(response, getnext_pdu);
     }
 
     // Is it a TestSetPDU?

@@ -377,7 +377,7 @@ namespace agentxcpp
              *
              * \param get_pdu The GetPDU to be processed.
              */
-            void handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_pdu);
+            void handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetPDU> get_pdu);
 
             /**
              * \brief Handle incoming GetNextPDU's.
@@ -391,7 +391,7 @@ namespace agentxcpp
              *
              * \param getnext_pdu The GetNextPDU to be processed.
              */
-            void handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPDU> getnext_pdu);
+            void handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetNextPDU> getnext_pdu);
 
             /**
              * \brief Handle incoming TestSetPDU's.
@@ -403,7 +403,7 @@ namespace agentxcpp
              *
              * \param testset_pdu The TestSetPDU to be processed.
              */
-            void handle_testsetpdu(ResponsePDU& response, shared_ptr<TestSetPDU> testset_pdu);
+            void handle_testsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<TestSetPDU> testset_pdu);
 
             /**
              * \brief Handle incoming CleanupSetPDU's.
@@ -423,7 +423,7 @@ namespace agentxcpp
              *
              * \param commitset_pdu The CommitSetPDU to be processed.
              */
-            void handle_commitsetpdu(ResponsePDU& response, shared_ptr<CommitSetPDU> commitset_pdu);
+            void handle_commitsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<CommitSetPDU> commitset_pdu);
 
             /**
              * \brief Handle incoming UndoSetPDU's.
@@ -435,7 +435,7 @@ namespace agentxcpp
              *
              * \param undoset_pdu The UndoSetPDU to be processed.
              */
-            void handle_undosetpdu(ResponsePDU& response, shared_ptr<UndoSetPDU> undoset_pdu);
+            void handle_undosetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<UndoSetPDU> undoset_pdu);
 
 	public slots:
 	    /**

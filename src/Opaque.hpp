@@ -31,7 +31,7 @@ namespace agentxcpp
      * This class represent binary data.
      *
      * \note There are no functions to convert the binary data to/from
-     *       std::string. If that is needed, Octet_String might be a better
+     *       std::string. If that is needed, OctetStringValue might be a better
      *       choice.
      */
     class Opaque : public AbstractValue

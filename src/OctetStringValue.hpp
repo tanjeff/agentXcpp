@@ -28,7 +28,7 @@ namespace agentxcpp
     /**
      * \brief Represents an Octet String as described in RFC 2741, section 5.3
      */
-    class Octet_String : public AbstractValue
+    class OctetStringValue : public AbstractValue
     {
 	private:
 	    /**
@@ -52,17 +52,17 @@ namespace agentxcpp
 	    /**
              * \brief Construct object from binary data.
 	     */
-	    Octet_String(binary initial_value) : value(initial_value) {}
+	    OctetStringValue(binary initial_value) : value(initial_value) {}
 
             /**
              * \brief Construct object from a string.
              */
-	    Octet_String(std::string initial_value);
+	    OctetStringValue(std::string initial_value);
 
 	    /**
-	     * \brief Create empty Octet_String object.
+	     * \brief Create empty OctetStringValue object.
 	     */
-	    Octet_String() { }
+	    OctetStringValue() { }
 	    
 	    /**
 	     * \internal
@@ -88,7 +88,7 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Octet_String(binary::const_iterator& pos,
+	    OctetStringValue(binary::const_iterator& pos,
 		         const binary::const_iterator& end,
 			 bool big_endian=true);
 

@@ -61,8 +61,8 @@ serialize() function which is used to serialize the OID object:
 \code
     serialized += id.serialize();
 \endcode
-Then the description field is added, which is an Octet_String object. Again, 
-the Octet_String class provides a serialize() function:
+Then the description field is added, which is an OctetStringValue object. Again, 
+the OctetStringValue class provides a serialize() function:
 \code
     serialized += descr.serialize();
 \endcode

@@ -21,7 +21,7 @@
 
 #include "PDUwithContext.hpp"
 #include "oid.hpp"
-#include "Octet_String.hpp"
+#include "OctetStringValue.hpp"
 
 namespace agentxcpp
 {
@@ -49,7 +49,7 @@ namespace agentxcpp
 	     *
 	     * See RFC 2741, 6.2.14. "The agentx-AddAgentCaps-PDU" for details.
 	     */
-	    Octet_String descr;
+	    OctetStringValue descr;
 	    
 
 	public:
@@ -97,7 +97,7 @@ namespace agentxcpp
 	     *
 	     * \param descr The value of the descr field.
 	     */
-	    AddAgentCapsPDU(oid id, Octet_String descr);
+	    AddAgentCapsPDU(oid id, OctetStringValue descr);
 
 	    /**
 	     * \brief Set the id field
@@ -124,7 +124,7 @@ namespace agentxcpp
 	     *
 	     * \param descr The new descr value.
 	     */
-	    void set_descr(Octet_String descr)
+	    void set_descr(OctetStringValue descr)
 	    {
 		this->descr = descr;
 	    }
@@ -134,7 +134,7 @@ namespace agentxcpp
 	     *
 	     * \return The descr value.
 	     */
-	    Octet_String get_descr()
+	    OctetStringValue get_descr()
 	    {
 		return this->descr;
 	    }

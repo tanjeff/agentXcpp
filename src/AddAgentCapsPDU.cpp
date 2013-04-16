@@ -31,7 +31,7 @@ AddAgentCapsPDU::AddAgentCapsPDU(binary::const_iterator& pos,
     id = oid(pos, end, big_endian);
 
     // parse descr
-    descr = Octet_String(pos, end, big_endian);
+    descr = OctetStringValue(pos, end, big_endian);
 }
 	    
 
@@ -53,7 +53,7 @@ binary AddAgentCapsPDU::serialize()
 }
 
 
-AddAgentCapsPDU::AddAgentCapsPDU(oid id, Octet_String descr)
+AddAgentCapsPDU::AddAgentCapsPDU(oid id, OctetStringValue descr)
 {
     this->id = id;
     this->descr = descr;

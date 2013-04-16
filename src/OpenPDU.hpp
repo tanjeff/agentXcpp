@@ -21,7 +21,7 @@
 
 #include "PDU.hpp"
 #include "oid.hpp"
-#include "Octet_String.hpp"
+#include "OctetStringValue.hpp"
 
 namespace agentxcpp
 {
@@ -35,7 +35,7 @@ namespace agentxcpp
 	private:
 	    uint8_t timeout;
 	    oid id;
-	    Octet_String descr;
+	    OctetStringValue descr;
 
 	public:
 	    /**
@@ -117,7 +117,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Get descr
 	     */
-	    Octet_String get_descr()
+	    OctetStringValue get_descr()
 	    {
 		return this->descr;
 	    }
@@ -125,7 +125,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Set descr
 	     */
-	    void set_descr(Octet_String descr)
+	    void set_descr(OctetStringValue descr)
 	    {
 		this->descr = descr;
 	    }

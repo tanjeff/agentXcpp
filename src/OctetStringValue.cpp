@@ -19,18 +19,18 @@
 
 #include <iterator>
 
-#include "Octet_String.hpp"
+#include "OctetStringValue.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
 
-Octet_String::Octet_String(std::string v)
+OctetStringValue::OctetStringValue(std::string v)
 {
     // Delegate ;-)
     this->set_value(v);
 }
 
-void Octet_String::set_value(std::string v)
+void OctetStringValue::set_value(std::string v)
 {
     // Here we convert initial value to a binary string. We do this in three
     // steps:
@@ -50,7 +50,7 @@ void Octet_String::set_value(std::string v)
                 );
 }
 
-std::string Octet_String::str() const
+std::string OctetStringValue::str() const
 {
     // Here we convert the stored value to a string. We do this in three
     // steps:
@@ -72,7 +72,7 @@ std::string Octet_String::str() const
     return retval;
 }
 
-binary Octet_String::serialize() const
+binary OctetStringValue::serialize() const
 {
     binary serialized;
 
@@ -94,7 +94,7 @@ binary Octet_String::serialize() const
 }
 
 
-Octet_String::Octet_String(binary::const_iterator& pos,
+OctetStringValue::OctetStringValue(binary::const_iterator& pos,
 			   const binary::const_iterator& end,
 			   bool big_endian)
 {

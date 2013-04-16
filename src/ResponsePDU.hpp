@@ -26,7 +26,7 @@
 
 #include "PDU.hpp"
 #include "oid.hpp"
-#include "Octet_String.hpp"
+#include "OctetStringValue.hpp"
 #include "varbind.hpp"
 
 using std::vector;

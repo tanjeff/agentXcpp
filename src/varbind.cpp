@@ -19,7 +19,7 @@
 #include <boost/cstdint.hpp>
 
 #include "varbind.hpp"
-#include "Octet_String.hpp"
+#include "OctetStringValue.hpp"
 #include "IntegerValue.hpp"
 #include "Counter32.hpp"
 #include "Counter64.hpp"
@@ -62,7 +62,7 @@ varbind::varbind(const oid& o, boost::shared_ptr<AbstractValue> v)
 
     // Determine type of variable and fill type field.
     if( dynamic_cast<IntegerValue*>(var.get()) ) type = 2;
-    else if( dynamic_cast<Octet_String*>(var.get()) ) type = 4;
+    else if( dynamic_cast<OctetStringValue*>(var.get()) ) type = 4;
     else if( dynamic_cast<oid*>(var.get()) ) type = 6;
     else if( dynamic_cast<IpAddress*>(var.get()) ) type = 64;
     else if( dynamic_cast<Counter32*>(var.get()) ) type = 65;
@@ -126,7 +126,7 @@ varbind::varbind(binary::const_iterator& pos,
 	    var.reset(new IntegerValue(pos, end, big_endian));
 	    break;
 	case 4:
-	    var.reset(new Octet_String(pos, end, big_endian));
+	    var.reset(new OctetStringValue(pos, end, big_endian));
 	    break;
 	case 6:
 	    var.reset(new oid(pos, end, big_endian));

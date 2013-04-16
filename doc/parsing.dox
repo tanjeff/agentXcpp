@@ -41,7 +41,7 @@ is constructed. A varbind always contains (at least) an oid.  The varbind
 constructor therefore creates an oid object by passing the 'pos' iterator to 
 the constructor of the oid class, which reads the serialized oid and constructs 
 the oid object. If needed, another variable is created the same way (e.g. an 
-Integer or an Octet_String). When the varbind object is fully constructed, the 
+Integer or an OctetStringValue). When the varbind object is fully constructed, the 
 'pos' iterator points to the position behind the varbind and the constructor 
 returns. Note that the iterator is modified by the constructor. The caller may 
 then use 'pos' to create the next object, until the buffer is completely 
@@ -72,10 +72,10 @@ constructor of the PDU class, which parses the header. Example:
 OpenPDU::OpenPDU(binary::const_iterator& pos, bool big_endian)
     : PDU(pos, big_endian) // parse header
 {
-    timeout = *pos++;                      // parse timeout field
-    pos += 3;	                           // skip reserved fields
-    id = oid(pos, big_endian);             // parse oid
-    descr = Octet_String(pos, big_endian); // parse desciption
+    timeout = *pos++;                          // parse timeout field
+    pos += 3;	                               // skip reserved fields
+    id = oid(pos, big_endian);                 // parse oid
+    descr = OctetStringValue(pos, big_endian); // parse desciption
 }
 \endcode
 

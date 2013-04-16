@@ -39,7 +39,7 @@ OpenPDU::OpenPDU(binary::const_iterator& pos,
 
     id = oid(pos, end, big_endian);
 
-    descr = Octet_String(pos, end, big_endian);
+    descr = OctetStringValue(pos, end, big_endian);
 }
 	    
 

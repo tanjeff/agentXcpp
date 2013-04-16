@@ -67,7 +67,7 @@ namespace agentxcpp
 	     *
 	     * The variable must be one of the following types:
 	     * - IntegerValue
-	     * - Octet_String
+	     * - OctetStringValue
 	     * - oid
 	     * - IpAddress
 	     * - Counter32

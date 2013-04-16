@@ -20,24 +20,28 @@
 /*! 
 
 
-\page writeable_var_rw_howto How to implement a writeable variable
+\page how_to_add_rw_support How to implement a writeable variable
 
-The tutorial \ref subagent_howto described how a read-only variable can be 
-implemented. Here we will continue this work and add write support to the 
-simpleCounter variable. Writing to the variable will set it to a new value, and 
-it will continue to count from there.
+\note This is a follow-up tutorial to \ref how_to_write_a_subagent.
+
+In the previous tutorial we wrote a simple read-only counter variable. Here we 
+will continue this work and add write support to the simpleCounter variable.  
+Writing to the variable will set it to a new value, and it will continue to 
+count from there.
 
 The updated MIB looks like that:
 
 \verbatim
 SIMPLE-MIB DEFINITIONS ::= BEGIN
 
-IMPORTS OBJECT-TYPE FROM SNMPv2-SMI
+IMPORTS
+    OBJECT-TYPE FROM SNMPv2-SMI
+    enterprises FROM SNMPv2-SMI;
 
 simpleCounter OBJECT-TYPE
     SYNTAX INTEGER
     ACCESS read-write
-    STATUS mandatory
+    STATUS current
     DESCRIPTION "A simple counter which is incremented each time
                  it is queried. Starts with 0."
     ::={ enterprises 42 1 }
@@ -56,25 +60,26 @@ operation, no other variable is allowed to perform the set operation either.
 Therefore, the Set operation is carried out in multiple distinct steps:
 
 -# \b TestSet checks whether the variable could be set at all. This step is 
-   performed for all variables (in all affected subagents) affected by the 
-   single SNMP request.  If any variable is not able to accept a new value, the 
-   Set operation is aborted (and no variable gets updated). In addition, during 
-   this step resources may be allocated by subagents if needed to carry out the 
-   actual Set operation.
--# \b CommitSet Actually sets the new value. This step may fail for a variable, 
+   performed for all variables (in all subagents) affected by the single SNMP 
+   request.  If any variable is not able to accept its new value, the Set 
+   operation is aborted (and no variable gets updated). During this step 
+   subagents shall allocate the resources they need to carry out the Set 
+   operation later.
+-# \b CommitSet actually sets the new value. This step may fail for a variable, 
    even if the TestSet step announced that the CommitSet would work. If that 
    happens, all other variables which already performed the CommitSet must undo 
    their action. It is strongly recommended to implement variables in such a 
    way that CommitSet does not fail, when possible.
 -# The third step is one of the following:
    - \b CleanupSet is usually the last step, performed after CommitSet was 
-     successful for all affected variables. CleanupSet is used to release any 
-     resources which where allocated by TestSet.
-   - \b UndoSet is performed after CommitSet failed for any variable. UndoSet 
-     is then called for all variables which already performed CommitSet and 
-     therefore must undo this action. For variables which didn't perform 
-     CommitSet yet, CleanupSet is called instead. Like CleanupSet, UndoSet also 
-     releases all resources which were allocated by TestSet. 
+     successful for all variables. In the CleanupSet step, the subagent shall 
+     release any resources which where allocated in the TestSet step.
+   - \b UndoSet is performed if CommitSet failed for any variable.  UndoSet is 
+     then called for all variables which already performed CommitSet and 
+     therefore must undo their action. For variables which didn't perform 
+     CommitSet yet, CleanupSet is called instead. Like CleanupSet, UndoSet 
+     shall also releases all resources which were allocated in the TestSet 
+     step. 
      
 
 To implement these actions, the \ref agentxcpp::primitive_variable 
@@ -92,16 +97,16 @@ methods. The \ref agentxcpp::primitive_variable::undoset "testset()"
 implementation allocates an Integer value, which is deallocated by \ref 
 agentxcpp::primitive_variable::undoset "cleanupset()" respectively \ref 
 agentxcpp::primitive_variable::undoset "undoset()". This is not very realistic, 
-but it demonstrates the usage of \ref agentxcpp::primitive_variable::undoset 
-"cleanupset()".
+but it demonstrates the usage of the individual steps.
 
 
 \subsection TestSet
 
 The \ref agentxcpp::primitive_variable::undoset "testset()" function must be 
 overridden by any variable which should be writeable. If it is not overridden, 
-agentXcpp assumes that the variable is read-only. Hence, we implement it for 
-our simpleCounter class:
+agentXcpp assumes that the variable is read-only (which we exploited in the 
+first, read-only version).  Hence, we implement it for our simpleCounter class 
+by adding the following code to it:
 
 \code
     private:
@@ -130,7 +135,8 @@ The \ref agentxcpp::primitive_variable::testset "testset()" method receives the
 value and can check whether setting the variable to this value would work.  
 Here, we don't check the value, but we allocate an Integer to store the old 
 value, which is needed for \ref agentxcpp::primitive_variable::undoset 
-"undoset()". If allocation fails, we return the appropriate error.
+"undoset()". If allocation fails, we return the error 
+<tt>resourceUnavailable</tt>.
 
 
 \subsection CommitSet
@@ -167,9 +173,10 @@ releases old_value again:
 \endcode
 
 If old_value were an Integer (instead of a pointer to Integer) no allocation 
-and deallocation would be necessary. The \ref 
+and deallocation would have been necessary. The \ref 
 agentxcpp::primitive_variable::cleanupset "cleanupset()" method would not be 
-implemented then.  In fact, this method is the only one which is optional.
+implemented then.  In fact, this method is the only one which is optional for 
+writeable variables.
 
 \subsection UndoSet
 
@@ -200,8 +207,8 @@ Again, we compile and run the subagent. This is exactly the same as in the
 first tutorial (it is assumed that your system is already setup accordingly):
 
 \verbatim
-g++ simpleagent.cpp -o simpleagent -lboost_system -lpthread -lagentxcpp
-./simpleagent
+g++ simpleagent.cpp -o simpleagent -lboost_system -lpthread -lagentxcpp \
+    `pkg-config --cflags --libs QtNetwork QtCore`
 \endverbatim
 
 Now we query the variable:
@@ -220,8 +227,8 @@ snmpset -v1 -c rw localhost 1.3.6.1.4.1.42.1.0 i 42
 Now, we continue to query it again several times and the counter should 
 continue at 42, further incrementing.
 
-Et voilá: a read-write variable.
-
+Et voilá: a read-write variable. Now go on and learn
+\ref how_to_send_notifications "how to send notifications"!
 
 
 

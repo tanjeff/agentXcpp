@@ -20,7 +20,7 @@
 #ifndef _OCTET_STRING_H_
 #define _OCTET_STRING_H_
 
-#include "value.hpp"
+#include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
 namespace agentxcpp
@@ -28,7 +28,7 @@ namespace agentxcpp
     /**
      * \brief Represents an Octet String as described in RFC 2741, section 5.3
      */
-    class Octet_String : public value_t
+    class Octet_String : public AbstractValue
     {
 	private:
 	    /**

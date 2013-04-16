@@ -21,7 +21,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "value.hpp"
+#include "AbstractValue.hpp"
 
 using boost::shared_ptr;
 
@@ -61,7 +61,7 @@ namespace agentxcpp
              * \exception generic_error If obtaining the current value fails.
              *                          No other exception shall be thrown.
              */
-            virtual shared_ptr<value_t> handle_get() = 0;
+            virtual shared_ptr<AbstractValue> handle_get() = 0;
 
 
             /**
@@ -170,7 +170,7 @@ namespace agentxcpp
              *
              * \return The result of the validation.
              */
-            virtual testset_result_t handle_testset(shared_ptr<value_t>) = 0;
+            virtual testset_result_t handle_testset(shared_ptr<AbstractValue>) = 0;
 
             /**
              * \brief Release resources after a Set operation.

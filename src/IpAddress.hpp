@@ -22,7 +22,7 @@
 
 #include <boost/cstdint.hpp>
 
-#include "value.hpp"
+#include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
 using boost::uint32_t;
@@ -32,7 +32,7 @@ namespace agentxcpp
     /**
      * \brief Represents an IP address as described in RFC 2741, section 5.4
      */
-    class IpAddress : public value_t
+    class IpAddress : public AbstractValue
     {
 	private:
 	    /**

@@ -19,7 +19,7 @@
 #ifndef _OPAQUE_H_
 #define _OPAQUE_H_
 
-#include "value.hpp"
+#include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
 namespace agentxcpp
@@ -34,7 +34,7 @@ namespace agentxcpp
      *       std::string. If that is needed, Octet_String might be a better
      *       choice.
      */
-    class Opaque : public value_t
+    class Opaque : public AbstractValue
     {
 	public:
 	    /**

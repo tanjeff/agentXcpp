@@ -93,7 +93,7 @@ class simpleCounter : public primitive_variable<Integer>
 
 The simpleCounter has a value type which is given in the SYNTAX clause in the MIB.  
 AgentXcpp provides various classes to match standard SYNTAX types, all of which 
-inherit from the \ref agentxcpp::value_t "value_t" class. Our simpleCounter 
+inherit from the \ref agentxcpp::AbstractValue "AbstractValue" class. Our simpleCounter 
 class uses agentxcpp::Integer as its value type.
 
 Next, the get() method from \ref agentxcpp::primitive_variable 

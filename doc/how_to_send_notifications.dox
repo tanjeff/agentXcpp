@@ -116,7 +116,7 @@ class NotificationSender : public QObject
             std::cout << "notification!" << std::endl;
 
             std::vector<varbind> objects;
-            shared_ptr<value_t> counter_value(new Integer(counter->get()));
+            shared_ptr<AbstractValue> counter_value(new Integer(counter->get()));
             objects.push_back(varbind(simpleCounter_oid, counter_value));
 
             QMetaObject::invokeMethod(master, "send_notification",

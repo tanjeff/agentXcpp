@@ -339,7 +339,7 @@ oid& oid::operator=(const oid& other)
 
     // copy inherited stuff
     vector<uint32_t>::operator=(other);
-    value_t::operator=(other);
+    AbstractValue::operator=(other);
     
     // Return reference to us
     return *this;

@@ -21,7 +21,7 @@
 
 #include <boost/cstdint.hpp>
 
-#include "value.hpp"
+#include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
 using boost::uint32_t;
@@ -31,7 +31,7 @@ namespace agentxcpp
     /**
      * \brief Represents an TimeTicks as described in RFC 2741
      */
-    class TimeTicks : public value_t
+    class TimeTicks : public AbstractValue
     {
 	public:
             /**

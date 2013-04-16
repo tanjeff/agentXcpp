@@ -29,7 +29,7 @@ namespace agentxcpp
      * This class is used as base class for the specific value types (such as
      * Octet_String or Integer).
      */
-    class value_t
+    class AbstractValue
     {
 	public:
 	    /**
@@ -51,7 +51,7 @@ namespace agentxcpp
              *
              * The default implementation of this desctructor is empty.
              */
-            virtual ~value_t()
+            virtual ~AbstractValue()
             {
             }
     };

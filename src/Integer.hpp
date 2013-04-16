@@ -22,7 +22,7 @@
 
 #include <boost/cstdint.hpp>
 
-#include "value.hpp"
+#include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
 using boost::int32_t;
@@ -32,7 +32,7 @@ namespace agentxcpp
     /**
      * \brief Represents an Integer as described in RFC 2741
      */
-    class Integer : public value_t
+    class Integer : public AbstractValue
     {
 	public:
 	    /**

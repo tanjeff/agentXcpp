@@ -26,7 +26,7 @@
 
 #include <boost/cstdint.hpp>
 
-#include "value.hpp"
+#include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
 using boost::uint32_t;
@@ -90,7 +90,7 @@ namespace agentxcpp
      * \endcode
      *
      */
-    class oid: public value_t, public std::vector<uint32_t>
+    class oid: public AbstractValue, public std::vector<uint32_t>
     {
 	private:
 

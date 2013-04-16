@@ -22,7 +22,7 @@
 
 #include <boost/cstdint.hpp>
 
-#include "value.hpp"
+#include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
 using boost::uint32_t;
@@ -32,7 +32,7 @@ namespace agentxcpp
     /**
      * \brief Represents a Gauge32 as descibed in RFC 2741
      */
-    class Gauge32 : public value_t
+    class Gauge32 : public AbstractValue
     {
 	public:
 	    /**

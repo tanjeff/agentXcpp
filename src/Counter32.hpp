@@ -22,7 +22,7 @@
 
 #include <boost/cstdint.hpp>
 
-#include "value.hpp"
+#include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
 using boost::uint32_t;
@@ -33,7 +33,7 @@ namespace agentxcpp
      * \brief Represents an Counter32 as described in RFC 2741
      */
      // TODO: RFC2578?
-    class Counter32 : public value_t
+    class Counter32 : public AbstractValue
     {
 	public:
 	    /**

@@ -121,7 +121,7 @@ namespace agentxcpp
              * This function calls this->get() to obtain the new value, 
              * converts it to shared_ptr<value> and returns it.
              */
-            virtual shared_ptr<value_t> handle_get()
+            virtual shared_ptr<AbstractValue> handle_get()
             {
                 // Get new value by calling this->get(), then allocate a new 
                 // variable, initializing it with the new value:
@@ -159,7 +159,7 @@ namespace agentxcpp
              * \return wrongType if the conversion fails.  Otherwise, the
              *         result of testset() is returned.
              */
-            virtual testset_result_t handle_testset(shared_ptr<value_t> v)
+            virtual testset_result_t handle_testset(shared_ptr<AbstractValue> v)
             {
                 new_value = boost::dynamic_pointer_cast<V>(v);
                 if (new_value)

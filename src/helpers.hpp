@@ -31,7 +31,7 @@ namespace agentxcpp
      *
      * This function calculates the uptime of the current process, in
      * hundreths of a second. The result may be given as sysUpTime.0.
-     * parameter to \ref master_proxy::send_notification(
+     * parameter to \ref agentxcpp::master_proxy::send_notification(
      * const boost::optional<TimeTicks>&,
      * const oid&, const vector<varbind>&).
      *

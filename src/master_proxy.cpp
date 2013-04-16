@@ -904,7 +904,7 @@ void master_proxy::remove_variable(const oid& id)
 
 
 
-void master_proxy::send_notification(const optional<TimeTicks>& sysUpTime,
+void master_proxy::send_notification(const boost::optional<TimeTicks>& sysUpTime,
                                      const oid& snmpTrapOID,
                                      const vector<varbind>& varbinds)
 {

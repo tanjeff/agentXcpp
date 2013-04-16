@@ -471,7 +471,7 @@ namespace agentxcpp
 	     *                  hundredths of a second) since the network
 	     *                  management portion of the system was last
 	     *                  re-initialized.</em>" This parameter is
-	     *                  optional.  You can use You can use \ref
+	     *                  optional.  You can use You can use
 	     *                  agentxcpp::processUpTime() to get the uptime of
 	     *                  the current process. If the parameter is not
 	     *                  provided, the sysUpTime.0 will not be included

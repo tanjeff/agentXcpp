@@ -17,12 +17,12 @@
  * for more details.
  */
 
-#include "Integer.hpp"
+#include "IntegerValue.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
 
-binary Integer::serialize() const
+binary IntegerValue::serialize() const
 {
     binary serialized;
 
@@ -33,7 +33,7 @@ binary Integer::serialize() const
 }
 
 
-Integer::Integer(binary::const_iterator& pos,
+IntegerValue::IntegerValue(binary::const_iterator& pos,
 		 const binary::const_iterator& end,
 		 bool big_endian)
 {

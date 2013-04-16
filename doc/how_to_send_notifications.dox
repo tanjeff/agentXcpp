@@ -100,12 +100,12 @@ class NotificationSender : public QObject
     private:
         master_proxy* master;
         oid simpleCounter_oid;
-        shared_ptr< primitive_variable<Integer> > counter;
+        shared_ptr< primitive_variable<IntegerValue> > counter;
 
     public:
         NotificationSender(master_proxy* _master,
                            oid _oid,
-                           shared_ptr< primitive_variable<Integer> > _counter)
+                           shared_ptr< primitive_variable<IntegerValue> > _counter)
         : master(_master), simpleCounter_oid(_oid), counter(_counter)
         {
         }
@@ -116,7 +116,7 @@ class NotificationSender : public QObject
             std::cout << "notification!" << std::endl;
 
             std::vector<varbind> objects;
-            shared_ptr<AbstractValue> counter_value(new Integer(counter->get()));
+            shared_ptr<AbstractValue> counter_value(new IntegerValue(counter->get()));
             objects.push_back(varbind(simpleCounter_oid, counter_value));
 
             QMetaObject::invokeMethod(master, "send_notification",

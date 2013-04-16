@@ -94,7 +94,7 @@ concrete implementation.
 
 To implement write support for the simpleCounter class, we implement all four 
 methods. The \ref agentxcpp::primitive_variable::undoset "testset()" 
-implementation allocates an Integer value, which is deallocated by \ref 
+implementation allocates an IntegerValue value, which is deallocated by \ref 
 agentxcpp::primitive_variable::undoset "cleanupset()" respectively \ref 
 agentxcpp::primitive_variable::undoset "undoset()". This is not very realistic, 
 but it demonstrates the usage of the individual steps.
@@ -110,15 +110,15 @@ by adding the following code to it:
 
 \code
     private:
-        Integer* old_value;
+        IntegerValue* old_value;
 
     public:
-        virtual testset_result_t testset(shared_ptr<Integer> new_value)
+        virtual testset_result_t testset(shared_ptr<IntegerValue> new_value)
         {
             try
             {
                 // Allocate space to store the old value
-                old_value = new Integer;
+                old_value = new IntegerValue;
             }
             catch(std::bad_alloc)
             {
@@ -133,7 +133,7 @@ by adding the following code to it:
 
 The \ref agentxcpp::primitive_variable::testset "testset()" method receives the 
 value and can check whether setting the variable to this value would work.  
-Here, we don't check the value, but we allocate an Integer to store the old 
+Here, we don't check the value, but we allocate an IntegerValue to store the old 
 value, which is needed for \ref agentxcpp::primitive_variable::undoset 
 "undoset()". If allocation fails, we return the error 
 <tt>resourceUnavailable</tt>.
@@ -146,7 +146,7 @@ also be implemented for writeable variables. In the simpleCounter class, this
 method sets the internal value and stores the old one (for the \ref 
 agentxcpp::primitive_variable::undoset "undoset()" method):
 \code
-        virtual bool commitset(shared_ptr<Integer> new_value)
+        virtual bool commitset(shared_ptr<IntegerValue> new_value)
         {
             // Remember old value for rollback
             *old_value = counter;
@@ -165,14 +165,14 @@ The \ref agentxcpp::primitive_variable::cleanupset "cleanupset()" method
 releases old_value again:
 
 \code
-        virtual void cleanupset(shared_ptr<Integer> new_value)
+        virtual void cleanupset(shared_ptr<IntegerValue> new_value)
         {
             // Release old value
             delete old_value;
         }
 \endcode
 
-If old_value were an Integer (instead of a pointer to Integer) no allocation 
+If old_value were an IntegerValue (instead of a pointer to IntegerValue) no allocation 
 and deallocation would have been necessary. The \ref 
 agentxcpp::primitive_variable::cleanupset "cleanupset()" method would not be 
 implemented then.  In fact, this method is the only one which is optional for 
@@ -186,7 +186,7 @@ the compiler has no way to detect a missing implementation) and perform a
 rollback.  For simpleCounter this is easy:
 
 \code
-        virtual bool undoset(shared_ptr<Integer> new_value)
+        virtual bool undoset(shared_ptr<IntegerValue> new_value)
         {
             // Restore old value
             counter = *old_value;

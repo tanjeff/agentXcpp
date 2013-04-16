@@ -30,7 +30,7 @@ using boost::uint64_t;
 namespace agentxcpp
 {
     /**
-     * \brief Represents an Integer as descibed in RFC 2741
+     * \brief Represents an Counter64 as descibed in RFC 2741
      */
     class Counter64 : public AbstractValue
     {

@@ -30,7 +30,7 @@
 SNMP and AgentX are all about variables, and how to obtain or alter their 
 values. In agentXcpp, variables are represented by classes which implement the 
 agentxcpp::variables interface. The library provides some classes such as 
-agentxcpp::Integer and agentxcpp::Octet_String, which have an internal value 
+agentxcpp::IntegerValue and agentxcpp::Octet_String, which have an internal value 
 and can be serialized and deserialized to be included in PDU messages. To 
 actually provide an SNMP variable, one of these classes must be derived.
 
@@ -52,7 +52,7 @@ internal state of the variable. Finally the variable is serialized and embedded
 within a agentxcpp::ResponsePDU and sent to the master agent.
 
 The agentxcpp::variable::update() method is implemented in the variable classes 
-such as agentxcpp::Integer, agentxcpp::Octet_String, agentxcpp::Counter32 , and 
+such as agentxcpp::IntegerValue, agentxcpp::Octet_String, agentxcpp::Counter32 , and 
 so on.  The implementation just calls the get() method of the respective 
 object, which returns the new value of the object. Then, update() stores the 
 new value within the variable. 

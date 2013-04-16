@@ -27,7 +27,7 @@ namespace agentxcpp
      * \brief This class represents a value.
      *
      * This class is used as base class for the specific value types (such as
-     * Octet_String or Integer).
+     * Octet_String or IntegerValue).
      */
     class AbstractValue
     {

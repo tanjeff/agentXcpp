@@ -32,7 +32,7 @@ namespace agentxcpp
     /**
      * \brief Represents an Integer as described in RFC 2741
      */
-    class Integer : public AbstractValue
+    class IntegerValue : public AbstractValue
     {
 	public:
 	    /**
@@ -45,13 +45,13 @@ namespace agentxcpp
 	    /**
              * \internal
              *
-	     * \brief Create an Integer object.
+	     * \brief Create an IntegerValue object.
 	     *
 	     * The default value of the new object is 0.
 	     *
 	     * \exception None.
 	     */
-	    Integer(int32_t _value=0) :value(_value) {}
+	    IntegerValue(int32_t _value=0) :value(_value) {}
 
             /**
 	     * \internal
@@ -86,7 +86,7 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Integer(binary::const_iterator& pos,
+	    IntegerValue(binary::const_iterator& pos,
 		    const binary::const_iterator& end,
 		    bool big_endian=true);
 

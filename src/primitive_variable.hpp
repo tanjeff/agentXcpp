@@ -34,17 +34,17 @@ namespace agentxcpp
      * functionality. Example:
      * 
      * \code
-     * // An Integer variable
-     * class simpleCounter : public primitive_variable<Integer>
+     * // An IntegerValue variable
+     * class simpleCounter : public primitive_variable<IntegerValue>
      * {
      *     private:
      *         // The internal counter
-     *         Integer counter;
+     *         IntegerValue counter;
      *
      *     public:
      *
      *         // Handle SNMP get request
-     *         virtual Integer get()
+     *         virtual IntegerValue get()
      *         {
      *             return counter;
      *         }

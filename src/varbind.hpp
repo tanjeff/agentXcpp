@@ -66,7 +66,7 @@ namespace agentxcpp
 	     * \brief Create a VarBind with an oid and a var.
 	     *
 	     * The variable must be one of the following types:
-	     * - Integer
+	     * - IntegerValue
 	     * - Octet_String
 	     * - oid
 	     * - IpAddress

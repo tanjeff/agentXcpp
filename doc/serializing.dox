@@ -39,7 +39,7 @@ classes) provides the add_header() member to add the serialized form of the PDU
 header. The serialize() functions start with an empty binary object and append 
 the 
 %PDU parts to it.  Other classes also provide a serialize() member, e.g.  the 
-oid and Integer classes.  PDU's typically call the serialize() functions of the 
+oid and IntegerValue classes.  PDU's typically call the serialize() functions of the 
 contained objects, receive a binary object from that object and append it to 
 their own binary object. Finally, PDU::add_header() is called to add the 
 header.

@@ -32,7 +32,7 @@ have to compile agentXcpp yourself. Here is how to do this.
 The following software is needed to build agentXcpp, simply use the versions 
 which are easily available for your system:
 - Standard build environment (compiler, linker, etc.)
-- Doxygen, to build the documentation
+- Doxygen, to build the documentation (version 1.8.1.2 is recommended)
 - The dot tool from the graphviz package, which is used by doxygen to generate 
   diagrams
 - SCons, to control the build process

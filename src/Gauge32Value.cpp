@@ -17,12 +17,12 @@
  * for more details.
  */
 
-#include "Gauge32.hpp"
+#include "Gauge32Value.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
 
-binary Gauge32::serialize() const
+binary Gauge32Value::serialize() const
 {
     binary serialized;
 
@@ -33,7 +33,7 @@ binary Gauge32::serialize() const
 }
 
 
-Gauge32::Gauge32(binary::const_iterator& pos,
+Gauge32Value::Gauge32Value(binary::const_iterator& pos,
 		 const binary::const_iterator& end,
 		 bool big_endian)
 {

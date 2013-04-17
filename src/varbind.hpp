@@ -68,10 +68,10 @@ namespace agentxcpp
 	     * The variable must be one of the following types:
 	     * - IntegerValue
 	     * - OctetStringValue
-	     * - oid
+	     * - OidValue
 	     * - IpAddress
 	     * - Counter32
-	     * - Gauge32
+	     * - Gauge32Value
 	     * - TimeTicks
 	     * - OpaqueValue
 	     * - Counter64

@@ -32,7 +32,7 @@ namespace agentxcpp
     /**
      * \brief Represents a Gauge32 as descibed in RFC 2741
      */
-    class Gauge32 : public AbstractValue
+    class Gauge32Value : public AbstractValue
     {
 	public:
 	    /**
@@ -47,11 +47,11 @@ namespace agentxcpp
 	    /**
              * \internal
              *
-	     * \brief Create a Gauge32 without initialization.
+	     * \brief Create a Gauge32Value without initialization.
 	     *
 	     * The value after creation is undefined.
 	     */
-	    Gauge32() {}
+	    Gauge32Value() {}
 
 	    /**
 	     * \internal
@@ -77,7 +77,7 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Gauge32(binary::const_iterator& pos,
+	    Gauge32Value(binary::const_iterator& pos,
 		    const binary::const_iterator& end,
 		    bool big_endian=true);
 

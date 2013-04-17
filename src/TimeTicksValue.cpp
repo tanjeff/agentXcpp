@@ -17,12 +17,12 @@
  * for more details.
  */
 
-#include "TimeTicks.hpp"
+#include "TimeTicksValue.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
 
-binary TimeTicks::serialize() const
+binary TimeTicksValue::serialize() const
 {
     binary serialized;
 
@@ -33,7 +33,7 @@ binary TimeTicks::serialize() const
 }
 
 
-TimeTicks::TimeTicks(binary::const_iterator& pos,
+TimeTicksValue::TimeTicksValue(binary::const_iterator& pos,
 		     const binary::const_iterator& end,
 		     bool big_endian)
 {

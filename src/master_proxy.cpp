@@ -904,7 +904,7 @@ void master_proxy::remove_variable(const OidValue& id)
 
 
 
-void master_proxy::send_notification(const boost::optional<TimeTicks>& sysUpTime,
+void master_proxy::send_notification(const boost::optional<TimeTicksValue>& sysUpTime,
                                      const OidValue& snmpTrapOID,
                                      const vector<varbind>& varbinds)
 {
@@ -916,7 +916,7 @@ void master_proxy::send_notification(const boost::optional<TimeTicks>& sysUpTime
     // First of all: add mandatory sysUpTime (if given)
     if(sysUpTime)
     {
-        shared_ptr<TimeTicks> value(new TimeTicks(*sysUpTime));
+        shared_ptr<TimeTicksValue> value(new TimeTicksValue(*sysUpTime));
         vb.push_back(varbind(OidValue(sysUpTime_oid, "0"), value));
     }
 

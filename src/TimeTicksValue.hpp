@@ -31,7 +31,7 @@ namespace agentxcpp
     /**
      * \brief Represents an TimeTicks as described in RFC 2741
      */
-    class TimeTicks : public AbstractValue
+    class TimeTicksValue : public AbstractValue
     {
 	public:
             /**
@@ -43,11 +43,11 @@ namespace agentxcpp
 	    uint32_t value;
 
 	    /**
-	     * \brief Create an TimeTicks without initialization.
+	     * \brief Create an TimeTicksValue without initialization.
 	     *
 	     * \param initial_value The initial value of the object.
 	     */
-	    TimeTicks(uint32_t initial_value = 0)
+	    TimeTicksValue(uint32_t initial_value = 0)
 	    : value(initial_value)
 	    {
 	    }
@@ -76,7 +76,7 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    TimeTicks(binary::const_iterator& pos,
+	    TimeTicksValue(binary::const_iterator& pos,
 		      const binary::const_iterator& end,
 		      bool big_endian=true);
 	    

@@ -40,14 +40,14 @@ namespace agentxcpp
     static ptime process_start_time(microsec_clock<ptime>::universal_time());
 }
 
-    TimeTicks processUpTime()
+    TimeTicksValue processUpTime()
     {
         // Calculate uptime
         time_duration uptime = microsec_clock<ptime>::universal_time()
                                - process_start_time;
 
         // Convert uptime to hundreths of seconds
-        TimeTicks sysuptime( uptime.total_milliseconds()/10 );
+        TimeTicksValue sysuptime( uptime.total_milliseconds()/10 );
 
         // Return result
         return sysuptime;

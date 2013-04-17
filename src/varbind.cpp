@@ -24,7 +24,7 @@
 #include "Counter32Value.hpp"
 #include "Counter64Value.hpp"
 #include "Gauge32Value.hpp"
-#include "TimeTicks.hpp"
+#include "TimeTicksValue.hpp"
 #include "OpaqueValue.hpp"
 #include "IpAddress.hpp"
 #include "util.hpp"
@@ -67,7 +67,7 @@ varbind::varbind(const OidValue& o, boost::shared_ptr<AbstractValue> v)
     else if( dynamic_cast<IpAddress*>(var.get()) ) type = 64;
     else if( dynamic_cast<Counter32Value*>(var.get()) ) type = 65;
     else if( dynamic_cast<Gauge32Value*>(var.get()) ) type = 66;
-    else if( dynamic_cast<TimeTicks*>(var.get()) ) type = 67;
+    else if( dynamic_cast<TimeTicksValue*>(var.get()) ) type = 67;
     else if( dynamic_cast<OpaqueValue*>(var.get()) ) type = 68;
     else if( dynamic_cast<Counter64Value*>(var.get()) ) type = 70;
     else
@@ -141,7 +141,7 @@ varbind::varbind(binary::const_iterator& pos,
 	    var.reset(new Gauge32Value(pos, end, big_endian));
 	    break;
 	case 67:
-	    var.reset(new TimeTicks(pos, end, big_endian));
+	    var.reset(new TimeTicksValue(pos, end, big_endian));
 	    break;
 	case 68:
 	    var.reset(new OpaqueValue(pos, end, big_endian));

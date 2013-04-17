@@ -72,7 +72,7 @@ namespace agentxcpp
 	     * - IpAddress
 	     * - Counter32Value
 	     * - Gauge32Value
-	     * - TimeTicks
+	     * - TimeTicksValue
 	     * - OpaqueValue
 	     * - Counter64Value
 	     * If the type of the variable cannot be determined, inval_param is 

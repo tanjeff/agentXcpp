@@ -21,7 +21,7 @@
 
 #include <boost/optional/optional.hpp>
 
-#include "TimeTicks.hpp"
+#include "TimeTicksValue.hpp"
 #include "OidValue.hpp"
 
 namespace agentxcpp
@@ -32,7 +32,7 @@ namespace agentxcpp
      * This function calculates the uptime of the current process, in
      * hundreths of a second. The result may be given as sysUpTime.0.
      * parameter to \ref agentxcpp::master_proxy::send_notification(
-     * const boost::optional<TimeTicks>&,
+     * const boost::optional<TimeTicksValue>&,
      * const OidValue&, const vector<varbind>&).
      *
      * \internal
@@ -42,7 +42,7 @@ namespace agentxcpp
      *
      * \return The current uptime, in hundreths of a second.
      */
-    TimeTicks processUpTime();
+    TimeTicksValue processUpTime();
 
     /**
      * \brief The allowed values for specific-trap (SNMPv1 trap).

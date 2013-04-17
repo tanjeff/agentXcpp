@@ -32,7 +32,7 @@
 
 #include "OidValue.hpp"
 #include "variable.hpp"
-#include "TimeTicks.hpp"
+#include "TimeTicksValue.hpp"
 #include "ClosePDU.hpp"
 #include "ResponsePDU.hpp"
 #include "RegisterPDU.hpp"
@@ -504,7 +504,7 @@ namespace agentxcpp
 	     *
 	     * \todo Document exceptions.
 	     */
-	    void send_notification(const boost::optional<TimeTicks>& sysUpTime,
+	    void send_notification(const boost::optional<TimeTicksValue>& sysUpTime,
 	                           const OidValue& snmpTrapOID,
 	                           const std::vector<varbind>& varbinds=vector<varbind>());
 
@@ -512,24 +512,24 @@ namespace agentxcpp
 	     * \brief Writing aid: Send notification without sysUpTime.0.
 	     *
 	     * This calls \ref send_notification(
-	     * const boost::optional<TimeTicks>&,
+	     * const boost::optional<TimeTicksValue>&,
 	     * const OidValue&, const vector<varbind>&) with an empty sysUpTime.0
 	     * parameter. Without the writing aid it would be necessary to
 	     * construct an empty parameter, like so:
 	     * \code
-	     * master.send_notification(optional<TimeTicks>(),
+	     * master.send_notification(optional<TimeTicksValue>(),
 	     *                          mySubagentOid);
 	     * \endcode
 	     *
 	     * For the documentation of the parameters and exceptions go to
 	     * \ref send_notification(
-	     * const boost::optional<TimeTicks>&,
+	     * const boost::optional<TimeTicksValue>&,
 	     * const OidValue&, const vector<varbind>&)
 	     */
 	    void send_notification(const OidValue& snmpTrapOID,
 	                           const std::vector<varbind>& varbinds=vector<varbind>())
 	    {
-	        send_notification(boost::optional<TimeTicks>(),
+	        send_notification(boost::optional<TimeTicksValue>(),
 	                snmpTrapOID,
 	                varbinds);
 	    }

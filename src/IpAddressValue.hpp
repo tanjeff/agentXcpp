@@ -32,13 +32,13 @@ namespace agentxcpp
     /**
      * \brief Represents an IP address as described in RFC 2741, section 5.4
      */
-    class IpAddress : public AbstractValue
+    class IpAddressValue : public AbstractValue
     {
 	private:
 	    /**
 	     * \brief Hide default constructor
 	     */
-	    IpAddress();
+	    IpAddressValue();
 
 	    /**
 	     * \brief The IP address.
@@ -72,7 +72,7 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    IpAddress(binary::const_iterator& pos,
+	    IpAddressValue(binary::const_iterator& pos,
 		      const binary::const_iterator& end,
 		      bool big_endian=true);
 
@@ -88,13 +88,13 @@ namespace agentxcpp
 	    binary serialize() const;
 
 	    /**
-             * \brief Construct an IpAddress object.
+             * \brief Construct an IpAddressValue object.
              *
              * The stored IpAddress is initialized to "a.b.c.d".
              *
              * \exception None.
 	     */
-	    IpAddress(uint8_t a,
+	    IpAddressValue(uint8_t a,
 		      uint8_t b,
 		      uint8_t c,
 		      uint8_t d)
@@ -129,7 +129,7 @@ namespace agentxcpp
 	     * This function returns the component with the given index. Note
 	     * that exactly 4 components are stored. The return value is a
 	     * reference to the component, so that it can be read/written, in
-	     * other words, the IpAddress object can be accessed like an
+	     * other words, the IpAddressValue object can be accessed like an
 	     * ordinary array.
 	     *
 	     * \param index The index (value in the range 0...3).

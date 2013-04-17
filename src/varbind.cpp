@@ -26,7 +26,7 @@
 #include "Gauge32Value.hpp"
 #include "TimeTicksValue.hpp"
 #include "OpaqueValue.hpp"
-#include "IpAddress.hpp"
+#include "IpAddressValue.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
@@ -64,7 +64,7 @@ varbind::varbind(const OidValue& o, boost::shared_ptr<AbstractValue> v)
     if( dynamic_cast<IntegerValue*>(var.get()) ) type = 2;
     else if( dynamic_cast<OctetStringValue*>(var.get()) ) type = 4;
     else if( dynamic_cast<OidValue*>(var.get()) ) type = 6;
-    else if( dynamic_cast<IpAddress*>(var.get()) ) type = 64;
+    else if( dynamic_cast<IpAddressValue*>(var.get()) ) type = 64;
     else if( dynamic_cast<Counter32Value*>(var.get()) ) type = 65;
     else if( dynamic_cast<Gauge32Value*>(var.get()) ) type = 66;
     else if( dynamic_cast<TimeTicksValue*>(var.get()) ) type = 67;
@@ -132,7 +132,7 @@ varbind::varbind(binary::const_iterator& pos,
 	    var.reset(new OidValue(pos, end, big_endian));
 	    break;
 	case 64:
-	    var.reset(new IpAddress(pos, end, big_endian));
+	    var.reset(new IpAddressValue(pos, end, big_endian));
 	    break;
 	case 65:
 	    var.reset(new Counter32Value(pos, end, big_endian));

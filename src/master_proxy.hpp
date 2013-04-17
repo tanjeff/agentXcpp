@@ -31,7 +31,7 @@
 #include <QThread>
 
 #include "OidValue.hpp"
-#include "variable.hpp"
+#include "AbstractVariable.hpp"
 #include "TimeTicksValue.hpp"
 #include "ClosePDU.hpp"
 #include "ResponsePDU.hpp"
@@ -257,7 +257,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Storage for all SNMP variables known to the master_proxy.
 	     */
-	    std::map< OidValue, shared_ptr<variable> > variables;
+	    std::map< OidValue, shared_ptr<AbstractVariable> > variables;
 
             /**
              * \brief The variables affected by the Set operation currently
@@ -269,7 +269,7 @@ namespace agentxcpp
              *
              * These are the variables denominated in that TestSet PDU.
              */
-            std::list< shared_ptr<variable> > setlist;
+            std::list< shared_ptr<AbstractVariable> > setlist;
 
 	    /**
 	     * \brief Send a RegisterPDU to the master agent.
@@ -769,7 +769,7 @@ namespace agentxcpp
 	     *                                 within a registered MIB 
 	     *                                 region.
 	     */
-	    void add_variable(const OidValue& id, shared_ptr<variable> v);
+	    void add_variable(const OidValue& id, shared_ptr<AbstractVariable> v);
 
 	    /**
 	     * \brief Remove an SNMP variable so that is not longer accessible.

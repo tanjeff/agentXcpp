@@ -40,12 +40,12 @@ and begins parsing at where 'pos' points to.  While reading, the varbind object
 is constructed. A varbind always contains (at least) an OidValue.  The varbind 
 constructor therefore creates an OidValue object by passing the 'pos' iterator to 
 the constructor of the OidValue class, which reads the serialized OidValue and constructs 
-the OidValue object. If needed, another variable is created the same way (e.g. an 
-Integer or an OctetStringValue). When the varbind object is fully constructed, the 
-'pos' iterator points to the position behind the varbind and the constructor 
-returns. Note that the iterator is modified by the constructor. The caller may 
-then use 'pos' to create the next object, until the buffer is completely 
-parsed.
+the OidValue object. If needed, another variable is created the same way (e.g.  
+an IntegerValue or an OctetStringValue). When the varbind object is fully 
+constructed, the 'pos' iterator points to the position behind the varbind and 
+the constructor returns. Note that the iterator is modified by the constructor.  
+The caller may then use 'pos' to create the next object, until the buffer is 
+completely parsed.
 
 The 'end' iterator seen in the above constructor prototype is needed to know 
 the end of the buffer. Parse constructors use it to detect missing data at the 

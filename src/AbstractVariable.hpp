@@ -38,7 +38,7 @@ namespace agentxcpp
      *       this class. Rather they should inherit from one of the derived 
      *       classes (e.g. primitive_variable).
      */
-    class variable
+    class AbstractVariable
     {
 
         public:
@@ -46,7 +46,7 @@ namespace agentxcpp
             /**
              * \brief Destructor.
              */
-            virtual ~variable()
+            virtual ~AbstractVariable()
             {
             }
 

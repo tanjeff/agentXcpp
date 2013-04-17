@@ -456,7 +456,7 @@ void master_proxy::handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<Ge
 	    const OidValue& name = *i;
 
 	    // Find variable for current OID
-	    map< OidValue, shared_ptr<variable> >::const_iterator var;
+	    map< OidValue, shared_ptr<AbstractVariable> >::const_iterator var;
 	    var = variables.find(name);
 	    if(var != variables.end())
 	    {
@@ -526,7 +526,7 @@ void master_proxy::handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_pt
             const OidValue& ending_oid   = i->second;
 
             // Find "next" variable
-	    map< OidValue, shared_ptr<variable> >::const_iterator next_var;
+	    map< OidValue, shared_ptr<AbstractVariable> >::const_iterator next_var;
 	    if( ! starting_oid.get_include())
             {
                 // Find the closest lexicographical successor to the starting 
@@ -600,7 +600,7 @@ void master_proxy::handle_testsetpdu(boost::shared_ptr<ResponsePDU> response, sh
     for(i = vb.begin(), index = 1; i != vb.end(); i++, index++)
     {
         // Find the associated variable
-        map< OidValue, shared_ptr<variable> >::const_iterator var;
+        map< OidValue, shared_ptr<AbstractVariable> >::const_iterator var;
 	var = variables.find(i->get_name());
         if(var == variables.end())
         {
@@ -649,7 +649,7 @@ void master_proxy::handle_cleanupsetpdu()
     // Iterate over list and handle each Varbind separately. We iterate 
     // backwards, so that resources are released in the reverse order of their
     // allocation.
-    list< shared_ptr<variable> >::const_reverse_iterator i;
+    list< shared_ptr<AbstractVariable> >::const_reverse_iterator i;
     for(i = setlist.rbegin(); i != setlist.rend(); i++)
     {
         (*i)->handle_cleanupset();
@@ -665,7 +665,7 @@ void master_proxy::handle_commitsetpdu(boost::shared_ptr<ResponsePDU> response, 
     // agentx-CommitSet-PDU"
 
     // Iterate over list and handle each Varbind separately.
-    list< shared_ptr<variable> >::iterator i;
+    list< shared_ptr<AbstractVariable> >::iterator i;
     uint16_t index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
     for(i = setlist.begin(); i != setlist.end(); i++)
     {
@@ -695,7 +695,7 @@ void master_proxy::handle_undosetpdu(boost::shared_ptr<ResponsePDU> response, sh
     bool failed = false;
 
     // Iterate over list and handle each Varbind separately.
-    list< shared_ptr<variable> >::iterator i;
+    list< shared_ptr<AbstractVariable> >::iterator i;
     uint16_t index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
     for(i = setlist.begin(); i != setlist.end(); i++)
     {
@@ -855,7 +855,7 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu)
 }
 
 
-void master_proxy::add_variable(const OidValue& id, shared_ptr<variable> v)
+void master_proxy::add_variable(const OidValue& id, shared_ptr<AbstractVariable> v)
 {
     // Check whether id is contained in a registration
     bool is_registered = false;
@@ -889,7 +889,7 @@ void master_proxy::add_variable(const OidValue& id, shared_ptr<variable> v)
 void master_proxy::remove_variable(const OidValue& id)
 {
     // Find variable
-    map<OidValue, shared_ptr<variable> >::iterator i = variables.find(id);
+    map<OidValue, shared_ptr<AbstractVariable> >::iterator i = variables.find(id);
 
     if(i == variables.end())
     {

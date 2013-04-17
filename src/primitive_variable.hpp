@@ -21,7 +21,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "variable.hpp"
+#include "AbstractVariable.hpp"
 
 namespace agentxcpp
 {
@@ -98,7 +98,7 @@ namespace agentxcpp
      * mismatch.
      */
     template< class V >
-    class primitive_variable : public variable
+    class primitive_variable : public AbstractVariable
     {
         private:
             /**

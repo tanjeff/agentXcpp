@@ -22,7 +22,7 @@
 #include "OctetStringValue.hpp"
 #include "IntegerValue.hpp"
 #include "Counter32Value.hpp"
-#include "Counter64.hpp"
+#include "Counter64Value.hpp"
 #include "Gauge32Value.hpp"
 #include "TimeTicks.hpp"
 #include "OpaqueValue.hpp"
@@ -69,7 +69,7 @@ varbind::varbind(const OidValue& o, boost::shared_ptr<AbstractValue> v)
     else if( dynamic_cast<Gauge32Value*>(var.get()) ) type = 66;
     else if( dynamic_cast<TimeTicks*>(var.get()) ) type = 67;
     else if( dynamic_cast<OpaqueValue*>(var.get()) ) type = 68;
-    else if( dynamic_cast<Counter64*>(var.get()) ) type = 70;
+    else if( dynamic_cast<Counter64Value*>(var.get()) ) type = 70;
     else
     {
 	// Type could not be determined -> invalid parameter.
@@ -147,7 +147,7 @@ varbind::varbind(binary::const_iterator& pos,
 	    var.reset(new OpaqueValue(pos, end, big_endian));
 	    break;
 	case 70:
-	    var.reset(new Counter64(pos, end, big_endian));
+	    var.reset(new Counter64Value(pos, end, big_endian));
 	    break;
 	case 5:	    // Null
 	case 128:   // noSuchObject

@@ -32,7 +32,7 @@ namespace agentxcpp
     /**
      * \brief Represents an Counter64 as descibed in RFC 2741
      */
-    class Counter64 : public AbstractValue
+    class Counter64Value : public AbstractValue
     {
 	public:
 	    /**
@@ -50,7 +50,7 @@ namespace agentxcpp
 	     *
 	     * The value after creation is undefined.
 	     */
-	    Counter64() {}
+	    Counter64Value() {}
 
 	    /**
 	     * \internal
@@ -76,7 +76,7 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Counter64(binary::const_iterator& pos,
+	    Counter64Value(binary::const_iterator& pos,
 		      const binary::const_iterator& end,
 		      bool big_endian=true);
 

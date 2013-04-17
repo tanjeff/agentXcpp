@@ -74,7 +74,7 @@ namespace agentxcpp
 	     * - Gauge32Value
 	     * - TimeTicks
 	     * - OpaqueValue
-	     * - Counter64
+	     * - Counter64Value
 	     * If the type of the variable cannot be determined, inval_param is 
 	     * thrown.
 	     */

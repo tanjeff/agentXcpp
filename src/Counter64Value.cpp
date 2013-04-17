@@ -19,13 +19,13 @@
 
 #include <boost/cstdint.hpp>
 
-#include "Counter64.hpp"
+#include "Counter64Value.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
 using boost::uint64_t;
 
-binary Counter64::serialize() const
+binary Counter64Value::serialize() const
 {
     binary serialized;
 
@@ -36,7 +36,7 @@ binary Counter64::serialize() const
 }
 
 
-Counter64::Counter64(binary::const_iterator& pos,
+Counter64Value::Counter64Value(binary::const_iterator& pos,
 		    const binary::const_iterator& end,
 		    bool big_endian)
 {

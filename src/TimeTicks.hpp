@@ -37,7 +37,7 @@ namespace agentxcpp
             /**
 	     * \brief The TimeTicks value.
 	     *
-	     * According to RFC 2578, Counter32 is a non-negative 32-bit 
+	     * According to RFC 2578, TimeTicks is a non-negative 32-bit
 	     * number.
 	     */
 	    uint32_t value;

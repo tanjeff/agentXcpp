@@ -33,7 +33,7 @@ namespace agentxcpp
      * \brief Represents an Counter32 as described in RFC 2741
      */
      // TODO: RFC2578?
-    class Counter32 : public AbstractValue
+    class Counter32Value : public AbstractValue
     {
 	public:
 	    /**
@@ -51,7 +51,7 @@ namespace agentxcpp
 	     *
 	     * The value after creation is undefined.
 	     */
-	    Counter32() {}
+	    Counter32Value() {}
 
 	    /**
              * \internal
@@ -77,7 +77,7 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Counter32(binary::const_iterator& pos,
+	    Counter32Value(binary::const_iterator& pos,
 		      const binary::const_iterator& end,
 		      bool big_endian=true);
 

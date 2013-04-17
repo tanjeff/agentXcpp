@@ -17,12 +17,12 @@
  * for more details.
  */
 
-#include "Counter32.hpp"
+#include "Counter32Value.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
 
-binary Counter32::serialize() const
+binary Counter32Value::serialize() const
 {
     binary serialized;
 
@@ -33,7 +33,7 @@ binary Counter32::serialize() const
 }
 
 
-Counter32::Counter32(binary::const_iterator& pos,
+Counter32Value::Counter32Value(binary::const_iterator& pos,
 		     const binary::const_iterator& end,
 		     bool big_endian)
 {

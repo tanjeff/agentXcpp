@@ -52,7 +52,8 @@ internal state of the variable. Finally the variable is serialized and embedded
 within a agentxcpp::ResponsePDU and sent to the master agent.
 
 The agentxcpp::variable::update() method is implemented in the variable classes 
-such as agentxcpp::IntegerValue, agentxcpp::OctetStringValue, agentxcpp::Counter32 , and 
+such as agentxcpp::IntegerValue, agentxcpp::OctetStringValue, 
+agentxcpp::Counter32Value, and 
 so on.  The implementation just calls the get() method of the respective 
 object, which returns the new value of the object. Then, update() stores the 
 new value within the variable. 

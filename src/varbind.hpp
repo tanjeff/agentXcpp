@@ -70,7 +70,7 @@ namespace agentxcpp
 	     * - OctetStringValue
 	     * - OidValue
 	     * - IpAddress
-	     * - Counter32
+	     * - Counter32Value
 	     * - Gauge32Value
 	     * - TimeTicks
 	     * - OpaqueValue

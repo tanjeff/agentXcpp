@@ -17,11 +17,11 @@
  * for more details.
  */
 
-#include "Opaque.hpp"
+#include "OpaqueValue.hpp"
 
 using namespace agentxcpp;
 
-binary Opaque::serialize() const
+binary OpaqueValue::serialize() const
 {
     binary serialized;
 
@@ -46,7 +46,7 @@ binary Opaque::serialize() const
 }
 
 
-Opaque::Opaque(binary::const_iterator& pos,
+OpaqueValue::OpaqueValue(binary::const_iterator& pos,
 	       const binary::const_iterator& end,
 	       bool big_endian)
 {

@@ -34,7 +34,7 @@ namespace agentxcpp
      *       std::string. If that is needed, OctetStringValue might be a better
      *       choice.
      */
-    class Opaque : public AbstractValue
+    class OpaqueValue : public AbstractValue
     {
 	public:
 	    /**
@@ -79,14 +79,14 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Opaque(binary::const_iterator& pos,
+	    OpaqueValue(binary::const_iterator& pos,
 		   const binary::const_iterator& end,
 		   bool big_endian=true);
 
             /**
              * \brief Constructor for initializing with data.
              */
-	    Opaque(binary initial_value) : value(initial_value) {}
+	    OpaqueValue(binary initial_value) : value(initial_value) {}
     };
 }
 

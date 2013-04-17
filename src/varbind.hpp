@@ -24,7 +24,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 
-#include "oid.hpp"
+#include "OidValue.hpp"
 #include "AbstractValue.hpp"
 
 using boost::uint16_t;
@@ -42,7 +42,7 @@ namespace agentxcpp
 	    /**
 	     * \brief The name (OID) of the VarBind.
 	     */
-	    oid name;
+	    OidValue name;
 
 	    /**
 	     * \brief The variable inside the varbind.
@@ -78,7 +78,7 @@ namespace agentxcpp
 	     * If the type of the variable cannot be determined, inval_param is 
 	     * thrown.
 	     */
-	    varbind(const oid&, boost::shared_ptr<AbstractValue> v);
+	    varbind(const OidValue&, boost::shared_ptr<AbstractValue> v);
 	    
 	    /**
 	     * \brief These values can be used to create a VarBind.
@@ -97,7 +97,7 @@ namespace agentxcpp
 	     * Only the constants defined by varbind::type_t are allowed.  A 
 	     * wrong type will cause an inval_param exception.
 	     */
-	    varbind(const oid&, type_t);
+	    varbind(const OidValue&, type_t);
 
 	    /**
 	     * \internal
@@ -130,7 +130,7 @@ namespace agentxcpp
             /**
              * \brief Get the name (the OID) stored within the varbind.
              */
-            oid get_name() const
+            OidValue get_name() const
             {
                 return name;
             }

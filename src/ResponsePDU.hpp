@@ -25,7 +25,7 @@
 #include <boost/cstdint.hpp>
 
 #include "PDU.hpp"
-#include "oid.hpp"
+#include "OidValue.hpp"
 #include "OctetStringValue.hpp"
 #include "varbind.hpp"
 

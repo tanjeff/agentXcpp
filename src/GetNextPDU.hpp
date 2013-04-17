@@ -23,7 +23,7 @@
 #include <utility>
 
 #include "PDUwithContext.hpp"
-#include "oid.hpp"
+#include "OidValue.hpp"
 
 using std::vector;
 using std::pair;
@@ -42,10 +42,10 @@ namespace agentxcpp
 	     * \brief The SearchRange list
 	     *
 	     * A GetNext %PDU can have multiple SearchRanges. A SearchRange 
-	     * consists of two oid's. We store them in a pair<>, and store the 
+	     * consists of two OidValue's. We store them in a pair<>, and store the 
 	     * pais<>'s in a vector< pair<> >.
 	     */
-	    vector< pair<oid,oid> > sr;
+	    vector< pair<OidValue,OidValue> > sr;
 
 	public:
 	    /**
@@ -89,7 +89,7 @@ namespace agentxcpp
 	     * \note There is no set_sr() function, because the SearchRange
 	     *       list can be modified in place.
 	     */
-	    vector< pair<oid,oid> >& get_sr()
+	    vector< pair<OidValue,OidValue> >& get_sr()
 	    {
 		return this->sr;
 	    }

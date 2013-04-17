@@ -21,7 +21,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "oid.hpp"
+#include "OidValue.hpp"
 #include "PDUwithContext.hpp"
 
 using boost::uint32_t;
@@ -38,7 +38,7 @@ namespace agentxcpp
 	private:
 	    uint8_t timeout;
 	    uint8_t priority;
-	    oid subtree;
+	    OidValue subtree;
 	    uint8_t range_subid;
 	    uint32_t upper_bound;
 
@@ -61,14 +61,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the subtree.
 	     */
-	    void set_subtree(oid subtree)
+	    void set_subtree(OidValue subtree)
 	    {
 		this->subtree = subtree;
 	    }
 	    /**
 	     * \brief Get the subtree.
 	     */
-	    oid get_subtree()
+	    OidValue get_subtree()
 	    {
 		return this->subtree;
 	    }

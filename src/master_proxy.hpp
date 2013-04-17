@@ -30,7 +30,7 @@
 #include <QObject>
 #include <QThread>
 
-#include "oid.hpp"
+#include "OidValue.hpp"
 #include "variable.hpp"
 #include "TimeTicks.hpp"
 #include "ClosePDU.hpp"
@@ -162,7 +162,7 @@ namespace agentxcpp
      * \internal
      *
      * The variables are stored in the member variables, which is a 
-     * std::map<oid, shared_ptr<variable> >. The key is the OID for which the 
+     * std::map<OidValue, shared_ptr<variable> >. The key is the OID for which the 
      * variable was added. This allows easy lookup for the request 
      * dispatcher.
      *
@@ -243,7 +243,7 @@ namespace agentxcpp
 	     * \brief An Object Identifier that identifies the subagent. May be
 	     *        the null OID.
 	     */
-	    oid id;
+	    OidValue id;
 
 	    /**
 	     * \brief The registrations.
@@ -257,7 +257,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Storage for all SNMP variables known to the master_proxy.
 	     */
-	    std::map< oid, shared_ptr<variable> > variables;
+	    std::map< OidValue, shared_ptr<variable> > variables;
 
             /**
              * \brief The variables affected by the Set operation currently
@@ -505,7 +505,7 @@ namespace agentxcpp
 	     * \todo Document exceptions.
 	     */
 	    void send_notification(const boost::optional<TimeTicks>& sysUpTime,
-	                           const oid& snmpTrapOID,
+	                           const OidValue& snmpTrapOID,
 	                           const std::vector<varbind>& varbinds=vector<varbind>());
 
 	    /**
@@ -513,7 +513,7 @@ namespace agentxcpp
 	     *
 	     * This calls \ref send_notification(
 	     * const boost::optional<TimeTicks>&,
-	     * const oid&, const vector<varbind>&) with an empty sysUpTime.0
+	     * const OidValue&, const vector<varbind>&) with an empty sysUpTime.0
 	     * parameter. Without the writing aid it would be necessary to
 	     * construct an empty parameter, like so:
 	     * \code
@@ -524,9 +524,9 @@ namespace agentxcpp
 	     * For the documentation of the parameters and exceptions go to
 	     * \ref send_notification(
 	     * const boost::optional<TimeTicks>&,
-	     * const oid&, const vector<varbind>&)
+	     * const OidValue&, const vector<varbind>&)
 	     */
-	    void send_notification(const oid& snmpTrapOID,
+	    void send_notification(const OidValue& snmpTrapOID,
 	                           const std::vector<varbind>& varbinds=vector<varbind>())
 	    {
 	        send_notification(boost::optional<TimeTicks>(),
@@ -566,7 +566,7 @@ namespace agentxcpp
 	     */
 	    master_proxy(std::string description="",
 		   uint8_t default_timeout=0,
-		   oid ID=oid(),
+		   OidValue ID=OidValue(),
 		   std::string unix_domain_socket="/var/agentx/master");
 
 	    /**
@@ -623,7 +623,7 @@ namespace agentxcpp
              *                        that a retry will result in a 
              *                        duplicate_registration error.
 	     */
-	    void register_subtree(oid subtree,
+	    void register_subtree(OidValue subtree,
 				  uint8_t priority=127,
 				  uint8_t timeout=0);
 
@@ -668,7 +668,7 @@ namespace agentxcpp
 	     */
             // TODO: the 'priority' parameter can possibly be omitted: the 
             // value can be stored by master_agent upon subtree registration.
-	    void unregister_subtree(oid subtree,
+	    void unregister_subtree(OidValue subtree,
 				    uint8_t priority=127);
 
             /**
@@ -769,7 +769,7 @@ namespace agentxcpp
 	     *                                 within a registered MIB 
 	     *                                 region.
 	     */
-	    void add_variable(const oid& id, shared_ptr<variable> v);
+	    void add_variable(const OidValue& id, shared_ptr<variable> v);
 
 	    /**
 	     * \brief Remove an SNMP variable so that is not longer accessible.
@@ -784,7 +784,7 @@ namespace agentxcpp
 	     *
 	     * \exception None.
 	     */
-	    void remove_variable(const oid& id);
+	    void remove_variable(const OidValue& id);
     };
 }
 

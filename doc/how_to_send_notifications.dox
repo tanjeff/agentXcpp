@@ -88,7 +88,7 @@ file). Here ist the <tt>NotificationSender.hpp</tt> file:
 \code
 #include <iostream>
 #include <QObject>
-#include <agentxcpp/oid.hpp>
+#include <agentxcpp/OidValue.hpp>
 #include <agentxcpp/master_proxy.hpp>
 
 using namespace agentxcpp;
@@ -99,12 +99,12 @@ class NotificationSender : public QObject
 
     private:
         master_proxy* master;
-        oid simpleCounter_oid;
+        OidValue simpleCounter_oid;
         shared_ptr< primitive_variable<IntegerValue> > counter;
 
     public:
         NotificationSender(master_proxy* _master,
-                           oid _oid,
+                           OidValue _oid,
                            shared_ptr< primitive_variable<IntegerValue> > _counter)
         : master(_master), simpleCounter_oid(_oid), counter(_counter)
         {
@@ -120,7 +120,7 @@ class NotificationSender : public QObject
             objects.push_back(varbind(simpleCounter_oid, counter_value));
 
             QMetaObject::invokeMethod(master, "send_notification",
-                                      Q_ARG(const oid&, simpleCounter_oid),
+                                      Q_ARG(const OidValue&, simpleCounter_oid),
                                       Q_ARG(const std::vector<varbind>&, objects)
                                      );
         }
@@ -168,10 +168,10 @@ int main(int argc, char** argv)
     QCoreApplication app(argc, argv);
     master_proxy master;
 
-    oid simpleagent_oid = oid(enterprises_oid, "42.1");
+    OidValue simpleagent_oid = OidValue(enterprises_oid, "42.1");
     master.register_subtree(simpleagent_oid);
 
-    oid simpleCounter_oid(simpleagent_oid, "0");
+    OidValue simpleCounter_oid(simpleagent_oid, "0");
     boost::shared_ptr<simpleCounter> counter(new simpleCounter);
     master.add_variable( simpleCounter_oid, counter);
 

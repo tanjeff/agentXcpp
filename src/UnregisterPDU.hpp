@@ -22,7 +22,7 @@
 #include <boost/cstdint.hpp>
 
 #include "PDUwithContext.hpp"
-#include "oid.hpp"
+#include "OidValue.hpp"
 
 using boost::uint32_t;
 
@@ -38,7 +38,7 @@ namespace agentxcpp
 	private:
 	    uint8_t priority;
 	    uint8_t range_subid;
-	    oid subtree;
+	    OidValue subtree;
 	    uint32_t upper_bound;
 
 	public:
@@ -60,14 +60,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the subtree.
 	     */
-	    void set_subtree(oid subtree)
+	    void set_subtree(OidValue subtree)
 	    {
 		this->subtree = subtree;
 	    }
 	    /**
 	     * \brief Get the subtree.
 	     */
-	    oid get_subtree()
+	    OidValue get_subtree()
 	    {
 		return this->subtree;
 	    }

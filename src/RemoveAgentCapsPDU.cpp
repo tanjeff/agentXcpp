@@ -28,7 +28,7 @@ RemoveAgentCapsPDU::RemoveAgentCapsPDU(binary::const_iterator& pos,
     : PDUwithContext(pos, end, big_endian)
 {
     // parse ID
-    id = oid(pos, end, big_endian);
+    id = OidValue(pos, end, big_endian);
 }
 	    
 
@@ -49,7 +49,7 @@ binary RemoveAgentCapsPDU::serialize()
 }
 
 
-RemoveAgentCapsPDU::RemoveAgentCapsPDU(oid id)
+RemoveAgentCapsPDU::RemoveAgentCapsPDU(OidValue id)
 {
     this->id = id;
 }

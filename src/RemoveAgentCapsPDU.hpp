@@ -20,7 +20,7 @@
 #define _REMOVEAGENTCAPSPDU_H_
 
 #include "PDUwithContext.hpp"
-#include "oid.hpp"
+#include "OidValue.hpp"
 
 namespace agentxcpp
 {
@@ -39,7 +39,7 @@ namespace agentxcpp
 	     * See RFC 2741, 6.2.15. "The agentx-RemoveAgentCaps-PDU" for 
 	     * details.
 	     */
-	    oid id;
+	    OidValue id;
 
 
 	public:
@@ -85,14 +85,14 @@ namespace agentxcpp
 	     *
 	     * \param id The value of the id field.
 	     */
-	    RemoveAgentCapsPDU(oid id);
+	    RemoveAgentCapsPDU(OidValue id);
 
 	    /**
 	     * \brief Set the id field
 	     *
 	     * \param id The new id value.
 	     */
-	    void set_id(oid id)
+	    void set_id(OidValue id)
 	    {
 		this->id = id;
 	    }
@@ -102,7 +102,7 @@ namespace agentxcpp
 	     *
 	     * \return The id value.
 	     */
-	    oid get_id()
+	    OidValue get_id()
 	    {
 		return this->id;
 	    }

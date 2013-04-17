@@ -22,7 +22,7 @@
 #include <boost/optional/optional.hpp>
 
 #include "TimeTicks.hpp"
-#include "oid.hpp"
+#include "OidValue.hpp"
 
 namespace agentxcpp
 {
@@ -33,7 +33,7 @@ namespace agentxcpp
      * hundreths of a second. The result may be given as sysUpTime.0.
      * parameter to \ref agentxcpp::master_proxy::send_notification(
      * const boost::optional<TimeTicks>&,
-     * const oid&, const vector<varbind>&).
+     * const OidValue&, const vector<varbind>&).
      *
      * \internal
      * The time is measured using a global variable which is
@@ -90,7 +90,7 @@ namespace agentxcpp
      *                        <tt>enterpriseSpecific</tt> and
      *                        specific_trap was not given.
      */
-    oid generate_v1_snmpTrapOID(generic_trap_t generic_trap,
+    OidValue generate_v1_snmpTrapOID(generic_trap_t generic_trap,
                                 boost::optional<uint32_t> specific_trap = boost::optional<uint32_t>());
 
 

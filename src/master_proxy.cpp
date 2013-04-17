@@ -43,7 +43,7 @@ using boost::optional;
 
 master_proxy::master_proxy(std::string _description,
 			   uint8_t _default_timeout,
-			   oid _id,
+			   OidValue _id,
 			   std::string _filename) :
     socket_file(_filename.c_str()),
     sessionID(0),
@@ -275,7 +275,7 @@ void master_proxy::do_registration(boost::shared_ptr<RegisterPDU> pdu)
 
 
 
-void master_proxy::register_subtree(oid subtree,
+void master_proxy::register_subtree(OidValue subtree,
 		      uint8_t priority,
 		      uint8_t timeout)
 {
@@ -310,7 +310,7 @@ void master_proxy::register_subtree(oid subtree,
 
 
 
-void master_proxy::unregister_subtree(oid subtree,
+void master_proxy::unregister_subtree(OidValue subtree,
 				      uint8_t priority)
 {
     // The UnregisterPDU
@@ -444,23 +444,23 @@ void master_proxy::handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<Ge
 	// RFC 2741, 7.2.3.1 "Subagent Processing of the agentx-Get-PDU"
 
 	// Extract searchRange list
-	vector<oid> sr = get_pdu->get_sr();
+	vector<OidValue> sr = get_pdu->get_sr();
 
-	// Iterate over list and handle each oid separately
-	vector<oid>::const_iterator i;
+	// Iterate over list and handle each OidValue separately
+	vector<OidValue>::const_iterator i;
         uint16_t index = 1;  // Index is 1-based (RFC 2741,
                              // 5.4. "Value Representation"):
 	for(i = sr.begin(); i != sr.end(); i++)
 	{
 	    // The name
-	    const oid& name = *i;
+	    const OidValue& name = *i;
 
 	    // Find variable for current OID
-	    map< oid, shared_ptr<variable> >::const_iterator var;
+	    map< OidValue, shared_ptr<variable> >::const_iterator var;
 	    var = variables.find(name);
 	    if(var != variables.end())
 	    {
-		// Step (2): We have a variable for this oid
+		// Step (2): We have a variable for this OidValue
 
 		// update variable
                 try
@@ -482,7 +482,7 @@ void master_proxy::handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<Ge
 		// Interpret 'name' as prefix:
 		// append .0 and check whether we have a variable
 		// with this name
-		oid name_copy(name, 0);
+		OidValue name_copy(name, 0);
 
 		var = variables.find(name_copy);
 		if(var != variables.end())
@@ -513,20 +513,20 @@ void master_proxy::handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_pt
 	// RFC 2741, 7.2.3.2 "Subagent Processing of the agentx-GetNext-PDU"
 
 	// Extract searchRange list
-	vector< pair<oid,oid> >& sr = getnext_pdu->get_sr();
+	vector< pair<OidValue,OidValue> >& sr = getnext_pdu->get_sr();
 
 	// Iterate over list and handle each SearchRange separately
-	vector< pair<oid,oid> >::const_iterator i;
+	vector< pair<OidValue,OidValue> >::const_iterator i;
         uint16_t index = 1;  // Index is 1-based (RFC 2741,
                              // 5.4. "Value Representation"):
 	for(i = sr.begin(); i != sr.end(); i++)
 	{
 	    // The names
-	    const oid& starting_oid = i->first;
-            const oid& ending_oid   = i->second;
+	    const OidValue& starting_oid = i->first;
+            const OidValue& ending_oid   = i->second;
 
             // Find "next" variable
-	    map< oid, shared_ptr<variable> >::const_iterator next_var;
+	    map< OidValue, shared_ptr<variable> >::const_iterator next_var;
 	    if( ! starting_oid.get_include())
             {
                 // Find the closest lexicographical successor to the starting 
@@ -600,7 +600,7 @@ void master_proxy::handle_testsetpdu(boost::shared_ptr<ResponsePDU> response, sh
     for(i = vb.begin(), index = 1; i != vb.end(); i++, index++)
     {
         // Find the associated variable
-        map< oid, shared_ptr<variable> >::const_iterator var;
+        map< OidValue, shared_ptr<variable> >::const_iterator var;
 	var = variables.find(i->get_name());
         if(var == variables.end())
         {
@@ -855,7 +855,7 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu)
 }
 
 
-void master_proxy::add_variable(const oid& id, shared_ptr<variable> v)
+void master_proxy::add_variable(const OidValue& id, shared_ptr<variable> v)
 {
     // Check whether id is contained in a registration
     bool is_registered = false;
@@ -886,10 +886,10 @@ void master_proxy::add_variable(const oid& id, shared_ptr<variable> v)
 
 
 
-void master_proxy::remove_variable(const oid& id)
+void master_proxy::remove_variable(const OidValue& id)
 {
     // Find variable
-    map<oid, shared_ptr<variable> >::iterator i = variables.find(id);
+    map<OidValue, shared_ptr<variable> >::iterator i = variables.find(id);
 
     if(i == variables.end())
     {
@@ -905,7 +905,7 @@ void master_proxy::remove_variable(const oid& id)
 
 
 void master_proxy::send_notification(const boost::optional<TimeTicks>& sysUpTime,
-                                     const oid& snmpTrapOID,
+                                     const OidValue& snmpTrapOID,
                                      const vector<varbind>& varbinds)
 {
     shared_ptr<NotifyPDU> pdu(new NotifyPDU);
@@ -917,12 +917,12 @@ void master_proxy::send_notification(const boost::optional<TimeTicks>& sysUpTime
     if(sysUpTime)
     {
         shared_ptr<TimeTicks> value(new TimeTicks(*sysUpTime));
-        vb.push_back(varbind(oid(sysUpTime_oid, "0"), value));
+        vb.push_back(varbind(OidValue(sysUpTime_oid, "0"), value));
     }
 
     // Second: add mandatory snmpTrapOID
-    shared_ptr<oid> trapoid(new oid(snmpTrapOID));
-    vb.push_back(varbind(oid(snmpTrapOID_oid, "0"), trapoid));
+    shared_ptr<OidValue> trapoid(new OidValue(snmpTrapOID));
+    vb.push_back(varbind(OidValue(snmpTrapOID_oid, "0"), trapoid));
 
     // Append given varbinds
     vb.insert(vb.end(), varbinds.begin(), varbinds.end());

@@ -30,11 +30,11 @@ GetPDU::GetPDU(binary::const_iterator& pos,
     // Get SearchRanges until the PDU is completely parsed
     while( pos < end )
     {
-	// read starting oid
-	sr.push_back(oid(pos, end, big_endian));
+	// read starting OidValue
+	sr.push_back(OidValue(pos, end, big_endian));
 
-	// read and forget ending oid (but check its include field)
-	oid ending(pos, end, big_endian);
+	// read and forget ending OidValue (but check its include field)
+	OidValue ending(pos, end, big_endian);
 	if(ending.get_include() == true)
 	{
 	    // Parse error according to RFC 2741, 5.2 "SearchRange":
@@ -44,7 +44,7 @@ GetPDU::GetPDU(binary::const_iterator& pos,
 
 
 
-	pos += 4;   // ignore empty "end" oid
+	pos += 4;   // ignore empty "end" OidValue
     }
 }
 	    
@@ -56,7 +56,7 @@ binary GetPDU::serialize() const
     binary serialized;
 
     // Add OID's
-    vector<oid>::const_iterator i;
+    vector<OidValue>::const_iterator i;
     for(i = sr.begin(); i < sr.end(); i++)
     {
 	serialized += i->serialize();

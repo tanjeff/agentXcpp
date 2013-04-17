@@ -20,7 +20,7 @@
 #define _ADDAGENTCAPSPDU_H_
 
 #include "PDUwithContext.hpp"
-#include "oid.hpp"
+#include "OidValue.hpp"
 #include "OctetStringValue.hpp"
 
 namespace agentxcpp
@@ -40,7 +40,7 @@ namespace agentxcpp
 	     * See RFC 2741, 6.2.14. "The agentx-AddAgentCaps-PDU" for 
 	     * details.
 	     */
-	    oid id;
+	    OidValue id;
 
 	    /**
 	     * \brief An Octet String containing a DisplayString to be used as
@@ -97,14 +97,14 @@ namespace agentxcpp
 	     *
 	     * \param descr The value of the descr field.
 	     */
-	    AddAgentCapsPDU(oid id, OctetStringValue descr);
+	    AddAgentCapsPDU(OidValue id, OctetStringValue descr);
 
 	    /**
 	     * \brief Set the id field
 	     *
 	     * \param id The new id value.
 	     */
-	    void set_id(oid id)
+	    void set_id(OidValue id)
 	    {
 		this->id = id;
 	    }
@@ -114,7 +114,7 @@ namespace agentxcpp
 	     *
 	     * \return The id value.
 	     */
-	    oid get_id()
+	    OidValue get_id()
 	    {
 		return this->id;
 	    }

@@ -16,12 +16,13 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef _TIMETICKS_H_
-#define _TIMETICKS_H_
+
+#ifndef _COUNTER32_H_
+#define _COUNTER32_H_
 
 #include <boost/cstdint.hpp>
 
-#include "variable.hpp"
+#include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
 using boost::uint32_t;
@@ -29,36 +30,33 @@ using boost::uint32_t;
 namespace agentxcpp
 {
     /**
-     * \brief Represents an TimeTicks as described in RFC 2741
+     * \brief Represents an Counter32 as described in RFC 2741
      */
-    class TimeTicks : public variable
+     // TODO: RFC2578?
+    class Counter32Value : public AbstractValue
     {
-	private:
-            /**
-	     * \brief The TimeTicks value.
+	public:
+	    /**
+	     * \brief The counter value.
 	     *
 	     * According to RFC 2578, Counter32 is a non-negative 32-bit 
 	     * number.
 	     */
 	    uint32_t value;
 
-	public:
 	    /**
              * \internal
              *
-	     * \brief Create an TimeTicks without initialization.
+	     * \brief Create a counter without initialization.
 	     *
-	     * \param initial_value The initial value of the object.
+	     * The value after creation is undefined.
 	     */
-	    TimeTicks(uint32_t initial_value = 0)
-	    : value(initial_value)
-	    {
-	    }
-	    
+	    Counter32Value() {}
+
 	    /**
-	     * \internal
+             * \internal
 	     *
-	     * \brief Construct the object from input stream
+	     * \brief Parse Constructor.
 	     *
 	     * This constructor parses the serialized form of the object.
 	     * It takes an iterator, starts parsing at the position of the 
@@ -79,10 +77,10 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    TimeTicks(binary::const_iterator& pos,
+	    Counter32Value(binary::const_iterator& pos,
 		      const binary::const_iterator& end,
 		      bool big_endian=true);
-	    
+
 	    /**
 	     * \internal
 	     *
@@ -91,39 +89,6 @@ namespace agentxcpp
 	     * This function uses big endian.
 	     */
 	    virtual binary serialize() const;
-
-	    /**
-             * \internal
-             *
-	     * \brief Update the internal state of the object.
-	     *
-	     * This function calls get() to obtain a new value and writes that 
-	     * value to the 'value' member.
-	     *
-             * \exception generic_error If obtaining the new value failed.
-	     */
-	    virtual void update()
-	    {
-		value = this->get();
-	    }
-
-            /**
-             * \brief Obtain the current value for the object.
-             *
-             * This member function is derived by classes representing SNMP 
-             * variables and shall return the current value of the object.
-             *
-             * The default implementation throws generic_error.
-             *
-             * \return The current value of the object.
-             *
-             * \exception generic_error If obtaining the current value fails.
-             *                          No other exception shall be thrown.
-             */
-	    virtual uint32_t get()
-	    {
-		throw( generic_error() );
-	    }
     };
 }
 

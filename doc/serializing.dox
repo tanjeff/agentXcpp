@@ -39,7 +39,7 @@ classes) provides the add_header() member to add the serialized form of the PDU
 header. The serialize() functions start with an empty binary object and append 
 the 
 %PDU parts to it.  Other classes also provide a serialize() member, e.g.  the 
-oid and Integer classes.  PDU's typically call the serialize() functions of the 
+OidValue and IntegerValue classes.  PDU's typically call the serialize() functions of the 
 contained objects, receive a binary object from that object and append it to 
 their own binary object. Finally, PDU::add_header() is called to add the 
 header.
@@ -56,13 +56,13 @@ Then the timeout field and 3 reserved fields are appended like this:
     serialized.push_back(0);
     serialized.push_back(0);
 \endcode
-Next, the ID field is appended which is an oid object. The oid class provides a 
+Next, the ID field is appended which is an OidValue object. The OidValue class provides a 
 serialize() function which is used to serialize the OID object:
 \code
     serialized += id.serialize();
 \endcode
-Then the description field is added, which is an Octet_String object. Again, 
-the Octet_String class provides a serialize() function:
+Then the description field is added, which is an OctetStringValue object. Again, 
+the OctetStringValue class provides a serialize() function:
 \code
     serialized += descr.serialize();
 \endcode

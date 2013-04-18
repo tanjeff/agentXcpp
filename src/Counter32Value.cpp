@@ -17,12 +17,12 @@
  * for more details.
  */
 
-#include "Integer.hpp"
+#include "Counter32Value.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
 
-binary Integer::serialize() const
+binary Counter32Value::serialize() const
 {
     binary serialized;
 
@@ -33,9 +33,9 @@ binary Integer::serialize() const
 }
 
 
-Integer::Integer(binary::const_iterator& pos,
-		 const binary::const_iterator& end,
-		 bool big_endian)
+Counter32Value::Counter32Value(binary::const_iterator& pos,
+		     const binary::const_iterator& end,
+		     bool big_endian)
 {
     // Are there at least 4 bytes in the buffer?
     if(end - pos < 4)

@@ -19,14 +19,14 @@
 #include <boost/cstdint.hpp>
 
 #include "varbind.hpp"
-#include "Octet_String.hpp"
-#include "Integer.hpp"
-#include "Counter32.hpp"
-#include "Counter64.hpp"
-#include "Gauge32.hpp"
-#include "TimeTicks.hpp"
-#include "Opaque.hpp"
-#include "IpAddress.hpp"
+#include "OctetStringValue.hpp"
+#include "IntegerValue.hpp"
+#include "Counter32Value.hpp"
+#include "Counter64Value.hpp"
+#include "Gauge32Value.hpp"
+#include "TimeTicksValue.hpp"
+#include "OpaqueValue.hpp"
+#include "IpAddressValue.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
@@ -55,21 +55,21 @@ binary varbind::serialize() const
 }
 
 
-varbind::varbind(const oid& o, boost::shared_ptr<variable> v)
+varbind::varbind(const OidValue& o, boost::shared_ptr<AbstractValue> v)
 {
     name = o;
     var = v;
 
     // Determine type of variable and fill type field.
-    if( dynamic_cast<Integer*>(var.get()) ) type = 2;
-    else if( dynamic_cast<Octet_String*>(var.get()) ) type = 4;
-    else if( dynamic_cast<oid*>(var.get()) ) type = 6;
-    else if( dynamic_cast<IpAddress*>(var.get()) ) type = 64;
-    else if( dynamic_cast<Counter32*>(var.get()) ) type = 65;
-    else if( dynamic_cast<Gauge32*>(var.get()) ) type = 66;
-    else if( dynamic_cast<TimeTicks*>(var.get()) ) type = 67;
-    else if( dynamic_cast<Opaque*>(var.get()) ) type = 68;
-    else if( dynamic_cast<Counter64*>(var.get()) ) type = 70;
+    if( dynamic_cast<IntegerValue*>(var.get()) ) type = 2;
+    else if( dynamic_cast<OctetStringValue*>(var.get()) ) type = 4;
+    else if( dynamic_cast<OidValue*>(var.get()) ) type = 6;
+    else if( dynamic_cast<IpAddressValue*>(var.get()) ) type = 64;
+    else if( dynamic_cast<Counter32Value*>(var.get()) ) type = 65;
+    else if( dynamic_cast<Gauge32Value*>(var.get()) ) type = 66;
+    else if( dynamic_cast<TimeTicksValue*>(var.get()) ) type = 67;
+    else if( dynamic_cast<OpaqueValue*>(var.get()) ) type = 68;
+    else if( dynamic_cast<Counter64Value*>(var.get()) ) type = 70;
     else
     {
 	// Type could not be determined -> invalid parameter.
@@ -78,7 +78,7 @@ varbind::varbind(const oid& o, boost::shared_ptr<variable> v)
 }
 
 
-varbind::varbind(const oid& o, type_t t)
+varbind::varbind(const OidValue& o, type_t t)
 {
     name = o;
 
@@ -117,37 +117,37 @@ varbind::varbind(binary::const_iterator& pos,
     pos += 2;
     
     // read OID: no exceptions are catched; they are forwarded to the caller
-    name = oid(pos, end, big_endian); 
+    name = OidValue(pos, end, big_endian); 
 
     // Get data: no exceptions are catched; they are forwarded to the caller
     switch(type)
     {
 	case 2:
-	    var.reset(new Integer(pos, end, big_endian));
+	    var.reset(new IntegerValue(pos, end, big_endian));
 	    break;
 	case 4:
-	    var.reset(new Octet_String(pos, end, big_endian));
+	    var.reset(new OctetStringValue(pos, end, big_endian));
 	    break;
 	case 6:
-	    var.reset(new oid(pos, end, big_endian));
+	    var.reset(new OidValue(pos, end, big_endian));
 	    break;
 	case 64:
-	    var.reset(new IpAddress(pos, end, big_endian));
+	    var.reset(new IpAddressValue(pos, end, big_endian));
 	    break;
 	case 65:
-	    var.reset(new Counter32(pos, end, big_endian));
+	    var.reset(new Counter32Value(pos, end, big_endian));
 	    break;
 	case 66:
-	    var.reset(new Gauge32(pos, end, big_endian));
+	    var.reset(new Gauge32Value(pos, end, big_endian));
 	    break;
 	case 67:
-	    var.reset(new TimeTicks(pos, end, big_endian));
+	    var.reset(new TimeTicksValue(pos, end, big_endian));
 	    break;
 	case 68:
-	    var.reset(new Opaque(pos, end, big_endian));
+	    var.reset(new OpaqueValue(pos, end, big_endian));
 	    break;
 	case 70:
-	    var.reset(new Counter64(pos, end, big_endian));
+	    var.reset(new Counter64Value(pos, end, big_endian));
 	    break;
 	case 5:	    // Null
 	case 128:   // noSuchObject

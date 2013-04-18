@@ -18,7 +18,7 @@
  */
 #include <boost/cstdint.hpp>
 
-#include "master_proxy.hpp"
+#include "MasterProxy.hpp"
 #include "OpenPDU.hpp"
 #include "ClosePDU.hpp"
 #include "ResponsePDU.hpp"
@@ -41,9 +41,9 @@ using boost::optional;
 
 
 
-master_proxy::master_proxy(std::string _description,
+MasterProxy::MasterProxy(std::string _description,
 			   uint8_t _default_timeout,
-			   oid _id,
+			   OidValue _id,
 			   std::string _filename) :
     socket_file(_filename.c_str()),
     sessionID(0),
@@ -82,7 +82,7 @@ master_proxy::master_proxy(std::string _description,
 }
 
 
-void master_proxy::connect()
+void MasterProxy::connect()
 {
 //    if( this->connection->is_connected() )
 //    {
@@ -142,7 +142,7 @@ void master_proxy::connect()
 
 
 
-void master_proxy::disconnect(ClosePDU::reason_t reason)
+void MasterProxy::disconnect(ClosePDU::reason_t reason)
 {
 //    if( ! this->connection->is_connected() )
 //    {
@@ -196,7 +196,7 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
 //    this->connection->disconnect();
 }
 
-master_proxy::~master_proxy()
+MasterProxy::~MasterProxy()
 {
     // Disconnect from master agent
     this->disconnect(ClosePDU::reasonShutdown);
@@ -207,7 +207,7 @@ master_proxy::~master_proxy()
 }
 
 
-void master_proxy::do_registration(boost::shared_ptr<RegisterPDU> pdu)
+void MasterProxy::do_registration(boost::shared_ptr<RegisterPDU> pdu)
 {
     // Are we connected?
 //    if( ! is_connected())
@@ -275,7 +275,7 @@ void master_proxy::do_registration(boost::shared_ptr<RegisterPDU> pdu)
 
 
 
-void master_proxy::register_subtree(oid subtree,
+void MasterProxy::register_subtree(OidValue subtree,
 		      uint8_t priority,
 		      uint8_t timeout)
 {
@@ -310,7 +310,7 @@ void master_proxy::register_subtree(oid subtree,
 
 
 
-void master_proxy::unregister_subtree(oid subtree,
+void MasterProxy::unregister_subtree(OidValue subtree,
 				      uint8_t priority)
 {
     // The UnregisterPDU
@@ -361,7 +361,7 @@ void master_proxy::unregister_subtree(oid subtree,
 
 
 
-void master_proxy::undo_registration(boost::shared_ptr<UnregisterPDU> pdu)
+void MasterProxy::undo_registration(boost::shared_ptr<UnregisterPDU> pdu)
 {
     // Are we connected?
 //    if( ! is_connected())
@@ -425,7 +425,7 @@ void master_proxy::undo_registration(boost::shared_ptr<UnregisterPDU> pdu)
 
 
 
-boost::shared_ptr<UnregisterPDU> master_proxy::create_unregister_pdu(
+boost::shared_ptr<UnregisterPDU> MasterProxy::create_unregister_pdu(
 				    boost::shared_ptr<RegisterPDU> pdu)
 {
     boost::shared_ptr<UnregisterPDU> new_pdu(new UnregisterPDU());
@@ -438,43 +438,41 @@ boost::shared_ptr<UnregisterPDU> master_proxy::create_unregister_pdu(
 }
 
 
-void master_proxy::handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_pdu)
+void MasterProxy::handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetPDU> get_pdu)
 {
         // Handling according to
 	// RFC 2741, 7.2.3.1 "Subagent Processing of the agentx-Get-PDU"
 
 	// Extract searchRange list
-	vector<oid> sr = get_pdu->get_sr();
+	vector<OidValue> sr = get_pdu->get_sr();
 
-	// Iterate over list and handle each oid separately
-	vector<oid>::const_iterator i;
+	// Iterate over list and handle each OidValue separately
+	vector<OidValue>::const_iterator i;
         uint16_t index = 1;  // Index is 1-based (RFC 2741,
                              // 5.4. "Value Representation"):
 	for(i = sr.begin(); i != sr.end(); i++)
 	{
 	    // The name
-	    const oid& name = *i;
+	    const OidValue& name = *i;
 
 	    // Find variable for current OID
-	    map< oid, shared_ptr<variable> >::const_iterator var;
+	    map< OidValue, shared_ptr<AbstractVariable> >::const_iterator var;
 	    var = variables.find(name);
 	    if(var != variables.end())
 	    {
-		// Step (2): We have a variable for this oid
+		// Step (2): We have a variable for this OidValue
 
 		// update variable
                 try
                 {
-                    var->second->update();
-
                     // Add variable to response (Step (1): include name)
-                    response.varbindlist.push_back( varbind(name, var->second) );
+                    response->varbindlist.push_back( varbind(name, var->second->handle_get()) );
                 }
                 catch(...)
                 {
                     // An error occurred
-                    response.set_error( ResponsePDU::genErr );
-                    response.set_index( index );
+                    response->set_error( ResponsePDU::genErr );
+                    response->set_index( index );
                     // Leave response.varbindlist empty
                 }
 
@@ -484,7 +482,7 @@ void master_proxy::handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_p
 		// Interpret 'name' as prefix:
 		// append .0 and check whether we have a variable
 		// with this name
-		oid name_copy(name, 0);
+		OidValue name_copy(name, 0);
 
 		var = variables.find(name_copy);
 		if(var != variables.end())
@@ -492,14 +490,14 @@ void master_proxy::handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_p
 		    // Step (4): We have a variable with the object
 		    //           identifier prefix 'name': Send noSuchInstance 
 		    //           error (Step (1): include name)
-		    response.varbindlist.push_back( varbind(name, varbind::noSuchInstance) );
+		    response->varbindlist.push_back( varbind(name, varbind::noSuchInstance) );
 		}
 		else
 		{
 		    // Step (3): we have no variable with the object
 		    //           identifier prefix 'name': Send noSuchObject 
 		    //           error (Step (1): include name)
-		    response.varbindlist.push_back( varbind(name, varbind::noSuchObject) );
+		    response->varbindlist.push_back( varbind(name, varbind::noSuchObject) );
 		}
 	    }
 
@@ -509,26 +507,26 @@ void master_proxy::handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_p
 
 
 
-void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPDU> getnext_pdu)
+void MasterProxy::handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetNextPDU> getnext_pdu)
 {
         // Handling according to
 	// RFC 2741, 7.2.3.2 "Subagent Processing of the agentx-GetNext-PDU"
 
 	// Extract searchRange list
-	vector< pair<oid,oid> >& sr = getnext_pdu->get_sr();
+	vector< pair<OidValue,OidValue> >& sr = getnext_pdu->get_sr();
 
 	// Iterate over list and handle each SearchRange separately
-	vector< pair<oid,oid> >::const_iterator i;
+	vector< pair<OidValue,OidValue> >::const_iterator i;
         uint16_t index = 1;  // Index is 1-based (RFC 2741,
                              // 5.4. "Value Representation"):
 	for(i = sr.begin(); i != sr.end(); i++)
 	{
 	    // The names
-	    const oid& starting_oid = i->first;
-            const oid& ending_oid   = i->second;
+	    const OidValue& starting_oid = i->first;
+            const OidValue& ending_oid   = i->second;
 
             // Find "next" variable
-	    map< oid, shared_ptr<variable> >::const_iterator next_var;
+	    map< OidValue, shared_ptr<AbstractVariable> >::const_iterator next_var;
 	    if( ! starting_oid.get_include())
             {
                 // Find the closest lexicographical successor to the starting 
@@ -544,7 +542,7 @@ void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPD
             if( ! ending_oid.is_null() )
             {
                 // The "next" variable must precede the ending OID (it must not 
-                // be greather or equal than the ending OID)
+                // be greater or equal than the ending OID)
                 if( next_var->first >= ending_oid )
                 {
                     // The found "next" variable doesn't precede the ending 
@@ -561,15 +559,13 @@ void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPD
 		// update variable
                 try
                 {
-                    next_var->second->update();
-
-                    response.varbindlist.push_back( varbind(next_var->first, next_var->second) );
+                    response->varbindlist.push_back( varbind(next_var->first, next_var->second->handle_get()) );
                 }
                 catch(...)
                 {
                     // An error occurred
-                    response.set_error( ResponsePDU::genErr );
-                    response.set_index( index );
+                    response->set_error( ResponsePDU::genErr );
+                    response->set_index( index );
                     // Leave response.varbindlist empty
                 }
 
@@ -577,7 +573,7 @@ void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPD
 	    else
 	    {
                 // "Next" variable was NOT found
-		response.varbindlist.push_back( varbind(starting_oid, varbind::endOfMibView) );
+		response->varbindlist.push_back( varbind(starting_oid, varbind::endOfMibView) );
 	    }
 
             index++;
@@ -586,7 +582,151 @@ void master_proxy::handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPD
 
 
 
-void master_proxy::handle_pdu(shared_ptr<PDU> pdu)
+void MasterProxy::handle_testsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<TestSetPDU> testset_pdu)
+{
+    // Handling according to
+    // RFC 2741, 7.2.4.1 "Subagent Processing of the agentx-TestSet-PDU"
+
+    // Extract Varbind list
+    vector<varbind>& vb = testset_pdu->get_vb();
+
+    // Initially, no Varbind failed:
+    response->set_error(ResponsePDU::noAgentXError);
+
+    // Iterate over list and handle each Varbind separately. Return on the 
+    // first varbind which doesn't validate correctly.
+    vector<varbind>::const_iterator i;
+    uint16_t index;
+    for(i = vb.begin(), index = 1; i != vb.end(); i++, index++)
+    {
+        // Find the associated variable
+        map< OidValue, shared_ptr<AbstractVariable> >::const_iterator var;
+	var = variables.find(i->get_name());
+        if(var == variables.end())
+        {
+            // error: variable unknown
+            response->set_error(ResponsePDU::notWritable);
+            response->set_index(index);
+
+            // Some variables may have allocated resources, which must be
+            // released again. This is the same as handle_cleanupsetpdu() does, 
+            // so we are lazy here and call this function:
+            this->handle_cleanupsetpdu();
+            return;
+        }
+
+        // Remember the found variable for later operations
+        setlist.push_back(var->second);
+
+        // Perform validation, store result within response
+        // Note: ResponsePDU::error_t and variable::testset_result_t are in 
+        // sync, therefore the static cast works.
+        response->set_error(static_cast<ResponsePDU::error_t>(var->second->handle_testset(i->get_var())));
+        if(response->get_error() != ResponsePDU::noAgentXError)
+        {
+            response->set_index(index);
+
+            // Some variables may have allocated resources, which must be
+            // released again. This is the same as handle_cleanupsetpdu() does, 
+            // so we are lazy here and call this function:
+            this->handle_cleanupsetpdu();
+
+            return;
+        }
+    }
+
+    // At this point, all VarBinds validated correctly. The response was filled 
+    // correctly, and we simply return.
+    return;
+}
+
+
+void MasterProxy::handle_cleanupsetpdu()
+{
+    // Handling according to
+    // RFC 2741, 7.2.4.4 "Subagent Processing of the agentx-CleanupSet-PDU"
+
+    // Iterate over list and handle each Varbind separately. We iterate 
+    // backwards, so that resources are released in the reverse order of their
+    // allocation.
+    list< shared_ptr<AbstractVariable> >::const_reverse_iterator i;
+    for(i = setlist.rbegin(); i != setlist.rend(); i++)
+    {
+        (*i)->handle_cleanupset();
+    }
+
+    // Finally: remove all variables from the list
+    setlist.clear();
+}
+
+void MasterProxy::handle_commitsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<CommitSetPDU> commitset_pdu)
+{
+    // Handling according to RFC 2741, 7.2.4.2 "Subagent Processing of the 
+    // agentx-CommitSet-PDU"
+
+    // Iterate over list and handle each Varbind separately.
+    list< shared_ptr<AbstractVariable> >::iterator i;
+    uint16_t index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
+    for(i = setlist.begin(); i != setlist.end(); i++)
+    {
+        if( (*i)->handle_commitset() )
+        {
+            // operation succeeded
+            response->set_error(ResponsePDU::noAgentXError);
+            response->set_index(0);
+        }
+        else
+        {
+            // operation failed: store index of failed varbind and do not process further variables.
+            response->set_error(ResponsePDU::commitFailed);
+            response->set_index(index);
+            return;
+        }
+        index++;
+    }
+}
+
+
+void MasterProxy::handle_undosetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<UndoSetPDU> undoset_pdu)
+{
+    // Handling according to RFC 2741, 7.2.4.3 "Subagent Processing of the
+    // agentx-UndoSet-PDU"
+
+    bool failed = false;
+
+    // Iterate over list and handle each Varbind separately.
+    list< shared_ptr<AbstractVariable> >::iterator i;
+    uint16_t index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
+    for(i = setlist.begin(); i != setlist.end(); i++)
+    {
+        if( (*i)->handle_undoset() )
+        {
+            // operation succeeded
+            response->set_error(ResponsePDU::noAgentXError);
+            response->set_index(0);
+        }
+        else
+        {
+            if(failed == false)
+            {
+                // operation failed: store index of failed varbind and do not process further variables.
+                response->set_error(ResponsePDU::undoFailed);
+                response->set_index(index);
+
+                // Note: it is unclear whether processing should stop immediately
+                //       after the first failed UndoSet. We risk that some variables
+                //       get neither an UndoSet nor a CleanupSet call. Therefore,
+                //       we continue processing and report the first failed
+                //       variable for now.
+                failed = true;
+            }
+        }
+        index++;
+    }
+}
+
+
+void MasterProxy::handle_pdu(shared_ptr<PDU> pdu)
 {
     int error = 0; // 0 is "success"
     if(error == -2)
@@ -656,7 +796,7 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu)
     if( (get_pdu = dynamic_pointer_cast<GetPDU>(pdu)) != 0 )
     {
         // (response is modified in-place)
-        this->handle_getpdu(*response, get_pdu);
+        this->handle_getpdu(response, get_pdu);
     }
 
     // Is it a GetNextPDU?
@@ -664,7 +804,41 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu)
     if( (getnext_pdu = dynamic_pointer_cast<GetNextPDU>(pdu)) != 0 )
     {
         // (response is modified in-place)
-        this->handle_getnextpdu(*response, getnext_pdu);
+        this->handle_getnextpdu(response, getnext_pdu);
+    }
+
+    // Is it a TestSetPDU?
+    shared_ptr<TestSetPDU> testset_pdu;
+    if( (testset_pdu = dynamic_pointer_cast<TestSetPDU>(pdu)) != 0 )
+    {
+        // (response is modified in-place)
+        this->handle_testsetpdu(response, testset_pdu);
+    }
+
+    // Is it a CleanupSetPDU?
+    shared_ptr<CleanupSetPDU> cleanupset_pdu;
+    if( (cleanupset_pdu = dynamic_pointer_cast<CleanupSetPDU>(pdu)) != 0 )
+    {
+        this->handle_cleanupsetpdu();
+
+        // Do not send a response:
+        return;
+    }
+
+    // Is it a CommitSetPDU?
+    shared_ptr<CommitSetPDU> commitset_pdu;
+    if( (commitset_pdu = dynamic_pointer_cast<CommitSetPDU>(pdu)) != 0 )
+    {
+        // (response is modified in-place)
+        this->handle_commitsetpdu(response, commitset_pdu);
+    }
+
+    // Is it an UndoSetPDU?
+    shared_ptr<UndoSetPDU> undoset_pdu;
+    if( (undoset_pdu = dynamic_pointer_cast<UndoSetPDU>(pdu)) != 0 )
+    {
+        // (response is modified in-place)
+        this->handle_undosetpdu(response, undoset_pdu);
     }
 
     // TODO: handle other PDU types
@@ -681,7 +855,7 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu)
 }
 
 
-void master_proxy::add_variable(const oid& id, shared_ptr<variable> v)
+void MasterProxy::add_variable(const OidValue& id, shared_ptr<AbstractVariable> v)
 {
     // Check whether id is contained in a registration
     bool is_registered = false;
@@ -712,10 +886,10 @@ void master_proxy::add_variable(const oid& id, shared_ptr<variable> v)
 
 
 
-void master_proxy::remove_variable(const oid& id)
+void MasterProxy::remove_variable(const OidValue& id)
 {
     // Find variable
-    map<oid, shared_ptr<variable> >::iterator i = variables.find(id);
+    map<OidValue, shared_ptr<AbstractVariable> >::iterator i = variables.find(id);
 
     if(i == variables.end())
     {
@@ -730,8 +904,8 @@ void master_proxy::remove_variable(const oid& id)
 
 
 
-void master_proxy::send_notification(const optional<TimeTicks>& sysUpTime,
-                                     const oid& snmpTrapOID,
+void MasterProxy::send_notification(const boost::optional<TimeTicksValue>& sysUpTime,
+                                     const OidValue& snmpTrapOID,
                                      const vector<varbind>& varbinds)
 {
     shared_ptr<NotifyPDU> pdu(new NotifyPDU);
@@ -742,13 +916,13 @@ void master_proxy::send_notification(const optional<TimeTicks>& sysUpTime,
     // First of all: add mandatory sysUpTime (if given)
     if(sysUpTime)
     {
-        shared_ptr<TimeTicks> value(new TimeTicks(*sysUpTime));
-        vb.push_back(varbind(oid(sysUpTime_oid, "0"), value));
+        shared_ptr<TimeTicksValue> value(new TimeTicksValue(*sysUpTime));
+        vb.push_back(varbind(OidValue(sysUpTime_oid, "0"), value));
     }
 
     // Second: add mandatory snmpTrapOID
-    shared_ptr<oid> trapoid(new oid(snmpTrapOID));
-    vb.push_back(varbind(oid(snmpTrapOID_oid, "0"), trapoid));
+    shared_ptr<OidValue> trapoid(new OidValue(snmpTrapOID));
+    vb.push_back(varbind(OidValue(snmpTrapOID_oid, "0"), trapoid));
 
     // Append given varbinds
     vb.insert(vb.end(), varbinds.begin(), varbinds.end());

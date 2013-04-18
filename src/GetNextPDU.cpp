@@ -30,10 +30,10 @@ GetNextPDU::GetNextPDU(binary::const_iterator& pos,
     // Get SearchRanges until the PDU is completely parsed
     while( pos < end )
     {
-	pair<oid,oid> p;
+	pair<OidValue,OidValue> p;
 
-	p.first = oid(pos, end, big_endian);  // starting oid
-	p.second = oid(pos, end, big_endian); // ending oid
+	p.first = OidValue(pos, end, big_endian);  // starting oid
+	p.second = OidValue(pos, end, big_endian); // ending oid
 
 	if(p.second.get_include() == true)
 	{
@@ -54,7 +54,7 @@ binary GetNextPDU::serialize() const
     binary serialized;
 
     // Add OID's
-    vector< pair<oid,oid> >::const_iterator i;
+    vector< pair<OidValue,OidValue> >::const_iterator i;
     for(i = sr.begin(); i < sr.end(); i++)
     {
 	serialized += i->first.serialize();

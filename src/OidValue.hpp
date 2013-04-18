@@ -26,7 +26,7 @@
 
 #include <boost/cstdint.hpp>
 
-#include "variable.hpp"
+#include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
 using boost::uint32_t;
@@ -43,22 +43,22 @@ namespace agentxcpp
      * For example, this works:
      *
      * \code
-     * oid myCompany = oid("1.3.6.1.4.1.355");
+     * OidValue myCompany = OidValue("1.3.6.1.4.1.355");
      * \endcode
      *
-     * Also a constructor is provided which takes an oid and a string and 
+     * Also a constructor is provided which takes an OidValue and a string and 
      * concatenates them, so this works also:
      *
      * \code
-     * oid myObject = oid(myCompany, "1.1.3.0");
+     * OidValue myObject = OidValue(myCompany, "1.1.3.0");
      * \endcode
      *
-     * In addition, some common oid's are provided as constants, e.g.  
+     * In addition, some common OidValue's are provided as constants, e.g.  
      * 'enterprises_oid', so the following will also work (note that the second 
      * argument is a string, not an integer!):
      *
      * \code
-     * oid yourCompany = oid(enterprises_oid, "42"); // second param is a string!
+     * OidValue yourCompany = OidValue(enterprises_oid, "42"); // second param is a string!
      * \endcode
      *
      * The string given to the constructors must have a valid syntax. If a 
@@ -80,17 +80,17 @@ namespace agentxcpp
      * ""   // empty string is ok
      * \endcode
      *
-     * This class inherits from std:vector<uint32_t>, which means that an oid 
+     * This class inherits from std:vector<uint32_t>, which means that an OidValue 
      * object can be manipulated the same way as a std::vector<> can be 
      * manipulated:
      *
      * \code
-     * oid theirCompany = enterprises_oid;
+     * OidValue theirCompany = enterprises_oid;
      * theirCompany.push_back(23);    // Don't use a string here!
      * \endcode
      *
      */
-    class oid: public variable, public std::vector<uint32_t>
+    class OidValue: public AbstractValue, public std::vector<uint32_t>
     {
 	private:
 
@@ -102,8 +102,8 @@ namespace agentxcpp
 	    /**
 	     * \brief Parse an OID from a string and append it.
 	     *
-	     * The OID contained within the string 's' is parsed and appended 
-	     * this object. The format of the string is described above 
+	     * The OID contained within the string 's' is parsed and appended to
+	     * this object. The format of the string is described above.
 	     *
 	     * \param s The OID to be parsed.
 	     *
@@ -116,7 +116,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Default Constructor
 	     *
-	     * This constructs an empty oid (the null oid).
+	     * This constructs an empty OidValue (the null OidValue).
              *
              * \internal
              * The 'include' field is initialized to 'false'.
@@ -124,16 +124,16 @@ namespace agentxcpp
 	     *
 	     * \exception None.
 	     */
-	    oid()
+	    OidValue()
 	    {
 		include = false;
 	    }
 
 
 	    /**
-	     * \brief Initialize an oid object with an OID in string format.
+	     * \brief Initialize an OidValue object with an OID in string format.
 	     *
-	     * This constructor takes a string and initializes the oid object 
+	     * This constructor takes a string and initializes the OidValue object 
 	     * with the OID contained within this string. The format of the 
 	     * string is described above.
 	     * 
@@ -145,10 +145,10 @@ namespace agentxcpp
 	     *
 	     * \exception inval_param If the string is malformed.
 	     */
-	    oid(std::string id);
+	    OidValue(std::string id);
 
 	    /**
-	     * \brief Initialize an oid object with another oid plus an OID in 
+	     * \brief Initialize an OidValue object with another OidValue plus an OID in 
 	     * string format.
 	     *
              * All subid's are copied from 'o'.  Then, the OID contained within 
@@ -165,7 +165,7 @@ namespace agentxcpp
 	     *
 	     * \exception inval_param If the string is malformed.
 	     */
-	    oid(const oid& o, std::string id);
+	    OidValue(const OidValue& o, std::string id);
 
 	    /**
 	     * \brief Assignment operator
@@ -176,7 +176,7 @@ namespace agentxcpp
              *
              * \return A reference to this OID.
 	     */
-	    oid& operator=(const oid& o);
+	    OidValue& operator=(const OidValue& o);
 
 	    /**
 	     * \internal
@@ -221,7 +221,7 @@ namespace agentxcpp
 	    /**
 	     * \internal
 	     *
-	     * \brief Construct the object from input stream
+	     * \brief Parse Constructor.
 	     *
 	     * This constructor parses the serialized form of the object.
 	     * It takes an iterator, starts parsing at the position of the 
@@ -246,7 +246,7 @@ namespace agentxcpp
 	     *                        iterator is left at an undefined 
 	     *                        position.
 	     */
-	    oid(binary::const_iterator& pos,
+	    OidValue(binary::const_iterator& pos,
 		const binary::const_iterator& end,
 		bool big_endian=true);
 
@@ -280,7 +280,7 @@ namespace agentxcpp
              *
              * \return True if the OID is less than 'o', false otherwise.
 	     */
-	    bool operator<(const oid& o) const;
+	    bool operator<(const OidValue& o) const;
 
 	    /**
 	     * \brief The equal-operator
@@ -292,10 +292,10 @@ namespace agentxcpp
              *
              * \return True if the OIDs are equal, false otherwise.
 	     */
-	    bool operator==(const oid& o) const;
+	    bool operator==(const OidValue& o) const;
 
 	    /**
-	     * \brief The not-equal-operator for oids
+	     * \brief The not-equal-operator for OidValues
 	     *
 	     * See operator<() for a more detailed description about comparing 
 	     * OIDs.
@@ -304,7 +304,7 @@ namespace agentxcpp
              *
              * \return False if the OIDs are equal, true otherwise.
 	     */
-	    bool operator!=(const oid& o) const
+	    bool operator!=(const OidValue& o) const
 	    {
 		return ! (*this == o);
 	    }
@@ -319,26 +319,26 @@ namespace agentxcpp
              *
              * \return True if the OID is greater than 'o', false otherwise.
 	     */
-	    bool operator>(const oid& o) const
+	    bool operator>(const OidValue& o) const
 	    {
 		// a > b is the same as b < a :-)
 		return o < *this;
 	    }
 
 	    /**
-	     * \brief Checks whether the given oid is in the subtree of this
-	     *        oid.
+	     * \brief Checks whether the given OidValue is in the subtree of this
+	     *        OidValue.
 	     *
 	     * This method checks whether the given OID is included in the 
-	     * subtree which has this oid as root.
+	     * subtree which has this OidValue as root.
 	     *
 	     * Examples:\n
              * \code
-             * oid id("1.3.6.1.4.1.42.3");
-             * id.contains( oid(1.3.6.1.4.1.42.3) ); // true
-             * id.contains( oid(1.3.6.1.4.1.42) ); // false
-             * id.contains( oid(1.3.6.1.4.1.43.3) ); // false
-             * id.contains( oid(1.3.6.1.4.1.42.3.3.1) ); // true
+             * OidValue id("1.3.6.1.4.1.42.3");
+             * id.contains( OidValue(1.3.6.1.4.1.42.3) ); // true
+             * id.contains( OidValue(1.3.6.1.4.1.42) ); // false
+             * id.contains( OidValue(1.3.6.1.4.1.43.3) ); // false
+             * id.contains( OidValue(1.3.6.1.4.1.42.3.3.1) ); // true
              * \endcode
 	     *
 	     * \param id The OID to check.
@@ -346,7 +346,7 @@ namespace agentxcpp
 	     * \return True if id is contained in the subtree, false
 	     *         otherwise.
 	     */
-	    bool contains(const oid& id);
+	    bool contains(const OidValue& id);
 
 	    /**
              * \internal
@@ -364,49 +364,17 @@ namespace agentxcpp
 	    bool is_null() const;
 
 	    friend std::ostream& operator<<(std::ostream& out,
-					    const agentxcpp::oid& o);
+					    const agentxcpp::OidValue& o);
 
-	    /**
-             * \internal
-             *
-	     * \brief Update the internal state of the object.
-	     *
-	     * This function calls get() to obtain a new value and stores that 
-	     * value within this object.
-	     *
-             * \exception generic_error If obtaining the new value failed.
-	     */
-	    virtual void update()
-	    {
-		*this = this->get();
-	    }
-
-            /**
-             * \brief Obtain the current value for the object.
-             *
-             * This member function is derived by classes representing SNMP 
-             * variables and shall return the current value of the object.
-             *
-             * The default implementation throws generic_error.
-             *
-             * \return The current value of the object.
-             *
-             * \exception generic_error If obtaining the current value fails.
-             *                          No other exception shall be thrown.
-             */
-	    virtual oid get()
-	    {
-		throw( generic_error() );
-	    }
     };
 
     /**
-     * \brief The output operator for the oid class.
+     * \brief The output operator for the OidValue class.
      *
-     * Object identifiers (oid objects) can be output as follows:
+     * Object identifiers (OidValue objects) can be output as follows:
      * 
      * \code
-     * oid led_state(enterprises_oid, "1.3.3.1");
+     * OidValue led_state(enterprises_oid, "1.3.3.1");
      * cout << "LED state OID: " << led_state << endl;
      * \endcode
      *
@@ -418,93 +386,93 @@ namespace agentxcpp
      *
      * \return The 'out' parameter.
      */
-    std::ostream& operator<<(std::ostream& out, const agentxcpp::oid& o);
+    std::ostream& operator<<(std::ostream& out, const agentxcpp::OidValue& o);
 
 
-    // TODO: Possibly these should be put into the agentxcpp::oid namespace?  
+    // TODO: Possibly these should be put into the agentxcpp::OidValue namespace?  
     // The use of \memberof is not elegant.
 
     /**
-     * \memberof oid
+     * \memberof OidValue
      *
      * \brief The 'iso' OID according to RFC 1155.
      */
-    const oid iso_oid("1");
+    const OidValue iso_oid("1");
 
     /**
-     * \memberof oid
+     * \memberof OidValue
      *
      * \brief The 'ccitt' OID according to RFC 1155.
      */
-    const oid ccitt_oid("0");
+    const OidValue ccitt_oid("0");
 
     /**
-     * \memberof oid
+     * \memberof OidValue
      *
      * \brief The 'joint.iso.ccitt' OID according to RFC 1155.
      */
-    const oid joint_iso_ccitt_oid("2");
+    const OidValue joint_iso_ccitt_oid("2");
 
     /**
-     * \memberof oid
+     * \memberof OidValue
      *
      * \brief The 'iso.org' OID according to RFC 1155.
      */
-    const oid org_oid(iso_oid,"3");
+    const OidValue org_oid(iso_oid,"3");
 
     /**
-     * \memberof oid
+     * \memberof OidValue
      *
      * \brief The 'iso.org.dod' OID according to RFC 1155.
      */
-    const oid dod_oid(org_oid,"6");
+    const OidValue dod_oid(org_oid,"6");
 
     /**
-     * \memberof oid
+     * \memberof OidValue
      *
      * \brief The 'iso.org.dod.internet' OID according to RFC 1155.
      */
-    const oid internet_oid(dod_oid,"1");
+    const OidValue internet_oid(dod_oid,"1");
 
     /**
-     * \memberof oid
+     * \memberof OidValue
      *
      * \brief The 'iso.org.dod.internet.directory' OID according to RFC 1155.
      */
-    const oid directory_oid(internet_oid,"1");
+    const OidValue directory_oid(internet_oid,"1");
 
     /**
-     * \memberof oid
+     * \memberof OidValue
      *
      * \brief The 'iso.org.dod.internet.mgmt' OID according to RFC 1155.
      */
-    const oid mgmt_oid(internet_oid,"2");
+    const OidValue mgmt_oid(internet_oid,"2");
 
     /**
-     * \memberof oid
+     * \memberof OidValue
      *
      * \brief The 'iso.org.dod.internet.experimental' OID according to
      *        RFC 1155.
      */
-    const oid experimental_oid(internet_oid,"3");
+    const OidValue experimental_oid(internet_oid,"3");
 
     /**
-     * \memberof oid
+     * \memberof OidValue
      *
      * \brief The 'iso.org.dod.internet.private' OID according to RFC 1155.
      */
-    const oid private_oid(internet_oid,"4");
+    const OidValue private_oid(internet_oid,"4");
 
     /**
-     * \memberof oid
+     * \memberof OidValue
      *
      * \brief The 'iso.org.dod.internet.private.enterprises' OID according to
      *        RFC 1155.
      */
-    const oid enterprises_oid(private_oid, "1");
+    const OidValue enterprises_oid(private_oid, "1");
 
     /**
-     * \memberof oid
+     * \memberof OidValue
      *
      * \brief The 'snmpMIBObjects' OID according to RFC 1907.
      *
@@ -525,10 +493,10 @@ namespace agentxcpp
      * Conclusion:<br/>
      * snmpMIBObjects ::= internet.6.3.1.1
      */
-    const oid snmpMIBObjects_oid(internet_oid, "6.3.1.1");
+    const OidValue snmpMIBObjects_oid(internet_oid, "6.3.1.1");
 
     /**
-     * \memberof oid
+     * \memberof OidValue
      *
      * \brief The 'snmpTrapOID' OID according to RFC 1907.
      *
@@ -543,11 +511,11 @@ namespace agentxcpp
      * Conclusion:<br/>
      * snmpTrapOID ::= snmpMIBObjects.4.1
      */
-    const oid snmpTrapOID_oid(snmpMIBObjects_oid, "4.1");
+    const OidValue snmpTrapOID_oid(snmpMIBObjects_oid, "4.1");
 
     /**
      *
-     * \memberof oid
+     * \memberof OidValue
      *
      * \brief The sysUpTime_oid OID according to RFC 1907.
      *
@@ -565,7 +533,7 @@ namespace agentxcpp
      * Conclusion:
      * sysUpTime = mgmt.1.1.3
      */
-    const oid sysUpTime_oid(mgmt_oid, "1.1.3");
+    const OidValue sysUpTime_oid(mgmt_oid, "1.1.3");
 
 }
 

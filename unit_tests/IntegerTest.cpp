@@ -23,31 +23,31 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 
-#include <Integer.hpp>
+#include <IntegerValue.hpp>
 
 
 
 
 BOOST_AUTO_TEST_CASE( init_constructor_and_get_value )
 {
-    agentxcpp::Integer object_1(13);
+    agentxcpp::IntegerValue object_1(13);
     BOOST_CHECK_EQUAL( object_1.get_value(), 13 );
     
-    agentxcpp::Integer object_2(0);
+    agentxcpp::IntegerValue object_2(0);
     BOOST_CHECK_EQUAL( object_2.get_value(), 0 );
     
     long long max = std::pow(2,32)-1; // maximum value for uint32_t
 
-    agentxcpp::Integer object_3(max);
+    agentxcpp::IntegerValue object_3(max);
     BOOST_CHECK_EQUAL( object_3.get_value(), max);
     
-    agentxcpp::Integer object_4(-1); // -1 should wrap to max!
+    agentxcpp::IntegerValue object_4(-1); // -1 should wrap to max!
     BOOST_CHECK_EQUAL( object_4.get_value(), max );
 }
 
 BOOST_AUTO_TEST_CASE( serialize )
 {
-    agentxcpp::Integer object(0x11223344);
+    agentxcpp::IntegerValue object(0x11223344);
     binary blob = object.serialize();
     
     // We expect big endian!
@@ -75,39 +75,39 @@ BOOST_AUTO_TEST_CASE( parse_constructor )
     
     // Create Integer from beginning, little endian
     begin = blob.begin();
-    agentxcpp::Integer object_1(begin, end, false);
+    agentxcpp::IntegerValue object_1(begin, end, false);
     BOOST_CHECK_EQUAL(object_1.get_value(), 0x44332211);
     BOOST_CHECK_EQUAL(*begin, *(blob.begin()+4));
     
     // Create Integer from beginning, big endian
     begin = blob.begin();
-    agentxcpp::Integer object_2(begin, end);
+    agentxcpp::IntegerValue object_2(begin, end);
     BOOST_CHECK_EQUAL(object_2.get_value(), 0x11223344);
     BOOST_CHECK_EQUAL(*begin, *(blob.begin()+4));
     
     // Create Integer starting at a position where offset%4 != 0
     begin = blob.begin() + 1;
-    agentxcpp::Integer object_3(begin, end);
+    agentxcpp::IntegerValue object_3(begin, end);
     BOOST_CHECK_EQUAL(object_3.get_value(), 0x22334455);
     BOOST_CHECK_EQUAL(*begin, *(blob.begin()+5));
     
     // Create Integer starting at the last possible position
     begin = blob.begin() + 3;
-    agentxcpp::Integer object_4(begin, end);
+    agentxcpp::IntegerValue object_4(begin, end);
     BOOST_CHECK_EQUAL(object_4.get_value(), 0x44556677);
     BOOST_CHECK_EQUAL(*begin, *(blob.begin()+7));
     
     // Create Integer starting near the end, so less than 4 bytes are available 
     // for parsing. The constructor should throw a parse_error excection.
     begin = blob.begin() + 5;
-    BOOST_CHECK_THROW( agentxcpp::Integer object_5(begin, end),
+    BOOST_CHECK_THROW( agentxcpp::IntegerValue object_5(begin, end),
 		       parse_error )
 }
 
 BOOST_AUTO_TEST_CASE( set_value )
 {
     // We use this object for the tests
-    agentxcpp::Integer object(0);
+    agentxcpp::IntegerValue object(0);
 
     object.set_value(13);
     BOOST_CHECK_EQUAL( object.get_value(), 13 );

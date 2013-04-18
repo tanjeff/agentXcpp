@@ -30,15 +30,19 @@
 #include <QObject>
 #include <QThread>
 
-#include "oid.hpp"
-#include "variable.hpp"
-#include "TimeTicks.hpp"
+#include "OidValue.hpp"
+#include "AbstractVariable.hpp"
+#include "TimeTicksValue.hpp"
 #include "ClosePDU.hpp"
 #include "ResponsePDU.hpp"
 #include "RegisterPDU.hpp"
 #include "UnregisterPDU.hpp"
 #include "GetPDU.hpp"
 #include "GetNextPDU.hpp"
+#include "TestSetPDU.hpp"
+#include "CleanupSetPDU.hpp"
+#include "CommitSetPDU.hpp"
+#include "UndoSetPDU.hpp"
 #include "UnixDomainConnector.hpp"
 
 using boost::uint8_t;
@@ -54,21 +58,21 @@ namespace agentxcpp
      * This class is used on the subagent's side of a connection between 
      * subagent and master agent. It serves as a proxy which represents the 
      * master agent. It is possible for a subagent to hold connections to more 
-     * than one master agents. For each connection one master_proxy object is 
+     * than one master agents. For each connection one MasterProxy object is 
      * created. Multiple connections to the same master agent are possible, 
-     * too, in which case one master_proxy per connection is needed.
+     * too, in which case one MasterProxy per connection is needed.
      */
     /**
      * \par Connection State
      *
-     * The master_proxy is always in one of the following states:
+     * The MasterProxy is always in one of the following states:
      * - connected
      * - disconnected
      * .
      * The session to the master agent is established when creating a 
-     * master_proxy object, thus the object usually starts in connected state.  
+     * MasterProxy object, thus the object usually starts in connected state.  
      * If that fails, the object starts in disconnected state. A connected 
-     * master_proxy object may also loose the connection to the master agent 
+     * MasterProxy object may also loose the connection to the master agent 
      * and consequently become disconnected, without informing the user. It is 
      * possible to re-connect with the reconnect() function at any time (even 
      * if the session is currently established - it will be shut down and 
@@ -127,7 +131,7 @@ namespace agentxcpp
      *
      * \internal
      *
-     * The master_proxy object generates a RegisterPDU object each time a 
+     * The MasterProxy object generates a RegisterPDU object each time a 
      * registration is performed. These RegisterPDU objects are stored in the 
      * registrations member.
      *
@@ -138,7 +142,7 @@ namespace agentxcpp
      * connection loss is not signalled, the member cannot be cleared in such 
      * situations. Therefore, it is cleared in the connect() method if the 
      * object is currently disconnected. If connect() is called on a connected 
-     * master_proxy object, the registrations member is not cleared.
+     * MasterProxy object, the registrations member is not cleared.
      *
      * \endinternal
      */
@@ -146,8 +150,8 @@ namespace agentxcpp
      * \par Adding and Removing Variables
      *
      * Registering a subtree does not make any SNMP variables accessible yet.  
-     * To provide SNMP variables, they must be added to the master_proxy 
-     * object, e.g. using add_variable(). The master_proxy object will then 
+     * To provide SNMP variables, they must be added to the MasterProxy 
+     * object, e.g. using add_variable(). The MasterProxy object will then 
      * dispatch incoming requests to the variables it knows about. If a request 
      * is received for an OID for which no variable has been added, an 
      * appropriate error is returned to the master agent.
@@ -158,7 +162,7 @@ namespace agentxcpp
      * \internal
      *
      * The variables are stored in the member variables, which is a 
-     * std::map<oid, shared_ptr<variable> >. The key is the OID for which the 
+     * std::map<OidValue, shared_ptr<variable> >. The key is the OID for which the 
      * variable was added. This allows easy lookup for the request 
      * dispatcher.
      *
@@ -168,7 +172,7 @@ namespace agentxcpp
      * connection loss is not signalled, the member cannot be cleared in such 
      * situations.  Therefore, it is cleared in the connect() method if the 
      * object is currently disconnected. If connect() is called on a connected 
-     * master_proxy object, the variables member is not cleared.
+     * MasterProxy object, the variables member is not cleared.
      *
      * \endinternal
      *
@@ -179,7 +183,7 @@ namespace agentxcpp
      * \par Internals
      * 
      * Receiving and processing PDU's coming from the master is done using the 
-     * UnixDomainConnector class. The master_proxy implements the handle_pdu() 
+     * UnixDomainConnector class. The MasterProxy implements the handle_pdu() 
      * slot, which is connected to the UnixDomainConnector::pduArrived() 
      * signal.
      *
@@ -188,7 +192,7 @@ namespace agentxcpp
      * \todo Describe timeout handling
      * \todo Byte ordering is constant for a session. See rfc 2741, 7.1.1
      */
-    class master_proxy : public QObject
+    class MasterProxy : public QObject
     {
         Q_OBJECT
 
@@ -239,7 +243,7 @@ namespace agentxcpp
 	     * \brief An Object Identifier that identifies the subagent. May be
 	     *        the null OID.
 	     */
-	    oid id;
+	    OidValue id;
 
 	    /**
 	     * \brief The registrations.
@@ -251,9 +255,21 @@ namespace agentxcpp
 	    std::list< boost::shared_ptr<RegisterPDU> > registrations;
 
 	    /**
-	     * \brief Storage for all SNMP variables known to the master_proxy.
+	     * \brief Storage for all SNMP variables known to the MasterProxy.
 	     */
-	    std::map< oid, shared_ptr<variable> > variables;
+	    std::map< OidValue, shared_ptr<AbstractVariable> > variables;
+
+            /**
+             * \brief The variables affected by the Set operation currently
+             *        in progress.
+             *
+             * The CommitSet, UndoSet and CleanupSet PDU's do not contain the 
+             * affected variables but operate on the variables denominated in 
+             * the preceding TestSet PDU.
+             *
+             * These are the variables denominated in that TestSet PDU.
+             */
+            std::list< shared_ptr<AbstractVariable> > setlist;
 
 	    /**
 	     * \brief Send a RegisterPDU to the master agent.
@@ -263,7 +279,7 @@ namespace agentxcpp
              *
 	     * \param pdu The RegisterPDU to send.
 	     *
-	     * \exception disconnected If the master_proxy is currently in
+	     * \exception disconnected If the MasterProxy is currently in
 	     *                         state 'disconnected'.
 	     *
 	     * \exception timeout_error If the master agent does not
@@ -306,7 +322,7 @@ namespace agentxcpp
              *
              * \param pdu The UnregisterPDU to send.
 	     *
-	     * \exception disconnected If the master_proxy is currently in
+	     * \exception disconnected If the MasterProxy is currently in
 	     *                         state 'disconnected'.
 	     *
 	     * \exception timeout_error If the master agent does not
@@ -361,7 +377,7 @@ namespace agentxcpp
              *
              * \param get_pdu The GetPDU to be processed.
              */
-            void handle_getpdu(ResponsePDU& response, shared_ptr<GetPDU> get_pdu);
+            void handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetPDU> get_pdu);
 
             /**
              * \brief Handle incoming GetNextPDU's.
@@ -375,8 +391,51 @@ namespace agentxcpp
              *
              * \param getnext_pdu The GetNextPDU to be processed.
              */
-            void handle_getnextpdu(ResponsePDU& response, shared_ptr<GetNextPDU> getnext_pdu);
+            void handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetNextPDU> getnext_pdu);
 
+            /**
+             * \brief Handle incoming TestSetPDU's.
+             *
+             * This method is called by handle_pdu(). It processes the given 
+             * TestSetPDU and stores the results in the given ResponsePDU.
+             *
+             * \param response The pre-initialized ResponsePDU.
+             *
+             * \param testset_pdu The TestSetPDU to be processed.
+             */
+            void handle_testsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<TestSetPDU> testset_pdu);
+
+            /**
+             * \brief Handle incoming CleanupSetPDU's.
+             *
+             * This method is called by handle_pdu(). It calls the CleanupSet 
+             * handler for each variable in 'setlist'.
+             */
+            void handle_cleanupsetpdu();
+
+            /**
+             * \brief Handle incoming CommitSetPDU's.
+             *
+             * This method is called by handle_pdu(). It processes the given 
+             * CommitSetPDU and stores the results in the given ResponsePDU.
+             *
+             * \param response The pre-initialized ResponsePDU.
+             *
+             * \param commitset_pdu The CommitSetPDU to be processed.
+             */
+            void handle_commitsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<CommitSetPDU> commitset_pdu);
+
+            /**
+             * \brief Handle incoming UndoSetPDU's.
+             *
+             * This method is called by handle_pdu(). It processes the given
+             * UndoSetPDU and stores the results in the given ResponsePDU.
+             *
+             * \param response The pre-initialized ResponsePDU.
+             *
+             * \param undoset_pdu The UndoSetPDU to be processed.
+             */
+            void handle_undosetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<UndoSetPDU> undoset_pdu);
 
 	public slots:
 	    /**
@@ -412,7 +471,7 @@ namespace agentxcpp
 	     *                  hundredths of a second) since the network
 	     *                  management portion of the system was last
 	     *                  re-initialized.</em>" This parameter is
-	     *                  optional.  You can use You can use \ref
+	     *                  optional.  You can use You can use
 	     *                  agentxcpp::processUpTime() to get the uptime of
 	     *                  the current process. If the parameter is not
 	     *                  provided, the sysUpTime.0 will not be included
@@ -445,32 +504,32 @@ namespace agentxcpp
 	     *
 	     * \todo Document exceptions.
 	     */
-	    void send_notification(const boost::optional<TimeTicks>& sysUpTime,
-	                           const oid& snmpTrapOID,
+	    void send_notification(const boost::optional<TimeTicksValue>& sysUpTime,
+	                           const OidValue& snmpTrapOID,
 	                           const std::vector<varbind>& varbinds=vector<varbind>());
 
 	    /**
 	     * \brief Writing aid: Send notification without sysUpTime.0.
 	     *
 	     * This calls \ref send_notification(
-	     * const boost::optional<TimeTicks>&,
-	     * const oid&, const vector<varbind>&) with an empty sysUpTime.0
+	     * const boost::optional<TimeTicksValue>&,
+	     * const OidValue&, const vector<varbind>&) with an empty sysUpTime.0
 	     * parameter. Without the writing aid it would be necessary to
 	     * construct an empty parameter, like so:
 	     * \code
-	     * master.send_notification(optional<TimeTicks>(),
+	     * master.send_notification(optional<TimeTicksValue>(),
 	     *                          mySubagentOid);
 	     * \endcode
 	     *
 	     * For the documentation of the parameters and exceptions go to
 	     * \ref send_notification(
-	     * const boost::optional<TimeTicks>&,
-	     * const oid&, const vector<varbind>&)
+	     * const boost::optional<TimeTicksValue>&,
+	     * const OidValue&, const vector<varbind>&)
 	     */
-	    void send_notification(const oid& snmpTrapOID,
+	    void send_notification(const OidValue& snmpTrapOID,
 	                           const std::vector<varbind>& varbinds=vector<varbind>())
 	    {
-	        send_notification(boost::optional<TimeTicks>(),
+	        send_notification(boost::optional<TimeTicksValue>(),
 	                snmpTrapOID,
 	                varbinds);
 	    }
@@ -505,9 +564,9 @@ namespace agentxcpp
              *                           described in RFC 2741, section 8.2.1 
              *                           "Well-known Values".
 	     */
-	    master_proxy(std::string description="",
+	    MasterProxy(std::string description="",
 		   uint8_t default_timeout=0,
-		   oid ID=oid(),
+		   OidValue ID=OidValue(),
 		   std::string unix_domain_socket="/var/agentx/master");
 
 	    /**
@@ -534,7 +593,7 @@ namespace agentxcpp
 	     *		      according to RFC 2741, 6.2.3.  "The 
 	     *		      agentx-Register-PDU".
 	     *
-	     * \exception disconnected If the master_proxy is currently in
+	     * \exception disconnected If the MasterProxy is currently in
 	     *                         state 'disconnected'.
 	     *
 	     * \exception timeout_exception If the master agent does not
@@ -564,7 +623,7 @@ namespace agentxcpp
              *                        that a retry will result in a 
              *                        duplicate_registration error.
 	     */
-	    void register_subtree(oid subtree,
+	    void register_subtree(OidValue subtree,
 				  uint8_t priority=127,
 				  uint8_t timeout=0);
 
@@ -586,7 +645,7 @@ namespace agentxcpp
 	     * \param priority The priority with which the registration was
              *                 done.
 	     *
-	     * \exception disconnected If the master_proxy is currently in
+	     * \exception disconnected If the MasterProxy is currently in
 	     *                         state 'disconnected'.
 	     *
 	     * \exception timeout_error If the master agent does not
@@ -609,7 +668,7 @@ namespace agentxcpp
 	     */
             // TODO: the 'priority' parameter can possibly be omitted: the 
             // value can be stored by master_agent upon subtree registration.
-	    void unregister_subtree(oid subtree,
+	    void unregister_subtree(OidValue subtree,
 				    uint8_t priority=127);
 
             /**
@@ -625,7 +684,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Connect to the master agent.
 	     *
-             * \note Upon creation of a master_proxy object, the connection is
+             * \note Upon creation of a MasterProxy object, the connection is
              *       automatically established. If the current state is 
              *       "connected", the function does nothing.
 	     *
@@ -638,7 +697,7 @@ namespace agentxcpp
 	     *
 	     * Disconnect from the master agent.
 	     * 
-             * \note Upon destruction of a master_proxy object the session is
+             * \note Upon destruction of a MasterProxy object the session is
              *       automatically shutdown. If the session is in state 
              *       "disconnected", this function does nothing.
 	     *
@@ -685,9 +744,9 @@ namespace agentxcpp
 	     *
              * The destructor cleanly shuts down the session (if it is 
              * currently established) with the reason 'Shutdown' and destroys 
-             * the master_proxy object.
+             * the MasterProxy object.
              */
-	    ~master_proxy();
+	    ~MasterProxy();
 
 	    /**
              * \brief Add an SNMP variable for serving.
@@ -710,7 +769,7 @@ namespace agentxcpp
 	     *                                 within a registered MIB 
 	     *                                 region.
 	     */
-	    void add_variable(const oid& id, shared_ptr<variable> v);
+	    void add_variable(const OidValue& id, shared_ptr<AbstractVariable> v);
 
 	    /**
 	     * \brief Remove an SNMP variable so that is not longer accessible.
@@ -725,7 +784,7 @@ namespace agentxcpp
 	     *
 	     * \exception None.
 	     */
-	    void remove_variable(const oid& id);
+	    void remove_variable(const OidValue& id);
     };
 }
 

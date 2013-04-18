@@ -19,12 +19,18 @@
 
 #include <iterator>
 
-#include "Octet_String.hpp"
+#include "OctetStringValue.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
 
-Octet_String::Octet_String(std::string v)
+OctetStringValue::OctetStringValue(std::string v)
+{
+    // Delegate ;-)
+    this->set_value(v);
+}
+
+void OctetStringValue::set_value(std::string v)
 {
     // Here we convert initial value to a binary string. We do this in three
     // steps:
@@ -32,19 +38,41 @@ Octet_String::Octet_String(std::string v)
     // 2. cast the data to the value type of binary
     // 3. calculate the size of the data
     //    - v.size() gives us the number of characters
-    //    - sizeof(std::string::value_type) gives us the size of an character
+    //    - sizeof(binary::value_type) gives us the size of an character
     // 4. Assign v to value, giving it the bare data and its size
     //
-    // This seems to be goofy, but it ensures that our code works even on a 
-    // machine where a char is not 8 bit wide, i.e. when char has another size 
-    // than byte_t.
+    // This seems to be goofy, but it ensures that our code works even on a
+    // machine where a char is not 8 bit wide, i.e. when char has another size
+    // than uint8_t.
     value.assign(
-	    reinterpret_cast<const binary::value_type*>( v.data() ),
-	    v.size() * sizeof( std::string::value_type )
-	        );
+            reinterpret_cast<const binary::value_type*>( v.data() ),
+            v.size() * sizeof( binary::value_type )
+                );
 }
 
-binary Octet_String::serialize() const
+std::string OctetStringValue::str() const
+{
+    // Here we convert the stored value to a string. We do this in three
+    // steps:
+    // 1. get the bare data: value.data()
+    // 2. cast the data to the value type of string
+    // 3. calculate the size of the data
+    //    - value.size() gives us the number of characters
+    //    - sizeof(std::string::value_type) gives us the size of an character
+    // 4. Put the whole thing into a string, giving it the bare data and its
+    //    size
+    //
+    // This seems to be goofy, but it ensures that our code works even on a
+    // machine where a char is not 8 bit wide, i.e. when char has another size
+    // than uint8_t.
+    std::string retval(
+            reinterpret_cast<const std::string::value_type*>( value.data() ),
+            value.size() * sizeof( std::string::value_type )
+            );
+    return retval;
+}
+
+binary OctetStringValue::serialize() const
 {
     binary serialized;
 
@@ -66,7 +94,7 @@ binary Octet_String::serialize() const
 }
 
 
-Octet_String::Octet_String(binary::const_iterator& pos,
+OctetStringValue::OctetStringValue(binary::const_iterator& pos,
 			   const binary::const_iterator& end,
 			   bool big_endian)
 {

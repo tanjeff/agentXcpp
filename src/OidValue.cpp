@@ -19,7 +19,7 @@
 
 //#include <iostream>
 #include <sstream>
-#include "oid.hpp"
+#include "OidValue.hpp"
 #include "exceptions.hpp"
 
 
@@ -27,7 +27,7 @@ using namespace agentxcpp;
 using namespace std;
 
 
-void oid::parse_string(std::string s)
+void OidValue::parse_string(std::string s)
 {
     // Do not parse empty string
     if(s.empty()) return;
@@ -65,7 +65,7 @@ void oid::parse_string(std::string s)
 
 
 
-oid::oid(std::string s)
+OidValue::OidValue(std::string s)
 {
     include = false;
 
@@ -74,7 +74,7 @@ oid::oid(std::string s)
 }
 
 
-oid::oid(const oid& o, std::string id)
+OidValue::OidValue(const OidValue& o, std::string id)
 {
     // start with o
     *this = o;
@@ -84,7 +84,7 @@ oid::oid(const oid& o, std::string id)
 }
 
 
-std::ostream& agentxcpp::operator<<(std::ostream& out, const oid& o)
+std::ostream& agentxcpp::operator<<(std::ostream& out, const OidValue& o)
 {
     // Leading dot
     out << ".";
@@ -96,7 +96,7 @@ std::ostream& agentxcpp::operator<<(std::ostream& out, const oid& o)
     }
 
     // Get iterator to first subidentifier
-    oid::const_iterator it = o.begin();
+    OidValue::const_iterator it = o.begin();
 
     // Print first subidentifier
     out << *it;
@@ -115,7 +115,7 @@ std::ostream& agentxcpp::operator<<(std::ostream& out, const oid& o)
 
 
 
-binary oid::serialize() const
+binary OidValue::serialize() const
 {
     // The serial representation of an OID is as follows (RFC 2741, section 
     // 5.1):
@@ -147,7 +147,7 @@ binary oid::serialize() const
     serialized[include_idx] = include ? 1 : 0;
 
     // Iterator for the subid's
-    oid::const_iterator subid = this->begin();
+    OidValue::const_iterator subid = this->begin();
 
     // Check whether we can use the prefix (RFC 2741, section 5.1)
     if( this->size() >= 5 &&
@@ -186,7 +186,7 @@ binary oid::serialize() const
     return serialized;
 }
 
-oid::oid(binary::const_iterator& pos,
+OidValue::OidValue(binary::const_iterator& pos,
 	 const binary::const_iterator& end,
 	 bool big_endian)
 {
@@ -255,9 +255,9 @@ oid::oid(binary::const_iterator& pos,
 }
 
 
-bool oid::operator<(const oid& o) const
+bool OidValue::operator<(const OidValue& o) const
 {
-    oid::const_iterator mine, yours;
+    OidValue::const_iterator mine, yours;
     mine = this->begin();
     yours = o.begin();
 
@@ -267,12 +267,12 @@ bool oid::operator<(const oid& o) const
     {
 	if( *mine < *yours )
 	{
-	    // my oid part is less than yours
+	    // my OidValue part is less than yours
 	    return true;
 	}
 	if( *mine > *yours )
 	{
-	    // my oid part is greater than yours
+	    // my OidValue part is greater than yours
 	    return false;
 	}
 
@@ -298,9 +298,9 @@ bool oid::operator<(const oid& o) const
 
 
 
-bool oid::operator==(const oid& o) const
+bool OidValue::operator==(const OidValue& o) const
 {
-    // Quick test: if the oids have different number of parts, they are not 
+    // Quick test: if the OidValues have different number of parts, they are not 
     // equal:
     if( this->size() != o.size() )
     {
@@ -308,7 +308,7 @@ bool oid::operator==(const oid& o) const
     }
     
     // Test all parts:
-    oid::const_iterator mine, yours;
+    OidValue::const_iterator mine, yours;
     mine = this->begin();
     yours = o.begin();
 
@@ -332,21 +332,21 @@ bool oid::operator==(const oid& o) const
 }
 
 
-oid& oid::operator=(const oid& other)
+OidValue& OidValue::operator=(const OidValue& other)
 {
     // copy our own members
     this->include = other.include;
 
     // copy inherited stuff
     vector<uint32_t>::operator=(other);
-    variable::operator=(other);
+    AbstractValue::operator=(other);
     
     // Return reference to us
     return *this;
 }
 
 
-bool oid::contains(const oid& id)
+bool OidValue::contains(const OidValue& id)
 {
     // If id has fewer subids than this: not contained
     if(this->size() > id.size())
@@ -372,7 +372,7 @@ bool oid::contains(const oid& id)
 }
 
 
-bool oid::is_null() const
+bool OidValue::is_null() const
 {
     if( this->size() == 0 &&
 	! this->include)

@@ -20,15 +20,15 @@
 #ifndef _OCTET_STRING_H_
 #define _OCTET_STRING_H_
 
-#include "variable.hpp"
+#include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
 namespace agentxcpp
 {
     /**
-     * \brief Represents an Octet String as descibed in RFC 2741, section 5.3
+     * \brief Represents an Octet String as described in RFC 2741, section 5.3
      */
-    class Octet_String : public variable
+    class OctetStringValue : public AbstractValue
     {
 	private:
 	    /**
@@ -45,36 +45,29 @@ namespace agentxcpp
 	     *
 	     * \brief Encode the object as described in RFC 2741, section 5.3
 	     *
-	     * Note:
-	     * We always use big endian.
+	     * \note We always use big endian.
 	     */
 	    binary serialize() const;
 
 	    /**
-             * \internal
-             *
-             * \brief FIXME
+             * \brief Construct object from binary data.
 	     */
-	    Octet_String(binary initial_value) : value(initial_value) {}
+	    OctetStringValue(binary initial_value) : value(initial_value) {}
 
             /**
-             * \internal
-             *
-             * \brief FIXME
+             * \brief Construct object from a string.
              */
-	    Octet_String(std::string initial_value);
+	    OctetStringValue(std::string initial_value);
 
 	    /**
-             * \internal
-             *
-	     * \brief FIXME
+	     * \brief Create empty OctetStringValue object.
 	     */
-	    Octet_String() { }
+	    OctetStringValue() { }
 	    
 	    /**
 	     * \internal
 	     *
-	     * \brief Construct the object from input stream
+	     * \brief Parse Constructor.
 	     *
 	     * This constructor parses the serialized form of the object.
 	     * It takes an iterator, starts parsing at the position of the 
@@ -95,59 +88,32 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Octet_String(binary::const_iterator& pos,
+	    OctetStringValue(binary::const_iterator& pos,
 		         const binary::const_iterator& end,
 			 bool big_endian=true);
 
 	    /**
-             * \internal
-             *
-	     * \brief Set the current value
+	     * \brief Set the current value.
 	     */
 	    void set_value(binary new_value) { value = new_value; }
 
-	    /**
-             * \internal
-             *
-	     * \brief get the current value
+            /**
+             * \brief Set the current value.
+             */
+            void set_value(std::string new_value);
+
+            /**
+	     * \brief Get the current value
 	     */
-	    binary get_value()
+	    binary get_value() const
 	    {
 		return value;
 	    }
 
 	    /**
-             * \internal
-             *
-	     * \brief Update the internal state of the object.
-	     *
-	     * This function calls get() to obtain a new value and writes that 
-	     * value to the 'value' member.
-	     *
-             * \exception generic_error If obtaining the new value failed.
+	     * \brief Get the current value as string.
 	     */
-	    virtual void update()
-	    {
-		value = this->get();
-	    }
-
-            /**
-             * \brief Obtain the current value for the object.
-             *
-             * This member function is derived by classes representing SNMP 
-             * variables and shall return the current value of the object.
-             *
-             * The default implementation throws generic_error.
-             *
-             * \return The current value of the object.
-             *
-             * \exception generic_error If obtaining the current value fails.
-             *                          No other exception shall be thrown.
-             */
-	    virtual binary get()
-	    {
-		throw( generic_error() );
-	    }
+	    std::string str() const;
     };
 }
 

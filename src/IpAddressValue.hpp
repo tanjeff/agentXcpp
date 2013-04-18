@@ -22,7 +22,7 @@
 
 #include <boost/cstdint.hpp>
 
-#include "variable.hpp"
+#include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
 using boost::uint32_t;
@@ -30,29 +30,28 @@ using boost::uint32_t;
 namespace agentxcpp
 {
     /**
-     * \brief Represents an IP address as descibed in RFC 2741, section 5.4
+     * \brief Represents an IP address as described in RFC 2741, section 5.4
      */
-    class IpAddress : public variable
+    class IpAddressValue : public AbstractValue
     {
 	private:
 	    /**
 	     * \brief Hide default constructor
 	     */
-	    IpAddress();
+	    IpAddressValue();
 
-	private:
 	    /**
 	     * \brief The IP address.
 	     *
 	     * According to RFC 2578, IpAddress is a 32-bit number.
 	     */
-            boost::uint8_t address[4]; // only IPv4
+            uint8_t address[4]; // only IPv4
 
 	public:
 	    /**
 	     * \internal
 	     *
-	     * \brief Construct the object from input stream
+	     * \brief Parse Constructor.
 	     *
 	     * This constructor parses the serialized form of the object.
 	     * It takes an iterator, starts parsing at the position of the 
@@ -73,7 +72,7 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    IpAddress(binary::const_iterator& pos,
+	    IpAddressValue(binary::const_iterator& pos,
 		      const binary::const_iterator& end,
 		      bool big_endian=true);
 
@@ -89,16 +88,16 @@ namespace agentxcpp
 	    binary serialize() const;
 
 	    /**
-             * \brief Construct an IpAddress object.
+             * \brief Construct an IpAddressValue object.
              *
              * The stored IpAddress is initialized to "a.b.c.d".
              *
              * \exception None.
 	     */
-	    IpAddress(uint32_t a,
-		    uint32_t b,
-		    uint32_t c,
-		    uint32_t d)
+	    IpAddressValue(uint8_t a,
+		      uint8_t b,
+		      uint8_t c,
+		      uint8_t d)
 	    {
 		address[0] = a;
 		address[1] = b;
@@ -106,41 +105,46 @@ namespace agentxcpp
 		address[3] = d;
 	    }
 
-	    /**
-             * \internal
-             *
-	     * \brief Update the internal state of the object.
-	     *
-	     * This function calls get() to obtain a new value and writes that 
-	     * value to the 'address' member.
-	     *
-             * \exception generic_error If obtaining the new value failed.
-	     */
-	    virtual void update()
-	    {
-		IpAddress a = this->get();
-		address[0] = a.address[0];
-		address[1] = a.address[1];
-		address[2] = a.address[2];
-		address[3] = a.address[3];
-	    }
-
             /**
-             * \brief Obtain the current value for the object.
+             * \brief Set the IpAddress.
              *
-             * This member function is derived by classes representing SNMP 
-             * variables and shall return the current value of the object.
+             * The stored IpAddress is updated to "a.b.c.d".
              *
-             * The default implementation throws generic_error.
-             *
-             * \return The current value of the object.
-             *
-             * \exception generic_error If obtaining the current value fails.
-             *                          No other exception shall be thrown.
+             * \exception None.
              */
-	    virtual IpAddress get()
+	    void set_value(uint8_t a,
+                           uint8_t b,
+                           uint8_t c,
+                           uint8_t d)
+            {
+                address[0] = a;
+                address[1] = b;
+                address[2] = c;
+                address[3] = d;
+            }
+
+	    /**
+	     * \brief Access a component of the stored IpAddress.
+	     *
+	     * This function returns the component with the given index. Note
+	     * that exactly 4 components are stored. The return value is a
+	     * reference to the component, so that it can be read/written, in
+	     * other words, the IpAddressValue object can be accessed like an
+	     * ordinary array.
+	     *
+	     * \param index The index (value in the range 0...3).
+	     *
+	     * \return A reference to the component.
+	     *
+	     * \exception inval_param If the index is out of bound.
+	     */
+	    uint8_t& operator[](unsigned index)
 	    {
-		throw( generic_error() );
+	        if(index > 3)
+	        {
+	            throw(inval_param());
+	        }
+	        return address[index];
 	    }
     };
 }

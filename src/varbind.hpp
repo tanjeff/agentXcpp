@@ -24,8 +24,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 
-#include "oid.hpp"
-#include "variable.hpp"
+#include "OidValue.hpp"
+#include "AbstractValue.hpp"
 
 using boost::uint16_t;
 
@@ -42,7 +42,7 @@ namespace agentxcpp
 	    /**
 	     * \brief The name (OID) of the VarBind.
 	     */
-	    oid name;
+	    OidValue name;
 
 	    /**
 	     * \brief The variable inside the varbind.
@@ -50,7 +50,7 @@ namespace agentxcpp
 	     * This pointer may be 0 if the varbind has a type without a 
 	     * variable (e.g. "NoSuchObject").
 	     */
-	    boost::shared_ptr<variable> var;
+	    boost::shared_ptr<AbstractValue> var;
 
 	    /**
 	     * \brief The type of the varbind.
@@ -66,19 +66,19 @@ namespace agentxcpp
 	     * \brief Create a VarBind with an oid and a var.
 	     *
 	     * The variable must be one of the following types:
-	     * - Integer
-	     * - Octet_String
-	     * - oid
-	     * - IpAddress
-	     * - Counter32
-	     * - Gauge32
-	     * - TimeTicks
-	     * - Opaque
-	     * - Counter64
+	     * - IntegerValue
+	     * - OctetStringValue
+	     * - OidValue
+	     * - IpAddressValue
+	     * - Counter32Value
+	     * - Gauge32Value
+	     * - TimeTicksValue
+	     * - OpaqueValue
+	     * - Counter64Value
 	     * If the type of the variable cannot be determined, inval_param is 
 	     * thrown.
 	     */
-	    varbind(const oid&, boost::shared_ptr<variable> v);
+	    varbind(const OidValue&, boost::shared_ptr<AbstractValue> v);
 	    
 	    /**
 	     * \brief These values can be used to create a VarBind.
@@ -97,7 +97,7 @@ namespace agentxcpp
 	     * Only the constants defined by varbind::type_t are allowed.  A 
 	     * wrong type will cause an inval_param exception.
 	     */
-	    varbind(const oid&, type_t);
+	    varbind(const OidValue&, type_t);
 
 	    /**
 	     * \internal
@@ -127,7 +127,26 @@ namespace agentxcpp
 		    const binary::const_iterator& end,
 		    bool big_endian=true);
 
-	    /**
+            /**
+             * \brief Get the name (the OID) stored within the varbind.
+             */
+            OidValue get_name() const
+            {
+                return name;
+            }
+
+            /**
+             * \brief Get the variable stored within the varbind.
+             *
+             * \note This returns a smart pointer to the variable, i.e. the
+             *       variable can be modified in-place.
+             */
+            boost::shared_ptr<AbstractValue> get_var() const
+            {
+                return var;
+            }
+
+            /**
 	     * \internal
 	     *
 	     * \brief Serialize the varbind.

@@ -25,8 +25,8 @@
 #include <boost/cstdint.hpp>
 
 #include "PDU.hpp"
-#include "oid.hpp"
-#include "Octet_String.hpp"
+#include "OidValue.hpp"
+#include "OctetStringValue.hpp"
 #include "varbind.hpp"
 
 using std::vector;
@@ -164,9 +164,12 @@ namespace agentxcpp
 	     *
 	     * \param error The new error status.
 	     *
-	     * \exception inval_param If the error value is not allowed.
+	     * \exception None.
 	     */
-	    void set_error(error_t error);
+	    void set_error(error_t error)
+	    {
+	        this->error = error;
+	    }
 
 	    /**
 	     * \brief Get the error status.

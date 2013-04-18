@@ -19,18 +19,24 @@
 #ifndef _OPAQUE_H_
 #define _OPAQUE_H_
 
-#include "variable.hpp"
+#include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
 namespace agentxcpp
 {
     /**
-     * \brief Represents an Opaque obejct as descibed in RFC 2741, section 
-     * 5.4
+     * \brief Represents an Opaque object as described in RFC 2741, section
+     * 5.4.
+     *
+     * This class represent binary data.
+     *
+     * \note There are no functions to convert the binary data to/from
+     *       std::string. If that is needed, OctetStringValue might be a better
+     *       choice.
      */
-    class Opaque : public variable
+    class OpaqueValue : public AbstractValue
     {
-	private:
+	public:
 	    /**
 	     * \brief The string.
 	     *
@@ -38,7 +44,6 @@ namespace agentxcpp
 	     */
 	    binary value;
 
-	public:
 	    /**
 	     * \internal
 	     *
@@ -53,7 +58,7 @@ namespace agentxcpp
 	    /**
 	     * \internal
 	     *
-	     * \brief Construct the object from input stream
+	     * \brief Parse Constructor.
 	     *
 	     * This constructor parses the serialized form of the object.
 	     * It takes an iterator, starts parsing at the position of the 
@@ -74,49 +79,14 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    Opaque(binary::const_iterator& pos,
+	    OpaqueValue(binary::const_iterator& pos,
 		   const binary::const_iterator& end,
 		   bool big_endian=true);
 
             /**
-             * \internal
-             *
              * \brief Constructor for initializing with data.
              */
-	    Opaque(binary initial_value) : value(initial_value) {}
-
-            /**
-             * \internal
-             *
-	     * \brief Update the internal state of the object.
-	     *
-	     * This function calls get() to obtain a new value and writes that 
-	     * value to the 'value' member.
-	     *
-             * \exception generic_error If obtaining the new value failed.
-	     */
-	    virtual void update()
-	    {
-		value = this->get();
-	    }
-
-            /**
-             * \brief Obtain the current value for the object.
-             *
-             * This member function is derived by classes representing SNMP 
-             * variables and shall return the current value of the object.
-             *
-             * The default implementation throws generic_error.
-             *
-             * \return The current value of the object.
-             *
-             * \exception generic_error If obtaining the current value fails.
-             *                          No other exception shall be thrown.
-             */
-	    virtual binary get()
-	    {
-		throw( generic_error() );
-	    }
+	    OpaqueValue(binary initial_value) : value(initial_value) {}
     };
 }
 

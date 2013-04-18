@@ -24,15 +24,18 @@
 
 \page variables The Variable Objects
 
+\todo This page needs an update, because we now distinguish between Variables 
+and Values.
 
 \section introduction Introduction
 
 SNMP and AgentX are all about variables, and how to obtain or alter their 
 values. In agentXcpp, variables are represented by classes which implement the 
-agentxcpp::variables interface. The library provides some classes such as 
-agentxcpp::Integer and agentxcpp::Octet_String, which have an internal value 
-and can be serialized and deserialized to be included in PDU messages. To 
-actually provide an SNMP variable, one of these classes must be derived.
+agentxcpp::AbstractVariables interface. The library provides some classes such 
+as agentxcpp::IntegerValue and agentxcpp::OctetStringValue, which have an 
+internal value and can be serialized and deserialized to be included in PDU 
+messages. To actually provide an SNMP variable, one of these classes must be 
+derived.
 
 
 \section serializing_parsing Serializing and Parsing Variables
@@ -45,20 +48,21 @@ mechanism as used by the %PDU classes. See \ref pdus for an explanation.
 
 \section get GET Requests
 
-When the agentxcpp::master_proxy object receives a GET request, it looks up the 
+When the agentxcpp::MasterProxy object receives a GET request, it looks up the 
 variable registered with the requested OID. Then it invokes the variable's 
 update() function (found in the agentxcpp::variable interface) to update the 
 internal state of the variable. Finally the variable is serialized and embedded 
 within a agentxcpp::ResponsePDU and sent to the master agent.
 
 The agentxcpp::variable::update() method is implemented in the variable classes 
-such as agentxcpp::Integer, agentxcpp::Octet_String, agentxcpp::Counter32 , and 
+such as agentxcpp::IntegerValue, agentxcpp::OctetStringValue, 
+agentxcpp::Counter32Value, and 
 so on.  The implementation just calls the get() method of the respective 
 object, which returns the new value of the object. Then, update() stores the 
 new value within the variable. 
 
 When implementing an SNMP variable, the user of the agentXcpp library derives 
-one of the variable classes (e.g. agentxcpp::Octet_String) and overrides the 
+one of the variable classes (e.g. agentxcpp::OctetStringValue) and overrides the 
 get() method. The get() method may throw agentxcpp::generic_error, in which 
 case a generic error is reported to the master agent. Note that any other 
 exception also results in a generic error reported to the master agent.

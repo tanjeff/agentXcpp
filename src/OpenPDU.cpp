@@ -37,9 +37,9 @@ OpenPDU::OpenPDU(binary::const_iterator& pos,
     timeout = *pos++;
     pos += 3;	// skip reserved fields
 
-    id = oid(pos, end, big_endian);
+    id = OidValue(pos, end, big_endian);
 
-    descr = Octet_String(pos, end, big_endian);
+    descr = OctetStringValue(pos, end, big_endian);
 }
 	    
 

@@ -22,7 +22,7 @@
 
 
 #include "PDU.hpp"
-#include "Octet_String.hpp"
+#include "OctetStringValue.hpp"
 
 
 namespace agentxcpp
@@ -47,7 +47,7 @@ namespace agentxcpp
 	    /**
 	     * \brief The context
 	     */
-	    Octet_String context;
+	    OctetStringValue context;
 
 	protected:
 	    /**
@@ -80,7 +80,7 @@ namespace agentxcpp
 		// read the context (if present)
 		if( non_default_context )
 		{
-		    this->context = Octet_String(pos, end, big_endian);
+		    this->context = OctetStringValue(pos, end, big_endian);
 		}
 	    }
 	    
@@ -144,7 +144,7 @@ namespace agentxcpp
 	     *          has a context. This can be determined using 
 	     *          has_context().
 	     */
-	    Octet_String get_context()
+	    OctetStringValue get_context()
 	    {
 		return this->context;
 	    }
@@ -157,7 +157,7 @@ namespace agentxcpp
 	     *              set the empty string as context. To remove the 
 	     *              context from the PDU, use remove_context().
 	     */
-	    void set_context(Octet_String value)
+	    void set_context(OctetStringValue value)
 	    {
 		this->context = value;
 		this->non_default_context = true;

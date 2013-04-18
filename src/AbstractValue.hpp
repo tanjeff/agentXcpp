@@ -16,58 +16,44 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#ifndef _VARIABLE_H_
-#define _VARIABLE_H_
+#ifndef _VALUE_H_
+#define _VALUE_H_
 
 #include "binary.hpp"
 
 namespace agentxcpp
 {
     /**
-     * \brief This class represents a SNMP variable.
+     * \brief This class represents a value.
      *
-     * This class is used as base class for the SNMP variable types (such as 
-     * Octet_String or Integer). It has no functions or members exposed to the 
-     * API.
+     * This class is used as base class for the specific value types (such as
+     * OctetStringValue or IntegerValue).
      */
-    class variable
+    class AbstractValue
     {
 	public:
 	    /**
              * \internal
              *
-	     * \brief Serialize the variable.
+	     * \brief Serialize the value.
 	     *
 	     * This function must be implemented by all derived classes. The 
-	     * function shall generate a serialized form of the variable.
+	     * function shall generate a serialized form of the value.
 	     *
-	     * \return The serialized form of the variable.
+	     * \return The serialized form of the value.
 	     *
 	     * \exception None: The function shall not throw.
 	     */
-	    // Needed for encoding varbinds
 	    virtual binary serialize() const = 0;
 
             /**
              * \brief Destructor.
+             *
+             * The default implementation of this desctructor is empty.
              */
-             virtual ~variable()
-             {
-             }
-
-            /**
-             * \internal
-             *
-             * \brief Update the internal state of the variable.
-             *
-             * This function must be implemented in derived classes. It shall 
-             * update the internal state of the object.
-             *
-             * \exception generic_error If obtaining the new value failed. The
-             *                          state of such an object cannot be 
-             *                          updated.
-             */
-            virtual void update()=0;
+            virtual ~AbstractValue()
+            {
+            }
     };
 }
 

@@ -18,7 +18,7 @@
  */
 #include <boost/cstdint.hpp>
 
-#include "master_proxy.hpp"
+#include "MasterProxy.hpp"
 #include "OpenPDU.hpp"
 #include "ClosePDU.hpp"
 #include "ResponsePDU.hpp"
@@ -41,7 +41,7 @@ using boost::optional;
 
 
 
-master_proxy::master_proxy(std::string _description,
+MasterProxy::MasterProxy(std::string _description,
 			   uint8_t _default_timeout,
 			   OidValue _id,
 			   std::string _filename) :
@@ -82,7 +82,7 @@ master_proxy::master_proxy(std::string _description,
 }
 
 
-void master_proxy::connect()
+void MasterProxy::connect()
 {
 //    if( this->connection->is_connected() )
 //    {
@@ -142,7 +142,7 @@ void master_proxy::connect()
 
 
 
-void master_proxy::disconnect(ClosePDU::reason_t reason)
+void MasterProxy::disconnect(ClosePDU::reason_t reason)
 {
 //    if( ! this->connection->is_connected() )
 //    {
@@ -196,7 +196,7 @@ void master_proxy::disconnect(ClosePDU::reason_t reason)
 //    this->connection->disconnect();
 }
 
-master_proxy::~master_proxy()
+MasterProxy::~MasterProxy()
 {
     // Disconnect from master agent
     this->disconnect(ClosePDU::reasonShutdown);
@@ -207,7 +207,7 @@ master_proxy::~master_proxy()
 }
 
 
-void master_proxy::do_registration(boost::shared_ptr<RegisterPDU> pdu)
+void MasterProxy::do_registration(boost::shared_ptr<RegisterPDU> pdu)
 {
     // Are we connected?
 //    if( ! is_connected())
@@ -275,7 +275,7 @@ void master_proxy::do_registration(boost::shared_ptr<RegisterPDU> pdu)
 
 
 
-void master_proxy::register_subtree(OidValue subtree,
+void MasterProxy::register_subtree(OidValue subtree,
 		      uint8_t priority,
 		      uint8_t timeout)
 {
@@ -310,7 +310,7 @@ void master_proxy::register_subtree(OidValue subtree,
 
 
 
-void master_proxy::unregister_subtree(OidValue subtree,
+void MasterProxy::unregister_subtree(OidValue subtree,
 				      uint8_t priority)
 {
     // The UnregisterPDU
@@ -361,7 +361,7 @@ void master_proxy::unregister_subtree(OidValue subtree,
 
 
 
-void master_proxy::undo_registration(boost::shared_ptr<UnregisterPDU> pdu)
+void MasterProxy::undo_registration(boost::shared_ptr<UnregisterPDU> pdu)
 {
     // Are we connected?
 //    if( ! is_connected())
@@ -425,7 +425,7 @@ void master_proxy::undo_registration(boost::shared_ptr<UnregisterPDU> pdu)
 
 
 
-boost::shared_ptr<UnregisterPDU> master_proxy::create_unregister_pdu(
+boost::shared_ptr<UnregisterPDU> MasterProxy::create_unregister_pdu(
 				    boost::shared_ptr<RegisterPDU> pdu)
 {
     boost::shared_ptr<UnregisterPDU> new_pdu(new UnregisterPDU());
@@ -438,7 +438,7 @@ boost::shared_ptr<UnregisterPDU> master_proxy::create_unregister_pdu(
 }
 
 
-void master_proxy::handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetPDU> get_pdu)
+void MasterProxy::handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetPDU> get_pdu)
 {
         // Handling according to
 	// RFC 2741, 7.2.3.1 "Subagent Processing of the agentx-Get-PDU"
@@ -507,7 +507,7 @@ void master_proxy::handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<Ge
 
 
 
-void master_proxy::handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetNextPDU> getnext_pdu)
+void MasterProxy::handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetNextPDU> getnext_pdu)
 {
         // Handling according to
 	// RFC 2741, 7.2.3.2 "Subagent Processing of the agentx-GetNext-PDU"
@@ -582,7 +582,7 @@ void master_proxy::handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_pt
 
 
 
-void master_proxy::handle_testsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<TestSetPDU> testset_pdu)
+void MasterProxy::handle_testsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<TestSetPDU> testset_pdu)
 {
     // Handling according to
     // RFC 2741, 7.2.4.1 "Subagent Processing of the agentx-TestSet-PDU"
@@ -641,7 +641,7 @@ void master_proxy::handle_testsetpdu(boost::shared_ptr<ResponsePDU> response, sh
 }
 
 
-void master_proxy::handle_cleanupsetpdu()
+void MasterProxy::handle_cleanupsetpdu()
 {
     // Handling according to
     // RFC 2741, 7.2.4.4 "Subagent Processing of the agentx-CleanupSet-PDU"
@@ -659,7 +659,7 @@ void master_proxy::handle_cleanupsetpdu()
     setlist.clear();
 }
 
-void master_proxy::handle_commitsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<CommitSetPDU> commitset_pdu)
+void MasterProxy::handle_commitsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<CommitSetPDU> commitset_pdu)
 {
     // Handling according to RFC 2741, 7.2.4.2 "Subagent Processing of the 
     // agentx-CommitSet-PDU"
@@ -687,7 +687,7 @@ void master_proxy::handle_commitsetpdu(boost::shared_ptr<ResponsePDU> response, 
 }
 
 
-void master_proxy::handle_undosetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<UndoSetPDU> undoset_pdu)
+void MasterProxy::handle_undosetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<UndoSetPDU> undoset_pdu)
 {
     // Handling according to RFC 2741, 7.2.4.3 "Subagent Processing of the
     // agentx-UndoSet-PDU"
@@ -726,7 +726,7 @@ void master_proxy::handle_undosetpdu(boost::shared_ptr<ResponsePDU> response, sh
 }
 
 
-void master_proxy::handle_pdu(shared_ptr<PDU> pdu)
+void MasterProxy::handle_pdu(shared_ptr<PDU> pdu)
 {
     int error = 0; // 0 is "success"
     if(error == -2)
@@ -855,7 +855,7 @@ void master_proxy::handle_pdu(shared_ptr<PDU> pdu)
 }
 
 
-void master_proxy::add_variable(const OidValue& id, shared_ptr<AbstractVariable> v)
+void MasterProxy::add_variable(const OidValue& id, shared_ptr<AbstractVariable> v)
 {
     // Check whether id is contained in a registration
     bool is_registered = false;
@@ -886,7 +886,7 @@ void master_proxy::add_variable(const OidValue& id, shared_ptr<AbstractVariable>
 
 
 
-void master_proxy::remove_variable(const OidValue& id)
+void MasterProxy::remove_variable(const OidValue& id)
 {
     // Find variable
     map<OidValue, shared_ptr<AbstractVariable> >::iterator i = variables.find(id);
@@ -904,7 +904,7 @@ void master_proxy::remove_variable(const OidValue& id)
 
 
 
-void master_proxy::send_notification(const boost::optional<TimeTicksValue>& sysUpTime,
+void MasterProxy::send_notification(const boost::optional<TimeTicksValue>& sysUpTime,
                                      const OidValue& snmpTrapOID,
                                      const vector<varbind>& varbinds)
 {

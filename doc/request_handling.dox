@@ -48,7 +48,7 @@ mechanism as used by the %PDU classes. See \ref pdus for an explanation.
 
 \section get GET Requests
 
-When the agentxcpp::master_proxy object receives a GET request, it looks up the 
+When the agentxcpp::MasterProxy object receives a GET request, it looks up the 
 variable registered with the requested OID. Then it invokes the variable's 
 update() function (found in the agentxcpp::variable interface) to update the 
 internal state of the variable. Finally the variable is serialized and embedded 

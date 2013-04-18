@@ -35,8 +35,8 @@ throughout the library:
   which by default terminates the program. This is not useful.
 - <b> Errors are reported as exceptions.</b> No other techniques are used to 
   report errors.
-- <b>Exceptions mean errors.</b> For example, master_proxy::is_connected() does 
-  not throw an exception to indicate that the master_proxy object is 
+- <b>Exceptions mean errors.</b> For example, MasterProxy::is_connected() does 
+  not throw an exception to indicate that the MasterProxy object is 
   disconnected.
 - <b>Each possible exception is documented</b>. For each function, the possible 
   exceptions are documented, including exceptions which might been thrown 

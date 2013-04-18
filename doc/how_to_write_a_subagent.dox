@@ -123,8 +123,8 @@ The main() function is implemented in <tt>simpleagent.cpp</tt>. First the
 headers:
 
 \code
-// Make the class agentxcpp::master_proxy available:
-#include <agentxcpp/master_proxy.hpp>
+// Make the class agentxcpp::MasterProxy available:
+#include <agentxcpp/MasterProxy.hpp>
 
 // We need the QCoreApplication class:
 #include <QCoreApplication>
@@ -151,32 +151,32 @@ the main event loop. Therefore, a QCoreApplication object is needed to provide
 the event loop. For more information about QCoreApplication refer to the QT 
 documentation.
 
-Next, we create a master_proxy object:
+Next, we create a MasterProxy object:
 
 \code
-    master_proxy master;
+    MasterProxy master;
 \endcode
 
-The class \ref agentxcpp::master_proxy "master_proxy" is used to communicate 
-with the master agent.  A master_proxy can be thought of as a local C++ object 
-representing the remote master agent. The master_proxy can be in disconnected 
+The class \ref agentxcpp::MasterProxy "MasterProxy" is used to communicate 
+with the master agent.  A MasterProxy can be thought of as a local C++ object 
+representing the remote master agent. The MasterProxy can be in disconnected 
 state at any time, or become disconnected, which means that most operations 
 could possibly fail with an agentxcpp::disconnected exception.
 
-The default constructor of \ref agentxcpp::master_proxy "master_proxy" tries to 
+The default constructor of \ref agentxcpp::MasterProxy "MasterProxy" tries to 
 connect to the master agent via the unix domain socket 
 <tt>/var/agentx/master</tt>. Of course, another unix domain socket may be 
-chosen, but it cannot be changed once the master_proxy object is created.
+chosen, but it cannot be changed once the MasterProxy object is created.
 
-Now, as we have the \ref agentxcpp::master_proxy "master_proxy" object, we 
+Now, as we have the \ref agentxcpp::MasterProxy "MasterProxy" object, we 
 register a subtree.  This means that we provide an OID to the master to 
 indicate that our subagent wishes to serve all requests to OIDs starting with 
 that OID. For our subagent we use "enterprises.42.1", where 'enterprises' is 
 the standard OID "1.3.6.1.4.1".  The master will then send all SNMP requests 
 within that subtree to our subagent (e.g.  "enterprises.42.1.0" or 
 "enterprises.42.1.1.2.0"), regardless of whether the subagent actually can 
-serve them. If a request cannot be served, the \ref agentxcpp::master_proxy 
-"master_proxy" will take care of it and sends an appropriate error message to 
+serve them. If a request cannot be served, the \ref agentxcpp::MasterProxy 
+"MasterProxy" will take care of it and sends an appropriate error message to 
 the master agent. Thus, our simpleCounter implementation does not have to deal 
 with that.
 

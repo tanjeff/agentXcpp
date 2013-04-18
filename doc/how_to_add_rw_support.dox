@@ -82,27 +82,27 @@ Therefore, the Set operation is carried out in multiple distinct steps:
      step. 
      
 
-To implement these actions, the \ref agentxcpp::primitive_variable 
-"primitive_variable" class provides the methods \ref 
-agentxcpp::primitive_variable::undoset "testset()", \ref 
-agentxcpp::primitive_variable::undoset "commitset()", \ref 
-agentxcpp::primitive_variable::undoset "cleanupset()" and \ref 
-agentxcpp::primitive_variable::undoset "undoset()" which can be overridden by a 
+To implement these actions, the \ref agentxcpp::Variable 
+"Variable" class provides the methods \ref 
+agentxcpp::Variable::undoset "testset()", \ref 
+agentxcpp::Variable::undoset "commitset()", \ref 
+agentxcpp::Variable::undoset "cleanupset()" and \ref 
+agentxcpp::Variable::undoset "undoset()" which can be overridden by a 
 concrete implementation.
 
 \section extend_simplecounter Extending the simpleCounter class
 
 To implement write support for the simpleCounter class, we implement all four 
-methods. The \ref agentxcpp::primitive_variable::undoset "testset()" 
+methods. The \ref agentxcpp::Variable::undoset "testset()" 
 implementation allocates an IntegerValue value, which is deallocated by \ref 
-agentxcpp::primitive_variable::undoset "cleanupset()" respectively \ref 
-agentxcpp::primitive_variable::undoset "undoset()". This is not very realistic, 
+agentxcpp::Variable::undoset "cleanupset()" respectively \ref 
+agentxcpp::Variable::undoset "undoset()". This is not very realistic, 
 but it demonstrates the usage of the individual steps.
 
 
 \subsection TestSet
 
-The \ref agentxcpp::primitive_variable::undoset "testset()" function must be 
+The \ref agentxcpp::Variable::undoset "testset()" function must be 
 overridden by any variable which should be writeable. If it is not overridden, 
 agentXcpp assumes that the variable is read-only (which we exploited in the 
 first, read-only version).  Hence, we implement it for our simpleCounter class 
@@ -131,20 +131,20 @@ by adding the following code to it:
         }
 \endcode
 
-The \ref agentxcpp::primitive_variable::testset "testset()" method receives the 
+The \ref agentxcpp::Variable::testset "testset()" method receives the 
 value and can check whether setting the variable to this value would work.  
 Here, we don't check the value, but we allocate an IntegerValue to store the old 
-value, which is needed for \ref agentxcpp::primitive_variable::undoset 
+value, which is needed for \ref agentxcpp::Variable::undoset 
 "undoset()". If allocation fails, we return the error 
 <tt>resourceUnavailable</tt>.
 
 
 \subsection CommitSet
 
-The \ref agentxcpp::primitive_variable::commitset "commitset()" method must 
+The \ref agentxcpp::Variable::commitset "commitset()" method must 
 also be implemented for writeable variables. In the simpleCounter class, this 
 method sets the internal value and stores the old one (for the \ref 
-agentxcpp::primitive_variable::undoset "undoset()" method):
+agentxcpp::Variable::undoset "undoset()" method):
 \code
         virtual bool commitset(shared_ptr<IntegerValue> new_value)
         {
@@ -161,7 +161,7 @@ agentxcpp::primitive_variable::undoset "undoset()" method):
 
 \subsection CleanupSet
 
-The \ref agentxcpp::primitive_variable::cleanupset "cleanupset()" method 
+The \ref agentxcpp::Variable::cleanupset "cleanupset()" method 
 releases old_value again:
 
 \code
@@ -174,13 +174,13 @@ releases old_value again:
 
 If old_value were an IntegerValue (instead of a pointer to IntegerValue) no allocation 
 and deallocation would have been necessary. The \ref 
-agentxcpp::primitive_variable::cleanupset "cleanupset()" method would not be 
+agentxcpp::Variable::cleanupset "cleanupset()" method would not be 
 implemented then.  In fact, this method is the only one which is optional for 
 writeable variables.
 
 \subsection UndoSet
 
-The \ref agentxcpp::primitive_variable::undoset "undoset()" method must be 
+The \ref agentxcpp::Variable::undoset "undoset()" method must be 
 implemented by each variable (although it is technically possible to omit it; 
 the compiler has no way to detect a missing implementation) and perform a 
 rollback.  For simpleCounter this is easy:

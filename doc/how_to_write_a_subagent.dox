@@ -70,8 +70,8 @@ we implement in <tt>SimpleCounter.hpp</tt>. First of all, we need to include
 some header files for our SimpleCounter class:
 
 \code
-// Make the class agentxcpp::primitive_variable available:
-#include <agentxcpp/primitive_variable.hpp>
+// Make the class agentxcpp::Variable available:
+#include <agentxcpp/Variable.hpp>
 
 // Make the class agentxcpp::IntegerValue available:
 #include <agentxcpp/IntegerValue.hpp>
@@ -87,7 +87,7 @@ using namespace agentxcpp;
 Next, we start our SimpleCounter class:
 
 \code
-class simpleCounter : public primitive_variable<IntegerValue>
+class simpleCounter : public Variable<IntegerValue>
 {
 \endcode
 
@@ -96,8 +96,8 @@ AgentXcpp provides various classes to match standard SYNTAX types, all of which
 inherit from the \ref agentxcpp::AbstractValue "AbstractValue" class. Our simpleCounter 
 class uses agentxcpp::IntegerValue as its value type.
 
-Next, the get() method from \ref agentxcpp::primitive_variable 
-"primitive_variable" must be overridden. This method is invoked on SNMP GET 
+Next, the get() method from \ref agentxcpp::Variable 
+"Variable" must be overridden. This method is invoked on SNMP GET 
 requests and returns the current value of the object.  In our case, it 
 increments the member variable "counter" and returns the old value:
 

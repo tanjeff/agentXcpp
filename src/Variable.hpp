@@ -35,7 +35,7 @@ namespace agentxcpp
      * 
      * \code
      * // An IntegerValue variable
-     * class simpleCounter : public primitive_variable<IntegerValue>
+     * class simpleCounter : public Variable<IntegerValue>
      * {
      *     private:
      *         // The internal counter
@@ -98,7 +98,7 @@ namespace agentxcpp
      * mismatch.
      */
     template< class V >
-    class primitive_variable : public AbstractVariable
+    class Variable : public AbstractVariable
     {
         private:
             /**

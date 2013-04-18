@@ -100,12 +100,12 @@ class NotificationSender : public QObject
     private:
         master_proxy* master;
         OidValue simpleCounter_oid;
-        shared_ptr< primitive_variable<IntegerValue> > counter;
+        shared_ptr< Variable<IntegerValue> > counter;
 
     public:
         NotificationSender(master_proxy* _master,
                            OidValue _oid,
-                           shared_ptr< primitive_variable<IntegerValue> > _counter)
+                           shared_ptr< Variable<IntegerValue> > _counter)
         : master(_master), simpleCounter_oid(_oid), counter(_counter)
         {
         }

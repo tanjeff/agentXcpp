@@ -33,10 +33,6 @@ namespace agentxcpp
      * This class is the base class for SNMP variable implementations. It 
      * provides the interface which is used internally by agentXcpp to perform 
      * operations on variables.
-     * 
-     * \note In general, implementations should not inherit directly from
-     *       this class. Rather they should inherit from one of the derived 
-     *       classes (e.g. primitive_variable).
      */
     class AbstractVariable
     {

@@ -39,8 +39,7 @@ provides the SNMP variable simpleCounter. This counter is incremented each time
 it is read. Next we will enhance our implementation so that it sends a 
 notification every second.
 
-First of all, let's augment the SIMPLE-MIB known from \ref 
-how_to_write_a_subagent. Here is the complete MIB:
+First of all, let's augment the SIMPLE-MIB:
 
 \verbatim
 SIMPLE-MIB DEFINITIONS ::= BEGIN
@@ -79,17 +78,21 @@ So, how do we implement a notification? Normally, a subagent is just sitting
 there, waiting for SNMP requests and handling them. Notifications typically 
 arise outside of this mechanism. We simulate that by using a timer which fires 
 every second and sends a notification. We will use a QTimer which can use the 
-event loop provided by QT. However, we need a class with a QT slot to which the 
+event loop provided by QT. For this we need a class with a QT slot to which the 
 QTimer can be connected. We name that class <tt>NotificationSender</tt> and put 
 it into its own file: <tt>NotificationSender.hpp</tt> (for simplicity we 
 implement the whole class in the header, so we won't need an implementation 
 file). Here ist the <tt>NotificationSender.hpp</tt> file:
 
 \code
+#ifndef _NOTIFICATIONSENDER_H_
+#define _NOTIFICATIONSENDER_H_
+
 #include <iostream>
 #include <QObject>
 #include <agentxcpp/OidValue.hpp>
 #include <agentxcpp/MasterProxy.hpp>
+#include "SimpleCounter.hpp"
 
 using namespace agentxcpp;
 
@@ -100,12 +103,12 @@ class NotificationSender : public QObject
     private:
         MasterProxy* master;
         OidValue simpleCounter_oid;
-        shared_ptr< Variable<IntegerValue> > counter;
+        shared_ptr<SimpleCounter> counter;
 
     public:
         NotificationSender(MasterProxy* _master,
                            OidValue _oid,
-                           shared_ptr< Variable<IntegerValue> > _counter)
+                           shared_ptr<SimpleCounter> _counter)
         : master(_master), simpleCounter_oid(_oid), counter(_counter)
         {
         }
@@ -116,7 +119,7 @@ class NotificationSender : public QObject
             std::cout << "notification!" << std::endl;
 
             std::vector<varbind> objects;
-            shared_ptr<AbstractValue> counter_value(new IntegerValue(counter->get()));
+            shared_ptr<AbstractValue> counter_value(new IntegerValue(counter->value()));
             objects.push_back(varbind(simpleCounter_oid, counter_value));
 
             QMetaObject::invokeMethod(master, "send_notification",
@@ -125,6 +128,8 @@ class NotificationSender : public QObject
                                      );
         }
 };
+
+#endif // _NOTIFICATIONSENDER_H_
 \endcode
 
 \todo Which OID must be given to send_notification()?
@@ -133,11 +138,11 @@ The NotificationSender inherits QObject and uses the Q_OBJECT macro, which is
 both needed to make the class suitable for QT's signal/slot mechanism. The 
 constructor takes a pointer to the MasterProxy object (needed to send 
 notifications), the simpleCounter's oid (will be included in the notifications) 
-and a pointer to the counter (will be queried). The sendNotification() slot 
-will be connected to the QTimer object and sends a notification each time it is 
-invoked. Also, it performs an output to indicate that a notification is sent, 
-which we will possibly miss if the master agent is not yet configured 
-properly.
+and a pointer to the counter (will be queried to include the value in the 
+notifications).  The sendNotification() slot will be connected to the QTimer 
+object and sends a notification each time it is invoked. Also, it performs an 
+output to indicate that a notification is sent, which we will possibly miss as 
+long as the master agent is not yet configured properly.
 
 We use QMetaObject::invokeMethod() here to invoke the 
 MasterProxy::send_notification() slot. This would even work if the 
@@ -152,8 +157,8 @@ would also work:
 master->send_notification(simpleCounter_oid, objects);
 \endcode
 
-Next, we augment the code in <tt>main()</tt> function. But first, we need 
-additional includes in <tt>simpleagent.cpp</tt>:
+Next, we augment the code within the <tt>main()</tt> function. But first, we 
+need additional includes in <tt>simpleagent.cpp</tt>:
 
 \code
 #include <QTimer>
@@ -171,9 +176,9 @@ int main(int argc, char** argv)
     OidValue simpleagent_oid = OidValue(enterprises_oid, "42.1");
     master.register_subtree(simpleagent_oid);
 
+    boost::shared_ptr<SimpleCounter> counter(new SimpleCounter);
     OidValue simpleCounter_oid(simpleagent_oid, "0");
-    boost::shared_ptr<simpleCounter> counter(new simpleCounter);
-    master.add_variable( simpleCounter_oid, counter);
+    master.add_variable(simpleCounter_oid, counter);
 
     // New code: ----------------------------------------
     NotificationSender sender(&master, simpleCounter_oid, counter);
@@ -287,14 +292,15 @@ The subagent is started as last times:
 \endverbatim
 
 If all went right, we can see notifications arriving in the snmptrapd console, 
-with each notification reporting the current counter value. Note that this 
-value increases, because the NotificationSender uses 
-<tt>simpleCounter::get()</tt> to obtain it Try some SNMP get and get requests:
+with each notification reporting the current counter value. Try some SNMP get 
+and get requests:
 
 \verbatim
-snmpget -v1 -c rw localhost 1.3.6.1.4.1.42.1.0
+snmpget -v1 -c rw localhost SIMPLE-MIB::simpleCounter.0
+\endverbatim
 
-snmpset -v1 -c rw localhost 1.3.6.1.4.1.42.1.0 i 42
+\verbatim
+snmpset -v1 -c rw localhost SIMPLE-MIB::simpleCounter.0 i 42
 \endverbatim
 
 This increases or sets the counter value, and the new values are reported 

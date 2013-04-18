@@ -27,7 +27,7 @@ for how to do that.
 
 This HOWTO explains how to implement, compile and run a trivial subagent. Our 
 trivial subagent has only one variable called 'simpleCounter' which is 
-described within the minimal MIB called 'SIMPLE-MIB':
+described within the following MIB:
 
 \verbatim
 SIMPLE-MIB DEFINITIONS ::= BEGIN
@@ -62,14 +62,19 @@ description of the object, not the object itself. The OID of simpleCounter is
 
 In C++, objects are described by their classes (note the difference between 
 classes and objects). The class-object-relation in C++ is similar to the 
-"OBJECT-TYPE"-"object"-relation in SNMP. Therefore, OBJEC-TYPEs are represented 
-by classes in agentXcpp, while SNMP objects are represented by C++ objects.  
+"OBJECT-TYPE"-"object"-relation in SNMP. Therefore, OBJECT-TYPEs are 
+represented by classes in agentXcpp, while SNMP objects are represented by C++ 
+objects.  
 
 Our simpleCounter variable will be an object of the class SimpleCounter, which 
 we implement in <tt>SimpleCounter.hpp</tt>. First of all, we need to include 
-some header files for our SimpleCounter class:
+some header files for our SimpleCounter class (and we add a header guard for 
+completeness):
 
 \code
+#ifndef _SIMPLECOUNTER_H_
+#define _SIMPLECOUNTER_H_
+
 // Make the class agentxcpp::Variable available:
 #include <agentxcpp/Variable.hpp>
 
@@ -87,19 +92,20 @@ using namespace agentxcpp;
 Next, we start our SimpleCounter class:
 
 \code
-class simpleCounter : public Variable<IntegerValue>
+class SimpleCounter : public Variable<IntegerValue>
 {
 \endcode
 
 The simpleCounter has a value type which is given in the SYNTAX clause in the MIB.  
 AgentXcpp provides various classes to match standard SYNTAX types, all of which 
-inherit from the \ref agentxcpp::AbstractValue "AbstractValue" class. Our simpleCounter 
-class uses agentxcpp::IntegerValue as its value type.
+inherit from the \ref agentxcpp::AbstractValue "AbstractValue" class. Our 
+SimpleCounter class uses \ref agentxcpp::IntegerValue "IntegerValue" as its 
+value type.
 
-Next, the get() method from \ref agentxcpp::Variable 
-"Variable" must be overridden. This method is invoked on SNMP GET 
-requests and returns the current value of the object.  In our case, it 
-increments the member variable "counter" and returns the old value:
+Next, the \ref agentxcpp::Variable::get() "get()" method from \ref 
+agentxcpp::Variable "Variable" must be overridden. This method is invoked on 
+SNMP GET requests and returns the current value of the object.  In our case, it 
+increments the member variable "counter" and returns the new value:
 
 \code
     private:
@@ -108,11 +114,22 @@ increments the member variable "counter" and returns the old value:
     public:
         virtual IntegerValue get()
         {
-            IntegerValue current = counter;
             counter.value++;
-            return current;
+            return counter;
+        }
+\endcode
+
+We also add a <tt>value()</tt> method to obtain the current value without 
+incrementing it. This might become useful in future:
+
+\code
+        IntegerValue value()
+        {
+            return counter;
         }
 };
+
+#endif  // _SIMPLECOUNTER_H_
 \endcode
 
 And that's it. Next, let's implement the <tt>main()</tt> function.
@@ -161,12 +178,14 @@ The class \ref agentxcpp::MasterProxy "MasterProxy" is used to communicate
 with the master agent.  A MasterProxy can be thought of as a local C++ object 
 representing the remote master agent. The MasterProxy can be in disconnected 
 state at any time, or become disconnected, which means that most operations 
-could possibly fail with an agentxcpp::disconnected exception.
+could possibly fail with an \ref agentxcpp::disconnected "disconnected" 
+exception.
 
 The default constructor of \ref agentxcpp::MasterProxy "MasterProxy" tries to 
 connect to the master agent via the unix domain socket 
 <tt>/var/agentx/master</tt>. Of course, another unix domain socket may be 
-chosen, but it cannot be changed once the MasterProxy object is created.
+chosen, but it cannot be changed once the \ref agentxcpp::MasterProxy 
+"MasterProxy" object is created.
 
 Now, as we have the \ref agentxcpp::MasterProxy "MasterProxy" object, we 
 register a subtree.  This means that we provide an OID to the master to 
@@ -177,7 +196,7 @@ within that subtree to our subagent (e.g.  "enterprises.42.1.0" or
 "enterprises.42.1.1.2.0"), regardless of whether the subagent actually can 
 serve them. If a request cannot be served, the \ref agentxcpp::MasterProxy 
 "MasterProxy" will take care of it and sends an appropriate error message to 
-the master agent. Thus, our simpleCounter implementation does not have to deal 
+the master agent. Thus, our SimpleCounter implementation does not have to deal 
 with that.
 
 And here is the code for subtree registration:
@@ -191,10 +210,10 @@ As you can see, an \ref agentxcpp::OidValue "OidValue" object can be created by 
 the "enterprises_oid" object (which is provided by agentXcpp for convenience) 
 and an additional string with further subids.
 
-Next, we create a simpleCounter variable and register it with agentXcpp:
+Next, we create a SimpleCounter variable and register it with agentXcpp:
 
 \code
-    boost::shared_ptr<simpleCounter> counter(new simpleCounter);
+    boost::shared_ptr<SimpleCounter> counter(new SimpleCounter);
 
     OidValue simpleCounter_oid(simpleagent_oid, "0");
 

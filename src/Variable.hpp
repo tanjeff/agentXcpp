@@ -97,7 +97,7 @@ namespace agentxcpp
      * conversion is done (see the example) and an error is generated on type 
      * mismatch.
      */
-    template< class V >
+    template< class T >
     class Variable : public AbstractVariable
     {
         private:
@@ -109,7 +109,7 @@ namespace agentxcpp
              * receives the new value. This value is stored here so that it can 
              * be delivered to commitset(), undoset() and cleanupset().
              */
-            shared_ptr<V> new_value;
+            shared_ptr<T> new_value;
 
         public:
 
@@ -125,7 +125,7 @@ namespace agentxcpp
             {
                 // Get new value by calling this->get(), then allocate a new 
                 // variable, initializing it with the new value:
-                shared_ptr<V> retval( new V(this->get()) );
+                shared_ptr<T> retval( new T(this->get()) );
 
                 return retval;
             }
@@ -142,7 +142,7 @@ namespace agentxcpp
              *
              * \return The value of the variable.
              */
-            virtual V get()= 0;
+            virtual T get()= 0;
 
             /**
              * \internal
@@ -161,7 +161,7 @@ namespace agentxcpp
              */
             virtual testset_result_t handle_testset(shared_ptr<AbstractValue> v)
             {
-                new_value = boost::dynamic_pointer_cast<V>(v);
+                new_value = boost::dynamic_pointer_cast<T>(v);
                 if (new_value)
                 {
                     // Type matches variable
@@ -191,7 +191,7 @@ namespace agentxcpp
              *
              * \return The result of the check.
              */
-            virtual testset_result_t testset(shared_ptr<V> v)
+            virtual testset_result_t testset(shared_ptr<T> v)
             {
                 return noAccess;
             }
@@ -221,7 +221,7 @@ namespace agentxcpp
              *
              * \param v The new value for the object.
              */
-            virtual void cleanupset(shared_ptr<V> v)
+            virtual void cleanupset(shared_ptr<T> v)
             {
                 return;
             }
@@ -253,7 +253,7 @@ namespace agentxcpp
              *
              * \return True if the operation succeeded, false otherwise.
              */
-            virtual bool commitset(shared_ptr<V> v)
+            virtual bool commitset(shared_ptr<T> v)
             {
                 return false;
             }
@@ -294,7 +294,7 @@ namespace agentxcpp
              *
              * \return True on success, false otherwise.
              */
-            virtual bool undoset(shared_ptr<V> v)
+            virtual bool undoset(shared_ptr<T> v)
             {
                 return false;
             }

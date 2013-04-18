@@ -90,11 +90,11 @@ agentxcpp::Variable::undoset "cleanupset()" and \ref
 agentxcpp::Variable::undoset "undoset()" which can be overridden by a 
 concrete implementation.
 
-\section extend_simplecounter Extending the simpleCounter class
+\section extend_simplecounter Extending the SimpleCounter class
 
-To implement write support for the simpleCounter class, we implement all four 
+To implement write support for the SimpleCounter class, we implement all four 
 methods. The \ref agentxcpp::Variable::undoset "testset()" 
-implementation allocates an IntegerValue value, which is deallocated by \ref 
+implementation allocates an \ref agentxcpp::IntegerValue "IntegerValue" value, which is deallocated by \ref 
 agentxcpp::Variable::undoset "cleanupset()" respectively \ref 
 agentxcpp::Variable::undoset "undoset()". This is not very realistic, 
 but it demonstrates the usage of the individual steps.
@@ -105,7 +105,7 @@ but it demonstrates the usage of the individual steps.
 The \ref agentxcpp::Variable::undoset "testset()" function must be 
 overridden by any variable which should be writeable. If it is not overridden, 
 agentXcpp assumes that the variable is read-only (which we exploited in the 
-first, read-only version).  Hence, we implement it for our simpleCounter class 
+first, read-only version).  Hence, we implement it for our SimpleCounter class 
 by adding the following code to it:
 
 \code
@@ -133,18 +133,18 @@ by adding the following code to it:
 
 The \ref agentxcpp::Variable::testset "testset()" method receives the 
 value and can check whether setting the variable to this value would work.  
-Here, we don't check the value, but we allocate an IntegerValue to store the old 
-value, which is needed for \ref agentxcpp::Variable::undoset 
+Here, we don't check the value, but we allocate an \ref agentxcpp::IntegerValue 
+"IntegerValue" to store the old value, which is needed for \ref agentxcpp::Variable::undoset 
 "undoset()". If allocation fails, we return the error 
-<tt>resourceUnavailable</tt>.
+\ref agentxcpp::AbstractVariable::resourceUnavailable "resourceUnavailable".
 
 
 \subsection CommitSet
 
 The \ref agentxcpp::Variable::commitset "commitset()" method must 
-also be implemented for writeable variables. In the simpleCounter class, this 
-method sets the internal value and stores the old one (for the \ref 
-agentxcpp::Variable::undoset "undoset()" method):
+also be implemented for writeable variables. In the SimpleCounter class, this 
+method sets the internal value and stores the old one, in case \ref 
+agentxcpp::Variable::undoset "undoset()" is called:
 \code
         virtual bool commitset(shared_ptr<IntegerValue> new_value)
         {
@@ -176,14 +176,16 @@ If old_value were an IntegerValue (instead of a pointer to IntegerValue) no allo
 and deallocation would have been necessary. The \ref 
 agentxcpp::Variable::cleanupset "cleanupset()" method would not be 
 implemented then.  In fact, this method is the only one which is optional for 
-writeable variables.
+writeable variables, while the other methods are mandatory.
 
 \subsection UndoSet
 
 The \ref agentxcpp::Variable::undoset "undoset()" method must be 
-implemented by each variable (although it is technically possible to omit it; 
-the compiler has no way to detect a missing implementation) and perform a 
-rollback.  For simpleCounter this is easy:
+implemented by each variable and perform a rollback. It is technically possible 
+to omit this method; the compiler has no way to detect a missing 
+implementation. However, it is an error to omit it, and an error will be 
+reported to the master agent if it is missing. For simpleCounter implementation 
+is easy:
 
 \code
         virtual bool undoset(shared_ptr<IntegerValue> new_value)
@@ -194,7 +196,7 @@ rollback.  For simpleCounter this is easy:
             // Release old value
             delete old_value;
 
-            // Rollback succeded
+            // Rollback succeeded
             return true;
         }
 \endcode
@@ -214,18 +216,18 @@ g++ simpleagent.cpp -o simpleagent -lboost_system -lpthread -lagentxcpp \
 Now we query the variable:
 
 \verbatim
-snmpget -v1 -c rw localhost 1.3.6.1.4.1.42.1.0
+snmpget -v1 -c rw localhost SIMPLE-MIB::simpleCounter.0
 \endverbatim
 
 Each time the variable is queried, the counter increments. Now, let's set the 
 counter to, say, 42:
 
 \verbatim
-snmpset -v1 -c rw localhost 1.3.6.1.4.1.42.1.0 i 42
+snmpset -v1 -c rw localhost SIMPLE-MIB::simpleCounter.0 i 42
 \endverbatim
 
 Now, we continue to query it again several times and the counter should 
-continue at 42, further incrementing.
+continue at 43, further incrementing.
 
 Et voilá: a read-write variable. Now go on and learn
 \ref how_to_send_notifications "how to send notifications"!

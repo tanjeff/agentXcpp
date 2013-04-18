@@ -245,7 +245,7 @@ the agentXcpp library. On a GNU/Linux system, you can type the following
 command:
 
 \code
-g++ simpleagent.cpp -o simpleagent -lboost_system -lpthread -lagentxcpp \
+g++ simpleagent.cpp -o simpleagent -lagentxcpp \
     `pkg-config --cflags --libs QtNetwork QtCore`
 \endcode
 

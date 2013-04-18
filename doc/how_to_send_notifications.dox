@@ -226,7 +226,7 @@ generated object file:
 \code
 g++ simpleagent.cpp -o simpleagent moc_NotificationSender.o \
         `pkg-config --cflags --libs QtNetwork QtCore` \
-        -lboost_system -lpthread -lagentxcpp
+        -lagentxcpp
 \endcode
 
 Now, the executable is ready to run.

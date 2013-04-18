@@ -34,6 +34,7 @@ comply with these requirements, the following procedure shall be applied
 whenever an official release is created:
 
 -# Update the ChangeLog. Check it in.
+-# Update the README. Check it in.
 -# Create an annotated git tag for the release.<br/>
    Each release shall have a tag to uniqely identify it. <b>Do not push</b> the 
    tag yet.
@@ -45,7 +46,12 @@ whenever an official release is created:
    This is all ensured by the create_release.sh script.
 -# Test one of the packages:<br/>
    -# Unpack it.
-   -# Build and install the contained software.
+   -# Build and install the contained software.<br/>
+      There should be <b>no warnings</b> during build.
+   -# Perform the howtos to ensure that they work.
+   -# This is the time to browse the documentation (API and internals) and
+      check whether it is in good shape. This step cannot be formalized, but 
+      eye-catching errors might be found by simply looking around a bit.
    -# If the test fails: no release possible; remove the tag, fix the problem
    and re-start from step 1.
 -# If the test succeeds, the packages and the tag can be published.

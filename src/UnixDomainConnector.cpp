@@ -181,14 +181,14 @@ void UnixDomainConnector::do_receive()
                 disconnect(); // error!
                 break; // Stop reading PDUs
             }
-            buf.append(reinterpret_cast<uint8_t*>(header), 20);
+            buf.append(reinterpret_cast<quint8*>(header), 20);
         }
 
         // Extract endianness flag
         bool big_endian = ( buf[2] & (1<<4) ) ? true : false;
 
         // Extract payload length
-        uint32_t payload_length;
+        quint32 payload_length;
         binary::const_iterator pos = buf.begin() + 16;
         payload_length = read32(pos, big_endian);
         if( payload_length % 4 != 0 )
@@ -217,7 +217,7 @@ void UnixDomainConnector::do_receive()
             disconnect();
             return;
         }
-        buf.append(reinterpret_cast<uint8_t*>(payload.data()), payload_length);
+        buf.append(reinterpret_cast<quint8*>(payload.data()), payload_length);
 
         queue.push_back(buf);
     }
@@ -248,7 +248,7 @@ void UnixDomainConnector::do_receive()
         {
             m_response_mutex.lock();
             // Was a response
-            std::map< uint32_t, boost::shared_ptr<ResponsePDU> >::iterator i;
+            std::map< quint32, boost::shared_ptr<ResponsePDU> >::iterator i;
             i = this->m_responses.find( response->get_packetID() );
             if(i != this->m_responses.end())
             {
@@ -279,7 +279,8 @@ boost::shared_ptr<ResponsePDU> UnixDomainConnector::request(boost::shared_ptr<PD
     m_responses[pdu->get_packetID()] = shared_ptr<ResponsePDU>();
     QMetaObject::invokeMethod(this, "do_send", Q_ARG(boost::shared_ptr<PDU>, pdu));
 
-    std::map<uint32_t, boost::shared_ptr<ResponsePDU> >::iterator i;
+    std::map<quint32, boost::shared_ptr<ResponsePDU> >::iterator i;
+    m_responses[pdu->get_packetID()] = shared_ptr<ResponsePDU>();
     do
     {
         m_response_arrived.wait(&m_response_mutex);

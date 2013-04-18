@@ -19,12 +19,11 @@
 #ifndef _TIMETICKS_H_
 #define _TIMETICKS_H_
 
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
-using boost::uint32_t;
 
 namespace agentxcpp
 {
@@ -40,14 +39,14 @@ namespace agentxcpp
 	     * According to RFC 2578, TimeTicks is a non-negative 32-bit
 	     * number.
 	     */
-	    uint32_t value;
+	    quint32 value;
 
 	    /**
 	     * \brief Create an TimeTicksValue without initialization.
 	     *
 	     * \param initial_value The initial value of the object.
 	     */
-	    TimeTicksValue(uint32_t initial_value = 0)
+	    TimeTicksValue(quint32 initial_value = 0)
 	    : value(initial_value)
 	    {
 	    }

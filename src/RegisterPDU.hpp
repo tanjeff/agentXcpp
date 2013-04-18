@@ -24,8 +24,6 @@
 #include "OidValue.hpp"
 #include "PDUwithContext.hpp"
 
-using boost::uint32_t;
-
 namespace agentxcpp
 {
     /**
@@ -36,24 +34,24 @@ namespace agentxcpp
     class RegisterPDU : public PDUwithContext
     {
 	private:
-	    uint8_t timeout;
-	    uint8_t priority;
+	    quint8 timeout;
+	    quint8 priority;
 	    OidValue subtree;
-	    uint8_t range_subid;
-	    uint32_t upper_bound;
+	    quint8 range_subid;
+	    quint32 upper_bound;
 
 	public:
 	    /**
 	     * \brief Set the upper_bound.
 	     */
-	    void set_upper_bound(uint32_t upper_bound)
+	    void set_upper_bound(quint32 upper_bound)
 	    {
 		this->upper_bound = upper_bound;
 	    }
 	    /**
 	     * \brief Get the upper_bound.
 	     */
-	    uint32_t get_upper_bound()
+	    quint32 get_upper_bound()
 	    {
 		return this->upper_bound;
 	    }
@@ -76,14 +74,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the range_subid.
 	     */
-	    void set_range_subid(uint8_t range_subid)
+	    void set_range_subid(quint8 range_subid)
 	    {
 		this->range_subid = range_subid;
 	    }
 	    /**
 	     * \brief Get the range_subid.
 	     */
-	    uint8_t get_range_subid()
+	    quint8 get_range_subid()
 	    {
 		return this->range_subid;
 	    }
@@ -91,14 +89,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the priority.
 	     */
-	    void set_priority(uint8_t priority)
+	    void set_priority(quint8 priority)
 	    {
 		this->priority = priority;
 	    }
 	    /**
 	     * \brief Get the priority.
 	     */
-	    uint8_t get_priority()
+	    quint8 get_priority()
 	    {
 		return this->priority;
 	    }
@@ -106,14 +104,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the timeout.
 	     */
-	    void set_timeout(uint8_t timeout)
+	    void set_timeout(quint8 timeout)
 	    {
 		this->timeout = timeout;
 	    }
 	    /**
 	     * \brief Get the timeout.
 	     */
-	    uint8_t get_timeout()
+	    quint8 get_timeout()
 	    {
 		return this->timeout;
 	    }

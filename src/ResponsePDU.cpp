@@ -22,7 +22,7 @@ ResponsePDU::ResponsePDU(binary::const_iterator& pos,
 {
     // header is parsed by base class constructor
 
-    uint16_t err;
+    quint16 err;
 
     // read simple fields
     this->sysUpTime = read32(pos, big_endian);

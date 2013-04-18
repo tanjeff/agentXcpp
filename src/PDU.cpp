@@ -42,7 +42,7 @@ using namespace agentxcpp;
 using boost::shared_ptr;
 
 
-uint32_t PDU::packetID_cnt = 0;
+quint32 PDU::packetID_cnt = 0;
 
 
 
@@ -74,7 +74,7 @@ PDU::PDU(binary::const_iterator& pos,
     pos += 2;
 
     // read flags
-    uint8_t flags = *pos++;
+    quint8 flags = *pos++;
     instance_registration    = ( flags & (1<<0) ) ? true : false;
     new_index                = ( flags & (1<<1) ) ? true : false;
     any_index                = ( flags & (1<<2) ) ? true : false;
@@ -105,7 +105,7 @@ shared_ptr<PDU> PDU::parse_pdu(binary buf)
     binary::const_iterator pos;
 
     // check protocol version
-    uint8_t version = buf[0];
+    quint8 version = buf[0];
     if( version != 1 )
     {
 	// Wrong protocol:
@@ -114,11 +114,11 @@ shared_ptr<PDU> PDU::parse_pdu(binary buf)
     }
 
     // read endianess flag
-    uint8_t flags = buf[2];
+    quint8 flags = buf[2];
     bool big_endian = ( flags & (1<<4) ) ? true : false;
 
     // read payload length
-    uint32_t payload_length;
+    quint32 payload_length;
     pos = buf.begin() + 16;
     payload_length = read32(pos, big_endian);
     if( payload_length % 4 != 0 )
@@ -130,7 +130,7 @@ shared_ptr<PDU> PDU::parse_pdu(binary buf)
     }
 
     // read PDU type
-    uint8_t type = buf[1];
+    quint8 type = buf[1];
 
     // create PDU (TODO: complete the list!)
     shared_ptr<PDU> pdu;
@@ -200,7 +200,7 @@ void PDU::add_header(type_t type, binary& payload) const
     header.push_back(type);
 
     // flags
-    uint8_t flags = 0;
+    quint8 flags = 0;
     if(instance_registration) flags |= (1<<0);
     if(new_index)             flags |= (1<<1);
     if(any_index)             flags |= (1<<2);

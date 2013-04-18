@@ -22,14 +22,13 @@
 #include <vector>
 #include <utility>
 
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "PDUwithContext.hpp"
 #include "OidValue.hpp"
 
 using std::vector;
 using std::pair;
-using boost::uint16_t;
 
 namespace agentxcpp
 {
@@ -54,13 +53,13 @@ namespace agentxcpp
 	     * \brief The number of variables in the SearchRangeList that are
 	     *        not repeaters.
 	     */
-	    uint16_t non_repeaters;
+	    quint16 non_repeaters;
 
 	    /**
 	     * \brief The maximum number of repetitions requested for repeating
 	     *        variables.
 	     */
-	    uint16_t max_repititions;
+	    quint16 max_repititions;
 
 	public:
 	    /**
@@ -116,7 +115,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Get non_repeaters field
 	     */
-	    uint16_t get_non_repeaters()
+	    quint16 get_non_repeaters()
 	    {
 		return non_repeaters;
 	    }
@@ -124,7 +123,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Set non_repeaters field
 	     */
-	    void set_non_repeaters(uint16_t value)
+	    void set_non_repeaters(quint16 value)
 	    {
 		non_repeaters = value;
 	    }
@@ -132,7 +131,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Get max_repititions field
 	     */
-	    uint16_t get_max_repititions()
+	    quint16 get_max_repititions()
 	    {
 		return max_repititions;
 	    }
@@ -140,7 +139,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Set max_repititions field
 	     */
-	    void set_max_repititions(uint16_t value)
+	    void set_max_repititions(quint16 value)
 	    {
 		max_repititions = value;
 	    }

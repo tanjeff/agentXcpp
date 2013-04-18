@@ -167,7 +167,7 @@ namespace agentxcpp
              *
              * This member is protected by m_response_mutex.
              */
-	    std::map< uint32_t, boost::shared_ptr<ResponsePDU> > m_responses;
+	    std::map< quint32, boost::shared_ptr<ResponsePDU> > m_responses;
 
             /**
              * \brief Used to protect m_responses and for m_response_arrived.

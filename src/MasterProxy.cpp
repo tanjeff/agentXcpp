@@ -16,7 +16,7 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "MasterProxy.hpp"
 #include "OpenPDU.hpp"
@@ -31,7 +31,7 @@
 
 using namespace std;
 using namespace agentxcpp;
-using namespace boost;  // Beside other things, this pulls boost::uint16_t
+using namespace boost;  // Beside other things, this pulls boost::quint16
 using boost::optional;
 
 
@@ -42,7 +42,7 @@ using boost::optional;
 
 
 MasterProxy::MasterProxy(std::string _description,
-			   uint8_t _default_timeout,
+			   quint8 _default_timeout,
 			   OidValue _id,
 			   std::string _filename) :
     socket_file(_filename.c_str()),
@@ -52,7 +52,7 @@ MasterProxy::MasterProxy(std::string _description,
     id(_id)
 {
     // Initialize connector (never use timeout=0)
-    uint8_t timeout;
+    quint8 timeout;
     timeout = (this->default_timeout == 0) ? 1 : this->default_timeout;
     connection = new UnixDomainConnector(
 			       _filename.c_str(),
@@ -276,8 +276,8 @@ void MasterProxy::do_registration(boost::shared_ptr<RegisterPDU> pdu)
 
 
 void MasterProxy::register_subtree(OidValue subtree,
-		      uint8_t priority,
-		      uint8_t timeout)
+		      quint8 priority,
+		      quint8 timeout)
 {
     // Build PDU
     boost::shared_ptr<RegisterPDU> pdu(new RegisterPDU);
@@ -311,7 +311,7 @@ void MasterProxy::register_subtree(OidValue subtree,
 
 
 void MasterProxy::unregister_subtree(OidValue subtree,
-				      uint8_t priority)
+				      quint8 priority)
 {
     // The UnregisterPDU
     boost::shared_ptr<UnregisterPDU> pdu;
@@ -448,7 +448,7 @@ void MasterProxy::handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<Get
 
 	// Iterate over list and handle each OidValue separately
 	vector<OidValue>::const_iterator i;
-        uint16_t index = 1;  // Index is 1-based (RFC 2741,
+        quint16 index = 1;  // Index is 1-based (RFC 2741,
                              // 5.4. "Value Representation"):
 	for(i = sr.begin(); i != sr.end(); i++)
 	{
@@ -517,7 +517,7 @@ void MasterProxy::handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_ptr
 
 	// Iterate over list and handle each SearchRange separately
 	vector< pair<OidValue,OidValue> >::const_iterator i;
-        uint16_t index = 1;  // Index is 1-based (RFC 2741,
+        quint16 index = 1;  // Index is 1-based (RFC 2741,
                              // 5.4. "Value Representation"):
 	for(i = sr.begin(); i != sr.end(); i++)
 	{
@@ -596,7 +596,7 @@ void MasterProxy::handle_testsetpdu(boost::shared_ptr<ResponsePDU> response, sha
     // Iterate over list and handle each Varbind separately. Return on the 
     // first varbind which doesn't validate correctly.
     vector<varbind>::const_iterator i;
-    uint16_t index;
+    quint16 index;
     for(i = vb.begin(), index = 1; i != vb.end(); i++, index++)
     {
         // Find the associated variable
@@ -666,7 +666,7 @@ void MasterProxy::handle_commitsetpdu(boost::shared_ptr<ResponsePDU> response, s
 
     // Iterate over list and handle each Varbind separately.
     list< shared_ptr<AbstractVariable> >::iterator i;
-    uint16_t index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
+    quint16 index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
     for(i = setlist.begin(); i != setlist.end(); i++)
     {
         if( (*i)->handle_commitset() )
@@ -696,7 +696,7 @@ void MasterProxy::handle_undosetpdu(boost::shared_ptr<ResponsePDU> response, sha
 
     // Iterate over list and handle each Varbind separately.
     list< shared_ptr<AbstractVariable> >::iterator i;
-    uint16_t index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
+    quint16 index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
     for(i = setlist.begin(); i != setlist.end(); i++)
     {
         if( (*i)->handle_undoset() )

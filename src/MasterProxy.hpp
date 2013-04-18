@@ -24,7 +24,7 @@
 #include <list>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 #include <boost/optional/optional.hpp>
 
 #include <QObject>
@@ -45,8 +45,6 @@
 #include "UndoSetPDU.hpp"
 #include "UnixDomainConnector.hpp"
 
-using boost::uint8_t;
-using boost::uint32_t;
 
 namespace agentxcpp
 {
@@ -223,7 +221,7 @@ namespace agentxcpp
 	     *
 	     * If disconnected, the value is undefined.
 	     */
-	    uint32_t sessionID;
+	    quint32 sessionID;
 
 	    /**
 	     * \brief A string describing the subagent.
@@ -237,7 +235,7 @@ namespace agentxcpp
 	     *
 	     * A value of 0 indicates that there is no session-wide default.
 	     */
-	    uint8_t default_timeout;
+	    quint8 default_timeout;
 
 	    /**
 	     * \brief An Object Identifier that identifies the subagent. May be
@@ -565,7 +563,7 @@ namespace agentxcpp
              *                           "Well-known Values".
 	     */
 	    MasterProxy(std::string description="",
-		   uint8_t default_timeout=0,
+		   quint8 default_timeout=0,
 		   OidValue ID=OidValue(),
 		   std::string unix_domain_socket="/var/agentx/master");
 
@@ -624,8 +622,8 @@ namespace agentxcpp
              *                        duplicate_registration error.
 	     */
 	    void register_subtree(OidValue subtree,
-				  uint8_t priority=127,
-				  uint8_t timeout=0);
+				  quint8 priority=127,
+				  quint8 timeout=0);
 
 	    /**
 	     * \brief Unregister a subtree with the master agent
@@ -669,7 +667,7 @@ namespace agentxcpp
             // TODO: the 'priority' parameter can possibly be omitted: the 
             // value can be stored by master_agent upon subtree registration.
 	    void unregister_subtree(OidValue subtree,
-				    uint8_t priority=127);
+				    quint8 priority=127);
 
             /**
 	     * \brief Check whether the session is in state connected
@@ -734,7 +732,7 @@ namespace agentxcpp
 	     *         object was never connected to the master, 0 is 
 	     *         returned.
 	     */
-	    uint32_t get_sessionID()
+	    quint32 get_sessionID()
 	    {
 		return this->sessionID;
 	    }

@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE( init_constructor_and_get_value )
     agentxcpp::IntegerValue object_2(0);
     BOOST_CHECK_EQUAL( object_2.get_value(), 0 );
     
-    long long max = std::pow(2,32)-1; // maximum value for uint32_t
+    long long max = std::pow(2,32)-1; // maximum value for quint32
 
     agentxcpp::IntegerValue object_3(max);
     BOOST_CHECK_EQUAL( object_3.get_value(), max);
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( set_value )
     object.set_value(0);
     BOOST_CHECK_EQUAL( object.get_value(), 0 );
     
-    long long max = std::pow(2,32)-1; // maximum value for uint32_t
+    long long max = std::pow(2,32)-1; // maximum value for quint32
 
     object.set_value(max);
     BOOST_CHECK_EQUAL( object.get_value(), max);

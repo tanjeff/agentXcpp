@@ -34,7 +34,7 @@ void OidValue::parse_string(std::string s)
 
     // Parse the string
     std::istringstream ss(s);
-    uint32_t subid;
+    quint32 subid;
     char ch;
     while(ss)
     {
@@ -231,7 +231,7 @@ OidValue::OidValue(binary::const_iterator& pos,
     {
 	throw(parse_error());
     }
-    uint32_t subid;
+    quint32 subid;
     for( int i = 0; i < n_subid; i++)
     {
 	if(big_endian)
@@ -338,7 +338,7 @@ OidValue& OidValue::operator=(const OidValue& other)
     this->include = other.include;
 
     // copy inherited stuff
-    vector<uint32_t>::operator=(other);
+    vector<quint32>::operator=(other);
     AbstractValue::operator=(other);
     
     // Return reference to us

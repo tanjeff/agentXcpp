@@ -22,12 +22,10 @@
 #include <istream>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "OidValue.hpp"
 #include "AbstractValue.hpp"
-
-using boost::uint16_t;
 
 namespace agentxcpp
 {
@@ -59,7 +57,7 @@ namespace agentxcpp
 	     * 5.4. The serialize() function will copy it directly into the 
 	     * varbind.
 	     */
-	    uint16_t type;
+	    quint16 type;
 	public:
 
 	    /**

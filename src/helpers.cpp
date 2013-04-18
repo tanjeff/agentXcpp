@@ -54,7 +54,7 @@ namespace agentxcpp
     }
 
     OidValue agentxcpp::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
-                                boost::optional<uint32_t> specific_trap)
+                                                boost::optional<quint32> specific_trap)
     {
         // We need the OID of the SNMPv1 traps. These are defined here.
         //

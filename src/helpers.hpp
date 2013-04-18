@@ -91,7 +91,7 @@ namespace agentxcpp
      *                        specific_trap was not given.
      */
     OidValue generate_v1_snmpTrapOID(generic_trap_t generic_trap,
-                                boost::optional<uint32_t> specific_trap = boost::optional<uint32_t>());
+                                boost::optional<quint32> specific_trap = boost::optional<quint32>());
 
 
 } // namespace agentxcpp

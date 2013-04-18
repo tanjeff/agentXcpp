@@ -30,8 +30,6 @@
 #include "util.hpp"
 
 using namespace agentxcpp;
-using boost::uint16_t;
-
 
 binary varbind::serialize() const
 {
@@ -102,7 +100,7 @@ varbind::varbind(binary::const_iterator& pos,
 		 const binary::const_iterator& end,
 		 bool big_endian)
 {
-    uint16_t type;
+    quint16 type;
     
     // Type and reserved field
     if(end - pos < 4)

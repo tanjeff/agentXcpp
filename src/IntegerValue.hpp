@@ -20,12 +20,10 @@
 #ifndef _INTEGER_H_
 #define _INTEGER_H_
 
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "AbstractValue.hpp"
 #include "exceptions.hpp"
-
-using boost::int32_t;
 
 namespace agentxcpp
 {
@@ -40,7 +38,7 @@ namespace agentxcpp
 	     *
 	     * According to RFC 2578, INTEGER is a signed 32-bit number.
 	     */
-	    int32_t value;
+	    qint32 value;
 
 	    /**
              * \internal
@@ -51,7 +49,7 @@ namespace agentxcpp
 	     *
 	     * \exception None.
 	     */
-	    IntegerValue(int32_t _value=0) :value(_value) {}
+	    IntegerValue(qint32 _value=0) :value(_value) {}
 
             /**
 	     * \internal

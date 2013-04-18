@@ -23,7 +23,6 @@
 #include "util.hpp"
 
 using namespace agentxcpp;
-using boost::uint64_t;
 
 binary Counter64Value::serialize() const
 {

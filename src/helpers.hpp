@@ -19,8 +19,6 @@
 #ifndef _UPTIME_HPP_
 #define _UPTIME_HPP_
 
-#include <boost/optional/optional.hpp>
-
 #include "TimeTicksValue.hpp"
 #include "OidValue.hpp"
 
@@ -86,12 +84,10 @@ namespace agentxcpp
      * \return The value of the snmpTrapOID.0 object.
      *
      * \exception inval_param If the generic_trap parameter has an
-     *                        invalid value or if generic_trap is
-     *                        <tt>enterpriseSpecific</tt> and
-     *                        specific_trap was not given.
+     *                        invalid value.
      */
     OidValue generate_v1_snmpTrapOID(generic_trap_t generic_trap,
-                                boost::optional<quint32> specific_trap = boost::optional<quint32>());
+                                     quint32 specific_trap=0);
 
 
 } // namespace agentxcpp

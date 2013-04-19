@@ -54,7 +54,7 @@ namespace agentxcpp
     }
 
     OidValue agentxcpp::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
-                                                boost::optional<quint32> specific_trap)
+                                                quint32 specific_trap)
     {
         // We need the OID of the SNMPv1 traps. These are defined here.
         //
@@ -101,13 +101,9 @@ namespace agentxcpp
                 value = snmpTraps_egpNeighborLoss_oid;
                 break;
             case enterpriseSpecific:
-                if(!specific_trap)
-                {
-                    throw(inval_param());
-                }
                 value = enterprises_oid;
                 value.push_back(0);
-                value.push_back(*specific_trap);
+                value.push_back(specific_trap);
                 break;
             default:
                 // invalid generic_trap value!

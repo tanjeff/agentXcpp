@@ -509,8 +509,8 @@ namespace agentxcpp
 	     * \brief Writing aid: Send notification without sysUpTime.0.
 	     *
 	     * This calls \ref send_notification(
-	     * const boost::optional<TimeTicksValue>&,
-	     * const OidValue&, const vector<varbind>&) with a NULL pointer
+	     * const OidValue&, const TimeTicksValue*,
+	     * const vector<varbind>&) with a NULL pointer
 	     * for the sysUpTime.0 parameter.
 	     *
 	     * For the documentation of the parameters and exceptions go to

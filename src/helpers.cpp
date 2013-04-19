@@ -16,13 +16,9 @@
  * See the AgentXcpp library license in the LICENSE file of this package
  * for more details.
  */
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <QDateTime>
 
 #include "helpers.hpp"
-
-using boost::date_time::microsec_clock;
-using boost::posix_time::ptime;
-using boost::posix_time::time_duration;
 
 using namespace agentxcpp;
 
@@ -37,17 +33,16 @@ namespace agentxcpp
      * and holds the time at which this happened. Afterwards,
      * the uptime of the process can be calculated.
      */
-    static ptime process_start_time(microsec_clock<ptime>::universal_time());
+    static QDateTime process_start_time(QDateTime::currentDateTime());
 }
 
     TimeTicksValue agentxcpp::processUpTime()
     {
         // Calculate uptime
-        time_duration uptime = microsec_clock<ptime>::universal_time()
-                               - process_start_time;
+        qint64 uptime = process_start_time.msecsTo(QDateTime::currentDateTime());
 
         // Convert uptime to hundreths of seconds
-        TimeTicksValue sysuptime( uptime.total_milliseconds()/10 );
+        TimeTicksValue sysuptime( uptime/10 );
 
         // Return result
         return sysuptime;

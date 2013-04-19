@@ -32,7 +32,6 @@
 using namespace std;
 using namespace agentxcpp;
 using namespace boost;  // Beside other things, this pulls boost::quint16
-using boost::optional;
 
 
 
@@ -904,9 +903,9 @@ void MasterProxy::remove_variable(const OidValue& id)
 
 
 
-void MasterProxy::send_notification(const boost::optional<TimeTicksValue>& sysUpTime,
-                                     const OidValue& snmpTrapOID,
-                                     const vector<varbind>& varbinds)
+void MasterProxy::send_notification(const OidValue& snmpTrapOID,
+                                    const TimeTicksValue* sysUpTime,
+                                    const vector<varbind>& varbinds)
 {
     shared_ptr<NotifyPDU> pdu(new NotifyPDU);
     pdu->set_sessionID(this->sessionID);

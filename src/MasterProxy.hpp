@@ -25,7 +25,6 @@
 
 #include <boost/shared_ptr.hpp>
 #include <QtGlobal>
-#include <boost/optional/optional.hpp>
 
 #include <QObject>
 #include <QThread>
@@ -460,35 +459,35 @@ namespace agentxcpp
 	     * turn sends an SNMP notification or trap, depending on its
 	     * configuration.
 	     *
-	     * Each notification contains the sysUpTime.0 object (optional)
-	     * and the snmpTrapOID.0 object (mandatory). The values of both
+	     * Each notification contains the snmpTrapOID.0 object (mandatory)
+	     * and the sysUpTime.0 object (optional). The values of both
 	     * objects are given as parameters.
-	     *
-	     * \param sysUpTime The value of the sysUpTime.0 object according
-	     *                  to RFC 1907, which says: "<em>The time (in
-	     *                  hundredths of a second) since the network
-	     *                  management portion of the system was last
-	     *                  re-initialized.</em>" This parameter is
-	     *                  optional.  You can use You can use
-	     *                  agentxcpp::processUpTime() to get the uptime of
-	     *                  the current process. If the parameter is not
-	     *                  provided, the sysUpTime.0 will not be included
-	     *                  in the notification, and the master agent will
-	     *                  insert an sysUpTime.0 value (e.g. the uptime of
-	     *                  the OS, depending on the master agent).
 	     *
 	     * \param snmpTrapOID The value of  snmpTrapOID.0 according to
 	     *                    RFC 1907, which says: "<em>The authoritative
 	     *                    identification of the notification currently
-	     *                    being sent.</em>" This is normally the Trap OID as
-	     *                    specified in the corresponding MIB.  However,
-	     *                    if the notification shall be converted to an SNMPv1
-	     *                    trap (this conversion is done by the master agent),
-	     *                    the snmpTrapOID.0 value must
-	     *                    meet certain requirements. You can use
-	     *                    generate_v1_snmpTrapOID()
-	     *                    to construct a valid value in that case.
+	     *                    being sent.</em>" This is normally the Trap
+	     *                    OID as specified in the corresponding MIB.
+	     *                    However, if the notification shall be
+	     *                    converted to an SNMPv1 trap (this conversion
+	     *                    is done by the master agent), the
+	     *                    snmpTrapOID.0 value must meet certain
+	     *                    requirements. You can use
+	     *                    generate_v1_snmpTrapOID() to construct a
+	     *                    valid value in that case.
 	     *
+             * \param sysUpTime The value of the sysUpTime.0 object according
+             *                  to RFC 1907, which says: "<em>The time (in
+             *                  hundreths of a second) since the network
+             *                  management portion of the system was last
+             *                  re-initialized.</em>". You can use You can use
+             *                  agentxcpp::processUpTime() to get the uptime of
+             *                  the current process. If the NULL pointer
+             *                  is given, the sysUpTime.0 will not be included
+             *                  in the notification, and the master agent will
+             *                  insert an sysUpTime.0 value (e.g. the uptime of
+             *                  the OS, depending on the master agent).
+             *
 	     * \param varbinds Additional varbinds which are included in the
 	     *                 notification.
 	     *
@@ -502,8 +501,8 @@ namespace agentxcpp
 	     *
 	     * \todo Document exceptions.
 	     */
-	    void send_notification(const boost::optional<TimeTicksValue>& sysUpTime,
-	                           const OidValue& snmpTrapOID,
+	    void send_notification(const OidValue& snmpTrapOID,
+	                           const TimeTicksValue* sysUpTime,
 	                           const std::vector<varbind>& varbinds=vector<varbind>());
 
 	    /**
@@ -511,25 +510,17 @@ namespace agentxcpp
 	     *
 	     * This calls \ref send_notification(
 	     * const boost::optional<TimeTicksValue>&,
-	     * const OidValue&, const vector<varbind>&) with an empty sysUpTime.0
-	     * parameter. Without the writing aid it would be necessary to
-	     * construct an empty parameter, like so:
-	     * \code
-	     * master.send_notification(optional<TimeTicksValue>(),
-	     *                          mySubagentOid);
-	     * \endcode
+	     * const OidValue&, const vector<varbind>&) with a NULL pointer
+	     * for the sysUpTime.0 parameter.
 	     *
 	     * For the documentation of the parameters and exceptions go to
-	     * \ref send_notification(
-	     * const boost::optional<TimeTicksValue>&,
-	     * const OidValue&, const vector<varbind>&)
+	     * \ref send_notification(const OidValue&, TimeTicksValue>&,
+	     * const vector<varbind>&)
 	     */
 	    void send_notification(const OidValue& snmpTrapOID,
 	                           const std::vector<varbind>& varbinds=vector<varbind>())
 	    {
-	        send_notification(boost::optional<TimeTicksValue>(),
-	                snmpTrapOID,
-	                varbinds);
+	        send_notification(snmpTrapOID, 0, varbinds);
 	    }
 
 	public:

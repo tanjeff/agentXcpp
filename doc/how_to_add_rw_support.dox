@@ -213,7 +213,13 @@ g++ simpleagent.cpp -o simpleagent -lagentxcpp \
     `pkg-config --cflags --libs QtNetwork QtCore`
 \endverbatim
 
-Now we query the variable:
+Next, we start the subagent again:
+
+\verbatim
+./simpleagent
+\endverbatim
+
+Now, we can query the variable:
 
 \verbatim
 snmpget -v1 -c rw localhost SIMPLE-MIB::simpleCounter.0

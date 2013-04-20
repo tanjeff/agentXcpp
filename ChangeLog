@@ -3,6 +3,8 @@
   - Implemented GetNext handling.
   - Implemented Notifications support.
   - Implemented support for SET requests.
+  - Renamed some classes (e.g. master_proxy -> MasterProxy).
+  - Fixed some small issues.
 
 = Version 0.1.1 =
 

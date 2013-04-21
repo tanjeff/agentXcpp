@@ -23,11 +23,11 @@ interface to the outside world.
 Status of the project
 ---------------------
 
-This version is NOT USABLE.
+This version is PARTLY USABLE.
 
-This version supports writing subagents. Only Get requests are currently 
-implemented.  Set requests and notifications are not supported, and there is 
-also no aid to implement tables.
+This version supports writing subagents. Support for SNMP GET and SET requests 
+is available, and notifications are supported, too. However, conceptual tables 
+are impossible to implement.
 
 Read the ChangeLog file to learn more.
 
@@ -37,20 +37,21 @@ Roadmap
 
 This is the roadmap for the next versions:
 
-  Version 0.2
-    SET functionality and Notifications/Traps working.
- 
   Version 0.3
     Tables are working. This will be the first version which can be used in 
     real projects.
 
   Version 0.3.x
-    I plan to provide multiple 0.3.x versions which don't add many new features 
+    I plan to provide multiple 0.3.x versions which don't add new features 
     regarding the AgentX protocol. These updates are mainly intended to improve 
     the API, based on the experiences in real projects, and to clean up and 
     possibly redesign the internal structure of agentXcpp. I plan to release 
-    new versions quite often, so that even small changes get published 
-    quickly.
+    small changes quickly in this phase.
+
+  Version 0.4
+    Unit tests will be available for most classes contained in agentXcpp. This 
+    means that the quality will improve. API changes and additional features 
+    might also get implemented.
 
 License
 -------
@@ -71,6 +72,9 @@ GNU General Public License for more details.
 
 See the AgentXcpp library license in the LICENSE file of this package 
 for more details.
+
+IMPORTANT: The software contained in the site_scons directory is distributed 
+under its own licence. See the files there for details.
 
 
 Directory Structure
@@ -94,6 +98,12 @@ README
 SConstruct
 	AgentXcpp is built using SCons. This file provides the possibility to 
 	build the library and the documentation.
+
+site_scons/
+        This directory contains SCons supplements. At the moment, the only 
+        supplement is the QT4 builder. The software contained in this directory 
+        is published under another license than agentXcpp, as it is not part of 
+        the agentXcpp software. Distribution is done for convenience.
 
 doc/
         This directory contains the documentation. The documentation is created 
@@ -121,8 +131,8 @@ To build agentXcpp, the following is needed:
 - The 'dot' tool from the graphviz package, which is used by doxygen to 
   generate diagrams
 - SCons, to control the build process
+- The QT4 library
 - The following boost libraries:
-  - Asio
   - Bind
   - Smart Ptr
   - Test

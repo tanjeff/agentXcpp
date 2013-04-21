@@ -42,9 +42,16 @@ Import('env')
 # build up the command string.
 # Note: We feed the revision into the PROJECT_NUMBER variable to let it appear 
 # in the generated documentation.
-cmd = "cd doc/ && (cat api.doxyfile ; echo \"PROJECT_NUMBER=Revision: "
-cmd += env['revision']
-cmd += "\" ) | doxygen - > /dev/null"
+cmd = "cd doc/ && "
+if 'revision' in env:
+    # Insert revision
+    cmd += "(cat api.doxyfile ; echo \"PROJECT_NUMBER=Revision: "
+    cmd += env['revision']
+    cmd += "\" ) "
+else:
+    # We don't have a revision identifier available
+    cmd += "cat api.doxyfile "
+cmd += "| doxygen - > /dev/null"
 
 # Build it
 # Note: To find out whether a rebuild is neccessary,
@@ -78,9 +85,16 @@ Install(env['docdir'], "api")
 #################################################
 ## The same for the internal documentation:
 
-cmd = "cd doc/ && (cat internals.doxyfile ; echo \"PROJECT_NUMBER=Revision: "
-cmd += env['revision']
-cmd += "\" ) | doxygen - > /dev/null"
+cmd = "cd doc/ && "
+if 'revision' in env:
+    # Insert revision
+    cmd += "(cat internals.doxyfile ; echo \"PROJECT_NUMBER=Revision: "
+    cmd += env['revision']
+    cmd += "\" ) "
+else:
+    # We don't have a revision identifier available
+    cmd += "cat internals.doxyfile "
+cmd += "| doxygen - > /dev/null"
 
 internals = Command('internals/html/index.html',
                     'internals.doxyfile',

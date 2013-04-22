@@ -19,6 +19,7 @@
 
 #include "UnixDomainConnector.hpp"
 
+#include <QtCore>
 #include <QThread>
 #include <QEventLoop>
 #include <QMutexLocker>

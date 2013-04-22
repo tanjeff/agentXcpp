@@ -177,13 +177,6 @@ Scons didn't find a usable C++ compiler.
 Note: For Linux, install a package named 'build-essential' or 'g++'."""
     Exit(1)
 
-# Check for boost::asio (header-only lib)
-if not conf.CheckHeader('boost/asio.hpp', '<>', 'C++'):
-    print """
-The boost::asio library is required to build agentXcpp.
-Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
-    Exit(1)
-
 # Check for boost::bind (header-only lib)
 if not conf.CheckHeader('boost/bind.hpp', '<>', 'C++'):
     print """

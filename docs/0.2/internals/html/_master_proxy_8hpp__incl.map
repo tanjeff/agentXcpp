@@ -1,0 +1,16 @@
+<map id="/home/tanjeff/projekte/tmp/src/MasterProxy.hpp" name="/home/tanjeff/projekte/tmp/src/MasterProxy.hpp">
+<area shape="rect" id="node19" href="$_oid_value_8hpp.html" title="OidValue.hpp" alt="" coords="1033,254,1140,282"/>
+<area shape="rect" id="node23" href="$_abstract_variable_8hpp.html" title="AbstractVariable.hpp" alt="" coords="659,99,813,127"/>
+<area shape="rect" id="node26" href="$_time_ticks_value_8hpp.html" title="TimeTicksValue.hpp" alt="" coords="265,254,412,282"/>
+<area shape="rect" id="node29" href="$_close_p_d_u_8hpp.html" title="ClosePDU.hpp" alt="" coords="5,254,117,282"/>
+<area shape="rect" id="node32" href="$_response_p_d_u_8hpp.html" title="ResponsePDU.hpp" alt="" coords="1008,177,1147,205"/>
+<area shape="rect" id="node36" href="$_register_p_d_u_8hpp.html" title="RegisterPDU.hpp" alt="" coords="888,99,1016,127"/>
+<area shape="rect" id="node40" href="$_unregister_p_d_u_8hpp.html" title="UnregisterPDU.hpp" alt="" coords="451,177,595,205"/>
+<area shape="rect" id="node44" href="$_get_p_d_u_8hpp.html" title="GetPDU.hpp" alt="" coords="1371,177,1472,205"/>
+<area shape="rect" id="node47" href="$_get_next_p_d_u_8hpp.html" title="GetNextPDU.hpp" alt="" coords="1496,177,1627,205"/>
+<area shape="rect" id="node50" href="$_test_set_p_d_u_8hpp.html" title="TestSetPDU.hpp" alt="" coords="1509,99,1635,127"/>
+<area shape="rect" id="node52" href="$_cleanup_set_p_d_u_8hpp.html" title="CleanupSetPDU.hpp" alt="" coords="1659,99,1811,127"/>
+<area shape="rect" id="node54" href="$_commit_set_p_d_u_8hpp.html" title="CommitSetPDU.hpp" alt="" coords="1835,99,1984,127"/>
+<area shape="rect" id="node56" href="$_undo_set_p_d_u_8hpp.html" title="UndoSetPDU.hpp" alt="" coords="2008,99,2141,127"/>
+<area shape="rect" id="node58" href="$_unix_domain_connector_8hpp.html" title="UnixDomainConnector.hpp" alt="" coords="1091,99,1283,127"/>
+</map>

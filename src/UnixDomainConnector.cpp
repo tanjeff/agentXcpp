@@ -246,7 +246,7 @@ void UnixDomainConnector::do_receive()
         response = boost::dynamic_pointer_cast<ResponsePDU>(pdu);
         if(response)
         {
-            m_response_arrival_mutex.lock();
+            m_response_mutex.lock();
             // Was a response
             std::map< uint32_t, boost::shared_ptr<ResponsePDU> >::iterator i;
             i = this->m_responses.find( response->get_packetID() );
@@ -254,14 +254,14 @@ void UnixDomainConnector::do_receive()
             {
                 // Someone is waiting for this response
                 i->second = response;
-                m_response_arrival_mutex.unlock();
+                m_response_mutex.unlock();
                 m_response_arrived.wakeAll();
             }
             else
             {
                 // Nobody was waiting for the response
                 // -> ignore it
-                m_response_arrival_mutex.unlock();
+                m_response_mutex.unlock();
             }
         }
         else
@@ -275,20 +275,20 @@ void UnixDomainConnector::do_receive()
 
 boost::shared_ptr<ResponsePDU> UnixDomainConnector::request(boost::shared_ptr<PDU> pdu)
 {
-    m_response_arrival_mutex.lock();
+    m_response_mutex.lock();
     m_responses[pdu->get_packetID()] = shared_ptr<ResponsePDU>();
     QMetaObject::invokeMethod(this, "do_send", Q_ARG(boost::shared_ptr<PDU>, pdu));
 
     std::map<uint32_t, boost::shared_ptr<ResponsePDU> >::iterator i;
     do
     {
-        m_response_arrived.wait(&m_response_arrival_mutex);
+        m_response_arrived.wait(&m_response_mutex);
     }
     while ( ! (m_responses[pdu->get_packetID()]) );
 
     shared_ptr<ResponsePDU> response = m_responses[pdu->get_packetID()];
     m_responses.erase(m_responses.find(pdu->get_packetID()));
-    m_response_arrival_mutex.unlock();
+    m_response_mutex.unlock();
 
     return response;
 }

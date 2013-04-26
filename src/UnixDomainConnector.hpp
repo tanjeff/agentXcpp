@@ -164,16 +164,20 @@ namespace agentxcpp
              * This map contains entries with packetID as key and 
              * %ResponsePDU's as values. An entry with a NULL pointer value 
              * means that a %ResponsePDU with the given packetID is awaited.
+             *
+             * This member is protected by m_response_mutex.
              */
 	    std::map< uint32_t, boost::shared_ptr<ResponsePDU> > m_responses;
 
             /**
-             * \brief Needed for m_response_arrived.
+             * \brief Used to protect m_responses and for m_response_arrived.
              */
-	    QMutex m_response_arrival_mutex;
+	    QMutex m_response_mutex;
 
             /**
              * \brief A waitcondition to inform waiters of ResponsePDU's.
+             *
+             * The m_response_mutex is used for synchronization.
              */
 	    QWaitCondition m_response_arrived;
 

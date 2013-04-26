@@ -40,7 +40,7 @@ namespace agentxcpp
     static ptime process_start_time(microsec_clock<ptime>::universal_time());
 }
 
-    TimeTicksValue processUpTime()
+    TimeTicksValue agentxcpp::processUpTime()
     {
         // Calculate uptime
         time_duration uptime = microsec_clock<ptime>::universal_time()
@@ -53,7 +53,7 @@ namespace agentxcpp
         return sysuptime;
     }
 
-    OidValue generate_v1_snmpTrapOID(generic_trap_t generic_trap,
+    OidValue agentxcpp::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
                                 boost::optional<uint32_t> specific_trap)
     {
         // We need the OID of the SNMPv1 traps. These are defined here.

@@ -152,34 +152,35 @@ env['revision'] = getversion.getVersion()
 
 
 #################################################
-## Check dependencies
+## Check dependencies (except when the user wants help)
 
-conf = Configure(env, custom_tests={'CheckExe' : CheckExe})
+if not GetOption('help'):
+    conf = Configure(env, custom_tests={'CheckExe' : CheckExe})
 
-# Check for C++ compiler
-if env['CXX'] == None:
-    print """
-Scons didn't find a usable C++ compiler.
-Note: For Linux, install a package named 'build-essential' or 'g++'."""
-    Exit(1)
+    # Check for C++ compiler
+    if env['CXX'] == None:
+        print """
+    Scons didn't find a usable C++ compiler.
+    Note: For Linux, install a package named 'build-essential' or 'g++'."""
+        Exit(1)
 
-# Check for doxygen executable
-# Note: we call 'doxygen --version' so no input file is required
-if not conf.CheckExe(['doxygen', '--version']):
-    print """
-The doxygen program is required to build agentXcpp's documentation.
-Note: For Linux, install a package named 'doxygen'."""
-    Exit(1)
+    # Check for doxygen executable
+    # Note: we call 'doxygen --version' so no input file is required
+    if not conf.CheckExe(['doxygen', '--version']):
+        print """
+    The doxygen program is required to build agentXcpp's documentation.
+    Note: For Linux, install a package named 'doxygen'."""
+        Exit(1)
 
-# Check for dot executable
-# Note: we call 'dot -V' so no input file is required
-if not conf.CheckExe(['dot', '-V']):
-    print """
-The dot program is required to build agentXcpp's documentation.
-Note: For Linux, install a package named 'graphviz'."""
-    Exit(1)
+    # Check for dot executable
+    # Note: we call 'dot -V' so no input file is required
+    if not conf.CheckExe(['dot', '-V']):
+        print """
+    The dot program is required to build agentXcpp's documentation.
+    Note: For Linux, install a package named 'graphviz'."""
+        Exit(1)
 
-env = conf.Finish()
+    env = conf.Finish()
 
 
 #################################################

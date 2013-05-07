@@ -22,14 +22,12 @@
 
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
+#include <QSharedPointer>
 
 #include <QtGlobal>
 
 #include "exceptions.hpp"
 #include "binary.hpp"
-
-using boost::shared_ptr;
 
 namespace agentxcpp
 {
@@ -219,14 +217,13 @@ namespace agentxcpp
 	     */
 	    PDU();
 
+	public:
 	    /**
 	     * \brief Destructor.
 	     */
 	    virtual ~PDU()
-            {
-            }
-
-	public:
+	    {
+	    }
 
 	    /**
 	     * \brief Get new_index flag
@@ -290,7 +287,7 @@ namespace agentxcpp
 	     * \exception version_mismatch If the AgentX version of the %PDU
 	     *                             is not 1.
 	     */
-	    static shared_ptr<PDU> parse_pdu(binary buf);
+	    static QSharedPointer<PDU> parse_pdu(binary buf);
 
 	    /**
 	     * \brief Serialize function for concrete PDUs.

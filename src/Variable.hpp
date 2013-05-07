@@ -19,7 +19,7 @@
 #ifndef _PRIMITIVE_VARIABLE_H_
 #define _PRIMITIVE_VARIABLE_H_
 
-#include <boost/shared_ptr.hpp>
+#include <QSharedPointer>
 
 #include "AbstractVariable.hpp"
 
@@ -72,9 +72,9 @@ namespace agentxcpp
      * Example:
      *
      * \code
-     * virtual testset_result_t handle_testset(shared_ptr<value> v)
+     * virtual testset_result_t handle_testset(QSharedPointer<value> v)
      * {
-     *     shared_ptr<V> new_value = boost::dynamic_pointer_cast<V>(v);
+     *     QSharedPointer<V> new_value = qSharedPointerDynamicCast<V>(v);
      *
      *     if (new_value)
      *     {
@@ -109,7 +109,7 @@ namespace agentxcpp
              * receives the new value. This value is stored here so that it can 
              * be delivered to commitset(), undoset() and cleanupset().
              */
-            shared_ptr<T> new_value;
+            QSharedPointer<T> new_value;
 
         public:
 
@@ -119,13 +119,13 @@ namespace agentxcpp
              * \brief Handle a Get Request.
              *
              * This function calls this->get() to obtain the new value, 
-             * converts it to shared_ptr<value> and returns it.
+             * converts it to QSharedPointer<value> and returns it.
              */
-            virtual shared_ptr<AbstractValue> handle_get()
+            virtual QSharedPointer<AbstractValue> handle_get()
             {
                 // Get new value by calling this->get(), then allocate a new 
                 // variable, initializing it with the new value:
-                shared_ptr<T> retval( new T(this->get()) );
+                QSharedPointer<T> retval( new T(this->get()) );
 
                 return retval;
             }
@@ -149,7 +149,7 @@ namespace agentxcpp
              *
              * \brief Handle a TestSet request.
              *
-             * This function converts the argument to shared_ptr<V>() and calls 
+             * This function converts the argument to QSharedPointer<V>() and calls 
              * testset() with the converted value. If conversion fails, 
              * testset() is not called. This function also stores the given 
              * value to the new_value member.
@@ -159,9 +159,9 @@ namespace agentxcpp
              * \return wrongType if the conversion fails.  Otherwise, the
              *         result of testset() is returned.
              */
-            virtual testset_result_t handle_testset(shared_ptr<AbstractValue> v)
+            virtual testset_result_t handle_testset(QSharedPointer<AbstractValue> v)
             {
-                new_value = boost::dynamic_pointer_cast<T>(v);
+                new_value = qSharedPointerDynamicCast<T>(v);
                 if (new_value)
                 {
                     // Type matches variable
@@ -191,7 +191,7 @@ namespace agentxcpp
              *
              * \return The result of the check.
              */
-            virtual testset_result_t testset(shared_ptr<T> v)
+            virtual testset_result_t testset(QSharedPointer<T> v)
             {
                 return noAccess;
             }
@@ -221,7 +221,7 @@ namespace agentxcpp
              *
              * \param v The new value for the object.
              */
-            virtual void cleanupset(shared_ptr<T> v)
+            virtual void cleanupset(QSharedPointer<T> v)
             {
                 return;
             }
@@ -253,7 +253,7 @@ namespace agentxcpp
              *
              * \return True if the operation succeeded, false otherwise.
              */
-            virtual bool commitset(shared_ptr<T> v)
+            virtual bool commitset(QSharedPointer<T> v)
             {
                 return false;
             }
@@ -294,7 +294,7 @@ namespace agentxcpp
              *
              * \return True on success, false otherwise.
              */
-            virtual bool undoset(shared_ptr<T> v)
+            virtual bool undoset(QSharedPointer<T> v)
             {
                 return false;
             }

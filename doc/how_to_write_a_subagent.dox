@@ -213,7 +213,7 @@ and an additional string with further subids.
 Next, we create a SimpleCounter variable and register it with agentXcpp:
 
 \code
-    boost::shared_ptr<SimpleCounter> counter(new SimpleCounter);
+    QSharedPointer<SimpleCounter> counter(new SimpleCounter);
 
     OidValue simpleCounter_oid(simpleagent_oid, "0");
 

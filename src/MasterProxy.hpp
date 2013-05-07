@@ -23,7 +23,7 @@
 #include <map>
 #include <list>
 
-#include <boost/shared_ptr.hpp>
+#include <QSharedPointer>
 #include <QtGlobal>
 
 #include <QObject>
@@ -159,7 +159,7 @@ namespace agentxcpp
      * \internal
      *
      * The variables are stored in the member variables, which is a 
-     * std::map<OidValue, shared_ptr<variable> >. The key is the OID for which the 
+     * std::map<OidValue, QSharedPointer<variable> >. The key is the OID for which the 
      * variable was added. This allows easy lookup for the request 
      * dispatcher.
      *
@@ -249,12 +249,12 @@ namespace agentxcpp
              * stored in this list. This allows to automatically re-register 
              * these subtrees on reconnect.
 	     */
-	    std::list< boost::shared_ptr<RegisterPDU> > registrations;
+	    std::list< QSharedPointer<RegisterPDU> > registrations;
 
 	    /**
 	     * \brief Storage for all SNMP variables known to the MasterProxy.
 	     */
-	    std::map< OidValue, shared_ptr<AbstractVariable> > variables;
+	    std::map< OidValue, QSharedPointer<AbstractVariable> > variables;
 
             /**
              * \brief The variables affected by the Set operation currently
@@ -266,7 +266,7 @@ namespace agentxcpp
              *
              * These are the variables denominated in that TestSet PDU.
              */
-            std::list< shared_ptr<AbstractVariable> > setlist;
+            std::list< QSharedPointer<AbstractVariable> > setlist;
 
 	    /**
 	     * \brief Send a RegisterPDU to the master agent.
@@ -308,7 +308,7 @@ namespace agentxcpp
 	     *                        registration and that a retry will result 
 	     *                        in a duplicate_registration error.
 	     */
-	    void do_registration(boost::shared_ptr<RegisterPDU> pdu);
+	    void do_registration(QSharedPointer<RegisterPDU> pdu);
 
 	    /**
 	     * \brief Send a UnregisterPDU to the master agent.
@@ -345,7 +345,7 @@ namespace agentxcpp
 	     *                        registration and that a retry will result 
 	     *                        in a duplicate_registration error.
 	     */
-	    void undo_registration(boost::shared_ptr<UnregisterPDU> pdu);
+	    void undo_registration(QSharedPointer<UnregisterPDU> pdu);
 
 	   /**
 	    * \brief Create UnregisterPDU for undoing a registration.
@@ -359,8 +359,8 @@ namespace agentxcpp
 	    *
 	    * \exception None.
             */
-	    boost::shared_ptr<UnregisterPDU> create_unregister_pdu(
-				    boost::shared_ptr<RegisterPDU> pdu);
+	    QSharedPointer<UnregisterPDU> create_unregister_pdu(
+				    QSharedPointer<RegisterPDU> pdu);
 
             /**
              * \brief Handle incoming GetPDU's.
@@ -374,7 +374,7 @@ namespace agentxcpp
              *
              * \param get_pdu The GetPDU to be processed.
              */
-            void handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetPDU> get_pdu);
+            void handle_getpdu(QSharedPointer<ResponsePDU> response, QSharedPointer<GetPDU> get_pdu);
 
             /**
              * \brief Handle incoming GetNextPDU's.
@@ -388,7 +388,7 @@ namespace agentxcpp
              *
              * \param getnext_pdu The GetNextPDU to be processed.
              */
-            void handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetNextPDU> getnext_pdu);
+            void handle_getnextpdu(QSharedPointer<ResponsePDU> response, QSharedPointer<GetNextPDU> getnext_pdu);
 
             /**
              * \brief Handle incoming TestSetPDU's.
@@ -400,7 +400,7 @@ namespace agentxcpp
              *
              * \param testset_pdu The TestSetPDU to be processed.
              */
-            void handle_testsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<TestSetPDU> testset_pdu);
+            void handle_testsetpdu(QSharedPointer<ResponsePDU> response, QSharedPointer<TestSetPDU> testset_pdu);
 
             /**
              * \brief Handle incoming CleanupSetPDU's.
@@ -420,7 +420,7 @@ namespace agentxcpp
              *
              * \param commitset_pdu The CommitSetPDU to be processed.
              */
-            void handle_commitsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<CommitSetPDU> commitset_pdu);
+            void handle_commitsetpdu(QSharedPointer<ResponsePDU> response, QSharedPointer<CommitSetPDU> commitset_pdu);
 
             /**
              * \brief Handle incoming UndoSetPDU's.
@@ -432,7 +432,7 @@ namespace agentxcpp
              *
              * \param undoset_pdu The UndoSetPDU to be processed.
              */
-            void handle_undosetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<UndoSetPDU> undoset_pdu);
+            void handle_undosetpdu(QSharedPointer<ResponsePDU> response, QSharedPointer<UndoSetPDU> undoset_pdu);
 
 	public slots:
 	    /**
@@ -450,7 +450,7 @@ namespace agentxcpp
              * given to the specialized methods to add their results. Finally 
              * handle_pdu() sends the response.
 	     */
-	    virtual void handle_pdu(shared_ptr<PDU>);
+	    virtual void handle_pdu(QSharedPointer<PDU>);
 
 	    /**
 	     * \brief Send a notification or trap.
@@ -758,7 +758,7 @@ namespace agentxcpp
 	     *                                 within a registered MIB 
 	     *                                 region.
 	     */
-	    void add_variable(const OidValue& id, shared_ptr<AbstractVariable> v);
+	    void add_variable(const OidValue& id, QSharedPointer<AbstractVariable> v);
 
 	    /**
 	     * \brief Remove an SNMP variable so that is not longer accessible.

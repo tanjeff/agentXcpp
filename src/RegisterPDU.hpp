@@ -19,7 +19,7 @@
 #ifndef _REGISTERPDU_H_
 #define _REGISTERPDU_H_
 
-#include <boost/shared_ptr.hpp>
+#include <QSharedPointer>
 
 #include "OidValue.hpp"
 #include "PDUwithContext.hpp"

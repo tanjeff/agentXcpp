@@ -113,7 +113,7 @@ by adding the following code to it:
         IntegerValue* old_value;
 
     public:
-        virtual testset_result_t testset(shared_ptr<IntegerValue> new_value)
+        virtual testset_result_t testset(QSharedPointer<IntegerValue> new_value)
         {
             try
             {
@@ -146,7 +146,7 @@ also be implemented for writeable variables. In the SimpleCounter class, this
 method sets the internal value and stores the old one, in case \ref 
 agentxcpp::Variable::undoset "undoset()" is called:
 \code
-        virtual bool commitset(shared_ptr<IntegerValue> new_value)
+        virtual bool commitset(QSharedPointer<IntegerValue> new_value)
         {
             // Remember old value for rollback
             *old_value = counter;
@@ -165,7 +165,7 @@ The \ref agentxcpp::Variable::cleanupset "cleanupset()" method
 releases old_value again:
 
 \code
-        virtual void cleanupset(shared_ptr<IntegerValue> new_value)
+        virtual void cleanupset(QSharedPointer<IntegerValue> new_value)
         {
             // Release old value
             delete old_value;
@@ -188,7 +188,7 @@ reported to the master agent if it is missing. For simpleCounter implementation
 is easy:
 
 \code
-        virtual bool undoset(shared_ptr<IntegerValue> new_value)
+        virtual bool undoset(QSharedPointer<IntegerValue> new_value)
         {
             // Restore old value
             counter = *old_value;

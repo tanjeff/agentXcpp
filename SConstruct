@@ -184,13 +184,6 @@ The boost::bind library is required to build agentXcpp.
 Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
     Exit(1)
 
-# Check for boost::smart_ptr (header-only lib)
-if not conf.CheckHeader('boost/shared_ptr.hpp', '<>', 'C++'):
-    print """
-The boost::smart_ptr library is required to build agentXcpp.
-Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
-    Exit(1)
-
 # Check for boost::test
 if not conf.CheckLibWithHeader('boost_unit_test_framework', 
     'boost/test/unit_test.hpp', 'C++', autoadd=0):

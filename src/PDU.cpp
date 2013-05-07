@@ -39,7 +39,6 @@
 #include "util.hpp"
 
 using namespace agentxcpp;
-using boost::shared_ptr;
 
 
 quint32 PDU::packetID_cnt = 0;
@@ -99,7 +98,7 @@ PDU::PDU(binary::const_iterator& pos,
 
 
 
-shared_ptr<PDU> PDU::parse_pdu(binary buf)
+QSharedPointer<PDU> PDU::parse_pdu(binary buf)
 {
     // needed for parsing
     binary::const_iterator pos;
@@ -133,49 +132,49 @@ shared_ptr<PDU> PDU::parse_pdu(binary buf)
     quint8 type = buf[1];
 
     // create PDU (TODO: complete the list!)
-    shared_ptr<PDU> pdu;
+    QSharedPointer<PDU> pdu;
     pos = buf.begin();
     const binary::const_iterator end = buf.end();
     switch(type)
     {
 	case agentxOpenPDU:
-	    pdu.reset(new OpenPDU(pos, end, big_endian));
+	    pdu = QSharedPointer<PDU>(new OpenPDU(pos, end, big_endian));
 	    break;
 	case agentxClosePDU:
-	    pdu.reset(new ClosePDU(pos, end, big_endian));
+	    pdu = QSharedPointer<PDU>(new ClosePDU(pos, end, big_endian));
 	    break;
 	case agentxRegisterPDU:
-	    pdu.reset(new RegisterPDU(pos, end, big_endian));
+	    pdu = QSharedPointer<PDU>(new RegisterPDU(pos, end, big_endian));
 	    break;
 	case agentxUnregisterPDU:
-	    pdu.reset(new UnregisterPDU(pos, end, big_endian));
+	    pdu = QSharedPointer<PDU>(new UnregisterPDU(pos, end, big_endian));
 	    break;
 	case agentxResponsePDU:
-	    pdu.reset(new ResponsePDU(pos, end, big_endian));
+	    pdu = QSharedPointer<PDU>(new ResponsePDU(pos, end, big_endian));
 	    break;
 	case agentxCommitSetPDU:
-	    pdu.reset(new CommitSetPDU(pos, end, big_endian));
+	    pdu = QSharedPointer<PDU>(new CommitSetPDU(pos, end, big_endian));
 	    break;
 	case agentxUndoSetPDU:
-	    pdu.reset(new UndoSetPDU(pos, end, big_endian));
+	    pdu = QSharedPointer<PDU>(new UndoSetPDU(pos, end, big_endian));
 	    break;
 	case agentxTestSetPDU:
-	    pdu.reset(new TestSetPDU(pos, end, big_endian));
+	    pdu = QSharedPointer<PDU>(new TestSetPDU(pos, end, big_endian));
 	    break;
 	case agentxCleanupSetPDU:
-	    pdu.reset(new CleanupSetPDU(pos, end, big_endian));
+	    pdu = QSharedPointer<PDU>(new CleanupSetPDU(pos, end, big_endian));
 	    break;
 	case agentxGetPDU:
-	    pdu.reset(new GetPDU(pos, end, big_endian));
+	    pdu = QSharedPointer<PDU>(new GetPDU(pos, end, big_endian));
 	    break;
 	case agentxGetNextPDU:
-	    pdu.reset(new GetNextPDU(pos, end, big_endian));
+	    pdu = QSharedPointer<PDU>(new GetNextPDU(pos, end, big_endian));
 	    break;
 	case agentxGetBulkPDU:
-	    pdu.reset(new GetBulkPDU(pos, end, big_endian));
+	    pdu = QSharedPointer<PDU>(new GetBulkPDU(pos, end, big_endian));
 	    break;
 	case agentxNotifyPDU:
-	    pdu.reset(new NotifyPDU(pos, end, big_endian));
+	    pdu = QSharedPointer<PDU>(new NotifyPDU(pos, end, big_endian));
 	    break;
 	default:
 	    // type is invalid

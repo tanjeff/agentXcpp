@@ -47,27 +47,27 @@ binary varbind::serialize() const
     serialized += name.serialize();
 
     // encode data if needed
-    if (var.get()) serialized += var->serialize();
+    if (var) serialized += var->serialize();
 
     return serialized;
 }
 
 
-varbind::varbind(const OidValue& o, boost::shared_ptr<AbstractValue> v)
+varbind::varbind(const OidValue& o, QSharedPointer<AbstractValue> v)
 {
     name = o;
     var = v;
 
     // Determine type of variable and fill type field.
-    if( dynamic_cast<IntegerValue*>(var.get()) ) type = 2;
-    else if( dynamic_cast<OctetStringValue*>(var.get()) ) type = 4;
-    else if( dynamic_cast<OidValue*>(var.get()) ) type = 6;
-    else if( dynamic_cast<IpAddressValue*>(var.get()) ) type = 64;
-    else if( dynamic_cast<Counter32Value*>(var.get()) ) type = 65;
-    else if( dynamic_cast<Gauge32Value*>(var.get()) ) type = 66;
-    else if( dynamic_cast<TimeTicksValue*>(var.get()) ) type = 67;
-    else if( dynamic_cast<OpaqueValue*>(var.get()) ) type = 68;
-    else if( dynamic_cast<Counter64Value*>(var.get()) ) type = 70;
+    if( qSharedPointerDynamicCast<IntegerValue>(var) ) type = 2;
+    else if( qSharedPointerDynamicCast<OctetStringValue>(var) ) type = 4;
+    else if( qSharedPointerDynamicCast<OidValue>(var) ) type = 6;
+    else if( qSharedPointerDynamicCast<IpAddressValue>(var) ) type = 64;
+    else if( qSharedPointerDynamicCast<Counter32Value>(var) ) type = 65;
+    else if( qSharedPointerDynamicCast<Gauge32Value>(var) ) type = 66;
+    else if( qSharedPointerDynamicCast<TimeTicksValue>(var) ) type = 67;
+    else if( qSharedPointerDynamicCast<OpaqueValue>(var) ) type = 68;
+    else if( qSharedPointerDynamicCast<Counter64Value>(var) ) type = 70;
     else
     {
 	// Type could not be determined -> invalid parameter.
@@ -121,37 +121,37 @@ varbind::varbind(binary::const_iterator& pos,
     switch(type)
     {
 	case 2:
-	    var.reset(new IntegerValue(pos, end, big_endian));
+	    var = QSharedPointer<AbstractValue>(new IntegerValue(pos, end, big_endian));
 	    break;
 	case 4:
-	    var.reset(new OctetStringValue(pos, end, big_endian));
+	    var = QSharedPointer<AbstractValue>(new OctetStringValue(pos, end, big_endian));
 	    break;
 	case 6:
-	    var.reset(new OidValue(pos, end, big_endian));
+	    var = QSharedPointer<AbstractValue>(new OidValue(pos, end, big_endian));
 	    break;
 	case 64:
-	    var.reset(new IpAddressValue(pos, end, big_endian));
+	    var = QSharedPointer<AbstractValue>(new IpAddressValue(pos, end, big_endian));
 	    break;
 	case 65:
-	    var.reset(new Counter32Value(pos, end, big_endian));
+	    var = QSharedPointer<AbstractValue>(new Counter32Value(pos, end, big_endian));
 	    break;
 	case 66:
-	    var.reset(new Gauge32Value(pos, end, big_endian));
+	    var = QSharedPointer<AbstractValue>(new Gauge32Value(pos, end, big_endian));
 	    break;
 	case 67:
-	    var.reset(new TimeTicksValue(pos, end, big_endian));
+	    var = QSharedPointer<AbstractValue>(new TimeTicksValue(pos, end, big_endian));
 	    break;
 	case 68:
-	    var.reset(new OpaqueValue(pos, end, big_endian));
+	    var = QSharedPointer<AbstractValue>(new OpaqueValue(pos, end, big_endian));
 	    break;
 	case 70:
-	    var.reset(new Counter64Value(pos, end, big_endian));
+	    var = QSharedPointer<AbstractValue>(new Counter64Value(pos, end, big_endian));
 	    break;
 	case 5:	    // Null
 	case 128:   // noSuchObject
 	case 129:   // noSuchInstance
 	case 130:   // endOfMibView
-	    var.reset();
+	    var.clear();
 	    break;
 	default:
 	    // invalid type

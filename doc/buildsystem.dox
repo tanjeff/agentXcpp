@@ -50,7 +50,6 @@ which are easily available for your system:
 - Standard build environment (compiler, linker, etc.)
 - Doxygen, to build the documentation
 - SCons, to control the build process
-- The boost libraries
 
 
 

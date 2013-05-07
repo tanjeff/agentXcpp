@@ -132,11 +132,6 @@ To build agentXcpp, the following is needed:
   generate diagrams
 - SCons, to control the build process
 - The QT4 library
-- The following boost libraries:
-  - Bind
-  - Smart Ptr
-  - Test
-  - Integer
 
 
 Documentation

@@ -18,9 +18,6 @@
  */
 
 
-#include <boost/bind.hpp>
-
-
 #include "PDU.hpp"
 #include "OpenPDU.hpp"
 #include "ClosePDU.hpp"

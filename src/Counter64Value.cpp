@@ -17,8 +17,6 @@
  * for more details.
  */
 
-#include <boost/cstdint.hpp>
-
 #include "Counter64Value.hpp"
 #include "util.hpp"
 

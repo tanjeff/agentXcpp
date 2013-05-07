@@ -16,7 +16,6 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#include <boost/cstdint.hpp>
 
 #include "varbind.hpp"
 #include "OctetStringValue.hpp"

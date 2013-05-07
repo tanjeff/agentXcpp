@@ -36,11 +36,6 @@ which are easily available for your system:
 - The dot tool from the graphviz package, which is used by doxygen to generate 
   diagrams
 - SCons, to control the build process
-- The following boost libraries:
-  - Bind
-  - Smart Ptr
-  - Test
-  - Integer
 - The following QT4 libraries:
   - QtCore
   - QNetwork

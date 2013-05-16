@@ -115,11 +115,6 @@ src/
 	This directory contains the source code of the library.
 
 
-unit_tests/
-        This directory contains the unit tests for the agentXcpp components. 
-        Note that this is currently rather a skeleton, and no tests are 
-        available yet.
-
 
 Prerequisites
 -------------

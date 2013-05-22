@@ -24,12 +24,11 @@
 #include <ostream>
 #include <string>
 
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "AbstractValue.hpp"
 #include "exceptions.hpp"
 
-using boost::uint32_t;
 
 namespace agentxcpp
 {
@@ -80,7 +79,7 @@ namespace agentxcpp
      * ""   // empty string is ok
      * \endcode
      *
-     * This class inherits from std:vector<uint32_t>, which means that an OidValue 
+     * This class inherits from std:vector<quint32>, which means that an OidValue 
      * object can be manipulated the same way as a std::vector<> can be 
      * manipulated:
      *
@@ -90,7 +89,7 @@ namespace agentxcpp
      * \endcode
      *
      */
-    class OidValue: public AbstractValue, public std::vector<uint32_t>
+    class OidValue: public AbstractValue, public std::vector<quint32>
     {
 	private:
 

@@ -43,7 +43,7 @@ void OctetStringValue::set_value(std::string v)
     //
     // This seems to be goofy, but it ensures that our code works even on a
     // machine where a char is not 8 bit wide, i.e. when char has another size
-    // than uint8_t.
+    // than quint8.
     value.assign(
             reinterpret_cast<const binary::value_type*>( v.data() ),
             v.size() * sizeof( binary::value_type )
@@ -64,7 +64,7 @@ std::string OctetStringValue::str() const
     //
     // This seems to be goofy, but it ensures that our code works even on a
     // machine where a char is not 8 bit wide, i.e. when char has another size
-    // than uint8_t.
+    // than quint8.
     std::string retval(
             reinterpret_cast<const std::string::value_type*>( value.data() ),
             value.size() * sizeof( std::string::value_type )

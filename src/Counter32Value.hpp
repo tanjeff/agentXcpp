@@ -20,12 +20,10 @@
 #ifndef _COUNTER32_H_
 #define _COUNTER32_H_
 
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "AbstractValue.hpp"
 #include "exceptions.hpp"
-
-using boost::uint32_t;
 
 namespace agentxcpp
 {
@@ -42,7 +40,7 @@ namespace agentxcpp
 	     * According to RFC 2578, Counter32 is a non-negative 32-bit 
 	     * number.
 	     */
-	    uint32_t value;
+	    quint32 value;
 
 	    /**
              * \internal

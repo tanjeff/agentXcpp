@@ -19,8 +19,6 @@
 #ifndef _UPTIME_HPP_
 #define _UPTIME_HPP_
 
-#include <boost/optional/optional.hpp>
-
 #include "TimeTicksValue.hpp"
 #include "OidValue.hpp"
 
@@ -32,8 +30,8 @@ namespace agentxcpp
      * This function calculates the uptime of the current process, in
      * hundreths of a second. The result may be given as sysUpTime.0.
      * parameter to \ref agentxcpp::MasterProxy::send_notification(
-     * const boost::optional<TimeTicksValue>&,
-     * const OidValue&, const vector<varbind>&).
+     * const OidValue&, TimeTicksValue*,
+     * const vector<varbind>&).
      *
      * \internal
      * The time is measured using a global variable which is
@@ -86,12 +84,10 @@ namespace agentxcpp
      * \return The value of the snmpTrapOID.0 object.
      *
      * \exception inval_param If the generic_trap parameter has an
-     *                        invalid value or if generic_trap is
-     *                        <tt>enterpriseSpecific</tt> and
-     *                        specific_trap was not given.
+     *                        invalid value.
      */
     OidValue generate_v1_snmpTrapOID(generic_trap_t generic_trap,
-                                boost::optional<uint32_t> specific_trap = boost::optional<uint32_t>());
+                                     quint32 specific_trap=0);
 
 
 } // namespace agentxcpp

@@ -16,7 +16,7 @@
  * See the AgentXcpp library license in the LICENSE file of this package 
  * for more details.
  */
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "MasterProxy.hpp"
 #include "OpenPDU.hpp"
@@ -31,8 +31,6 @@
 
 using namespace std;
 using namespace agentxcpp;
-using namespace boost;  // Beside other things, this pulls boost::uint16_t
-using boost::optional;
 
 
 
@@ -42,7 +40,7 @@ using boost::optional;
 
 
 MasterProxy::MasterProxy(std::string _description,
-			   uint8_t _default_timeout,
+			   quint8 _default_timeout,
 			   OidValue _id,
 			   std::string _filename) :
     socket_file(_filename.c_str()),
@@ -52,7 +50,7 @@ MasterProxy::MasterProxy(std::string _description,
     id(_id)
 {
     // Initialize connector (never use timeout=0)
-    uint8_t timeout;
+    quint8 timeout;
     timeout = (this->default_timeout == 0) ? 1 : this->default_timeout;
     connection = new UnixDomainConnector(
 			       _filename.c_str(),
@@ -98,12 +96,12 @@ void MasterProxy::connect()
     this->connection->connect();
 
     // The response we expect from the master
-    boost::shared_ptr<ResponsePDU> response;
+    QSharedPointer<ResponsePDU> response;
 
     try
     {
 	// Send OpenPDU
-	boost::shared_ptr<OpenPDU> openpdu(new OpenPDU);
+	QSharedPointer<OpenPDU> openpdu(new OpenPDU);
 	openpdu->set_timeout(default_timeout);
 	openpdu->set_id(id);
 	// throws disconnected and timeout_error:
@@ -134,9 +132,9 @@ void MasterProxy::connect()
     this->sessionID = response->get_sessionID();
 
     QObject::connect(connection,
-                     SIGNAL(pduArrived(shared_ptr<PDU>)),
+                     SIGNAL(pduArrived(QSharedPointer<PDU>)),
                      this,
-                     SLOT(handle_pdu(shared_ptr<PDU>)));
+                     SLOT(handle_pdu(QSharedPointer<PDU>)));
 }
 
 
@@ -155,13 +153,13 @@ void MasterProxy::disconnect(ClosePDU::reason_t reason)
     // sysORID are removed. Thus no need to clean up before ClosePDU is sent.
 
     // The response we expect from the master
-    boost::shared_ptr<ResponsePDU> response;
+    QSharedPointer<ResponsePDU> response;
 
     // Try clean shutdown (ignore errors)
     try
     {
 	// Unregister stuff if any
-	std::list< boost::shared_ptr<RegisterPDU> >::const_iterator r;
+	std::list< QSharedPointer<RegisterPDU> >::const_iterator r;
 	r = this->registrations.begin();
 	while (r != this->registrations.end())
 	{
@@ -170,7 +168,7 @@ void MasterProxy::disconnect(ClosePDU::reason_t reason)
 	}
 
 	// Send ClosePDU
-	boost::shared_ptr<ClosePDU> closepdu(new ClosePDU(this->sessionID, reason));
+	QSharedPointer<ClosePDU> closepdu(new ClosePDU(this->sessionID, reason));
 	// throws disconnected and timeout_error:
 	response = this->connection->request(closepdu);
 	
@@ -207,7 +205,7 @@ MasterProxy::~MasterProxy()
 }
 
 
-void MasterProxy::do_registration(boost::shared_ptr<RegisterPDU> pdu)
+void MasterProxy::do_registration(QSharedPointer<RegisterPDU> pdu)
 {
     // Are we connected?
 //    if( ! is_connected())
@@ -217,7 +215,7 @@ void MasterProxy::do_registration(boost::shared_ptr<RegisterPDU> pdu)
 
     // Send RegisterPDU
     // (forward exceptions timeout_error and disconnected)
-    boost::shared_ptr<ResponsePDU> response;
+    QSharedPointer<ResponsePDU> response;
     response = this->connection->request(pdu);
 
 //    // Wait for response
@@ -276,11 +274,11 @@ void MasterProxy::do_registration(boost::shared_ptr<RegisterPDU> pdu)
 
 
 void MasterProxy::register_subtree(OidValue subtree,
-		      uint8_t priority,
-		      uint8_t timeout)
+		      quint8 priority,
+		      quint8 timeout)
 {
     // Build PDU
-    boost::shared_ptr<RegisterPDU> pdu(new RegisterPDU);
+    QSharedPointer<RegisterPDU> pdu(new RegisterPDU);
     pdu->set_subtree(subtree);
     pdu->set_priority(priority);
     pdu->set_timeout(timeout);
@@ -311,13 +309,13 @@ void MasterProxy::register_subtree(OidValue subtree,
 
 
 void MasterProxy::unregister_subtree(OidValue subtree,
-				      uint8_t priority)
+				      quint8 priority)
 {
     // The UnregisterPDU
-    boost::shared_ptr<UnregisterPDU> pdu;
+    QSharedPointer<UnregisterPDU> pdu;
 
     // Remove the registration from registrations list
-    std::list< boost::shared_ptr<RegisterPDU> >::iterator r;
+    std::list< QSharedPointer<RegisterPDU> >::iterator r;
     r = this->registrations.begin();
     while (r != this->registrations.end())
     {
@@ -361,7 +359,7 @@ void MasterProxy::unregister_subtree(OidValue subtree,
 
 
 
-void MasterProxy::undo_registration(boost::shared_ptr<UnregisterPDU> pdu)
+void MasterProxy::undo_registration(QSharedPointer<UnregisterPDU> pdu)
 {
     // Are we connected?
 //    if( ! is_connected())
@@ -371,12 +369,12 @@ void MasterProxy::undo_registration(boost::shared_ptr<UnregisterPDU> pdu)
 
     // Send UnregisterPDU
     // (forward exceptions timeout_error and disconnected)
-    boost::shared_ptr<ResponsePDU> response;
+    QSharedPointer<ResponsePDU> response;
     response = this->connection->request(pdu);
 
 //    // Wait for response
 //    // (forward exceptions timeout_error and disconnected)
-//    boost::shared_ptr<ResponsePDU> response;
+//    QSharedPointer<ResponsePDU> response;
 //    response = this->connection->wait_for_response(pdu->get_packetID());
 
     // Check Response
@@ -425,10 +423,10 @@ void MasterProxy::undo_registration(boost::shared_ptr<UnregisterPDU> pdu)
 
 
 
-boost::shared_ptr<UnregisterPDU> MasterProxy::create_unregister_pdu(
-				    boost::shared_ptr<RegisterPDU> pdu)
+QSharedPointer<UnregisterPDU> MasterProxy::create_unregister_pdu(
+				    QSharedPointer<RegisterPDU> pdu)
 {
-    boost::shared_ptr<UnregisterPDU> new_pdu(new UnregisterPDU());
+    QSharedPointer<UnregisterPDU> new_pdu(new UnregisterPDU());
     new_pdu->set_subtree( pdu->get_subtree() );
     new_pdu->set_range_subid( pdu->get_range_subid() );
     new_pdu->set_upper_bound( pdu->get_upper_bound() );
@@ -438,7 +436,7 @@ boost::shared_ptr<UnregisterPDU> MasterProxy::create_unregister_pdu(
 }
 
 
-void MasterProxy::handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetPDU> get_pdu)
+void MasterProxy::handle_getpdu(QSharedPointer<ResponsePDU> response, QSharedPointer<GetPDU> get_pdu)
 {
         // Handling according to
 	// RFC 2741, 7.2.3.1 "Subagent Processing of the agentx-Get-PDU"
@@ -448,7 +446,7 @@ void MasterProxy::handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<Get
 
 	// Iterate over list and handle each OidValue separately
 	vector<OidValue>::const_iterator i;
-        uint16_t index = 1;  // Index is 1-based (RFC 2741,
+        quint16 index = 1;  // Index is 1-based (RFC 2741,
                              // 5.4. "Value Representation"):
 	for(i = sr.begin(); i != sr.end(); i++)
 	{
@@ -456,7 +454,7 @@ void MasterProxy::handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<Get
 	    const OidValue& name = *i;
 
 	    // Find variable for current OID
-	    map< OidValue, shared_ptr<AbstractVariable> >::const_iterator var;
+	    map< OidValue, QSharedPointer<AbstractVariable> >::const_iterator var;
 	    var = variables.find(name);
 	    if(var != variables.end())
 	    {
@@ -507,7 +505,7 @@ void MasterProxy::handle_getpdu(shared_ptr<ResponsePDU> response, shared_ptr<Get
 
 
 
-void MasterProxy::handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_ptr<GetNextPDU> getnext_pdu)
+void MasterProxy::handle_getnextpdu(QSharedPointer<ResponsePDU> response, QSharedPointer<GetNextPDU> getnext_pdu)
 {
         // Handling according to
 	// RFC 2741, 7.2.3.2 "Subagent Processing of the agentx-GetNext-PDU"
@@ -517,7 +515,7 @@ void MasterProxy::handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_ptr
 
 	// Iterate over list and handle each SearchRange separately
 	vector< pair<OidValue,OidValue> >::const_iterator i;
-        uint16_t index = 1;  // Index is 1-based (RFC 2741,
+        quint16 index = 1;  // Index is 1-based (RFC 2741,
                              // 5.4. "Value Representation"):
 	for(i = sr.begin(); i != sr.end(); i++)
 	{
@@ -526,7 +524,7 @@ void MasterProxy::handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_ptr
             const OidValue& ending_oid   = i->second;
 
             // Find "next" variable
-	    map< OidValue, shared_ptr<AbstractVariable> >::const_iterator next_var;
+	    map< OidValue, QSharedPointer<AbstractVariable> >::const_iterator next_var;
 	    if( ! starting_oid.get_include())
             {
                 // Find the closest lexicographical successor to the starting 
@@ -582,7 +580,7 @@ void MasterProxy::handle_getnextpdu(shared_ptr<ResponsePDU> response, shared_ptr
 
 
 
-void MasterProxy::handle_testsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<TestSetPDU> testset_pdu)
+void MasterProxy::handle_testsetpdu(QSharedPointer<ResponsePDU> response, QSharedPointer<TestSetPDU> testset_pdu)
 {
     // Handling according to
     // RFC 2741, 7.2.4.1 "Subagent Processing of the agentx-TestSet-PDU"
@@ -596,11 +594,11 @@ void MasterProxy::handle_testsetpdu(boost::shared_ptr<ResponsePDU> response, sha
     // Iterate over list and handle each Varbind separately. Return on the 
     // first varbind which doesn't validate correctly.
     vector<varbind>::const_iterator i;
-    uint16_t index;
+    quint16 index;
     for(i = vb.begin(), index = 1; i != vb.end(); i++, index++)
     {
         // Find the associated variable
-        map< OidValue, shared_ptr<AbstractVariable> >::const_iterator var;
+        map< OidValue, QSharedPointer<AbstractVariable> >::const_iterator var;
 	var = variables.find(i->get_name());
         if(var == variables.end())
         {
@@ -649,7 +647,7 @@ void MasterProxy::handle_cleanupsetpdu()
     // Iterate over list and handle each Varbind separately. We iterate 
     // backwards, so that resources are released in the reverse order of their
     // allocation.
-    list< shared_ptr<AbstractVariable> >::const_reverse_iterator i;
+    list< QSharedPointer<AbstractVariable> >::const_reverse_iterator i;
     for(i = setlist.rbegin(); i != setlist.rend(); i++)
     {
         (*i)->handle_cleanupset();
@@ -659,14 +657,14 @@ void MasterProxy::handle_cleanupsetpdu()
     setlist.clear();
 }
 
-void MasterProxy::handle_commitsetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<CommitSetPDU> commitset_pdu)
+void MasterProxy::handle_commitsetpdu(QSharedPointer<ResponsePDU> response, QSharedPointer<CommitSetPDU> commitset_pdu)
 {
     // Handling according to RFC 2741, 7.2.4.2 "Subagent Processing of the 
     // agentx-CommitSet-PDU"
 
     // Iterate over list and handle each Varbind separately.
-    list< shared_ptr<AbstractVariable> >::iterator i;
-    uint16_t index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
+    list< QSharedPointer<AbstractVariable> >::iterator i;
+    quint16 index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
     for(i = setlist.begin(); i != setlist.end(); i++)
     {
         if( (*i)->handle_commitset() )
@@ -687,7 +685,7 @@ void MasterProxy::handle_commitsetpdu(boost::shared_ptr<ResponsePDU> response, s
 }
 
 
-void MasterProxy::handle_undosetpdu(boost::shared_ptr<ResponsePDU> response, shared_ptr<UndoSetPDU> undoset_pdu)
+void MasterProxy::handle_undosetpdu(QSharedPointer<ResponsePDU> response, QSharedPointer<UndoSetPDU> undoset_pdu)
 {
     // Handling according to RFC 2741, 7.2.4.3 "Subagent Processing of the
     // agentx-UndoSet-PDU"
@@ -695,8 +693,8 @@ void MasterProxy::handle_undosetpdu(boost::shared_ptr<ResponsePDU> response, sha
     bool failed = false;
 
     // Iterate over list and handle each Varbind separately.
-    list< shared_ptr<AbstractVariable> >::iterator i;
-    uint16_t index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
+    list< QSharedPointer<AbstractVariable> >::iterator i;
+    quint16 index = 1;  // Index is 1-based (RFC 2741, 5.4. "Value Representation")
     for(i = setlist.begin(); i != setlist.end(); i++)
     {
         if( (*i)->handle_undoset() )
@@ -726,7 +724,7 @@ void MasterProxy::handle_undosetpdu(boost::shared_ptr<ResponsePDU> response, sha
 }
 
 
-void MasterProxy::handle_pdu(shared_ptr<PDU> pdu)
+void MasterProxy::handle_pdu(QSharedPointer<PDU> pdu)
 {
     int error = 0; // 0 is "success"
     if(error == -2)
@@ -762,7 +760,7 @@ void MasterProxy::handle_pdu(shared_ptr<PDU> pdu)
     //   - The flags are not copied, because they have
     //     other meanings in ResponsePDU's.
     //   - TODO: Context is not yet supported.
-    shared_ptr<ResponsePDU> response(new ResponsePDU);
+    QSharedPointer<ResponsePDU> response(new ResponsePDU);
     response->set_sessionID( pdu->get_sessionID() );
     response->set_transactionID( pdu->get_transactionID() );
     response->set_packetID( pdu->get_packetID() );
@@ -779,7 +777,7 @@ void MasterProxy::handle_pdu(shared_ptr<PDU> pdu)
 	{
 //	    this->connection->send(response);
 	    connection->send(response);
-	    //QMetaObject::invokeMethod(connection, "do_send", Q_ARG(boost::shared_ptr<PDU>, response));
+	    //QMetaObject::invokeMethod(connection, "do_send", Q_ARG(QSharedPointer<PDU>, response));
 	}
 	catch(timeout_error) { /* connection loss. Ignore.*/ }
 	catch(disconnected) { /* connection loss. Ignore.*/ }
@@ -792,32 +790,32 @@ void MasterProxy::handle_pdu(shared_ptr<PDU> pdu)
     //
 
     // Is it a GetPDU?
-    shared_ptr<GetPDU> get_pdu;
-    if( (get_pdu = dynamic_pointer_cast<GetPDU>(pdu)) != 0 )
+    QSharedPointer<GetPDU> get_pdu;
+    if( (get_pdu = qSharedPointerDynamicCast<GetPDU>(pdu)) != 0 )
     {
         // (response is modified in-place)
         this->handle_getpdu(response, get_pdu);
     }
 
     // Is it a GetNextPDU?
-    shared_ptr<GetNextPDU> getnext_pdu;
-    if( (getnext_pdu = dynamic_pointer_cast<GetNextPDU>(pdu)) != 0 )
+    QSharedPointer<GetNextPDU> getnext_pdu;
+    if( (getnext_pdu = qSharedPointerDynamicCast<GetNextPDU>(pdu)) != 0 )
     {
         // (response is modified in-place)
         this->handle_getnextpdu(response, getnext_pdu);
     }
 
     // Is it a TestSetPDU?
-    shared_ptr<TestSetPDU> testset_pdu;
-    if( (testset_pdu = dynamic_pointer_cast<TestSetPDU>(pdu)) != 0 )
+    QSharedPointer<TestSetPDU> testset_pdu;
+    if( (testset_pdu = qSharedPointerDynamicCast<TestSetPDU>(pdu)) != 0 )
     {
         // (response is modified in-place)
         this->handle_testsetpdu(response, testset_pdu);
     }
 
     // Is it a CleanupSetPDU?
-    shared_ptr<CleanupSetPDU> cleanupset_pdu;
-    if( (cleanupset_pdu = dynamic_pointer_cast<CleanupSetPDU>(pdu)) != 0 )
+    QSharedPointer<CleanupSetPDU> cleanupset_pdu;
+    if( (cleanupset_pdu = qSharedPointerDynamicCast<CleanupSetPDU>(pdu)) != 0 )
     {
         this->handle_cleanupsetpdu();
 
@@ -826,16 +824,16 @@ void MasterProxy::handle_pdu(shared_ptr<PDU> pdu)
     }
 
     // Is it a CommitSetPDU?
-    shared_ptr<CommitSetPDU> commitset_pdu;
-    if( (commitset_pdu = dynamic_pointer_cast<CommitSetPDU>(pdu)) != 0 )
+    QSharedPointer<CommitSetPDU> commitset_pdu;
+    if( (commitset_pdu = qSharedPointerDynamicCast<CommitSetPDU>(pdu)) != 0 )
     {
         // (response is modified in-place)
         this->handle_commitsetpdu(response, commitset_pdu);
     }
 
     // Is it an UndoSetPDU?
-    shared_ptr<UndoSetPDU> undoset_pdu;
-    if( (undoset_pdu = dynamic_pointer_cast<UndoSetPDU>(pdu)) != 0 )
+    QSharedPointer<UndoSetPDU> undoset_pdu;
+    if( (undoset_pdu = qSharedPointerDynamicCast<UndoSetPDU>(pdu)) != 0 )
     {
         // (response is modified in-place)
         this->handle_undosetpdu(response, undoset_pdu);
@@ -847,7 +845,7 @@ void MasterProxy::handle_pdu(shared_ptr<PDU> pdu)
     try
     {
         connection->send(response);
-        //QMetaObject::invokeMethod(connection, "do_send", Q_ARG(boost::shared_ptr<PDU>, response));
+        //QMetaObject::invokeMethod(connection, "do_send", Q_ARG(QSharedPointer<PDU>, response));
         //this->connection->send(response);
     }
     catch(timeout_error) { /* connection loss. Ignore.*/ }
@@ -855,11 +853,11 @@ void MasterProxy::handle_pdu(shared_ptr<PDU> pdu)
 }
 
 
-void MasterProxy::add_variable(const OidValue& id, shared_ptr<AbstractVariable> v)
+void MasterProxy::add_variable(const OidValue& id, QSharedPointer<AbstractVariable> v)
 {
     // Check whether id is contained in a registration
     bool is_registered = false;
-    std::list< boost::shared_ptr<RegisterPDU> >::const_iterator r;
+    std::list< QSharedPointer<RegisterPDU> >::const_iterator r;
     for(r = registrations.begin(); r != registrations.end(); r++)
     {
 	if((*r)->get_instance_registration() == false &&
@@ -889,7 +887,7 @@ void MasterProxy::add_variable(const OidValue& id, shared_ptr<AbstractVariable> 
 void MasterProxy::remove_variable(const OidValue& id)
 {
     // Find variable
-    map<OidValue, shared_ptr<AbstractVariable> >::iterator i = variables.find(id);
+    map<OidValue, QSharedPointer<AbstractVariable> >::iterator i = variables.find(id);
 
     if(i == variables.end())
     {
@@ -904,11 +902,11 @@ void MasterProxy::remove_variable(const OidValue& id)
 
 
 
-void MasterProxy::send_notification(const boost::optional<TimeTicksValue>& sysUpTime,
-                                     const OidValue& snmpTrapOID,
-                                     const vector<varbind>& varbinds)
+void MasterProxy::send_notification(const OidValue& snmpTrapOID,
+                                    const TimeTicksValue* sysUpTime,
+                                    const vector<varbind>& varbinds)
 {
-    shared_ptr<NotifyPDU> pdu(new NotifyPDU);
+    QSharedPointer<NotifyPDU> pdu(new NotifyPDU);
     pdu->set_sessionID(this->sessionID);
 
     vector<varbind>& vb = pdu->get_vb();
@@ -916,12 +914,12 @@ void MasterProxy::send_notification(const boost::optional<TimeTicksValue>& sysUp
     // First of all: add mandatory sysUpTime (if given)
     if(sysUpTime)
     {
-        shared_ptr<TimeTicksValue> value(new TimeTicksValue(*sysUpTime));
+        QSharedPointer<TimeTicksValue> value(new TimeTicksValue(*sysUpTime));
         vb.push_back(varbind(OidValue(sysUpTime_oid, "0"), value));
     }
 
     // Second: add mandatory snmpTrapOID
-    shared_ptr<OidValue> trapoid(new OidValue(snmpTrapOID));
+    QSharedPointer<OidValue> trapoid(new OidValue(snmpTrapOID));
     vb.push_back(varbind(OidValue(snmpTrapOID_oid, "0"), trapoid));
 
     // Append given varbinds
@@ -929,12 +927,12 @@ void MasterProxy::send_notification(const boost::optional<TimeTicksValue>& sysUp
 
     // Send notification
     // Note: timeout_error and disconnected exceptions are forwarded.
-    shared_ptr<ResponsePDU> response;
+    QSharedPointer<ResponsePDU> response;
     response = connection->request(pdu);
 
 //    // Wait for response
 //    // Note: timeout_error and disconnected exceptions are forwarded.
-//    shared_ptr<ResponsePDU> response;
+//    QSharedPointer<ResponsePDU> response;
 //    response = connection->wait_for_response(pdu.get_packetID());
 
     // Handle response

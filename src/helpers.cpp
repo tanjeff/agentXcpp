@@ -16,13 +16,9 @@
  * See the AgentXcpp library license in the LICENSE file of this package
  * for more details.
  */
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <QDateTime>
 
 #include "helpers.hpp"
-
-using boost::date_time::microsec_clock;
-using boost::posix_time::ptime;
-using boost::posix_time::time_duration;
 
 using namespace agentxcpp;
 
@@ -37,24 +33,23 @@ namespace agentxcpp
      * and holds the time at which this happened. Afterwards,
      * the uptime of the process can be calculated.
      */
-    static ptime process_start_time(microsec_clock<ptime>::universal_time());
+    static QDateTime process_start_time(QDateTime::currentDateTime());
 }
 
     TimeTicksValue agentxcpp::processUpTime()
     {
         // Calculate uptime
-        time_duration uptime = microsec_clock<ptime>::universal_time()
-                               - process_start_time;
+        qint64 uptime = process_start_time.msecsTo(QDateTime::currentDateTime());
 
         // Convert uptime to hundreths of seconds
-        TimeTicksValue sysuptime( uptime.total_milliseconds()/10 );
+        TimeTicksValue sysuptime( uptime/10 );
 
         // Return result
         return sysuptime;
     }
 
     OidValue agentxcpp::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
-                                boost::optional<uint32_t> specific_trap)
+                                                quint32 specific_trap)
     {
         // We need the OID of the SNMPv1 traps. These are defined here.
         //
@@ -101,13 +96,9 @@ namespace agentxcpp
                 value = snmpTraps_egpNeighborLoss_oid;
                 break;
             case enterpriseSpecific:
-                if(!specific_trap)
-                {
-                    throw(inval_param());
-                }
                 value = enterprises_oid;
                 value.push_back(0);
-                value.push_back(*specific_trap);
+                value.push_back(specific_trap);
                 break;
             default:
                 // invalid generic_trap value!

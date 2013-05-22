@@ -21,12 +21,11 @@
 
 #include <vector>
 
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "PDUwithContext.hpp"
 #include "varbind.hpp"
 
-using boost::uint32_t;
 using std::vector;
 
 namespace agentxcpp

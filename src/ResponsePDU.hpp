@@ -22,7 +22,7 @@
 
 #include <vector>
 
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "PDU.hpp"
 #include "OidValue.hpp"
@@ -30,8 +30,7 @@
 #include "varbind.hpp"
 
 using std::vector;
-using boost::uint16_t;
-using boost::uint32_t;
+
 
 namespace agentxcpp
 {
@@ -97,7 +96,7 @@ namespace agentxcpp
 	     * See RFC 2741, section 6.2.16 "The agentx-Response-PDU" for an 
 	     * explanation.
 	     */
-	    uint32_t sysUpTime;
+	    quint32 sysUpTime;
 
 	    /**
 	     * \brief the index field.
@@ -105,7 +104,7 @@ namespace agentxcpp
 	     * See RFC 2741, section 6.2.16 "The agentx-Response-PDU" for an 
 	     * explanation.
 	     */
-	    uint16_t index;
+	    quint16 index;
 
 	    /**
 	     * \brief the error field.
@@ -182,14 +181,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the sysUpTime.
 	     */
-	    void set_sysUpTime(uint32_t time)
+	    void set_sysUpTime(quint32 time)
 	    {
 		this->sysUpTime = time;
 	    }
 	    /**
 	     * \brief Get the sysUpTime.
 	     */
-	    uint32_t get_sysUpTime()
+	    quint32 get_sysUpTime()
 	    {
 		return sysUpTime;
 	    }
@@ -197,7 +196,7 @@ namespace agentxcpp
 	    /**
 	     * \brief set the index value.
 	     */
-	    void set_index(uint16_t i)
+	    void set_index(quint16 i)
 	    {
 		this->index = i;
 	    }
@@ -205,7 +204,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Get the index value
 	     */
-	    uint16_t get_index()
+	    quint16 get_index()
 	    {
 		return index;
 	    }

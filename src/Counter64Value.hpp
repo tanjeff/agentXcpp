@@ -20,12 +20,10 @@
 #ifndef _COUNTER64_H_
 #define _COUNTER64_H_
 
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "AbstractValue.hpp"
 #include "exceptions.hpp"
-
-using boost::uint64_t;
 
 namespace agentxcpp
 {
@@ -41,7 +39,7 @@ namespace agentxcpp
 	     * According to RFC 2578, Counter64 is a non-negative 64-bit 
 	     * number.
 	     */
-	    uint64_t value;
+	    quint64 value;
 
 	    /**
              * \internal

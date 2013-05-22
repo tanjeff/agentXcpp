@@ -17,13 +17,10 @@
  * for more details.
  */
 
-#include <boost/cstdint.hpp>
-
 #include "Counter64Value.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
-using boost::uint64_t;
 
 binary Counter64Value::serialize() const
 {

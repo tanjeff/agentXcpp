@@ -33,7 +33,7 @@ namespace agentxcpp
     class OpenPDU : public PDU
     {
 	private:
-	    uint8_t timeout;
+	    quint8 timeout;
 	    OidValue id;
 	    OctetStringValue descr;
 
@@ -76,7 +76,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Get timeout
 	     */
-	    uint8_t get_timeout()
+	    quint8 get_timeout()
 	    {
 		return this->timeout;
 	    }
@@ -93,7 +93,7 @@ namespace agentxcpp
 	     *		      regions.  The default value of 0 indicates that 
 	     *		      there is no session-wide default value.
 	     */
-	    void set_timeout(uint8_t timeout)
+	    void set_timeout(quint8 timeout)
 	    {
 		this->timeout = timeout;
 	    }

@@ -46,7 +46,7 @@ IpAddressValue::IpAddressValue(binary::const_iterator& pos,
 		     const binary::const_iterator& end,
 		     bool big_endian)
 {
-    uint32_t size;
+    quint32 size;
     
     // Are there at least 8 bytes in the buffer?
     if(end - pos < 8)

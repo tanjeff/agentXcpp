@@ -19,11 +19,9 @@
 #ifndef _VARIABLE_H_
 #define _VARIABLE_H_
 
-#include <boost/shared_ptr.hpp>
+#include <QSharedPointer>
 
 #include "AbstractValue.hpp"
-
-using boost::shared_ptr;
 
 namespace agentxcpp
 {
@@ -57,7 +55,7 @@ namespace agentxcpp
              * \exception generic_error If obtaining the current value fails.
              *                          No other exception shall be thrown.
              */
-            virtual shared_ptr<AbstractValue> handle_get() = 0;
+            virtual QSharedPointer<AbstractValue> handle_get() = 0;
 
 
             /**
@@ -166,7 +164,7 @@ namespace agentxcpp
              *
              * \return The result of the validation.
              */
-            virtual testset_result_t handle_testset(shared_ptr<AbstractValue>) = 0;
+            virtual testset_result_t handle_testset(QSharedPointer<AbstractValue>) = 0;
 
             /**
              * \brief Release resources after a Set operation.

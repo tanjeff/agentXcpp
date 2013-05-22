@@ -21,13 +21,11 @@
 
 #include <istream>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/cstdint.hpp>
+#include <QSharedPointer>
+#include <QtGlobal>
 
 #include "OidValue.hpp"
 #include "AbstractValue.hpp"
-
-using boost::uint16_t;
 
 namespace agentxcpp
 {
@@ -50,7 +48,7 @@ namespace agentxcpp
 	     * This pointer may be 0 if the varbind has a type without a 
 	     * variable (e.g. "NoSuchObject").
 	     */
-	    boost::shared_ptr<AbstractValue> var;
+	    QSharedPointer<AbstractValue> var;
 
 	    /**
 	     * \brief The type of the varbind.
@@ -59,7 +57,7 @@ namespace agentxcpp
 	     * 5.4. The serialize() function will copy it directly into the 
 	     * varbind.
 	     */
-	    uint16_t type;
+	    quint16 type;
 	public:
 
 	    /**
@@ -78,7 +76,7 @@ namespace agentxcpp
 	     * If the type of the variable cannot be determined, inval_param is 
 	     * thrown.
 	     */
-	    varbind(const OidValue&, boost::shared_ptr<AbstractValue> v);
+	    varbind(const OidValue&, QSharedPointer<AbstractValue> v);
 	    
 	    /**
 	     * \brief These values can be used to create a VarBind.
@@ -141,7 +139,7 @@ namespace agentxcpp
              * \note This returns a smart pointer to the variable, i.e. the
              *       variable can be modified in-place.
              */
-            boost::shared_ptr<AbstractValue> get_var() const
+            QSharedPointer<AbstractValue> get_var() const
             {
                 return var;
             }

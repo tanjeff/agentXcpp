@@ -213,7 +213,7 @@ and an additional string with further subids.
 Next, we create a SimpleCounter variable and register it with agentXcpp:
 
 \code
-    boost::shared_ptr<SimpleCounter> counter(new SimpleCounter);
+    QSharedPointer<SimpleCounter> counter(new SimpleCounter);
 
     OidValue simpleCounter_oid(simpleagent_oid, "0");
 
@@ -239,10 +239,9 @@ This function blocks forever.
 
 \section compiling Compiling the Subagent
 
-When compiling the subagent, we need to link against the boost libraries
-'system_error' and 'pthread', the needed Qt libraries and, of course, against 
-the agentXcpp library. On a GNU/Linux system, you can type the following 
-command:
+When compiling the subagent, we need to link against the needed Qt libraries 
+and, against the agentXcpp library. On a GNU/Linux system, you can type the 
+following command:
 
 \code
 g++ simpleagent.cpp -o simpleagent -lagentxcpp \

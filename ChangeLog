@@ -1,3 +1,7 @@
+= ? =
+
+  - Remove boost dependencies.
+
 = Version 0.2 =
 
   - Implemented GetNext handling.

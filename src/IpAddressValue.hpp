@@ -20,12 +20,10 @@
 #ifndef _IPADDRESS_H_
 #define _IPADDRESS_H_
 
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "AbstractValue.hpp"
 #include "exceptions.hpp"
-
-using boost::uint32_t;
 
 namespace agentxcpp
 {
@@ -45,7 +43,7 @@ namespace agentxcpp
 	     *
 	     * According to RFC 2578, IpAddress is a 32-bit number.
 	     */
-            uint8_t address[4]; // only IPv4
+            quint8 address[4]; // only IPv4
 
 	public:
 	    /**
@@ -94,10 +92,10 @@ namespace agentxcpp
              *
              * \exception None.
 	     */
-	    IpAddressValue(uint8_t a,
-		      uint8_t b,
-		      uint8_t c,
-		      uint8_t d)
+	    IpAddressValue(quint8 a,
+		      quint8 b,
+		      quint8 c,
+		      quint8 d)
 	    {
 		address[0] = a;
 		address[1] = b;
@@ -112,10 +110,10 @@ namespace agentxcpp
              *
              * \exception None.
              */
-	    void set_value(uint8_t a,
-                           uint8_t b,
-                           uint8_t c,
-                           uint8_t d)
+	    void set_value(quint8 a,
+                           quint8 b,
+                           quint8 c,
+                           quint8 d)
             {
                 address[0] = a;
                 address[1] = b;
@@ -138,7 +136,7 @@ namespace agentxcpp
 	     *
 	     * \exception inval_param If the index is out of bound.
 	     */
-	    uint8_t& operator[](unsigned index)
+	    quint8& operator[](unsigned index)
 	    {
 	        if(index > 3)
 	        {

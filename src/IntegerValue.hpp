@@ -24,6 +24,7 @@
 
 #include "AbstractValue.hpp"
 #include "exceptions.hpp"
+#include "OidValue.hpp"
 
 namespace agentxcpp
 {
@@ -88,6 +89,26 @@ namespace agentxcpp
 		    const binary::const_iterator& end,
 		    bool big_endian=true);
 
+	    /**
+	     * \brief Convert the value to an OID.
+	     *
+	     * The conversion is done according to RFC 2578,
+	     * 7.7. "Mapping of the INDEX clause". The value is
+	     * converted to an Oid with a single subid. Note that
+	     * INTEGER values are signed, while subids are not.
+	     * A negative value with be converted to big unsigned
+	     * subid.
+	     *
+	     * \note If an INTEGER is used in an INDEX clause, the
+	     *       value 0 should be avoided according to
+	     *       RFC 2578, 7.7. "Mapping of the INDEX clause".
+	     */
+	    OidValue toOid() const
+	    {
+	        OidValue oid;
+	        oid.push_back(value);
+	        return oid;
+	    }
     };
 }
 

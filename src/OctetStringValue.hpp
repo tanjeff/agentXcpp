@@ -22,6 +22,7 @@
 
 #include "AbstractValue.hpp"
 #include "exceptions.hpp"
+#include "OidValue.hpp"
 
 namespace agentxcpp
 {
@@ -114,6 +115,39 @@ namespace agentxcpp
 	     * \brief Get the current value as string.
 	     */
 	    std::string str() const;
+
+	    /**
+	     * \brief Convert the value to an OID.
+	     *
+	     * The conversion is done according to RFC 2578,
+	     * 7.7. "Mapping of the INDEX clause". First, the
+	     * string length is converted to a subid. Then, each
+	     * octet of the value is converted into a separate subid.
+	     *
+	     * Note that the length subid is omitted for fixed-length strings.
+	     *
+	     * \param fixedLength Whether the string is fixed-length.
+	     */
+	    OidValue toOid(bool fixedLength = false) const
+	    {
+	        OidValue oid;
+
+	        // Store string length if needed
+	        if(!fixedLength)
+	        {
+	            oid.push_back(value.size());
+	        }
+
+	        // Store string
+	        for(binary::const_iterator i = value.begin();
+	                i != value.end();
+	                ++i)
+	        {
+	            oid.push_back(*i);
+	        }
+	        return oid;
+	    }
+
     };
 }
 

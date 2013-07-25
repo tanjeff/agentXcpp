@@ -24,6 +24,7 @@
 
 #include "AbstractValue.hpp"
 #include "exceptions.hpp"
+#include "OidValue.hpp"
 
 namespace agentxcpp
 {
@@ -143,6 +144,24 @@ namespace agentxcpp
 	            throw(inval_param());
 	        }
 	        return address[index];
+	    }
+
+	    /**
+	     * \brief Convert the value to an OID.
+	     *
+	     * The conversion is done according to RFC 2578,
+	     * 7.7. "Mapping of the INDEX clause". The created OID
+	     * has exactly 4 subids which corresponds to the 4
+	     * integers of the IP address.
+	     */
+	    OidValue toOid() const
+	    {
+	        OidValue oid;
+	        oid.push_back(address[0]);
+	        oid.push_back(address[1]);
+	        oid.push_back(address[2]);
+	        oid.push_back(address[3]);
+	        return oid;
 	    }
     };
 }

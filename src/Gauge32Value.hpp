@@ -29,6 +29,11 @@ namespace agentxcpp
 {
     /**
      * \brief Represents a Gauge32 as descibed in RFC 2741
+     *
+     * \note This class has no toOid() method, because RFC 2578,
+     *       7.7. "Mapping of the INDEX clause" does not describe
+     *       how to convert Gauge32 to an OID.
+     *
      */
     class Gauge32Value : public AbstractValue
     {

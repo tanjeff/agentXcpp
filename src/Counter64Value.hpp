@@ -29,6 +29,10 @@ namespace agentxcpp
 {
     /**
      * \brief Represents an Counter64 as descibed in RFC 2741
+     *
+     * \note This class has no toOid() method, because Counter64
+     *       objects are not allowed in INDEX clauses according to
+     *       RFC 2578, 7.7. "Mapping of the INDEX clause".
      */
     class Counter64Value : public AbstractValue
     {

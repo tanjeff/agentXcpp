@@ -365,6 +365,35 @@ namespace agentxcpp
 	    friend std::ostream& operator<<(std::ostream& out,
 					    const agentxcpp::OidValue& o);
 
+	    /**
+	     * \brief Convert the value to an OID.
+	     *
+	     * The conversion is done according to RFC 2578,
+	     * 7.7. "Mapping of the INDEX clause". First, the
+	     * length is converted to a subid. Then, each
+	     * subid of the value is appended.
+	     *
+	     * Note that the length subid is omitted for fixed-length OIDs.
+	     *
+	     * \param fixedLength Whether the OID is fixed-length.
+	     */
+	    OidValue toOid(bool fixedLength = false) const
+	    {
+	        OidValue oid;
+
+	        // Store length if needed
+	        if(!fixedLength)
+	        {
+	            oid.push_back(this->size());
+	        }
+
+	        // Store value
+	        oid.insert(oid.end(), this->begin(), this->end());
+
+	        return oid;
+	    }
+
+
     };
 
     /**

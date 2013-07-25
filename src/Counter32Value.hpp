@@ -29,6 +29,11 @@ namespace agentxcpp
 {
     /**
      * \brief Represents an Counter32 as described in RFC 2741
+     *
+     * \note This class has no toOid() method, because Counter32
+     *       objects are not allowed in INDEX clauses according to
+     *       RFC 2578, 7.7. "Mapping of the INDEX clause".
+     *
      */
      // TODO: RFC2578?
     class Counter32Value : public AbstractValue

@@ -28,6 +28,7 @@
 
 #include <QObject>
 #include <QThread>
+#include <QMap>
 
 #include "OidValue.hpp"
 #include "AbstractVariable.hpp"
@@ -43,7 +44,7 @@
 #include "CommitSetPDU.hpp"
 #include "UndoSetPDU.hpp"
 #include "UnixDomainConnector.hpp"
-
+#include "Table.hpp"
 
 namespace agentxcpp
 {
@@ -256,6 +257,11 @@ namespace agentxcpp
 	     * \brief Storage for all SNMP variables known to the MasterProxy.
 	     */
 	    std::map< OidValue, QSharedPointer<AbstractVariable> > variables;
+
+            /**
+             * \brief Storage for all SNMP tables known to the MasterProxy.
+             */
+            QMap< OidValue, QSharedPointer<Table> > tables;
 
             /**
              * \brief The variables affected by the Set operation currently
@@ -761,6 +767,30 @@ namespace agentxcpp
 	     */
 	    void add_variable(const OidValue& id, QSharedPointer<AbstractVariable> v);
 
+            /**
+             * \brief Add an SNMP table for serving.
+             *
+             * This adds an SNMP table which can then be read and/or
+             * written.
+             *
+             * Tables can only be added to MIB regions which were registered
+             * in advance.
+             *
+             * If adding a table with an id for which another table is
+             * already registered, it replaces the old one.
+             *
+             * \param subtree The OID of the table.
+             *
+             * \param t The table.
+             *
+             * \exception unknown_registration If trying to add a table
+             *                                 with an id which does not reside
+             *                                 within a registered MIB
+             *                                 region.
+             */
+	    void addTable(const OidValue& subtree,
+	                  QSharedPointer<Table> t);
+
 	    /**
 	     * \brief Remove an SNMP variable so that is not longer accessible.
 	     *
@@ -775,6 +805,21 @@ namespace agentxcpp
 	     * \exception None.
 	     */
 	    void remove_variable(const OidValue& id);
+
+            /**
+             * \brief Remove an SNMP table so that is not longer accessible.
+             *
+             * This removes a table previously added using addTable().
+             * The table will no longer receive SNMP requests.
+             *
+             * If no table is known for the given id, nothing happens.
+             *
+             * \param id The OID of the table to remove. This is the OID
+             *           which was given to addTable().
+             *
+             * \exception None.
+             */
+	    void removeTable(const OidValue& id);
     };
 }
 

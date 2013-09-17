@@ -883,23 +883,48 @@ void MasterProxy::add_variable(const OidValue& id, QSharedPointer<AbstractVariab
 }
 
 
+void MasterProxy::addTable(const OidValue& id, QSharedPointer<Table> t)
+{
+    // Check whether id is contained in a registration
+    bool is_registered = false;
+    std::list< QSharedPointer<RegisterPDU> >::const_iterator r;
+    for(r = registrations.begin(); r != registrations.end(); r++)
+    {
+        if((*r)->get_instance_registration() == false &&
+           (*r)->get_range_subid() == 0)
+        {
+            // Registration is a simple subtree
+            if( (*r)->get_subtree().contains(id) )
+            {
+                // The ID lies within a registered area
+                is_registered = true;
+                break; // stop search
+            }
+        }
+        // TODO: handle other registrations (e.g. instance registration)
+    }
+
+    if( ! is_registered )
+    {
+        // Not in a registered area
+        throw(unknown_registration());
+    }
+    tables[id] = t;
+}
+
+
 
 void MasterProxy::remove_variable(const OidValue& id)
 {
-    // Find variable
-    map<OidValue, QSharedPointer<AbstractVariable> >::iterator i = variables.find(id);
-
-    if(i == variables.end())
-    {
-	// Variable was not added in advance
-	// -> ignore
-	return;
-    }
-
     // Remove variable
-    variables.erase(i);
+    variables.erase(id); // If variable was not registered: ignore
 }
 
+void MasterProxy::removeTable(const OidValue& id)
+{
+    // Remove variable
+    tables.remove(id); // If table was not registered: ignore
+}
 
 
 void MasterProxy::send_notification(const OidValue& snmpTrapOID,

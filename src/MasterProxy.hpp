@@ -101,7 +101,7 @@ namespace agentxcpp
      * 1.3.6.1.4.1.42<b>.1.1</b> and 1.3.6.1.4.1.42<b>.1.2</b>, then a subtree 
      * with OID 1.3.6.1.4.1.42<b>.1</b> should be registered, which includes 
      * both objects.  The master agent will then forward all requests 
-     * conecerning objects in this subtree to this subagent. Requests to 
+     * concerning objects in this subtree to this subagent. Requests to
      * non-existing objects (e.g.  1.3.6.1.4.1.42<b>.1.3</b>) are also 
      * forwarded, and the agentXcpp library will take care of them and return 
      * an appropriate error to the master agent.
@@ -130,13 +130,14 @@ namespace agentxcpp
      *
      * The MasterProxy object generates a RegisterPDU object each time a 
      * registration is performed. These RegisterPDU objects are stored in the 
-     * registrations member.
+     * MasterProxy::registrations member.
      *
      * When unregistering, the matching RegisterPDU is removed from the 
      * registration member.
      *
-     * The registration member becomes invalid on connection loss. Since a 
-     * connection loss is not signalled, the member cannot be cleared in such 
+     * The MasterProxy::registration member becomes invalid on connection loss.
+     * Since a
+     * connection loss is not signaled, the member cannot be cleared in such
      * situations. Therefore, it is cleared in the connect() method if the 
      * object is currently disconnected. If connect() is called on a connected 
      * MasterProxy object, the registrations member is not cleared.
@@ -166,7 +167,7 @@ namespace agentxcpp
      * When removing a variable, it is removed from the variables member.
      *
      * The variables member becomes invalid on connection loss. Since a 
-     * connection loss is not signalled, the member cannot be cleared in such 
+     * connection loss is not signaled, the member cannot be cleared in such
      * situations.  Therefore, it is cleared in the connect() method if the 
      * object is currently disconnected. If connect() is called on a connected 
      * MasterProxy object, the variables member is not cleared.

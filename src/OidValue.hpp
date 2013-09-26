@@ -20,11 +20,11 @@
 #ifndef _OID_H_
 #define _OID_H_
 
-#include <vector>
 #include <ostream>
 #include <string>
 
 #include <QtGlobal>
+#include <QVector>
 
 #include "AbstractValue.hpp"
 #include "exceptions.hpp"
@@ -89,7 +89,7 @@ namespace agentxcpp
      * \endcode
      *
      */
-    class OidValue: public AbstractValue, public std::vector<quint32>
+    class OidValue: public AbstractValue, public QVector<quint32>
     {
 	private:
 
@@ -275,11 +275,34 @@ namespace agentxcpp
 	     * because the 9th number is greater (although the first OID has 
 	     * less numbers than the second).
              *
-             * \param o The OID tocompare to.
+             * \param o The OID to compare to.
              *
              * \return True if the OID is less than 'o', false otherwise.
 	     */
 	    bool operator<(const OidValue& o) const;
+
+	    /**
+	     * \brief The less-than-or-equal operator
+	     *
+	     * See operator<() for a more detailed description about comparing
+	     * OIDs.
+	     *
+	     * \param o The OID to compare to.
+	     *
+	     * \return True if the OID is less than or equal 'o',
+	     *         false otherwise.
+	     */
+	    bool operator<=(const OidValue& o) const
+            {
+	        if(*this == o || *this < o)
+	        {
+	            return true;
+	        }
+	        else
+	        {
+	            return false;
+	        }
+            }
 
 	    /**
 	     * \brief The equal-operator
@@ -324,7 +347,24 @@ namespace agentxcpp
 		return o < *this;
 	    }
 
-	    /**
+            /**
+             * \brief The greater-than-or-equal operator
+             *
+             * See operator<() for a more detailed description about comparing
+             * OIDs.
+             *
+             * \param o The OID to compare to.
+             *
+             * \return True if the OID is greater than or equal 'o',
+             *         false otherwise.
+             */
+            bool operator>=(const OidValue& o) const
+            {
+                // a >= b is the same as b <= a :-)
+                return o <= *this;
+            }
+
+            /**
 	     * \brief Checks whether the given OidValue is in the subtree of this
 	     *        OidValue.
 	     *
@@ -388,7 +428,7 @@ namespace agentxcpp
 	        }
 
 	        // Store value
-	        oid.insert(oid.end(), this->begin(), this->end());
+	        oid += *this;
 
 	        return oid;
 	    }

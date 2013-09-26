@@ -338,7 +338,7 @@ OidValue& OidValue::operator=(const OidValue& other)
     this->include = other.include;
 
     // copy inherited stuff
-    vector<quint32>::operator=(other);
+    QVector<quint32>::operator=(other);
     AbstractValue::operator=(other);
     
     // Return reference to us

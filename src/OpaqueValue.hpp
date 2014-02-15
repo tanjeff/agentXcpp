@@ -87,6 +87,13 @@ namespace agentxcpp
              * \brief Constructor for initializing with data.
              */
 	    OpaqueValue(binary initial_value) : value(initial_value) {}
+
+	    /**
+	     * \brief Standard constructor.
+	     */
+	    OpaqueValue()
+	    {
+	    }
     };
 }
 

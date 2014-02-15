@@ -17,8 +17,8 @@
  * for more details.
  */
 
-#ifndef _INTEGER_H_
-#define _INTEGER_H_
+#ifndef _INTEGERVALUE_H_
+#define _INTEGERVALUE_H_
 
 #include <QtGlobal>
 

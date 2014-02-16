@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package
  * for more details.
  */
-#ifndef _VARIABLE_H_
-#define _VARIABLE_H_
+#ifndef _ABSTRACTVARIABLE_H_
+#define _ABSTRACTVARIABLE_H_
 
 #include <QSharedPointer>
 
@@ -29,7 +29,7 @@ namespace agentxcpp
      * \brief Base class for SNMP variables.
      *
      * This class is the base class for SNMP variable implementations. It 
-     * provides the interface which is used internally by agentXcpp to perform 
+     * provides the interface which is used by agentXcpp to perform
      * operations on variables.
      */
     class AbstractVariable
@@ -47,7 +47,8 @@ namespace agentxcpp
             /**
              * \brief Handle AgentX Get request.
              *
-             * This method is called when a get request is received for the 
+             * This method is called when the SNMP request "Get" is received
+             * for the
              * variable. It shall return the current value of the variable.
              *
              * \return The current value of the variable.
@@ -153,10 +154,11 @@ namespace agentxcpp
             /**
              * \brief Validate whether a Set operation would be successful.
              *
-             * This method is called when a TestSet request is received. It 
+             * This method is called when the SNMP request "TestSet" is
+             * received. It
              * shall check whether a Set operation is possible for the 
              * variable. It shall acquire the resources needed to perform the 
-             * Set operation (but the Set shall not yet performed).
+             * Set operation (but the Set shall not yet be performed).
              *
              * \note This is the only method which receives the new value to be
              *       set. An implementation must save the new value for 
@@ -169,17 +171,18 @@ namespace agentxcpp
             /**
              * \brief Release resources after a Set operation.
              *
-             * This method is called when a CleanupSet request is received. It 
-             * shall release all resources previously allocated by 
-             * handle_testset() (if any). If no resources were allocated, this 
-             * method is not required to do anything.
+             * This method is called when the SNMP request "CleanupSet"
+             * is received. It shall release all resources previously allocated
+             * by handle_testset() (if any). If no resources were allocated,
+             * this method is not required to do anything.
              */
             virtual void handle_cleanupset() = 0;
 
             /**
              * \brief Actually perform the Set operation.
              *
-             * This method is called when a CommitSet request is received for 
+             * This method is called when the SNMP request "CommitSet"
+             * is received for
              * the variable. It shall perform the Set operation. It shall 
              * report whether the operation succeeded.
              *
@@ -193,7 +196,8 @@ namespace agentxcpp
             /**
              * \brief Undo a Set operation which was already performed.
              *
-             * This method is called when an UndoSet request is received. It 
+             * This method is called when the SNMP request "UndoSet" is
+             * received. It
              * shall undo the operation performed by handle_commitset().
              *
              * \return True on success, false otherwise.
@@ -204,4 +208,4 @@ namespace agentxcpp
 
 
 
-#endif /* _VARIABLE_H_ */
+#endif /* _ABSTRACTVARIABLE_H_ */

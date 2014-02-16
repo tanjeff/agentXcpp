@@ -16,8 +16,8 @@
  * See the AgentXcpp library license in the LICENSE file of this package
  * for more details.
  */
-#ifndef _PRIMITIVE_VARIABLE_H_
-#define _PRIMITIVE_VARIABLE_H_
+#ifndef _VARIABLE_H_
+#define _VARIABLE_H_
 
 #include <QSharedPointer>
 
@@ -26,11 +26,16 @@
 namespace agentxcpp
 {
     /**
-     * \brief Class template to implement primitive SNMP variables.
+     * \brief Class template to help implement SNMP variables.
      *
-     * This class template is used as base class for primitive SNMP variable 
-     * implementations. It is instanciated with the value type the variable 
-     * provides. Then, some functions are overriden to provide the 
+     * This class template can be used as base class for SNMP variable
+     * implementations. It implements the agentxcpp::AbstractVariable
+     * interface and tailors it for a concrete type (in contrast,
+     * agentxcpp::AbstractVariable deals with agentxcpp::AbstractValue).
+     *
+     * It shall be instantiated with the value type the variable
+     * provides (which should be a class derived from agentxcpp::AbstractValue).
+     * Then, some functions shall be overridden to provide the
      * functionality. Example:
      * 
      * \code
@@ -43,7 +48,7 @@ namespace agentxcpp
      *
      *     public:
      *
-     *         // Handle SNMP get request
+     *         // Handle SNMP get request, overrides Variable::get()
      *         virtual IntegerValue get()
      *         {
      *             return counter;
@@ -52,7 +57,7 @@ namespace agentxcpp
      *         // Increment the internal counter
      *         void increment()
      *         {
-     *             // Increment counter somehow
+     *             counter.value++;
      *         }
      * };
      * \endcode
@@ -62,35 +67,38 @@ namespace agentxcpp
      *
      * To support write access (which is optional), the methods testset() and 
      * commitset() must be implemented. The undoset() method should also be 
-     * implemented in this case. The cleanupset() methon may be implemented if 
+     * implemented in this case. The cleanupset() method may be implemented if
      * needed.
      *
      * \internal
      *
-     * This class template implements the methods of agentxcpp::variable in 
-     * such a way that they call methods for the more specific value types.  
+     * This class template implements the methods of agentxcpp::AbstractVariable
+     * in such a way that they call methods for the more specific value types.
      * Example:
      *
      * \code
-     * virtual testset_result_t handle_testset(QSharedPointer<value> v)
-     * {
-     *     QSharedPointer<V> new_value = qSharedPointerDynamicCast<V>(v);
-     *
-     *     if (new_value)
+     * virtual testset_result_t handle_testset(QSharedPointer<AbstractValue> v)
      *     {
-     *         return this->testset(new_value);
+     *         new_value = qSharedPointerDynamicCast<T>(v);
+     *         if (new_value)
+     *         {
+     *             // Type matches variable
+     *             return this->testset(new_value);
+     *         }
+     *         else
+     *         {
+     *             // Wrong type
+     *             return wrongType;
+     *         }
      *     }
-     *     else
-     *     {
-     *         return wrongType;
-     *     }
-     * }
      * \endcode
      *
-     * As can be seen, handle_testset() receives a pointer to a 'value' object.  
-     * This pointer is casted to 'V' (the template parameter) before giving it 
-     * to the testset() method.  The testset() method is the one which is 
-     * implemented by the agentXcpp user.
+     * As can be seen, handle_testset() receives a pointer to an
+     * agentxcpp::AbstractValue object.
+     * This pointer is casted to 'T' (the template parameter) before giving it
+     * to the testset() method.  The testset() method is the one which can be
+     * implemented in derived classes (while handle_testset() should not be
+     * re-implemented).
      *
      * This class template remembers the new value and gives it to the 
      * functions testset(), commitset(), cleanupset() and undoset(). Also, type 
@@ -118,8 +126,8 @@ namespace agentxcpp
              *
              * \brief Handle a Get Request.
              *
-             * This function calls this->get() to obtain the new value, 
-             * converts it to QSharedPointer<value> and returns it.
+             * This function calls get() to obtain the new value,
+             * converts it to QSharedPointer<AbstractValue> and returns it.
              */
             virtual QSharedPointer<AbstractValue> handle_get()
             {
@@ -133,7 +141,8 @@ namespace agentxcpp
             /**
              * \brief Handle a Get request.
              *
-             * This method is called to handle an SNMP Get request. It shall 
+             * This method is called when an SNMP Get request is received.
+             * It shall
              * return the current value of the variable.
              *
              * \note This method is pure virtual and thus \e must be
@@ -149,15 +158,19 @@ namespace agentxcpp
              *
              * \brief Handle a TestSet request.
              *
-             * This function converts the argument to QSharedPointer<V>() and calls 
+             * This function converts the argument to QSharedPointer<T>() and
+             * calls
              * testset() with the converted value. If conversion fails, 
              * testset() is not called. This function also stores the given 
              * value to the new_value member.
              *
              * \param v The new value for the variable.
              *
-             * \return wrongType if the conversion fails.  Otherwise, the
-             *         result of testset() is returned.
+             * \return agentxcpp::AbstractVariable::wrongType if the conversion
+             *                                                fails. Otherwise,
+             *                                                the result of
+             *                                                testset() is
+             *                                                returned.
              */
             virtual testset_result_t handle_testset(QSharedPointer<AbstractValue> v)
             {
@@ -178,12 +191,14 @@ namespace agentxcpp
             /**
              * \brief Handle a TestSet request.
              *
-             * This method is called to handle an SNMP TestSet request. It 
+             * This method is called when an SNMP TestSet request is received.
+             * It
              * shall check whether a Set operation is possible for the 
              * variable.  It shall acquire the resources needed to perform the 
-             * Set operation (but the Set shall not yet performed).
+             * Set operation (but the Set shall not yet be performed).
              *
-             * The default implementation returns noAccess to indicate that 
+             * The default implementation returns
+             * agentxcpp::AbstractVariable::noAccess to indicate that
              * this is a read-only variable. Thus, for read-only variables this 
              * method need not be overridden.
              *
@@ -212,7 +227,8 @@ namespace agentxcpp
             /**
              * \brief Handle a CleanupSet request.
              *
-             * This method is called to handle an SNMP CleanupSet request. It 
+             * This method is called when an SNMP CleanupSet request is
+             * received. It
              * shall release any ressources allocated by testset().
              *
              * The default implementation does nothing. If no action is 
@@ -242,7 +258,8 @@ namespace agentxcpp
             /**
              * \brief Handle a CommitSet request.
              *
-             * This method is called to handle an SNMP CommitSet request. It 
+             * This method is called when an SNMP CommitSet request is
+             * received. It
              * shall perform the actual write operation.
              *
              * The default implementation returns false to indicate that the 
@@ -275,7 +292,8 @@ namespace agentxcpp
             /**
              * \brief Handle an UndoSet request.
              *
-             * This method is called to handle an SNMP UndoSet request. It 
+             * This method is called when an SNMP UndoSet request is received.
+             * It
              * shall undo whatever commitset() performed. It shall also release
              * all resources allocated by testset().
              *
@@ -305,4 +323,4 @@ namespace agentxcpp
 
 
 
-#endif /* _PRIMITIVE_VARIABLE_H_ */
+#endif /* _VARIABLE_H_ */

@@ -21,7 +21,7 @@
 
 #include <QSharedPointer>
 
-#include "AbstractValue.hpp"
+#include "binary.hpp"
 
 namespace agentxcpp
 {
@@ -31,6 +31,8 @@ namespace agentxcpp
      * This class is the base class for SNMP variable implementations. It 
      * provides the interface which is used by agentXcpp to perform
      * operations on variables.
+     *
+     * \todo Explain how Variables work in general.
      */
     class AbstractVariable
     {
@@ -49,14 +51,12 @@ namespace agentxcpp
              *
              * This method is called when the SNMP request "Get" is received
              * for the
-             * variable. It shall return the current value of the variable.
-             *
-             * \return The current value of the variable.
+             * variable. It shall update the internal state.
              *
              * \exception generic_error If obtaining the current value fails.
              *                          No other exception shall be thrown.
              */
-            virtual QSharedPointer<AbstractValue> handle_get() = 0;
+            virtual void handle_get() = 0;
 
 
             /**
@@ -73,8 +73,10 @@ namespace agentxcpp
              * \internal
              *
              * The numeric values are given in RFC 2741, 7.2.4.1. "Subagent 
-             * Processing of the agentx-TestSet-PDU" and must be in sync with 
-             * the corresponding errors defined in ResponsePDU::error_t.
+             * Processing of the agentx-TestSet-PDU".
+             *
+             * \note These values must be in sync with the corresponding
+             *       errors defined in agentxcpp::ResponsePDU::error_t.
              */
             enum testset_result_t
             {
@@ -165,8 +167,10 @@ namespace agentxcpp
              *       subsequent operations (i.e.  handle_commitset()).
              *
              * \return The result of the validation.
+             *
+             * \exception None: The function shall not throw.
              */
-            virtual testset_result_t handle_testset(QSharedPointer<AbstractValue>) = 0;
+            virtual testset_result_t handle_testset(QSharedPointer<AbstractVariable>) = 0;
 
             /**
              * \brief Release resources after a Set operation.
@@ -175,6 +179,8 @@ namespace agentxcpp
              * is received. It shall release all resources previously allocated
              * by handle_testset() (if any). If no resources were allocated,
              * this method is not required to do anything.
+             *
+             * \exception None: The function shall not throw.
              */
             virtual void handle_cleanupset() = 0;
 
@@ -190,6 +196,8 @@ namespace agentxcpp
              *       calling handle_commitset().
              *
              * \return True on success, false otherwise.
+             *
+             * \exception None: The function shall not throw.
              */
             virtual bool handle_commitset()= 0;
 
@@ -201,8 +209,25 @@ namespace agentxcpp
              * shall undo the operation performed by handle_commitset().
              *
              * \return True on success, false otherwise.
+             *
+             * \exception None: The function shall not throw.
              */
             virtual bool handle_undoset() = 0;
+
+            /**
+             * \internal
+             *
+             * \brief Serialize the value.
+             *
+             * This function must be implemented by all derived classes. The
+             * function shall generate a serialized form of the internal value.
+             *
+             * \return The serialized form of the value.
+             *
+             * \exception None: The function shall not throw.
+             */
+            virtual binary serialize() const = 0;
+
     };
 }
 

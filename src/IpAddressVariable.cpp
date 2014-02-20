@@ -17,12 +17,12 @@
  * for more details.
  */
 
-#include "IpAddressValue.hpp"
+#include "IpAddressVariable.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
 
-binary IpAddressValue::serialize() const
+binary IpAddressVariable::serialize() const
 {
     binary serialized;
 
@@ -42,7 +42,7 @@ binary IpAddressValue::serialize() const
 }
 
 
-IpAddressValue::IpAddressValue(binary::const_iterator& pos,
+IpAddressVariable::IpAddressVariable(binary::const_iterator& pos,
 		     const binary::const_iterator& end,
 		     bool big_endian)
 {

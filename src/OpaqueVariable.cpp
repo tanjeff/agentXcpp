@@ -17,23 +17,23 @@
  * for more details.
  */
 
-#include "OpaqueValue.hpp"
+#include "OpaqueVariable.hpp"
 
 using namespace agentxcpp;
 
-binary OpaqueValue::serialize() const
+binary OpaqueVariable::serialize() const
 {
     binary serialized;
 
     // encode size (big endian)
-    int size = value.size();
+    int size = v.size();
     serialized.push_back(size >> 24 & 0xff);
     serialized.push_back(size >> 16 & 0xff);
     serialized.push_back(size >> 8 & 0xff);
     serialized.push_back(size >> 0 & 0xff);
 
     // encode value
-    serialized += value;
+    serialized += v;
 
     // Padding bytes
     int padsize = 4 - (size % 4);
@@ -46,7 +46,7 @@ binary OpaqueValue::serialize() const
 }
 
 
-OpaqueValue::OpaqueValue(binary::const_iterator& pos,
+OpaqueVariable::OpaqueVariable(binary::const_iterator& pos,
 	       const binary::const_iterator& end,
 	       bool big_endian)
 {
@@ -88,7 +88,7 @@ OpaqueValue::OpaqueValue(binary::const_iterator& pos,
     }
     
     // Get value
-    value.assign(pos, pos+size);
+    v.assign(pos, pos+size);
     pos += size;
     
     // Eat padding bytes

@@ -17,32 +17,33 @@
  * for more details.
  */
 
-#include "Gauge32Value.hpp"
+#include "Counter32Variable.hpp"
 #include "util.hpp"
+#include "exceptions.hpp"
 
 using namespace agentxcpp;
 
-binary Gauge32Value::serialize() const
+binary Counter32Variable::serialize() const
 {
     binary serialized;
 
     // encode value (big endian)
-    write32(serialized, value);
+    write32(serialized, v);
 
     return serialized;
 }
 
 
-Gauge32Value::Gauge32Value(binary::const_iterator& pos,
-		 const binary::const_iterator& end,
-		 bool big_endian)
+Counter32Variable::Counter32Variable(binary::const_iterator& pos,
+		     const binary::const_iterator& end,
+		     bool big_endian)
 {
     // Are there at least 4 bytes in the buffer?
     if(end - pos < 4)
     {
 	throw(parse_error());
     }
-    
+
     // Get value
-    value = read32(pos, big_endian);
+    v = read32(pos, big_endian);
 }

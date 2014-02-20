@@ -19,38 +19,38 @@
 
 #include <iterator>
 
-#include "OctetStringValue.hpp"
+#include "OctetStringVariable.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
 
-OctetStringValue::OctetStringValue(std::string v)
+OctetStringVariable::OctetStringVariable(QString v)
 {
     // Delegate ;-)
-    this->set_value(v);
+    this->setValue(v);
 }
 
-void OctetStringValue::set_value(std::string v)
+void OctetStringVariable::setValue(QString _value)
 {
     // Here we convert initial value to a binary string. We do this in three
     // steps:
-    // 1. get the bare data: v.data()
+    // 1. get the bare data: v.toStdString().data()
     // 2. cast the data to the value type of binary
     // 3. calculate the size of the data
-    //    - v.size() gives us the number of characters
+    //    - v.toStdString().size() gives us the number of characters
     //    - sizeof(binary::value_type) gives us the size of an character
     // 4. Assign v to value, giving it the bare data and its size
     //
     // This seems to be goofy, but it ensures that our code works even on a
     // machine where a char is not 8 bit wide, i.e. when char has another size
     // than quint8.
-    value.assign(
-            reinterpret_cast<const binary::value_type*>( v.data() ),
-            v.size() * sizeof( binary::value_type )
+    v.assign(
+            reinterpret_cast<const binary::value_type*>( _value.toStdString().data() ),
+            _value.toStdString().size() * sizeof( binary::value_type )
                 );
 }
 
-std::string OctetStringValue::str() const
+QString OctetStringVariable::toString() const
 {
     // Here we convert the stored value to a string. We do this in three
     // steps:
@@ -66,24 +66,24 @@ std::string OctetStringValue::str() const
     // machine where a char is not 8 bit wide, i.e. when char has another size
     // than quint8.
     std::string retval(
-            reinterpret_cast<const std::string::value_type*>( value.data() ),
-            value.size() * sizeof( std::string::value_type )
+            reinterpret_cast<const std::string::value_type*>( v.data() ),
+            v.size() * sizeof( std::string::value_type )
             );
-    return retval;
+    return QString::fromStdString(retval);
 }
 
-binary OctetStringValue::serialize() const
+binary OctetStringVariable::serialize() const
 {
     binary serialized;
 
     // encode size (big endian)
-    write32(serialized, value.size());
+    write32(serialized, v.size());
 
     // encode value
-    serialized += value;
+    serialized += v;
 
     // Padding bytes
-    int padsize = 4 - (value.size() % 4);
+    int padsize = 4 - (v.size() % 4);
     if( padsize == 4 ) padsize = 0; // avoid adding 4 padding bytes
     while( padsize-- )
     {
@@ -94,9 +94,9 @@ binary OctetStringValue::serialize() const
 }
 
 
-OctetStringValue::OctetStringValue(binary::const_iterator& pos,
-			   const binary::const_iterator& end,
-			   bool big_endian)
+OctetStringVariable::OctetStringVariable(binary::const_iterator& pos,
+                                         const binary::const_iterator& end,
+                                         bool big_endian)
 {
     int size;
 
@@ -123,7 +123,7 @@ OctetStringValue::OctetStringValue(binary::const_iterator& pos,
     }
 
     // Get value
-    value.assign(pos, pos+size);
+    v.assign(pos, pos+size);
     pos += size;
 
     // Eat padding bytes
@@ -137,4 +137,25 @@ OctetStringValue::OctetStringValue(binary::const_iterator& pos,
     {
 	pos++;
     }
+}
+
+
+OidVariable OctetStringVariable::toOid(bool fixedLength) const
+{
+    OidVariable oid;
+
+    // Store string length if needed
+    if(!fixedLength)
+    {
+        oid.push_back(v.size());
+    }
+
+    // Store string
+    for(binary::const_iterator i = v.begin();
+            i != v.end();
+            ++i)
+    {
+        oid.push_back(*i);
+    }
+    return oid;
 }

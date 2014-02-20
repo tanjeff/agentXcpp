@@ -19,7 +19,7 @@
 
 //#include <iostream>
 #include <sstream>
-#include "OidValue.hpp"
+#include "OidVariable.hpp"
 #include "exceptions.hpp"
 
 
@@ -27,7 +27,7 @@ using namespace agentxcpp;
 using namespace std;
 
 
-void OidValue::parse_string(std::string s)
+void OidVariable::parseString(std::string s)
 {
     // Do not parse empty string
     if(s.empty()) return;
@@ -65,26 +65,26 @@ void OidValue::parse_string(std::string s)
 
 
 
-OidValue::OidValue(std::string s)
+OidVariable::OidVariable(std::string s)
 {
     include = false;
 
     // parse the string. Forward all exceptions.
-    parse_string(s);
+    parseString(s);
 }
 
 
-OidValue::OidValue(const OidValue& o, std::string id)
+OidVariable::OidVariable(const OidVariable& o, std::string id)
 {
     // start with o
     *this = o;
 
     // add OID from string. Forward all exceptions.
-    parse_string(id);
+    parseString(id);
 }
 
 
-std::ostream& agentxcpp::operator<<(std::ostream& out, const OidValue& o)
+std::ostream& agentxcpp::operator<<(std::ostream& out, const OidVariable& o)
 {
     // Leading dot
     out << ".";
@@ -96,7 +96,7 @@ std::ostream& agentxcpp::operator<<(std::ostream& out, const OidValue& o)
     }
 
     // Get iterator to first subidentifier
-    OidValue::const_iterator it = o.begin();
+    OidVariable::const_iterator it = o.begin();
 
     // Print first subidentifier
     out << *it;
@@ -115,7 +115,7 @@ std::ostream& agentxcpp::operator<<(std::ostream& out, const OidValue& o)
 
 
 
-binary OidValue::serialize() const
+binary OidVariable::serialize() const
 {
     // The serial representation of an OID is as follows (RFC 2741, section 
     // 5.1):
@@ -147,7 +147,7 @@ binary OidValue::serialize() const
     serialized[include_idx] = include ? 1 : 0;
 
     // Iterator for the subid's
-    OidValue::const_iterator subid = this->begin();
+    OidVariable::const_iterator subid = this->begin();
 
     // Check whether we can use the prefix (RFC 2741, section 5.1)
     if( this->size() >= 5 &&
@@ -186,7 +186,7 @@ binary OidValue::serialize() const
     return serialized;
 }
 
-OidValue::OidValue(binary::const_iterator& pos,
+OidVariable::OidVariable(binary::const_iterator& pos,
 	 const binary::const_iterator& end,
 	 bool big_endian)
 {
@@ -255,9 +255,9 @@ OidValue::OidValue(binary::const_iterator& pos,
 }
 
 
-bool OidValue::operator<(const OidValue& o) const
+bool OidVariable::operator<(const OidVariable& o) const
 {
-    OidValue::const_iterator mine, yours;
+    OidVariable::const_iterator mine, yours;
     mine = this->begin();
     yours = o.begin();
 
@@ -298,7 +298,7 @@ bool OidValue::operator<(const OidValue& o) const
 
 
 
-bool OidValue::operator==(const OidValue& o) const
+bool OidVariable::operator==(const OidVariable& o) const
 {
     // Quick test: if the OidValues have different number of parts, they are not 
     // equal:
@@ -308,7 +308,7 @@ bool OidValue::operator==(const OidValue& o) const
     }
     
     // Test all parts:
-    OidValue::const_iterator mine, yours;
+    OidVariable::const_iterator mine, yours;
     mine = this->begin();
     yours = o.begin();
 
@@ -332,21 +332,21 @@ bool OidValue::operator==(const OidValue& o) const
 }
 
 
-OidValue& OidValue::operator=(const OidValue& other)
+OidVariable& OidVariable::operator=(const OidVariable& other)
 {
     // copy our own members
     this->include = other.include;
 
     // copy inherited stuff
     QVector<quint32>::operator=(other);
-    AbstractValue::operator=(other);
+    AbstractVariable::operator=(other);
     
     // Return reference to us
     return *this;
 }
 
 
-bool OidValue::contains(const OidValue& id)
+bool OidVariable::contains(const OidVariable& id)
 {
     // If id has fewer subids than this: not contained
     if(this->size() > id.size())
@@ -372,7 +372,7 @@ bool OidValue::contains(const OidValue& id)
 }
 
 
-bool OidValue::is_null() const
+bool OidVariable::is_null() const
 {
     if( this->size() == 0 &&
 	! this->include)

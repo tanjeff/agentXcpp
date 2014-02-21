@@ -36,7 +36,7 @@ RegisterPDU::RegisterPDU(binary::const_iterator& pos,
     range_subid = *pos++;
     pos++;  // skip reserved field
 
-    subtree = OidValue(pos, end, big_endian);
+    subtree = OidVariable(pos, end, big_endian);
 
     // read r.upper_bound only if r.range_subid is not 0
     if(end - pos < 4)

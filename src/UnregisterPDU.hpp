@@ -22,7 +22,7 @@
 #include <QtGlobal>
 
 #include "PDUwithContext.hpp"
-#include "OidValue.hpp"
+#include "OidVariable.hpp"
 
 
 namespace agentxcpp
@@ -37,7 +37,7 @@ namespace agentxcpp
 	private:
 	    quint8 priority;
 	    quint8 range_subid;
-	    OidValue subtree;
+	    OidVariable subtree;
 	    quint32 upper_bound;
 
 	public:
@@ -59,14 +59,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the subtree.
 	     */
-	    void set_subtree(OidValue subtree)
+	    void set_subtree(OidVariable subtree)
 	    {
 		this->subtree = subtree;
 	    }
 	    /**
 	     * \brief Get the subtree.
 	     */
-	    OidValue get_subtree()
+	    OidVariable get_subtree()
 	    {
 		return this->subtree;
 	    }

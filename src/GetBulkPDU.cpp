@@ -37,10 +37,10 @@ GetBulkPDU::GetBulkPDU(binary::const_iterator& pos,
     // Get SearchRanges until the PDU is completely parsed
     while( pos < end )
     {
-	pair<OidValue,OidValue> p;
+	pair<OidVariable,OidVariable> p;
 
-	p.first = OidValue(pos, end, big_endian);
-	p.second = OidValue(pos, end, big_endian);
+	p.first = OidVariable(pos, end, big_endian);
+	p.second = OidVariable(pos, end, big_endian);
 
 	if(p.second.get_include() == true)
 	{
@@ -67,7 +67,7 @@ binary GetBulkPDU::serialize() const
     write16(serialized, this->max_repititions);
 
     // Add OID's
-    vector< pair<OidValue,OidValue> >::const_iterator i;
+    vector< pair<OidVariable,OidVariable> >::const_iterator i;
     for(i = sr.begin(); i < sr.end(); i++)
     {
 	serialized += i->first.serialize();

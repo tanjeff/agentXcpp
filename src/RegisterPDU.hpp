@@ -21,7 +21,7 @@
 
 #include <QSharedPointer>
 
-#include "OidValue.hpp"
+#include "OidVariable.hpp"
 #include "PDUwithContext.hpp"
 
 namespace agentxcpp
@@ -36,7 +36,7 @@ namespace agentxcpp
 	private:
 	    quint8 timeout;
 	    quint8 priority;
-	    OidValue subtree;
+	    OidVariable subtree;
 	    quint8 range_subid;
 	    quint32 upper_bound;
 
@@ -59,14 +59,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the subtree.
 	     */
-	    void set_subtree(OidValue subtree)
+	    void set_subtree(OidVariable subtree)
 	    {
 		this->subtree = subtree;
 	    }
 	    /**
 	     * \brief Get the subtree.
 	     */
-	    OidValue get_subtree()
+	    OidVariable get_subtree()
 	    {
 		return this->subtree;
 	    }

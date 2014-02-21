@@ -28,10 +28,10 @@ AddAgentCapsPDU::AddAgentCapsPDU(binary::const_iterator& pos,
     : PDUwithContext(pos, end, big_endian)
 {
     // parse ID
-    id = OidValue(pos, end, big_endian);
+    id = OidVariable(pos, end, big_endian);
 
     // parse descr
-    descr = OctetStringValue(pos, end, big_endian);
+    descr = OctetStringVariable(pos, end, big_endian);
 }
 	    
 
@@ -53,7 +53,7 @@ binary AddAgentCapsPDU::serialize()
 }
 
 
-AddAgentCapsPDU::AddAgentCapsPDU(OidValue id, OctetStringValue descr)
+AddAgentCapsPDU::AddAgentCapsPDU(OidVariable id, OctetStringVariable descr)
 {
     this->id = id;
     this->descr = descr;

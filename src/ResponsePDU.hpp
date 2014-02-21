@@ -25,8 +25,8 @@
 #include <QtGlobal>
 
 #include "PDU.hpp"
-#include "OidValue.hpp"
-#include "OctetStringValue.hpp"
+#include "OidVariable.hpp"
+#include "OctetStringVariable.hpp"
 #include "varbind.hpp"
 
 using std::vector;

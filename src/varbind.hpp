@@ -24,8 +24,8 @@
 #include <QSharedPointer>
 #include <QtGlobal>
 
-#include "OidValue.hpp"
-#include "AbstractValue.hpp"
+#include "OidVariable.hpp"
+#include "AbstractVariable.hpp"
 
 namespace agentxcpp
 {
@@ -40,7 +40,7 @@ namespace agentxcpp
 	    /**
 	     * \brief The name (OID) of the VarBind.
 	     */
-	    OidValue name;
+	    OidVariable name;
 
 	    /**
 	     * \brief The variable inside the varbind.
@@ -48,7 +48,7 @@ namespace agentxcpp
 	     * This pointer may be 0 if the varbind has a type without a 
 	     * variable (e.g. "NoSuchObject").
 	     */
-	    QSharedPointer<AbstractValue> var;
+	    QSharedPointer<AbstractVariable> var;
 
 	    /**
 	     * \brief The type of the varbind.
@@ -66,7 +66,7 @@ namespace agentxcpp
 	     * The variable must be one of the following types:
 	     * - IntegerValue
 	     * - OctetStringValue
-	     * - OidValue
+	     * - OidVariable
 	     * - IpAddressValue
 	     * - Counter32Value
 	     * - Gauge32Value
@@ -76,7 +76,7 @@ namespace agentxcpp
 	     * If the type of the variable cannot be determined, inval_param is 
 	     * thrown.
 	     */
-	    varbind(const OidValue&, QSharedPointer<AbstractValue> v);
+	    varbind(const OidVariable&, QSharedPointer<AbstractVariable> v);
 	    
 	    /**
 	     * \brief These values can be used to create a VarBind.
@@ -95,7 +95,7 @@ namespace agentxcpp
 	     * Only the constants defined by varbind::type_t are allowed.  A 
 	     * wrong type will cause an inval_param exception.
 	     */
-	    varbind(const OidValue&, type_t);
+	    varbind(const OidVariable&, type_t);
 
 	    /**
 	     * \internal
@@ -128,7 +128,7 @@ namespace agentxcpp
             /**
              * \brief Get the name (the OID) stored within the varbind.
              */
-            OidValue get_name() const
+            OidVariable get_name() const
             {
                 return name;
             }
@@ -139,7 +139,7 @@ namespace agentxcpp
              * \note This returns a smart pointer to the variable, i.e. the
              *       variable can be modified in-place.
              */
-            QSharedPointer<AbstractValue> get_var() const
+            QSharedPointer<AbstractVariable> get_var() const
             {
                 return var;
             }

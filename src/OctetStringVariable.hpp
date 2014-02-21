@@ -49,13 +49,6 @@ namespace agentxcpp
             OctetStringVariable(QString initial_value);
 
             /**
-             * \brief Create empty OctetStringValue object.
-             */
-            OctetStringVariable()
-            {
-            }
-
-            /**
              * \internal
              *
              * \brief Parse Constructor.

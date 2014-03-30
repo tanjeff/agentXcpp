@@ -346,7 +346,7 @@ OidVariable& OidVariable::operator=(const OidVariable& other)
 }
 
 
-bool OidVariable::contains(const OidVariable& id)
+bool OidVariable::contains(const OidVariable& id) const
 {
     // If id has fewer subids than this: not contained
     if(this->size() > id.size())

@@ -395,7 +395,7 @@ namespace agentxcpp
 	     * \return True if id is contained in the subtree, false
 	     *         otherwise.
 	     */
-	    bool contains(const OidVariable& id);
+	    bool contains(const OidVariable& id) const;
 
 	    /**
              * \internal

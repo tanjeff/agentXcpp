@@ -17,7 +17,6 @@
  * for more details.
  */
 
-//#include <iostream>
 #include <sstream>
 #include "OidVariable.hpp"
 #include "exceptions.hpp"
@@ -176,10 +175,10 @@ binary OidVariable::serialize() const
     // copy subids to serialized
     while( subid != this->end() )
     {
-	serialized.push_back( (*subid) << 24 & 0xff );
-	serialized.push_back( (*subid) << 16 & 0xff );
-	serialized.push_back( (*subid) << 8 & 0xff );
-	serialized.push_back( (*subid) << 0 & 0xff );
+	serialized.push_back( (*subid) >> 24 & 0xff );
+	serialized.push_back( (*subid) >> 16 & 0xff );
+	serialized.push_back( (*subid) >> 8 & 0xff );
+	serialized.push_back( (*subid) >> 0 & 0xff );
 	subid++;
     }
 

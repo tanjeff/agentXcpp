@@ -83,6 +83,16 @@ OidVariable::OidVariable(const OidVariable& o, std::string id)
 }
 
 
+OidVariable::OidVariable(const OidVariable& o, quint32 id)
+{
+    // start with o
+    *this = o;
+
+    // add suboid
+    append(id);
+}
+
+
 std::ostream& agentxcpp::operator<<(std::ostream& out, const OidVariable& o)
 {
     // Leading dot

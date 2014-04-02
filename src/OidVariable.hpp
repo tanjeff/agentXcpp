@@ -157,8 +157,8 @@ namespace agentxcpp
 	    OidVariable(std::string id);
 
 	    /**
-	     * \brief Initialize an OidValue object with another OidValue plus an OID in 
-	     * string format.
+	     * \brief Initialize an OidValue object with another OidValue plus
+	     *        a subid.
 	     *
              * All subid's are copied from 'o'.  Then, the OID contained within 
              * the string 'id' is appended.  The format of the string is 
@@ -175,6 +175,25 @@ namespace agentxcpp
 	     * \exception inval_param If the string is malformed.
 	     */
 	    OidVariable(const OidVariable& o, std::string id);
+
+            /**
+             * \brief Initialize an OidValue object with another OidValue plus
+             *        a subid.
+             *
+             * All subid's are copied from 'o'.  Then, the subid 'id' is
+             * appended.
+             *
+             * \internal
+             * The 'include' field is copied from 'o'.
+             * \endinternal
+             *
+             * \param o The starting OID.
+             *
+             * \param id The subid to append.
+             *
+             * \exception None.
+             */
+	    OidVariable(const OidVariable& o, quint32 id);
 
 	    /**
 	     * \brief Assignment operator
@@ -372,6 +391,73 @@ namespace agentxcpp
             {
                 // a >= b is the same as b <= a :-)
                 return o <= *this;
+            }
+
+            /**
+             * \brief Concatenation.
+             *
+             * This operator returns a temporary OidVariable object which is
+             * this OID plus 'subid' appended. Example:
+             *
+             * \code
+             * OidVariable a("1.2.3");
+             * OidVariable b = a + 4; // b will be 1.2.3.4
+             * \endcode
+             *
+             * \param subid The subid to append.
+             *
+             * \return The temporary object 'this.subid'.
+             */
+            OidVariable operator+(quint32 subid) const
+            {
+                OidVariable result(*this);
+                result.append(subid);
+                return result;
+            }
+
+            /**
+             * \brief Concatenation
+             *
+             * This operator returns a temporary OidVariable object which is
+             * this OID plus 'o' appended. Example:
+             *
+             * \code
+             * OidVariable a("1.2.3");
+             * OidVariable b("4.5.6");
+             * OidVariable c = a + b; // c will be 1.2.3.4.5.6
+             * \endcode
+             *
+             * \param o The OID to append.
+             *
+             * \return The temporary object.
+             */
+            OidVariable operator+(const OidVariable& o) const
+            {
+                OidVariable result(*this);
+                result += o;
+                return result;
+            }
+
+            /**
+             * \brief Concatenation
+             *
+             * This operator appends 'o' to this OID. Example:
+             *
+             * \code
+             * OidVariable a("1.2.3");
+             * OidVariable b("4.5.6");
+             * a += b;
+             * // a is now 1.2.3.4.5.6
+             * \endcode
+             *
+             * \param o The OID to append.
+             *
+             * \return A reference to this OID.
+             */
+            OidVariable& operator+=(const OidVariable& o)
+            {
+                this->QVector<quint32>::operator+=(o);
+                return *this;
             }
 
             /**

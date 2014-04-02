@@ -29,6 +29,7 @@
 #include <QObject>
 #include <QThread>
 #include <QMap>
+#include <QVector>
 
 #include "OidVariable.hpp"
 #include "AbstractVariable.hpp"
@@ -44,7 +45,6 @@
 #include "CommitSetPDU.hpp"
 #include "UndoSetPDU.hpp"
 #include "UnixDomainConnector.hpp"
-#include "Table.hpp"
 
 namespace agentxcpp
 {
@@ -257,11 +257,6 @@ namespace agentxcpp
 	     * \brief Storage for all SNMP variables known to the MasterProxy.
 	     */
 	    std::map< OidVariable, QSharedPointer<AbstractVariable> > variables;
-
-            /**
-             * \brief Storage for all SNMP tables known to the MasterProxy.
-             */
-            QMap< OidVariable, QSharedPointer<Table> > tables;
 
             /**
              * \brief The variables affected by the Set operation currently
@@ -767,29 +762,27 @@ namespace agentxcpp
 	     */
 	    void add_variable(const OidVariable& id, QSharedPointer<AbstractVariable> v);
 
-            /**
-             * \brief Add an SNMP table for serving.
-             *
-             * This adds an SNMP table which can then be read and/or
-             * written.
-             *
-             * Tables can only be added to MIB regions which were registered
-             * in advance.
-             *
-             * If adding a table with an id for which another table is
-             * already registered, it replaces the old one.
-             *
-             * \param subtree The OID of the table.
-             *
-             * \param t The table.
-             *
-             * \exception unknown_registration If trying to add a table
-             *                                 with an id which does not reside
-             *                                 within a registered MIB
-             *                                 region.
-             */
-	    void addTable(const OidVariable& subtree,
-	                  QSharedPointer<Table> t);
+	    /**
+	    * \brief Add several SNMP variables for serving.
+	    *
+	    * This function takes multiple variables and calls
+	    * agentxcpp::add_variable(const OidVariable&,
+	    * QSharedPointer<AbstractVariable>) for each of them.
+	    *
+	    * \param vars The variables to be added. Each QPair object contains
+	    *             an OID and the pointer to the variable; see
+	    *             agentxcpp::add_variable(const OidVariable&,
+	    *             QSharedPointer<AbstractVariable>) for an explanation.
+	    *
+	    * \exception unknown_registration If trying to add a variable
+	    *                                 with an id which does not reside
+	    *                                 within a registered MIB
+	    *                                 region.
+	    *
+	    */
+	    void addVariables(QVector< QPair<
+	                      OidVariable, QSharedPointer<AbstractVariable> >
+	                                  > vars);
 
 	    /**
 	     * \brief Remove an SNMP variable so that is not longer accessible.
@@ -806,20 +799,33 @@ namespace agentxcpp
 	     */
 	    void remove_variable(const OidVariable& id);
 
-            /**
-             * \brief Remove an SNMP table so that is not longer accessible.
+	    /**
+	     * \brief Remove several SNMP variables so that they are not longer
+	     *        accessible.
+	     *
+	     * This function takes multiple variables and calls
+             * agentxcpp::remove_variable(const OidVariable&)
+             * for each of them.
              *
-             * This removes a table previously added using addTable().
-             * The table will no longer receive SNMP requests.
-             *
-             * If no table is known for the given id, nothing happens.
-             *
-             * \param id The OID of the table to remove. This is the OID
-             *           which was given to addTable().
+             * \param ids The variables to be removed.
              *
              * \exception None.
-             */
-	    void removeTable(const OidVariable& id);
+	     */
+	    void removeVariables(const QVector<OidVariable>& ids);
+
+	    /**
+	     * \brief Check whether an OID is within the registered ranges.
+	     *
+	     * This function checks whether the given OID is with an OID
+	     * range which was registered before.
+	     *
+	     * \param id The OID to check.
+	     *
+	     * \return true if it is with an registered range, false otherwise.
+	     *
+	     * \exception None.
+	     */
+	    bool isRegistered(OidVariable id);
     };
 }
 

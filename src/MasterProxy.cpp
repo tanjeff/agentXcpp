@@ -854,6 +854,19 @@ void MasterProxy::handle_pdu(QSharedPointer<PDU> pdu)
     catch(disconnected) { /* connection loss. Ignore.*/ }
 }
 
+void MasterProxy::addVariables(QVector< QPair<
+                            OidVariable, QSharedPointer<AbstractVariable> > > v)
+{
+    QVectorIterator<QPair< OidVariable,
+                           QSharedPointer<AbstractVariable> > > iter(v);
+    while(iter.hasNext())
+    {
+        QPair<OidVariable, QSharedPointer<AbstractVariable> > varPair;
+        varPair = iter.next();
+
+        add_variable(varPair.first, varPair.second);
+    }
+}
 
 void MasterProxy::add_variable(const OidVariable& id, QSharedPointer<AbstractVariable> v)
 {
@@ -885,7 +898,7 @@ void MasterProxy::add_variable(const OidVariable& id, QSharedPointer<AbstractVar
 }
 
 
-void MasterProxy::addTable(const OidVariable& id, QSharedPointer<Table> t)
+bool MasterProxy::isRegistered(OidVariable id)
 {
     // Check whether id is contained in a registration
     bool is_registered = false;
@@ -905,13 +918,7 @@ void MasterProxy::addTable(const OidVariable& id, QSharedPointer<Table> t)
         }
         // TODO: handle other registrations (e.g. instance registration)
     }
-
-    if( ! is_registered )
-    {
-        // Not in a registered area
-        throw(unknown_registration());
-    }
-    tables[id] = t;
+    return is_registered;
 }
 
 
@@ -922,12 +929,14 @@ void MasterProxy::remove_variable(const OidVariable& id)
     variables.erase(id); // If variable was not registered: ignore
 }
 
-void MasterProxy::removeTable(const OidVariable& id)
+void MasterProxy::removeVariables(const QVector<OidVariable>& ids)
 {
-    // Remove variable
-    tables.remove(id); // If table was not registered: ignore
+    QVectorIterator<OidVariable> iter(ids);
+    while(iter.hasNext())
+    {
+        remove_variable(iter.next());
+    }
 }
-
 
 void MasterProxy::send_notification(const OidVariable& snmpTrapOID,
                                     const TimeTicksVariable* sysUpTime,

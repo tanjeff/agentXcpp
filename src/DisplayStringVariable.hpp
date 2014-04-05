@@ -2,9 +2,9 @@
 #define _DISPLAYSTRING_H_
 
 // Make the class agentxcpp::Variable available:
-#include <agentxcpp/AbstractVariable.hpp>
+#include "AbstractVariable.hpp"
 // Make the class agentxcpp::IntegerValue available:
-#include <agentxcpp/OctetStringVariable.hpp>
+#include "OctetStringVariable.hpp"
 
 namespace agentxcpp
 {

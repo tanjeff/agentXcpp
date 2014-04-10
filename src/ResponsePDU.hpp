@@ -25,7 +25,6 @@
 #include <QtGlobal>
 
 #include "PDU.hpp"
-#include "OidVariable.hpp"
 #include "OctetStringVariable.hpp"
 #include "varbind.hpp"
 

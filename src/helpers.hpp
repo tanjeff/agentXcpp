@@ -86,7 +86,7 @@ namespace agentxcpp
      * \exception inval_param If the generic_trap parameter has an
      *                        invalid value.
      */
-    OidVariable generate_v1_snmpTrapOID(generic_trap_t generic_trap,
+    Oid generate_v1_snmpTrapOID(generic_trap_t generic_trap,
                                      quint32 specific_trap=0);
 
 

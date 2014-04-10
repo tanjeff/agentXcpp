@@ -20,7 +20,8 @@
 #ifndef _TABLEENTRY_HPP_
 #define _TABLEENTRY_HPP_
 
-#include "OidVariable.hpp"
+#include "Oid.hpp"
+#include "AbstractVariable.hpp"
 
 namespace agentxcpp
 {
@@ -43,7 +44,7 @@ namespace agentxcpp
              *
              * \exception This method shall not throw.
              */
-            virtual OidVariable index() = 0;
+            virtual Oid index() = 0;
 
             /**
              * \brief Get the variable with of column 'id'.

@@ -140,9 +140,9 @@ OctetStringVariable::OctetStringVariable(binary::const_iterator& pos,
 }
 
 
-OidVariable OctetStringVariable::toOid(bool fixedLength) const
+Oid OctetStringVariable::toOid(bool fixedLength) const
 {
-    OidVariable oid;
+    Oid oid;
 
     // Store string length if needed
     if(!fixedLength)

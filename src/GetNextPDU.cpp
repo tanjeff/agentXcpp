@@ -18,6 +18,7 @@
  */
 
 #include "GetNextPDU.hpp"
+#include "OidVariable.hpp"
 
 
 using namespace agentxcpp;
@@ -30,12 +31,12 @@ GetNextPDU::GetNextPDU(binary::const_iterator& pos,
     // Get SearchRanges until the PDU is completely parsed
     while( pos < end )
     {
-	pair<OidVariable,OidVariable> p;
+	pair<Oid,Oid> p;
 
-	p.first = OidVariable(pos, end, big_endian);  // starting oid
-	p.second = OidVariable(pos, end, big_endian); // ending oid
+	p.first = OidVariable(pos, end, big_endian).value();  // starting oid
+	p.second = OidVariable(pos, end, big_endian).value(); // ending oid
 
-	if(p.second.get_include() == true)
+	if(p.second.include() == true)
 	{
 	    // Parse error according to RFC 2741, 5.2 "SearchRange":
 	    // include field of ending OID must be 0
@@ -54,11 +55,11 @@ binary GetNextPDU::serialize() const
     binary serialized;
 
     // Add OID's
-    vector< pair<OidVariable,OidVariable> >::const_iterator i;
+    vector< pair<Oid,Oid> >::const_iterator i;
     for(i = sr.begin(); i < sr.end(); i++)
     {
-	serialized += i->first.serialize();
-	serialized += i->second.serialize();
+	serialized += OidVariable(i->first).serialize();
+	serialized += OidVariable(i->second).serialize();
     }
 
     // Add header

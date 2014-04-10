@@ -48,32 +48,32 @@ namespace agentxcpp
         return sysuptime;
     }
 
-    OidVariable agentxcpp::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
+    Oid agentxcpp::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
                                                 quint32 specific_trap)
     {
         // We need the OID of the SNMPv1 traps. These are defined here.
         //
         // First we define a "helper" OID:
-        static const OidVariable snmpTraps_oid(snmpMIBObjects_oid, "5");
+        static const Oid snmpTraps_oid(snmpMIBObjects_oid, "5");
         //
         // Some traps according to RFC 1907:
-        static const OidVariable snmpTraps_coldStart_oid(snmpTraps_oid, "1");
-        static const OidVariable snmpTraps_warmStart_oid(snmpTraps_oid, "2");
-        static const OidVariable snmpTraps_authenticationFailure_oid(snmpTraps_oid, "5");
+        static const Oid snmpTraps_coldStart_oid(snmpTraps_oid, "1");
+        static const Oid snmpTraps_warmStart_oid(snmpTraps_oid, "2");
+        static const Oid snmpTraps_authenticationFailure_oid(snmpTraps_oid, "5");
         //
         // Some traps according to RFC 1573:
-        static const OidVariable snmpTraps_linkDown_oid(snmpTraps_oid, "3");
-        static const OidVariable snmpTraps_linkUp_oid(snmpTraps_oid, "4");
+        static const Oid snmpTraps_linkDown_oid(snmpTraps_oid, "3");
+        static const Oid snmpTraps_linkUp_oid(snmpTraps_oid, "4");
 
         // Finally, egpNeighborLoss. According to RC 1907 it is defined in RFC
         // 1213, however, the latter doesn't define it. On the other hand,
         // RFC 2089 defines egpNeighborLoss as 1.3.6.1.6.3.1.1.5.6, which is
         // snmpTraps.6 and corresponds to the comment in RFC 1907, so we use this
         // one:
-        static const OidVariable snmpTraps_egpNeighborLoss_oid(snmpTraps_oid, "6");
+        static const Oid snmpTraps_egpNeighborLoss_oid(snmpTraps_oid, "6");
 
         // calculate the value of snmpTrapOID.0 according to RFC 1908:
-        OidVariable value;
+        Oid value;
 
         switch(generic_trap)
         {

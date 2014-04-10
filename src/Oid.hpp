@@ -92,6 +92,11 @@ namespace agentxcpp
     {
 	private:
 
+            /**
+             * \brief the 'include' field.
+             */
+            bool mInclude;
+
 	    /**
 	     * \brief Parse an OID from a string and append it.
 	     *
@@ -117,7 +122,7 @@ namespace agentxcpp
 	     *
 	     * \exception inval_param If the string is malformed.
 	     */
-	    Oid(std::string id);
+	    Oid(std::string id = "");
 
 	    /**
 	     * \brief Initialize an Oid object with another Oid plus
@@ -379,7 +384,39 @@ namespace agentxcpp
 	     *
 	     * \return True if the object is the null OID, false otherwise.
 	     */
-//	    bool is_null() const;
+	    bool is_null() const;
+
+	    /**
+	     * \internal
+	     *
+	     * \brief Get the current include value.
+	     *
+	     * The include value is present in the serialized form of an OID.
+	     * If an OID object is created by parsing a AgentX message, the
+	     * 'include' member is set accordingly.
+	     *
+	     * See RFC 2741, sections 5.1 and 5.2 for details.
+	     */
+	    bool include() const
+	    {
+	        return mInclude;
+	    }
+
+	    /**
+	     * \internal
+	     *
+	     * \brief set the include value
+	     *
+	     * The include value is present in the serialized form of an OID.
+	     * If an OID object is serialized, the include field is encoded
+	     * into the stream.
+	     *
+	     * See RFC 2741, sections 5.1 and 5.2 for details.
+	     */
+	    void setInclude(bool i)
+	    {
+	        mInclude = i;
+	    }
 
 	    friend std::ostream& operator<<(std::ostream& out,
 					    const Oid& o);

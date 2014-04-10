@@ -18,7 +18,7 @@
  */
 
 #include "OpenPDU.hpp"
-
+#include "OidVariable.hpp"
 
 using namespace agentxcpp;
 
@@ -37,7 +37,7 @@ OpenPDU::OpenPDU(binary::const_iterator& pos,
     timeout = *pos++;
     pos += 3;	// skip reserved fields
 
-    id = OidVariable(pos, end, big_endian);
+    id = OidVariable(pos, end, big_endian).value();
 
     descr = OctetStringVariable(pos, end, big_endian);
 }
@@ -60,7 +60,7 @@ binary OpenPDU::serialize() const
     serialized.push_back(0);
 
     // id
-    serialized += id.serialize();
+    serialized += OidVariable(id).serialize();
 
     // descr
     serialized += descr.serialize();

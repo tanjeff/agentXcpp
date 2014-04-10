@@ -24,7 +24,7 @@
 #include <QSharedPointer>
 #include <QtGlobal>
 
-#include "OidVariable.hpp"
+#include "Oid.hpp"
 #include "AbstractVariable.hpp"
 
 namespace agentxcpp
@@ -40,7 +40,7 @@ namespace agentxcpp
 	    /**
 	     * \brief The name (OID) of the VarBind.
 	     */
-	    OidVariable name;
+	    Oid name;
 
 	    /**
 	     * \brief The variable inside the varbind.
@@ -76,7 +76,7 @@ namespace agentxcpp
 	     * If the type of the variable cannot be determined, inval_param is 
 	     * thrown.
 	     */
-	    varbind(const OidVariable&, QSharedPointer<AbstractVariable> v);
+	    varbind(const Oid&, QSharedPointer<AbstractVariable> v);
 	    
 	    /**
 	     * \brief These values can be used to create a VarBind.
@@ -95,7 +95,7 @@ namespace agentxcpp
 	     * Only the constants defined by varbind::type_t are allowed.  A 
 	     * wrong type will cause an inval_param exception.
 	     */
-	    varbind(const OidVariable&, type_t);
+	    varbind(const Oid&, type_t);
 
 	    /**
 	     * \internal
@@ -128,7 +128,7 @@ namespace agentxcpp
             /**
              * \brief Get the name (the OID) stored within the varbind.
              */
-            OidVariable get_name() const
+            Oid get_name() const
             {
                 return name;
             }

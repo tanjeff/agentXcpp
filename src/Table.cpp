@@ -28,7 +28,7 @@ bool Table::addEntry(QSharedPointer<TableEntry> entry)
         return false;
     }
 
-    OidVariable entryIndex = entry->index();
+    Oid entryIndex = entry->index();
 
     // Ensure that index is not registered
     if(entries.contains(entry))
@@ -40,12 +40,12 @@ bool Table::addEntry(QSharedPointer<TableEntry> entry)
     // Register entry
     entries[entry] = entryIndex;
 
-    OidVariable index = myOid + entryIndex;
+    Oid index = myOid + entryIndex;
 
     // Register all variables of the entry
     quint32 i = 1;
     QSharedPointer<AbstractVariable> var;
-    QVector< QPair< OidVariable,QSharedPointer<AbstractVariable> > > toRegister;
+    QVector< QPair< Oid,QSharedPointer<AbstractVariable> > > toRegister;
     while( (var = entry->getVariable(i)) )
     {
         // Add variable to list
@@ -75,10 +75,10 @@ bool Table::removeEntry(QSharedPointer<TableEntry> entry)
     }
 
     // Unregister all variables of the entry
-    OidVariable entryIndex = entries[entry]; // Use index at time of registration
+    Oid entryIndex = entries[entry]; // Use index at time of registration
     quint32 i = 1;
     QSharedPointer<AbstractVariable> var;
-    QVector<OidVariable> toUnregister;
+    QVector<Oid> toUnregister;
     while( (var = entry->getVariable(i)) )
     {
         // Add variable to list

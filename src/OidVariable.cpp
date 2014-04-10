@@ -26,102 +26,10 @@ using namespace agentxcpp;
 using namespace std;
 
 
-void OidVariable::parseString(std::string s)
+OidVariable::OidVariable(const Oid& o)
 {
-    // Do not parse empty string
-    if(s.empty()) return;
-
-    // Parse the string
-    std::istringstream ss(s);
-    quint32 subid;
-    char ch;
-    while(ss)
-    {
-	// Read a subid
-	ss >> subid;
-	if(!ss)
-	{
-	    // cannot get number: parse error
-	    // This happens also if the number is too large
-	    throw( inval_param() );
-	}
-	push_back(subid);
-
-	// Read a period
-	ss >> ch;
-	if(!ss)
-	{
-	    // end of string: end of parsing
-	    break;
-	}
-	if(ch != '.')
-	{
-	    // Wrong char: parse error
-	    throw( inval_param() );
-	}
-    }
+    mValue = o;
 }
-
-
-
-OidVariable::OidVariable(std::string s)
-{
-    include = false;
-
-    // parse the string. Forward all exceptions.
-    parseString(s);
-}
-
-
-OidVariable::OidVariable(const OidVariable& o, std::string id)
-{
-    // start with o
-    *this = o;
-
-    // add OID from string. Forward all exceptions.
-    parseString(id);
-}
-
-
-OidVariable::OidVariable(const OidVariable& o, quint32 id)
-{
-    // start with o
-    *this = o;
-
-    // add suboid
-    append(id);
-}
-
-
-std::ostream& agentxcpp::operator<<(std::ostream& out, const OidVariable& o)
-{
-    // Leading dot
-    out << ".";
-
-    // If no subidentifiers are present, we are done
-    if(o.size() == 0)
-    {
-	return out;
-    }
-
-    // Get iterator to first subidentifier
-    OidVariable::const_iterator it = o.begin();
-
-    // Print first subidentifier
-    out << *it;
-    it++;
-
-    // Output remaining subidentifiers, each prepended with a dot
-    while(it != o.end())
-    {
-	out << "." << *it;
-	it++;
-    }
-
-    // Done, return
-    return out;
-}
-
 
 
 binary OidVariable::serialize() const
@@ -153,25 +61,25 @@ binary OidVariable::serialize() const
     serialized[reserved_idx] = 0;
 
     // Set include field
-    serialized[include_idx] = include ? 1 : 0;
+    serialized[include_idx] = mValue.include() ? 1 : 0;
 
     // Iterator for the subid's
-    OidVariable::const_iterator subid = this->begin();
+    Oid::const_iterator subid = mValue.begin();
 
     // Check whether we can use the prefix (RFC 2741, section 5.1)
-    if( this->size() >= 5 &&
-	(*this)[0] == 1 &&
-	(*this)[1] == 3 &&
-	(*this)[2] == 6 &&
-	(*this)[3] == 1 &&
-	(*this)[4] <= 0xff)	// we have only one byte for the prefix!
+    if( mValue.size() >= 5 &&
+	mValue[0] == 1 &&
+	mValue[1] == 3 &&
+	mValue[2] == 6 &&
+	mValue[3] == 1 &&
+	mValue[4] <= 0xff)	// we have only one byte for the prefix!
     {
 	// store the first integer after 1.3.6.1 to prefix field
-	serialized[prefix_idx] = (*this)[4];
+	serialized[prefix_idx] = mValue[4];
 	subid += 5; // point to the subid behind prefix
 
 	// 5 elements are represented by prefix
-	serialized[n_subid_idx] = this->size() - 5;
+	serialized[n_subid_idx] = mValue.size() - 5;
     }
     else
     {
@@ -179,11 +87,11 @@ binary OidVariable::serialize() const
 	serialized[prefix_idx] = 0;
 
 	// All subid's are stored in the stream explicitly
-	serialized[n_subid_idx] = this->size();
+	serialized[n_subid_idx] = mValue.size();
     }
 
     // copy subids to serialized
-    while( subid != this->end() )
+    while( subid != mValue.end() )
     {
 	serialized.push_back( (*subid) >> 24 & 0xff );
 	serialized.push_back( (*subid) >> 16 & 0xff );
@@ -211,21 +119,21 @@ OidVariable::OidVariable(binary::const_iterator& pos,
     int prefix = *pos++;
     if( prefix != 0 )
     {
-	this->push_back(1);
-	this->push_back(3);
-	this->push_back(6);
-	this->push_back(1);
-	this->push_back(prefix);
+	mValue.push_back(1);
+	mValue.push_back(3);
+	mValue.push_back(6);
+	mValue.push_back(1);
+	mValue.push_back(prefix);
     }
 
     // parse include field
     switch( *pos++ )
     {
 	case 0:
-	    include = false;
+	    mValue.setInclude(false);
 	    break;
 	case 1:
-	    include = true;
+	    mValue.setInclude(true);
 	    break;
 	default:
 	    // Invalid value; we are picky and indicate an error:
@@ -259,138 +167,8 @@ OidVariable::OidVariable(binary::const_iterator& pos,
 	    subid |= *pos++ << 16;
 	    subid |= *pos++ << 24;
 	}
-	this->push_back(subid);
+	mValue.push_back(subid);
     }
 }
 
 
-bool OidVariable::operator<(const OidVariable& o) const
-{
-    OidVariable::const_iterator mine, yours;
-    mine = this->begin();
-    yours = o.begin();
-
-    // Test as many parts as the shorter OID has:
-    while( mine != this->end()
-	    && yours != o.end() )
-    {
-	if( *mine < *yours )
-	{
-	    // my OidValue part is less than yours
-	    return true;
-	}
-	if( *mine > *yours )
-	{
-	    // my OidValue part is greater than yours
-	    return false;
-	}
-
-	// our parts are identical; test next part:
-	mine++;
-	yours++;
-    }
-
-    // Ok, either you and I have different length (where the one with fewer 
-    // parts is less than the other) or we have the same number of parts (in 
-    // which case we are identical).
-    if( this->size() < o.size() )
-    {
-	// I have less parts than you, so I am less than you:
-	return true;
-    }
-    else
-    {
-	// I have not less parts than you:
-	return false;
-    }
-}
-
-
-
-bool OidVariable::operator==(const OidVariable& o) const
-{
-    // Quick test: if the OidValues have different number of parts, they are not 
-    // equal:
-    if( this->size() != o.size() )
-    {
-	return false;
-    }
-    
-    // Test all parts:
-    OidVariable::const_iterator mine, yours;
-    mine = this->begin();
-    yours = o.begin();
-
-    while( mine != this->end()
-	    && yours != o.end() )
-    {
-	if( *mine != *yours )
-	{
-	    // The parts differ: OIDs not equal
-	    return false;
-	}
-
-	// Parts are equal, test next parts
-	mine++;
-	yours++;
-    }
-
-    // All parts tested and all parts were equal. Further both OIDs have the 
-    // same number of parts, thus they are equal.
-    return true;
-}
-
-
-OidVariable& OidVariable::operator=(const OidVariable& other)
-{
-    // copy our own members
-    this->include = other.include;
-
-    // copy inherited stuff
-    QVector<quint32>::operator=(other);
-    AbstractVariable::operator=(other);
-    
-    // Return reference to us
-    return *this;
-}
-
-
-bool OidVariable::contains(const OidVariable& id) const
-{
-    // If id has fewer subids than this: not contained
-    if(this->size() > id.size())
-    {
-	// Is not contained
-	return false;
-    }
-
-    // id has at least as many subids than this -> iteration is safe
-    for(size_type i = 0; i < this->size(); i++)
-    {
-	if( (*this)[i] != id[i] )
-	{
-	    // We differ in a subid!
-	    return false;
-	}
-    }
-
-    // If we get here, the id starts the same subids as this (it has possibly 
-    // more subids). This means that it is contained in the subtree spanned by 
-    // this.
-    return true;
-}
-
-
-bool OidVariable::is_null() const
-{
-    if( this->size() == 0 &&
-	! this->include)
-    {
-	// Is the null OID
-	return true;
-    }
-    else
-    {
-	return false;
-    }
-}

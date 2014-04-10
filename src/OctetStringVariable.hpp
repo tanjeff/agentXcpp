@@ -3,7 +3,7 @@
 
 #include <QString>
 #include "AbstractVariable.hpp"
-#include "OidVariable.hpp"
+#include "Oid.hpp"
 
 namespace agentxcpp
 {
@@ -114,7 +114,7 @@ namespace agentxcpp
              *
              * \param fixedLength Whether the string is fixed-length.
              */
-            OidVariable toOid(bool fixedLength = false) const;
+            Oid toOid(bool fixedLength = false) const;
 
             /**
              * \internal

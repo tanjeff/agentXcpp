@@ -20,7 +20,7 @@
 #define _OPENPDU_H_
 
 #include "PDU.hpp"
-#include "OidVariable.hpp"
+#include "Oid.hpp"
 #include "OctetStringVariable.hpp"
 
 namespace agentxcpp
@@ -34,7 +34,7 @@ namespace agentxcpp
     {
 	private:
 	    quint8 timeout;
-	    OidVariable id;
+	    Oid id;
 	    OctetStringVariable descr;
 
 	public:
@@ -101,7 +101,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Get ID
 	     */
-	    OidVariable get_id()
+	    Oid get_id()
 	    {
 		return this->id;
 	    }
@@ -109,7 +109,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Set ID
 	     */
-	    void set_id(OidVariable id)
+	    void set_id(Oid id)
 	    {
 		this->id = id;
 	    }

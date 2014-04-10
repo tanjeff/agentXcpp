@@ -27,6 +27,7 @@
 #include "OpaqueVariable.hpp"
 #include "IpAddressVariable.hpp"
 #include "util.hpp"
+#include "OidVariable.hpp"
 
 using namespace agentxcpp;
 
@@ -43,7 +44,7 @@ binary varbind::serialize() const
     serialized.push_back( 0 );	// reserved
     
     // encode name
-    serialized += name.serialize();
+    serialized += OidVariable(name).serialize();
 
     // encode data if needed
     if (var) serialized += var->serialize();
@@ -52,7 +53,7 @@ binary varbind::serialize() const
 }
 
 
-varbind::varbind(const OidVariable& o, QSharedPointer<AbstractVariable> v)
+varbind::varbind(const Oid& o, QSharedPointer<AbstractVariable> v)
 {
     name = o;
     var = v;
@@ -75,7 +76,7 @@ varbind::varbind(const OidVariable& o, QSharedPointer<AbstractVariable> v)
 }
 
 
-varbind::varbind(const OidVariable& o, type_t t)
+varbind::varbind(const Oid& o, type_t t)
 {
     name = o;
 
@@ -114,7 +115,7 @@ varbind::varbind(binary::const_iterator& pos,
     pos += 2;
     
     // read OID: no exceptions are catched; they are forwarded to the caller
-    name = OidVariable(pos, end, big_endian);
+    name = OidVariable(pos, end, big_endian).value();
 
     // Get data: no exceptions are catched; they are forwarded to the caller
     switch(type)

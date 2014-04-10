@@ -24,7 +24,7 @@
 
 #include "AbstractVariable.hpp"
 #include "exceptions.hpp"
-#include "OidVariable.hpp"
+#include "Oid.hpp"
 
 namespace agentxcpp
 {
@@ -164,9 +164,9 @@ namespace agentxcpp
 	     * has exactly 4 subids which corresponds to the 4
 	     * integers of the IP address.
 	     */
-	    OidVariable toOid() const
+	    Oid toOid() const
 	    {
-	        OidVariable oid;
+	        Oid oid;
 	        oid.push_back(address[0]);
 	        oid.push_back(address[1]);
 	        oid.push_back(address[2]);

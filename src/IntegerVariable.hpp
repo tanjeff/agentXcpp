@@ -24,7 +24,7 @@
 
 #include "AbstractVariable.hpp"
 #include "exceptions.hpp"
-#include "OidVariable.hpp"
+#include "Oid.hpp"
 
 namespace agentxcpp
 {
@@ -117,9 +117,9 @@ namespace agentxcpp
 	     *       value 0 should be avoided according to
 	     *       RFC 2578, 7.7. "Mapping of the INDEX clause".
 	     */
-	    OidVariable toOid() const
+	    Oid toOid() const
 	    {
-	        OidVariable oid;
+	        Oid oid;
 	        oid.push_back(v);
 	        return oid;
 	    }

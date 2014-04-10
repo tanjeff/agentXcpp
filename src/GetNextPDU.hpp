@@ -23,7 +23,7 @@
 #include <utility>
 
 #include "PDUwithContext.hpp"
-#include "OidVariable.hpp"
+#include "Oid.hpp"
 
 using std::vector;
 using std::pair;
@@ -45,7 +45,7 @@ namespace agentxcpp
 	     * consists of two OidVariable's. We store them in a pair<>, and store the
 	     * pais<>'s in a vector< pair<> >.
 	     */
-	    vector< pair<OidVariable,OidVariable> > sr;
+	    vector< pair<Oid,Oid> > sr;
 
 	public:
 	    /**
@@ -89,7 +89,7 @@ namespace agentxcpp
 	     * \note There is no set_sr() function, because the SearchRange
 	     *       list can be modified in place.
 	     */
-	    vector< pair<OidVariable,OidVariable> >& get_sr()
+	    vector< pair<Oid,Oid> >& get_sr()
 	    {
 		return this->sr;
 	    }

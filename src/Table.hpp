@@ -23,7 +23,7 @@
 #include <QMap>
 #include <QSharedPointer>
 
-#include "OidVariable.hpp"
+#include "Oid.hpp"
 #include "TableEntry.hpp"
 #include "MasterProxy.hpp"
 
@@ -81,7 +81,7 @@ class Table
          *
          * \exception None.
          */
-        Table(OidVariable oid = OidVariable(), MasterProxy* master = 0)
+        Table(Oid oid = Oid(), MasterProxy* master = 0)
         : myMasterProxy(master),
           myOid(oid)
         {
@@ -108,7 +108,7 @@ class Table
          *
          * \todo Re-add managed variables in case of OID change.
          */
-        void setOid(OidVariable oid)
+        void setOid(Oid oid)
         {
             myOid = oid;
         }
@@ -120,7 +120,7 @@ class Table
          *
          * \exception None.
          */
-        OidVariable oid()
+        Oid oid()
         {
             return myOid;
         }
@@ -202,7 +202,7 @@ class Table
          * - a pointer to the TableEntry object and
          * - the TableEntry's index at the time it was added to the table.
          */
-        QMap< QSharedPointer<TableEntry>, OidVariable > entries;
+        QMap< QSharedPointer<TableEntry>, Oid > entries;
 
         /**
          * \brief The used MasterProxy object.
@@ -214,7 +214,7 @@ class Table
         /**
          * \brief The tables OID.
          */
-        OidVariable myOid;
+        Oid myOid;
 };
 
 } /* namespace agentxcpp */

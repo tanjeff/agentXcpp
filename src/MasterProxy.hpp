@@ -31,7 +31,7 @@
 #include <QMap>
 #include <QVector>
 
-#include "OidVariable.hpp"
+#include "Oid.hpp"
 #include "AbstractVariable.hpp"
 #include "TimeTicksVariable.hpp"
 #include "ClosePDU.hpp"
@@ -161,7 +161,7 @@ namespace agentxcpp
      * \internal
      *
      * The variables are stored in the member variables, which is a 
-     * std::map<OidVariable, QSharedPointer<variable> >. The key is the OID for which the
+     * std::map<Oid, QSharedPointer<variable> >. The key is the OID for which the
      * variable was added. This allows easy lookup for the request 
      * dispatcher.
      *
@@ -242,7 +242,7 @@ namespace agentxcpp
 	     * \brief An Object Identifier that identifies the subagent. May be
 	     *        the null OID.
 	     */
-	    OidVariable id;
+	    Oid id;
 
 	    /**
 	     * \brief The registrations.
@@ -256,7 +256,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Storage for all SNMP variables known to the MasterProxy.
 	     */
-	    std::map< OidVariable, QSharedPointer<AbstractVariable> > variables;
+	    std::map< Oid, QSharedPointer<AbstractVariable> > variables;
 
             /**
              * \brief The variables affected by the Set operation currently
@@ -503,7 +503,7 @@ namespace agentxcpp
 	     *
 	     * \todo Document exceptions.
 	     */
-	    void send_notification(const OidVariable& snmpTrapOID,
+	    void send_notification(const Oid& snmpTrapOID,
 	                           const TimeTicksVariable* sysUpTime,
 	                           const std::vector<varbind>& varbinds=vector<varbind>());
 
@@ -511,15 +511,15 @@ namespace agentxcpp
 	     * \brief Writing aid: Send notification without sysUpTime.0.
 	     *
 	     * This calls \ref send_notification(
-	     * const OidVariable&, const TimeTicksVariable*,
+	     * const Oid&, const TimeTicksVariable*,
 	     * const vector<varbind>&) with a NULL pointer
 	     * for the sysUpTime.0 parameter.
 	     *
 	     * For the documentation of the parameters and exceptions go to
-	     * \ref send_notification(const OidVariable&, TimeTicksVariable>&,
+	     * \ref send_notification(const Oid&, TimeTicksVariable>&,
 	     * const vector<varbind>&)
 	     */
-	    void send_notification(const OidVariable& snmpTrapOID,
+	    void send_notification(const Oid& snmpTrapOID,
 	                           const std::vector<varbind>& varbinds=vector<varbind>())
 	    {
 	        send_notification(snmpTrapOID, 0, varbinds);
@@ -557,7 +557,7 @@ namespace agentxcpp
 	     */
 	    MasterProxy(std::string description="",
 		   quint8 default_timeout=0,
-		   OidVariable ID=OidVariable(),
+		   Oid ID=Oid(),
 		   std::string unix_domain_socket="/var/agentx/master");
 
 	    /**
@@ -614,7 +614,7 @@ namespace agentxcpp
              *                        that a retry will result in a 
              *                        duplicate_registration error.
 	     */
-	    void register_subtree(OidVariable subtree,
+	    void register_subtree(Oid subtree,
 				  quint8 priority=127,
 				  quint8 timeout=0);
 
@@ -659,7 +659,7 @@ namespace agentxcpp
 	     */
             // TODO: the 'priority' parameter can possibly be omitted: the 
             // value can be stored by master_agent upon subtree registration.
-	    void unregister_subtree(OidVariable subtree,
+	    void unregister_subtree(Oid subtree,
 				    quint8 priority=127);
 
             /**
@@ -760,18 +760,18 @@ namespace agentxcpp
 	     *                                 within a registered MIB 
 	     *                                 region.
 	     */
-	    void add_variable(const OidVariable& id, QSharedPointer<AbstractVariable> v);
+	    void add_variable(const Oid& id, QSharedPointer<AbstractVariable> v);
 
 	    /**
 	    * \brief Add several SNMP variables for serving.
 	    *
 	    * This function takes multiple variables and calls
-	    * agentxcpp::add_variable(const OidVariable&,
+	    * agentxcpp::add_variable(const Oid&,
 	    * QSharedPointer<AbstractVariable>) for each of them.
 	    *
 	    * \param vars The variables to be added. Each QPair object contains
 	    *             an OID and the pointer to the variable; see
-	    *             agentxcpp::add_variable(const OidVariable&,
+	    *             agentxcpp::add_variable(const Oid&,
 	    *             QSharedPointer<AbstractVariable>) for an explanation.
 	    *
 	    * \exception unknown_registration If trying to add a variable
@@ -781,7 +781,7 @@ namespace agentxcpp
 	    *
 	    */
 	    void addVariables(QVector< QPair<
-	                      OidVariable, QSharedPointer<AbstractVariable> >
+	                      Oid, QSharedPointer<AbstractVariable> >
 	                                  > vars);
 
 	    /**
@@ -797,21 +797,21 @@ namespace agentxcpp
 	     *
 	     * \exception None.
 	     */
-	    void remove_variable(const OidVariable& id);
+	    void remove_variable(const Oid& id);
 
 	    /**
 	     * \brief Remove several SNMP variables so that they are not longer
 	     *        accessible.
 	     *
 	     * This function takes multiple variables and calls
-             * agentxcpp::remove_variable(const OidVariable&)
+             * agentxcpp::remove_variable(const Oid&)
              * for each of them.
              *
              * \param ids The variables to be removed.
              *
              * \exception None.
 	     */
-	    void removeVariables(const QVector<OidVariable>& ids);
+	    void removeVariables(const QVector<Oid>& ids);
 
 	    /**
 	     * \brief Check whether an OID is within the registered ranges.
@@ -825,7 +825,7 @@ namespace agentxcpp
 	     *
 	     * \exception None.
 	     */
-	    bool isRegistered(OidVariable id);
+	    bool isRegistered(Oid id);
     };
 }
 

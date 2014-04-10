@@ -234,16 +234,16 @@ bool Oid::contains(const Oid& id) const
 }
 
 
-//bool Oid::is_null() const
-//{
-//    if( this->size() == 0 &&
-//	! this->include)
-//    {
-//	// Is the null OID
-//	return true;
-//    }
-//    else
-//    {
-//	return false;
-//    }
-//}
+bool Oid::is_null() const
+{
+    if( this->size() == 0 &&
+	! this->mInclude)
+    {
+	// Is the null OID
+	return true;
+    }
+    else
+    {
+	return false;
+    }
+}

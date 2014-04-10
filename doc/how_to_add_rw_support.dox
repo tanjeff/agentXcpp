@@ -199,8 +199,7 @@ Again, we compile and run the subagent. This is exactly the same as in the
 first tutorial (it is assumed that your system is already setup accordingly):
 
 \verbatim
-g++ simpleagent.cpp -o simpleagent -lagentxcpp \
-    `pkg-config --cflags --libs QtNetwork QtCore`
+g++ simpleagent.cpp -o simpleagent -lagentxcpp `pkg-config --cflags --libs QtNetwork QtCore`
 \endverbatim
 
 Next, we start the subagent again:

@@ -172,11 +172,11 @@ int main(int argc, char** argv)
     QCoreApplication app(argc, argv);
     MasterProxy master;
 
-    Oid simpleagentOid = Oid(enterprises_oid, "42.1");
+    Oid simpleagentOid = Oid(enterprises_oid, "42");
     master.register_subtree(simpleagentOid);
 
     QSharedPointer<SimpleCounter> counter(new SimpleCounter);
-    Oid simpleCounterOid = simpleagentOid + 0;
+    Oid simpleCounterOid = simpleagentOid + 1 + 0;
     master.add_variable(simpleCounterOid, counter);
  
     // New code for sending notifications ---------------
@@ -205,9 +205,7 @@ invoke QT's meta-object compiler (moc) for the NotificationSender class, which
 we do first:
 
 \code
-moc-qt4 `pkg-config --cflags QtCore QtNetwork` \
-        -o moc_NotificationSender.cc \
-        NotificationSender.hpp
+moc-qt4 `pkg-config --cflags QtCore QtNetwork` -o moc_NotificationSender.cc NotificationSender.hpp
 \endcode
 
 This compiles the header <tt>NotificationSender.hpp</tt> into the file 
@@ -222,9 +220,7 @@ Finally we compile the <tt>simpleagent.cpp</tt> and link it against the
 generated object file:
 
 \code
-g++ simpleagent.cpp -o simpleagent moc_NotificationSender.o \
-        `pkg-config --cflags --libs QtNetwork QtCore` \
-        -lagentxcpp
+g++ simpleagent.cpp -o simpleagent moc_NotificationSender.o `pkg-config --cflags --libs QtNetwork QtCore` -lagentxcpp
 \endcode
 
 Now, the executable is ready to run.

@@ -1,4 +1,4 @@
-/*
+*
  * Copyright 2011-2013 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
@@ -93,8 +93,8 @@ counterChangeTimeString OBJECT-TYPE
     SYNTAX OCTETSTRING
     ACCESS read-only
     STATUS current
-    DESCRIPTION "The time (counterChangeEpoch + counterChangeMilliseconds) as a 
-    human-readable string."
+    DESCRIPTION "The time (counterChangeEpoch + counterChangeMilliseconds) as 
+                 a human-readable string."
     ::={ counterChangeEntry 3 }
 
 counterChangeValue OBJECT-TYPE
@@ -113,29 +113,260 @@ SET request), an entry is added.
 
 Each entry within the table has a timestamp, which consists of the epoch time 
 and a milliseconds component. This is to show how multiple variables can be 
-used to form the tables index. In addition, the time is reported in an 
+used to form the table's index. In addition, the time is reported in an 
 human-readable format (e.g. "2011-09-11, 12:00:52.77"). Finally, each entry 
 reports the new counter value.
 
+
+\section how_tables_work How tables work in agentXcpp
+
+Technically, our SNMP table is a sequence of counterChangeEntry, which in turn 
+is a structure containing four "real" SNMP variables. The OID of these 
+variables are assembled like this:
+
+  <tableOid>.<entryOid>.<variableSubOid>.<indexOid>
+
+The <tableOid> is the OID given to the table. The counterChangeTable for 
+example has the OID enterprises.42.2, which is .1.3.6.1.4.1.42.2.
+
+The <entryOid> is a single number assigned to the table entry. The 
+CounterChangeEntry for example has the <entryOid> 1.
+
+The <variableSubOid> is a single number which can be thought to be the column 
+of a specific variable. The counterChangeEpoch has <variableSubOid>=1, while 
+counterChangeTimeString has <variableSubOid>=3.
+
+The <indexOid> is the concatenation of the index variables (counterChangeEpoch 
+and counterChangeMilliseconds), converted to OID. For example, if 
+counterChangeEpoch is 123456789 and counterChangeMilliseconds is 512, the index 
+would be "123456789.512". The index can be thought of as the identifier of the 
+row in which the entry resides. In terms of a relational database it would be 
+called the primary key of the record.
+
+Thus, the full OID of the counterChangeTimeString in the entry 123456789.512, 
+for example, would be ".1.3.6.1.4.1.42.2.1.3.123456789.512".
+
+A table is implemented by creating a \agentxcpp{Table} object and tell it its 
+<tableOid> (enterprises.42.2).  An entry is implemented by subclassing 
+\agentxcpp{TableEntry}. For our table, we will implement the  
+CounterChangeEntry class which contains the four variables counterChangeEpoch, 
+counterChangeMilliseconds, counterChangeTimeString and 
+counterChangeCounterValue. The CounterChangeEntry class must implement the 
+\agentxcpp{TableEntry::indexVariables()} and 
+\agentxcpp{TableEntry::variables()} methods, and is must ensure that <entryOid> 
+is set correctly. 
+
+Each time an entry is added, the table will query the new entry for all its 
+variables and add these to the MasterProxy object, so that they are
+served like any other variable. If an entry is removed, the table will remove 
+its variables from the MasterProxy object again. Neither the table nor the 
+entry can actually be queried by SNMP requests; they are only used to organize 
+the variables which can be queried. Therefore, neither the table nor the 
+entries are added to the MasterProxy object. Only the variables are added.
+
+
+\section implementing_entry Implementing the CounterChangeEntry class
+
+First of all, we implement the CounterChangeEntry class. Here is the full 
+code:
+
+\code
+#ifndef _COUNTERCHANGEENTRY_H_
+#define _COUNTERCHANGEENTRY_H_
+
+#include <agentxcpp/TableEntry.hpp>
+#include <agentxcpp/IntegerVariable.hpp>
+#include <agentxcpp/DisplayStringVariable.hpp>
+
+using namespace agentxcpp;
+
+class CounterChangeEntry : public TableEntry
+{
+    public:
+        QSharedPointer<IntegerVariable> counterChangeEpoch;
+        QSharedPointer<IntegerVariable> counterChangeMilliseconds;
+        QSharedPointer<DisplayStringVariable> counterChangeTimeString;
+        QSharedPointer<IntegerVariable> counterChangeValue;
+
+        CounterChangeEntry()
+        : counterChangeEpoch(new IntegerVariable),
+          counterChangeMilliseconds(new IntegerVariable),
+          counterChangeTimeString(new DisplayStringVariable),
+          counterChangeValue(new IntegerVariable)
+        {
+            subid = 1;
+        }
+
+        virtual QVector< QSharedPointer<AbstractVariable> > indexVariables()
+        {
+            QVector< QSharedPointer<AbstractVariable> > result;
+            result << counterChangeEpoch 
+                   << counterChangeMilliseconds;
+            return result;
+        }
+        
+        virtual QMap< quint32, QSharedPointer<AbstractVariable> > variables()
+        {
+            QMap< quint32, QSharedPointer<AbstractVariable> > result;
+            result[1] = counterChangeEpoch;
+            result[2] = counterChangeMilliseconds;
+            result[3] = counterChangeTimeString;
+            result[4] = counterChangeValue;
+            return result;
+        }
+};
+#endif // _COUNTERCHANGEENTRY_H_
+\endcode
+
+The class inherits \agentxcpp{TableEntry}. It has four members which represent 
+the four SNMP variables. Since in agentXcpp those variables are handled as 
+QSharedPointer's, the constructor needs to create all of them using the new 
+operator.
+
+Each entry within a table needs a unique index, which becomes a part of the OID 
+of its variables. The index is built up by the index variables. Our MIB states
+that counterChangeEpoch and counterChangeMilliseconds are used as index.  The 
+CounterChangeEntry::indexVariables() method implements this by returning these 
+variables in a QVector, in the order in which they are used in the index.  Note 
+that the entry's OID changes if the index variables change their value.  Our 
+simpleagent will not change and entry after it was added to the table, though.
+
+The CounterChangeEntry::variables() method return all variables as a QMap. The 
+map key will be used by the table as <variableSubOid> part for the variable 
+stored as value.
+
+
+\section extending_simplecounter Extending the SimpleCounter class.
+
+\code
+#include <agentxcpp/Table.hpp>
+#include "CounterChangeEntry.hpp"
+#include <QDateTime>
+\endcode
+
+Next, we extent the SimpleCounter class so that it adds an entry to the table 
+each time the counter is changed. One thing to do is to add a \agentxcpp{Table} 
+member, a member to store the entry just inserted into the table (needed for 
+undoset(), a suitable constructor and the helper function addEntry():
+
+\code
+    private:
+        Table* table; // may be the null pointer
+        QSharedPointer<CounterChangeEntry> lastInsertedEntry; // for undoset()
+
+    public:
+        SimpleCounter(Table* t = 0)
+        {
+            table = t;
+        }
+
+        void addEntry()
+        {
+            // Add entry with new value to table
+            if(table)
+            {
+                lastInsertedEntry = QSharedPointer<CounterChangeEntry>(new CounterChangeEntry);
+                QDateTime timeStamp = QDateTime::currentDateTimeUtc();
+                lastInsertedEntry->counterChangeEpoch->setValue(timeStamp.toTime_t());
+                lastInsertedEntry->counterChangeMilliseconds->setValue(timeStamp.toMSecsSinceEpoch() - timeStamp.toTime_t()*1000);
+                lastInsertedEntry->counterChangeTimeString->setValue(timeStamp.toString("yyyy-MM-dd (dddd) hh:mm:ss.z"));
+                lastInsertedEntry->counterChangeValue->setValue(v);
+                table->addEntry(lastInsertedEntry);
+            }
+        }
+\endcode
+
+And we have to extend the get(), commitset() and undoset() functions, which now 
+look like this:
+
+\code
+        virtual void get()
+        {
+            ++v;
+            addEntry();
+        }
+
+        virtual bool commitset(QSharedPointer<IntegerVariable> new_value)
+        {
+            // Remember old value for rollback
+            (*old_value) = v;
+            // Set new value
+            v = new_value->value();
+            // Add table entry
+            addEntry();
+            // Operation succeeded
+            return true;
+        }
+
+        virtual bool undoset(QSharedPointer<IntegerVariable> new_value)
+        {
+            // Restore old value
+            v = *old_value;
+            // Release old value
+            delete old_value;
+            // Remove table entry
+            if(table)
+            {
+                table->removeEntry(lastInsertedEntry);
+            }
+            // Rollback succeeded
+            return true;
+        }
+\endcode
+
+And finally we update the main() function as follows:
+
+\code
+int main(int argc, char** argv)
+{
+    QCoreApplication app(argc, argv);
+
+    MasterProxy master;
+
+    Oid simpleagentOid = Oid(enterprises_oid, "42");
+    master.register_subtree(simpleagentOid);
+
+    Table table(simpleagentOid + 2, &master);
+    QSharedPointer<SimpleCounter> counter(new SimpleCounter(&table));
+    Oid simpleCounterOid = simpleagentOid + 1 + 0;
+    master.add_variable(simpleCounterOid, counter);
+
+    // New code for sending notifications ---------------
+    NotificationSender sender(&master, simpleCounterOid, counter);
+    QTimer timer;
+    QObject::connect(&timer, SIGNAL(timeout()),
+                     &sender, SLOT(sendNotification()));
+    timer.setInterval(1000); // 1000 milliseconds
+    timer.start();
+    // --------------------------------------------------
+
+    app.exec();
+}
+\endcode
+
+
+
+\section compiling_notification Compiling the Subagent
+
+OLD:
+
+\code
+moc-qt4 `pkg-config --cflags QtCore QtNetwork` -o moc_NotificationSender.cc NotificationSender.hpp
+\endcode
+
+\code
+g++ -c moc_NotificationSender.cc `pkg-config --cflags QtCore QtNetwork`
+\endcode
+
+NEEDED:
+
+\code
+g++ simpleagent.cpp -o simpleagent moc_NotificationSender.o `pkg-config --cflags --libs QtNetwork QtCore` -lagentxcpp
+\endcode
+
+Now, the executable is ready to run.
+
+
+
 */
 
-//\section implementing_the_variables Implementing the variables.
-//
-//First of all, we will create the variables notificationEventEpoch, 
-//notificationEventMilliseconds, notificationEventTimeString and 
-//notificationEventCounterValue. These are all read-only variable, therefore it 
-//suffice to instantiate the stanard classes agentXcpp provides:
-//
-//\code
-//    IntegerVariable notificationEventEpoch;
-//    IntegerVariable notificationEventMilliseconds;
-//    DisplayStringVariable notificationEventTimeString;
-//    IntegerVariable notificationEventCounterValue;
-//\endcode
-//
-//
-//
-//
-//
-//
-//*/

@@ -175,7 +175,7 @@ chosen, but it cannot be changed once the \ref agentxcpp::MasterProxy
 Now, as we have the \ref agentxcpp::MasterProxy "MasterProxy" object, we 
 register a subtree.  This means that we provide an OID to the master to 
 indicate that our subagent wishes to serve all requests to OIDs starting with 
-that OID. For our subagent we use "enterprises.42.1", where 'enterprises' is 
+that OID. For our subagent we use "enterprises.42", where 'enterprises' is 
 the standard OID "1.3.6.1.4.1".  The master will then send all SNMP requests 
 within that subtree to our subagent (e.g.  "enterprises.42.1.0" or 
 "enterprises.42.1.1.2.0"), regardless of whether the subagent actually can 
@@ -187,7 +187,7 @@ that.
 Here is the code for subtree registration:
 
 \code
-    Oid simpleagentOid = Oid(enterprises_oid, "42.1");
+    Oid simpleagentOid = Oid(enterprises_oid, "42");
     master.register_subtree(simpleagentOid);
 \endcode
 
@@ -199,7 +199,7 @@ Next, we create a SimpleCounter variable and register it with the master:
 
 \code
     QSharedPointer<SimpleCounter> counter(new SimpleCounter);
-    Oid simpleCounterOid = simpleagentOid + 0;
+    Oid simpleCounterOid = simpleagentOid + 1 + 0;
     master.add_variable(simpleCounterOid, counter);
 \endcode
 
@@ -227,8 +227,7 @@ and, against the agentXcpp library. On a GNU/Linux system, you can type the
 following command:
 
 \code
-g++ simpleagent.cpp -o simpleagent -lagentxcpp \
-    `pkg-config --cflags --libs QtNetwork QtCore`
+g++ simpleagent.cpp -o simpleagent -lagentxcpp `pkg-config --cflags --libs QtNetwork QtCore`
 \endcode
 
 This assumes that the agentxcpp library is installed properly, so that the 

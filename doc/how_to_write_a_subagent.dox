@@ -187,7 +187,7 @@ that.
 Here is the code for subtree registration:
 
 \code
-    OidVariable simpleagentOid = OidVariable(enterprises_oid, "42.1");
+    Oid simpleagentOid = Oid(enterprises_oid, "42.1");
     master.register_subtree(simpleagentOid);
 \endcode
 
@@ -199,7 +199,7 @@ Next, we create a SimpleCounter variable and register it with the master:
 
 \code
     QSharedPointer<SimpleCounter> counter(new SimpleCounter);
-    OidVariable simpleCounterOid = simpleagentOid + 0;
+    Oid simpleCounterOid = simpleagentOid + 0;
     master.add_variable(simpleCounterOid, counter);
 \endcode
 

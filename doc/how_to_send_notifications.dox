@@ -90,7 +90,7 @@ file). Here ist the <tt>NotificationSender.hpp</tt> file:
 
 #include <iostream>
 #include <QObject>
-#include <agentxcpp/OidVariable.hpp>
+#include <agentxcpp/Oid.hpp>
 #include <agentxcpp/MasterProxy.hpp>
 #include "SimpleCounter.hpp"
 
@@ -102,12 +102,12 @@ class NotificationSender : public QObject
 
     private:
         MasterProxy* master;
-        OidVariable simpleCounter_oid;
+        Oid simpleCounter_oid;
         QSharedPointer<SimpleCounter> counter;
 
     public:
         NotificationSender(MasterProxy* _master,
-                           OidVariable _oid,
+                           Oid _oid,
                            QSharedPointer<SimpleCounter> _counter)
         : master(_master), simpleCounter_oid(_oid), counter(_counter)
         {
@@ -123,7 +123,7 @@ class NotificationSender : public QObject
             objects.push_back(varbind(simpleCounter_oid, counterVariable));
 
             QMetaObject::invokeMethod(master, "send_notification",
-                                      Q_ARG(const OidVariable&, simpleCounter_oid),
+                                      Q_ARG(const Oid&, simpleCounter_oid),
                                       Q_ARG(const std::vector<varbind>&, objects)
                                      );
         }
@@ -172,16 +172,15 @@ int main(int argc, char** argv)
     QCoreApplication app(argc, argv);
     MasterProxy master;
 
-    OidVariable simpleagentOid = OidVariable(enterprises_oid, "42.1");
+    Oid simpleagentOid = Oid(enterprises_oid, "42.1");
     master.register_subtree(simpleagentOid);
 
     QSharedPointer<SimpleCounter> counter(new SimpleCounter);
-    OidVariable simpleCounterOid = simpleagentOid + 0;
+    Oid simpleCounterOid = simpleagentOid + 0;
     master.add_variable(simpleCounterOid, counter);
-
+ 
     // New code for sending notifications ---------------
     NotificationSender sender(&master, simpleCounterOid, counter);
-
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()),
                      &sender, SLOT(sendNotification()));

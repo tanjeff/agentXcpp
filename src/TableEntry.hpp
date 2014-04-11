@@ -34,34 +34,30 @@ namespace agentxcpp
         public:
 
             /**
-             * \brief Get the index for this entry.
+             * \brief Get the index variables of this entry.
              *
-             * This method shall provide the index for the entry. The index is 
-             * the concatenation of the index variables, converted to OID's.  
-             * See ///TUTORIAL/// for an example.
+             * This method shall provide the index variables for the entry.
+             * The order in the vector shall match the order specified
+             * in the MIB.
              *
-             * \return The index of the entry.
+             * \return The index variables of the entry.
              *
              * \exception This method shall not throw.
              */
-            virtual Oid index() = 0;
+            virtual QVector< QSharedPointer<AbstractVariable> > indexVariables() = 0;
 
             /**
-             * \brief Get the variable with of column 'id'.
+             * \brief Get the variables of this entry.
              *
-             * This method shall return the variable with the column 'id'.  If 
-             * no variable is available for the column, the NULL pointer shall 
-             * be returned.
+             * This method shall return the variables for this entry. It is
+             * assumed that the index of a variable in the returned vector
+             * matches its index specified in the MIB.
              * 
-             * The variables of the table entry shall be consequtive, to 
-             * support iterating the entry (i.e. by incrementing 'id' until 
-             * the NULL pointer is returned).
-             *
-             * \return The variable with column 'id'.
+             * \return The variables for this entry.
              *
              * \exception This method shall not throw.
              */
-            virtual QSharedPointer<AbstractVariable> getVariable(quint32 id) = 0;
+            virtual QVector< QSharedPointer<AbstractVariable> > variables() = 0;
 
             /**
              * \brief Virtual Destructor.

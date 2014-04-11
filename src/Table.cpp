@@ -23,12 +23,11 @@ using namespace agentxcpp;
 
 bool Table::addEntry(QSharedPointer<TableEntry> entry)
 {
+    // Check for MasterProxy object
     if(! myMasterProxy)
     {
         return false;
     }
-
-    Oid entryIndex = entry->index();
 
     // Ensure that index is not registered
     if(entries.contains(entry))
@@ -37,21 +36,36 @@ bool Table::addEntry(QSharedPointer<TableEntry> entry)
         return false;
     }
 
+    // Calculate entry's index
+    Oid entryIndex;
+    QVector< QSharedPointer<AbstractVariable> > indexVariables = entry->indexVariables();
+    QVectorIterator< QSharedPointer<AbstractVariable> > iter(indexVariables);
+    while(iter.hasNext())
+    {
+        Oid variableIndex = iter.next()->toOid();
+        if(variableIndex.is_null())
+        {
+            // Variable cannot be converted to Oid -> not
+            // allowed as index variable.
+            return false;
+        }
+        else
+        {
+            // Variable contributes to index
+            entryIndex += variableIndex;
+        }
+    }
+
     // Register entry
     entries[entry] = entryIndex;
 
-    Oid index = myOid + entryIndex;
-
-    // Register all variables of the entry
-    quint32 i = 1;
-    QSharedPointer<AbstractVariable> var;
+    // Register all variables of the entry with the MasterProxy object
+    QVector< QSharedPointer<AbstractVariable> > variables = entry->variables();
     QVector< QPair< Oid,QSharedPointer<AbstractVariable> > > toRegister;
-    while( (var = entry->getVariable(i)) )
+    for(int i = 0; i < variables.size(); ++i)
     {
         // Add variable to list
-        toRegister.append(qMakePair(index + i, var));
-
-        ++i;
+        toRegister.append(qMakePair(myOid + entryIndex + i, variables[i]));
     }
     myMasterProxy->addVariables(toRegister);
 
@@ -62,13 +76,14 @@ bool Table::addEntry(QSharedPointer<TableEntry> entry)
 
 bool Table::removeEntry(QSharedPointer<TableEntry> entry)
 {
+    // Check for MasterProxy object
     if(! myMasterProxy)
     {
         return false;
     }
 
     // Ensure that entry is known
-    if(entries.contains(entry))
+    if(!entries.contains(entry))
     {
         // Entry not found
         return false;
@@ -76,15 +91,12 @@ bool Table::removeEntry(QSharedPointer<TableEntry> entry)
 
     // Unregister all variables of the entry
     Oid entryIndex = entries[entry]; // Use index at time of registration
-    quint32 i = 1;
-    QSharedPointer<AbstractVariable> var;
     QVector<Oid> toUnregister;
-    while( (var = entry->getVariable(i)) )
+    QVector< QSharedPointer<AbstractVariable> > variables = entry->variables();
+    for(int i = 0; i < variables.size(); ++i)
     {
-        // Add variable to list
+        // Add variable's Oid to list
         toUnregister.append(myOid + entryIndex + i);
-
-        ++i;
     }
     myMasterProxy->removeVariables(toUnregister);
 
@@ -93,5 +105,4 @@ bool Table::removeEntry(QSharedPointer<TableEntry> entry)
 
     // All went well, as far as we can tell.
     return true;
-
 }

@@ -110,11 +110,10 @@ namespace agentxcpp
              * string length is converted to a subid. Then, each
              * octet of the value is converted into a separate subid.
              *
-             * Note that the length subid is omitted for fixed-length strings.
-             *
-             * \param fixedLength Whether the string is fixed-length.
+             * \todo Support fixed-length strings according to RFC 2578,
+             *       7.7. "Mapping of the INDEX clause".
              */
-            Oid toOid(bool fixedLength = false) const;
+            virtual Oid toOid() const;
 
             /**
              * \internal
@@ -307,7 +306,6 @@ namespace agentxcpp
             {
                 return false;
             }
-
     };
 }
 #endif // _OCTETSTRINGVARIABLE_H_

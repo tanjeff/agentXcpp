@@ -22,6 +22,7 @@
 #include <QSharedPointer>
 
 #include "binary.hpp"
+#include "Oid.hpp"
 
 namespace agentxcpp
 {
@@ -228,6 +229,24 @@ namespace agentxcpp
              */
             virtual binary serialize() const = 0;
 
+            /**
+             * \brief Convert an INDEX variable to an Oid part.
+             *
+             * If an SNMP variable is used as INDEX within a table,
+             * then its value is used as part of the Oid for that table
+             * entry (or row). Therefore, such variables must be
+             * convertible to Oid's. This method provides this conversion.
+             *
+             * Not all variable types are allowed to be used as INDEX and are
+             * therefore not convertible to Oid. For variables which are not
+             * convertible, this method shall return the null Oid.
+             *
+             * \return The variable, converted to Oid, or the null Oid if the
+             *         variable don't support such conversion.
+             *
+             * \exception This method shall not throw.
+             */
+            virtual Oid toOid() const = 0;
     };
 }
 

@@ -164,7 +164,7 @@ namespace agentxcpp
 	     * has exactly 4 subids which corresponds to the 4
 	     * integers of the IP address.
 	     */
-	    Oid toOid() const
+	    virtual Oid toOid() const
 	    {
 	        Oid oid;
 	        oid.push_back(address[0]);

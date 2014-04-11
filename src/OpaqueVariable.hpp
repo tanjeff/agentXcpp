@@ -314,6 +314,18 @@ namespace agentxcpp
                 return false;
             }
 
+            /**
+             * \brief Convert the value to an OID.
+             *
+             * The conversion is done according to RFC 2578,
+             * 7.7. "Mapping of the INDEX clause". First, the
+             * string length is converted to a subid. Then, each
+             * octet of the value is converted into a separate subid.
+             *
+             * \todo Support fixed-length strings according to RFC 2578,
+             *       7.7. "Mapping of the INDEX clause".
+             */
+            virtual Oid toOid() const;
     };
 }
 

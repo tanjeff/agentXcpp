@@ -103,3 +103,26 @@ OpaqueVariable::OpaqueVariable(binary::const_iterator& pos,
 	pos++;
     }
 }
+
+Oid OpaqueVariable::toOid() const
+{
+    // There are fixed length string, but don't support them currently.
+    bool fixedLength = false;
+
+    Oid oid;
+
+    // Store string length if needed
+    if(!fixedLength)
+    {
+        oid.push_back(v.size());
+    }
+
+    // Store string
+    for(binary::const_iterator i = v.begin();
+            i != v.end();
+            ++i)
+    {
+        oid.push_back(*i);
+    }
+    return oid;
+}

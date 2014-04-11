@@ -141,16 +141,18 @@ namespace agentxcpp
 	     * length is converted to a subid. Then, each
 	     * subid of the value is appended.
 	     *
-	     * Note that the length subid is omitted for fixed-length OIDs.
-	     *
-	     * \param fixedLength Whether the OID is fixed-length.
+	     * \todo Support fixed-length OIDs according to RFC 2578,
+             *       7.7. "Mapping of the INDEX clause".
 	     *
 	     * \return The generated Oid.
 	     *
 	     * \exception None.
 	     */
-	    Oid toOid(bool fixedLength = false) const
+	    virtual Oid toOid() const
 	    {
+	        // fixed length currently unsupported:
+	        bool fixedLength = false;
+
 	        Oid oid;
 
 	        // Store length if needed

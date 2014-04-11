@@ -7,10 +7,6 @@ namespace agentxcpp
 {
     /**
      * \brief Represents an Counter64 as described in RFC 2741.
-     *
-     * \note This class has no toOid() method, because Counter64
-     *       objects are not allowed in INDEX clauses according to
-     *       RFC 2578, 7.7. "Mapping of the INDEX clause".
      */
     class Counter64Variable : public AbstractVariable
     {
@@ -284,6 +280,19 @@ namespace agentxcpp
             {
                 return false;
             }
+
+            /**
+             * \brief Return the null Oid.
+             *
+             * Objects of this class are not allowed in INDEX clauses according
+             * to RFC 2578, 7.7. "Mapping of the INDEX clause". Therefore, this
+             * method returns the null Oid.
+             */
+            virtual Oid toOid() const
+            {
+                return Oid();
+            }
+
     };
 }
 #endif // _COUNTER64VARIABLE_H_

@@ -117,7 +117,7 @@ namespace agentxcpp
 	     *       value 0 should be avoided according to
 	     *       RFC 2578, 7.7. "Mapping of the INDEX clause".
 	     */
-	    Oid toOid() const
+	    virtual Oid toOid() const
 	    {
 	        Oid oid;
 	        oid.push_back(v);

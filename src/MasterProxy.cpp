@@ -539,7 +539,7 @@ void MasterProxy::handle_getnextpdu(QSharedPointer<ResponsePDU> response, QShare
                 // lexicographical successor of it
                 next_var = variables.lower_bound(starting_oid);
             }
-            if( ! ending_oid.is_null() )
+            if(next_var != variables.end() && ! ending_oid.is_null() )
             {
                 // The "next" variable must precede the ending OID (it must not 
                 // be greater or equal than the ending OID)

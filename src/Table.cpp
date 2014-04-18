@@ -42,7 +42,13 @@ bool Table::addEntry(QSharedPointer<TableEntry> entry)
     QVectorIterator< QSharedPointer<AbstractVariable> > iter(indexVariables);
     while(iter.hasNext())
     {
-        Oid variableIndex = iter.next()->toOid();
+        QSharedPointer<AbstractVariable> var = iter.next();
+        if(!var)
+        {
+            // No variable -> fail
+            return false;
+        }
+        Oid variableIndex = var->toOid();
         if(variableIndex.is_null())
         {
             // Variable cannot be converted to Oid -> not
@@ -66,6 +72,12 @@ bool Table::addEntry(QSharedPointer<TableEntry> entry)
     while(iter2.hasNext())
     {
         iter2.next();
+        if(! iter2.value())
+        {
+            // No variable given -> fail
+            entries.remove(entry);
+            return false;
+        }
         // Add variable to list
         toRegister.append(qMakePair(myOid + entryIndex + iter2.key(), iter2.value()));
     }

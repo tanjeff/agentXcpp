@@ -60,12 +60,14 @@ bool Table::addEntry(QSharedPointer<TableEntry> entry)
     entries[entry] = entryIndex;
 
     // Register all variables of the entry with the MasterProxy object
-    QVector< QSharedPointer<AbstractVariable> > variables = entry->variables();
+    QMap< quint32, QSharedPointer<AbstractVariable> > variables = entry->variables();
+    QMapIterator< quint32, QSharedPointer<AbstractVariable> > iter2(variables);
     QVector< QPair< Oid,QSharedPointer<AbstractVariable> > > toRegister;
-    for(int i = 0; i < variables.size(); ++i)
+    while(iter2.hasNext())
     {
+        iter2.next();
         // Add variable to list
-        toRegister.append(qMakePair(myOid + entryIndex + i, variables[i]));
+        toRegister.append(qMakePair(myOid + entryIndex + iter2.key(), iter2.value()));
     }
     myMasterProxy->addVariables(toRegister);
 
@@ -91,12 +93,14 @@ bool Table::removeEntry(QSharedPointer<TableEntry> entry)
 
     // Unregister all variables of the entry
     Oid entryIndex = entries[entry]; // Use index at time of registration
+    QMap< quint32, QSharedPointer<AbstractVariable> > variables = entry->variables();
+    QMapIterator< quint32, QSharedPointer<AbstractVariable> > iter2(variables);
     QVector<Oid> toUnregister;
-    QVector< QSharedPointer<AbstractVariable> > variables = entry->variables();
-    for(int i = 0; i < variables.size(); ++i)
+    while(iter2.hasNext())
     {
+        iter2.next();
         // Add variable's Oid to list
-        toUnregister.append(myOid + entryIndex + i);
+        toUnregister.append(myOid + entryIndex + iter2.key());
     }
     myMasterProxy->removeVariables(toUnregister);
 

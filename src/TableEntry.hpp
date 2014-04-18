@@ -20,6 +20,9 @@
 #ifndef _TABLEENTRY_HPP_
 #define _TABLEENTRY_HPP_
 
+#include <QMap>
+#include <QVector>
+
 #include "Oid.hpp"
 #include "AbstractVariable.hpp"
 
@@ -49,15 +52,15 @@ namespace agentxcpp
             /**
              * \brief Get the variables of this entry.
              *
-             * This method shall return the variables for this entry. It is
-             * assumed that the index of a variable in the returned vector
-             * matches its index specified in the MIB.
+             * This method shall return the variables for this entry. The
+             * variables are returned as a map, with the variables index
+             * as key and the variable itself as value.
              * 
              * \return The variables for this entry.
              *
              * \exception This method shall not throw.
              */
-            virtual QVector< QSharedPointer<AbstractVariable> > variables() = 0;
+            virtual QMap< quint32, QSharedPointer<AbstractVariable> > variables() = 0;
 
             /**
              * \brief Virtual Destructor.

@@ -79,7 +79,7 @@ bool Table::addEntry(QSharedPointer<TableEntry> entry)
             return false;
         }
         // Add variable to list
-        toRegister.append(qMakePair(myOid + iter2.key() + entryIndex, iter2.value()));
+        toRegister.append(qMakePair(myOid + entry->subid + iter2.key() + entryIndex, iter2.value()));
     }
     myMasterProxy->addVariables(toRegister);
 
@@ -112,7 +112,7 @@ bool Table::removeEntry(QSharedPointer<TableEntry> entry)
     {
         iter2.next();
         // Add variable's Oid to list
-        toUnregister.append(myOid + iter2.key() + entryIndex);
+        toUnregister.append(myOid + entry->subid + iter2.key() + entryIndex);
     }
     myMasterProxy->removeVariables(toUnregister);
 

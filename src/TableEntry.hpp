@@ -35,6 +35,14 @@ namespace agentxcpp
     class TableEntry
     {
         public:
+            /**
+             * \brief The subid assigned to this entry.
+             *
+             * This variable shall be initialized by a subclass before
+             * the entry is added to a table. See \ref how_tables_work for
+             * an introduction to this value.
+             */
+            quint32 subid;
 
             /**
              * \brief Get the index variables of this entry.

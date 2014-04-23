@@ -26,8 +26,8 @@
 
 So far we learned how to implement single variables and how to send 
 notifications. This tutorial teaches us how an SNMP table can be implemented.  
-Again, we start with what we did in the previous tutorials, and add a simple 
-table to the SIMPLE-MIB:
+We start with the code from the previous tutorials and add a table to the 
+SIMPLE-MIB:
 
 \verbatim
 SIMPLE-MIB DEFINITIONS ::= BEGIN
@@ -112,10 +112,10 @@ table starts empty and each time the counter changes (i.e. by an SNMP GET or
 SET request), an entry is added.
 
 Each entry within the table has a timestamp, which consists of the epoch time 
-and a milliseconds component. This is to show how multiple variables can be 
-used to form the table's index. In addition, the time is reported in an 
-human-readable format (e.g. "2011-09-11, 12:00:52.77"). Finally, each entry 
-reports the new counter value.
+and a milliseconds component, which is used as index of the entry. This is to 
+show how multiple variables can be used to form the table's index. In addition, 
+the time is reported in an human-readable format (e.g. "2011-09-11, 
+12:00:52.77").  Finally, each entry reports the new counter value.
 
 
 \section how_tables_work How tables work in agentXcpp
@@ -126,35 +126,36 @@ variables are assembled like this:
 
   <tableOid>.<entryOid>.<variableSubOid>.<indexOid>
 
-The <tableOid> is the OID given to the table. The counterChangeTable for 
-example has the OID enterprises.42.2, which is .1.3.6.1.4.1.42.2.
+The <tableOid> is the OID given to the table. The counterChangeTable has the 
+OID enterprises.42.2, which is .1.3.6.1.4.1.42.2.
 
 The <entryOid> is a single number assigned to the table entry. The 
-CounterChangeEntry for example has the <entryOid> 1.
+CounterChangeEntry has the OID counterChangeTable.1, which means that 
+<entryOid> is 1.
 
 The <variableSubOid> is a single number which can be thought to be the column 
-of a specific variable. The counterChangeEpoch has <variableSubOid>=1, while 
-counterChangeTimeString has <variableSubOid>=3.
+of a specific variable. The counterChangeEpoch has <variableSubOid> 1, while 
+counterChangeTimeString has <variableSubOid> 3.
 
 The <indexOid> is the concatenation of the index variables (counterChangeEpoch 
 and counterChangeMilliseconds), converted to OID. For example, if 
-counterChangeEpoch is 123456789 and counterChangeMilliseconds is 512, the index 
-would be "123456789.512". The index can be thought of as the identifier of the 
-row in which the entry resides. In terms of a relational database it would be 
-called the primary key of the record.
+counterChangeEpoch was 123456789 and counterChangeMilliseconds was 512, the 
+index would be "123456789.512". The index can be thought of as the identifier 
+of the row in which the entry resides. In terms of a relational database it 
+would be called the primary key of the record.
 
 Thus, the full OID of the counterChangeTimeString in the entry 123456789.512, 
 for example, would be ".1.3.6.1.4.1.42.2.1.3.123456789.512".
 
 A table is implemented by creating a \agentxcpp{Table} object and tell it its 
 <tableOid> (enterprises.42.2).  An entry is implemented by subclassing 
-\agentxcpp{TableEntry}. For our table, we will implement the  
-CounterChangeEntry class which contains the four variables counterChangeEpoch, 
+\agentxcpp{TableEntry}, which initializes its subid to <entryOid> (i.e. 1 for 
+counterChangeEntry).  For our table, we will implement the  CounterChangeEntry 
+class which contains the four variables counterChangeEpoch, 
 counterChangeMilliseconds, counterChangeTimeString and 
 counterChangeCounterValue. The CounterChangeEntry class must implement the 
 \agentxcpp{TableEntry::indexVariables()} and 
-\agentxcpp{TableEntry::variables()} methods, and is must ensure that <entryOid> 
-is set correctly. 
+\agentxcpp{TableEntry::variables()} methods.
 
 Each time an entry is added, the table will query the new entry for all its 
 variables and add these to the MasterProxy object, so that they are
@@ -220,23 +221,26 @@ class CounterChangeEntry : public TableEntry
 
 The class inherits \agentxcpp{TableEntry}. It has four members which represent 
 the four SNMP variables. Since in agentXcpp those variables are handled as 
-QSharedPointer's, the constructor needs to create all of them using the new 
-operator.
+QSharedPointer's, the constructor needs to create all of them using the 
+<tt>new</tt> operator. The constructor also sets \agentxcpp{TableEntry::subid} 
+to 1.
 
-Each entry within a table needs a unique index, which becomes a part of the OID 
-of its variables. The index is built up by the index variables. Our MIB states
-that counterChangeEpoch and counterChangeMilliseconds are used as index.  The 
-CounterChangeEntry::indexVariables() method implements this by returning these 
-variables in a QVector, in the order in which they are used in the index.  Note 
-that the entry's OID changes if the index variables change their value.  Our 
-simpleagent will not change and entry after it was added to the table, though.
+Our MIB states that counterChangeEpoch and counterChangeMilliseconds are used 
+as index.  The CounterChangeEntry::indexVariables() method implements this by 
+returning these variables in a QVector, in the order in which they are used in 
+the index.  Note that the entry's OID changes if the index variables change 
+their value.  Our simpleagent will not change an entry after it was added to 
+the table, though.
 
 The CounterChangeEntry::variables() method return all variables as a QMap. The 
-map key will be used by the table as <variableSubOid> part for the variable 
-stored as value.
+map key will be used by the table as <variableSubOid> part for the variable.
 
 
 \section extending_simplecounter Extending the SimpleCounter class.
+
+
+Next, we extent the SimpleCounter class so that it adds an entry to the table 
+each time the counter is changed. First of all, we need additional includes:
 
 \code
 #include <agentxcpp/Table.hpp>
@@ -244,10 +248,9 @@ stored as value.
 #include <QDateTime>
 \endcode
 
-Next, we extent the SimpleCounter class so that it adds an entry to the table 
-each time the counter is changed. One thing to do is to add a \agentxcpp{Table} 
-member, a member to store the entry just inserted into the table (needed for 
-undoset(), a suitable constructor and the helper function addEntry():
+One thing to do is to add a \agentxcpp{Table} member, a member to store the 
+entry just inserted into the table (needed for undoset(), a suitable 
+constructor and the helper function addEntry():
 
 \code
     private:
@@ -276,8 +279,9 @@ undoset(), a suitable constructor and the helper function addEntry():
         }
 \endcode
 
-And we have to extend the get(), commitset() and undoset() functions, which now 
-look like this:
+Next we have to replace the get(), commitset() and undoset() functions with 
+variants adding and removing an entries to/from the table. Here is how they 
+look like now:
 
 \code
         virtual void get()
@@ -314,7 +318,9 @@ look like this:
         }
 \endcode
 
-And finally we update the main() function as follows:
+And finally we update the main() function, where a table is instantiated and 
+given to the SimpleCounter constructor. Here is the complete <tt>main()</tt> 
+function:
 
 \code
 int main(int argc, char** argv)
@@ -326,12 +332,14 @@ int main(int argc, char** argv)
     Oid simpleagentOid = Oid(enterprises_oid, "42");
     master.register_subtree(simpleagentOid);
 
+    // NEW: Instantiate a table:
     Table table(simpleagentOid + 2, &master);
+    // CHANGED: provide table when creating the counter:
     QSharedPointer<SimpleCounter> counter(new SimpleCounter(&table));
     Oid simpleCounterOid = simpleagentOid + 1 + 0;
     master.add_variable(simpleCounterOid, counter);
 
-    // New code for sending notifications ---------------
+    // Code for sending notifications ---------------
     NotificationSender sender(&master, simpleCounterOid, counter);
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()),
@@ -344,11 +352,14 @@ int main(int argc, char** argv)
 }
 \endcode
 
+And that's all we need for our table. Next, let's try it out.
 
 
 \section compiling_notification Compiling the Subagent
 
-OLD:
+We didn't add implementation files in this tutorial, so no additional steps are 
+needed for compiling. However, we have to recompile the the whole thing. We 
+know the following commands already from the previous tutorials:
 
 \code
 moc-qt4 `pkg-config --cflags QtCore QtNetwork` -o moc_NotificationSender.cc NotificationSender.hpp
@@ -358,8 +369,6 @@ moc-qt4 `pkg-config --cflags QtCore QtNetwork` -o moc_NotificationSender.cc Noti
 g++ -c moc_NotificationSender.cc `pkg-config --cflags QtCore QtNetwork`
 \endcode
 
-NEEDED:
-
 \code
 g++ simpleagent.cpp -o simpleagent moc_NotificationSender.o `pkg-config --cflags --libs QtNetwork QtCore` -lagentxcpp
 \endcode
@@ -367,6 +376,44 @@ g++ simpleagent.cpp -o simpleagent moc_NotificationSender.o `pkg-config --cflags
 Now, the executable is ready to run.
 
 
+\section running Running the subagent
+
+The subagent is run like descibed in the previous tutorials, simply by executing it:
+
+\code
+./simpleagent
+\endcode
+
+Now, let's add some entries to the table by querying the simpleCounter variable:
+
+\code
+snmpget -v1 -c rw localhost SIMPLE-MIB::simpleCounter.0
+\endcode
+
+\code
+snmpset -v1 -c rw localhost SIMPLE-MIB::simpleCounter.0 i 23
+\endcode
+
+And finally we print the table using the snmptable command from the NET-SNMP 
+package, which requires that the MIB is installed properly:
+
+\code
+snmptable -v2c -c rw localhost SIMPLE-MIB::counterChangeTable
+\endcode
+
+If the MIB is not properly installed, or in case of programming errors, the 
+snmptable command might return nothing. The snmpwalk command can help out in 
+those cases, because it prints the complete subtree of a given OID, regardless 
+whether it is a table or not:
+
+\code
+snmpwalk -v2c -c rw -On localhost 1.3.6.1.4.1.42.2
+\endcode
+
+Now you know all you need to implement your own SNMP subagents. Use the API 
+documentation to get more help on the individual classes.
+
+Happy Hacking!
 
 */
 

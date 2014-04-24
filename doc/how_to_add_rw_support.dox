@@ -130,7 +130,7 @@ SimpleCounter class by adding the following code to it:
         }
 \endcode
 
-The \ref agentxcpp::Variable::testset "testset()" method receives the 
+The \ref agentxcpp::IntegerVariable::testset "testset()" method receives the 
 value and can check whether setting the variable to this value would work.  
 Here, we don't check the value, but we allocate an quint32 to store the old 
 value, which is needed for undoset().  If allocation fails, we return the error 

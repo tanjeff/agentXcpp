@@ -216,7 +216,7 @@ namespace agentxcpp
              * testset() is not called. This function also stores the given
              * value to the new_value member.
              *
-             * \param v The new value for the variable.
+             * \param _v The new value for the variable.
              *
              * \return agentxcpp::AbstractVariable::wrongType if the conversion
              *                                                fails. Otherwise,
@@ -254,7 +254,7 @@ namespace agentxcpp
              * this is a read-only variable. Thus, for read-only variables this
              * method need not be overridden.
              *
-             * \param v The new value for the object.
+             * \param _v The new value for the object.
              *
              * \return The result of the check.
              */
@@ -287,7 +287,7 @@ namespace agentxcpp
              * required to perform the CleanupSet operaiton, this method need
              * not be overridden.
              *
-             * \param v The new value for the object.
+             * \param _v The new value for the object.
              */
             virtual void cleanupset(QSharedPointer<IpAddressVariable> _v)
             {
@@ -318,7 +318,7 @@ namespace agentxcpp
              * operation failed. To implement a writable SNMP variable this
              * method must be overridden.
              *
-             * \param v The new value for the object.
+             * \param _v The new value for the object.
              *
              * \return True if the operation succeeded, false otherwise.
              */
@@ -360,7 +360,7 @@ namespace agentxcpp
              *
              * \endinternal
              *
-             * \param v The new value for the object.
+             * \param _v The new value for the object.
              *
              * \return True on success, false otherwise.
              */

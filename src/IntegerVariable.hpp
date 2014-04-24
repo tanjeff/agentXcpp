@@ -29,7 +29,7 @@
 namespace agentxcpp
 {
     /**
-     * \brief Represents an Integer as described in RFC 2741
+     * \brief Represents an Integer as described in RFC 2741.
      */
     class IntegerVariable : public AbstractVariable
     {
@@ -110,7 +110,7 @@ namespace agentxcpp
 	     * 7.7. "Mapping of the INDEX clause". The value is
 	     * converted to an Oid with a single subid. Note that
 	     * INTEGER values are signed, while subids are not.
-	     * A negative value with be converted to big unsigned
+	     * A negative value with be converted to a big unsigned
 	     * subid.
 	     *
 	     * \note If an INTEGER is used in an INDEX clause, the
@@ -176,7 +176,7 @@ namespace agentxcpp
              * testset() is not called. This function also stores the given
              * value to the new_value member.
              *
-             * \param v The new value for the variable.
+             * \param _v The new value for the variable.
              *
              * \return agentxcpp::AbstractVariable::wrongType if the conversion
              *                                                fails. Otherwise,
@@ -214,7 +214,7 @@ namespace agentxcpp
              * this is a read-only variable. Thus, for read-only variables this
              * method need not be overridden.
              *
-             * \param v The new value for the object.
+             * \param _v The new value for the object.
              *
              * \return The result of the check.
              */
@@ -247,7 +247,7 @@ namespace agentxcpp
              * required to perform the CleanupSet operaiton, this method need
              * not be overridden.
              *
-             * \param v The new value for the object.
+             * \param _v The new value for the object.
              */
             virtual void cleanupset(QSharedPointer<IntegerVariable> _v)
             {
@@ -278,7 +278,7 @@ namespace agentxcpp
              * operation failed. To implement a writable SNMP variable this
              * method must be overridden.
              *
-             * \param v The new value for the object.
+             * \param _v The new value for the object.
              *
              * \return True if the operation succeeded, false otherwise.
              */
@@ -320,7 +320,7 @@ namespace agentxcpp
              *
              * \endinternal
              *
-             * \param v The new value for the object.
+             * \param _v The new value for the object.
              *
              * \return True on success, false otherwise.
              */

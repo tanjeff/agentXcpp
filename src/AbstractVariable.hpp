@@ -169,7 +169,7 @@ namespace agentxcpp
              *
              * \return The result of the validation.
              *
-             * \exception None: The function shall not throw.
+             * \exception The function shall not throw.
              */
             virtual testset_result_t handle_testset(QSharedPointer<AbstractVariable>) = 0;
 
@@ -181,7 +181,7 @@ namespace agentxcpp
              * by handle_testset() (if any). If no resources were allocated,
              * this method is not required to do anything.
              *
-             * \exception None: The function shall not throw.
+             * \exception The function shall not throw.
              */
             virtual void handle_cleanupset() = 0;
 
@@ -198,7 +198,7 @@ namespace agentxcpp
              *
              * \return True on success, false otherwise.
              *
-             * \exception None: The function shall not throw.
+             * \exception The function shall not throw.
              */
             virtual bool handle_commitset()= 0;
 
@@ -211,7 +211,7 @@ namespace agentxcpp
              *
              * \return True on success, false otherwise.
              *
-             * \exception None: The function shall not throw.
+             * \exception The function shall not throw.
              */
             virtual bool handle_undoset() = 0;
 

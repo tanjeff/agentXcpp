@@ -31,6 +31,12 @@ namespace agentxcpp
 {
     /**
      * \brief Represents an SNMP OBJECT-IDENTENTIFIER variable.
+     *
+     * The agentXcpp library distinguishes between Oid and
+     * OidVariable types. An Oid is a sequence of numbers,
+     * while OidVariable is an SNMP variable representing an Oid. That
+     * means, that GET and SET requests are possible on OidVariable's, but
+     * not on Oid's.
      */
     class OidVariable: public AbstractVariable
     {
@@ -138,8 +144,8 @@ namespace agentxcpp
 	     *
 	     * The conversion is done according to RFC 2578,
 	     * 7.7. "Mapping of the INDEX clause". First, the
-	     * length is converted to a subid. Then, each
-	     * subid of the value is appended.
+	     * length of the OID (i.e. the number of subid's it has) is
+	     * converted to a subid. Then, each subid of the value is appended.
 	     *
 	     * \todo Support fixed-length OIDs according to RFC 2578,
              *       7.7. "Mapping of the INDEX clause".
@@ -210,7 +216,7 @@ namespace agentxcpp
              * testset() is not called. This function also stores the given
              * value to the new_value member.
              *
-             * \param v The new value for the variable.
+             * \param _v The new value for the variable.
              *
              * \return agentxcpp::AbstractVariable::wrongType if the conversion
              *                                                fails. Otherwise,
@@ -248,7 +254,7 @@ namespace agentxcpp
              * this is a read-only variable. Thus, for read-only variables this
              * method need not be overridden.
              *
-             * \param v The new value for the object.
+             * \param _v The new value for the object.
              *
              * \return The result of the check.
              */

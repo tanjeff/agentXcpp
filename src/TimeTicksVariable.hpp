@@ -102,11 +102,25 @@ namespace agentxcpp
 	     */
 	    virtual binary serialize() const;
 
+	    /*
+	     * \brief Set the value.
+	     *
+	     * \param _v The new value.
+	     *
+	     * \exception None.
+	     */
 	    void setValue(quint32 _v)
 	    {
 	        v = _v;
 	    }
 
+            /*
+             * \brief get the value.
+             *
+             * \return The current value.
+             *
+             * \exception None.
+             */
 	    quint32 value()
 	    {
 	        return v;
@@ -154,7 +168,7 @@ namespace agentxcpp
              * testset() is not called. This function also stores the given
              * value to the new_value member.
              *
-             * \param v The new value for the variable.
+             * \param _v The new value for the variable.
              *
              * \return agentxcpp::AbstractVariable::wrongType if the conversion
              *                                                fails. Otherwise,
@@ -196,7 +210,7 @@ namespace agentxcpp
              *
              * \return The result of the check.
              */
-            virtual testset_result_t testset(QSharedPointer<TimeTicksVariable> _v)
+            virtual testset_result_t testset(QSharedPointer<TimeTicksVariable> v)
             {
                 return noAccess;
             }
@@ -207,7 +221,7 @@ namespace agentxcpp
              * \brief Handle a CleanupSet request.
              *
              * This function calls cleanupset() with the value from the last
-             * handle_testset() invokation.
+             * handle_testset() invocation.
              */
             virtual void handle_cleanupset()
             {
@@ -225,7 +239,7 @@ namespace agentxcpp
              * required to perform the CleanupSet operaiton, this method need
              * not be overridden.
              *
-             * \param v The new value for the object.
+             * \param _v The new value for the object.
              */
             virtual void cleanupset(QSharedPointer<TimeTicksVariable> _v)
             {
@@ -256,7 +270,7 @@ namespace agentxcpp
              * operation failed. To implement a writable SNMP variable this
              * method must be overridden.
              *
-             * \param v The new value for the object.
+             * \param _v The new value for the object.
              *
              * \return True if the operation succeeded, false otherwise.
              */
@@ -302,7 +316,7 @@ namespace agentxcpp
              *
              * \return True on success, false otherwise.
              */
-            virtual bool undoset(QSharedPointer<TimeTicksVariable> _v)
+            virtual bool undoset(QSharedPointer<TimeTicksVariable> v)
             {
                 return false;
             }

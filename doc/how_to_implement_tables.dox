@@ -124,20 +124,20 @@ Technically, our SNMP table is a sequence of counterChangeEntry, which in turn
 is a structure containing four "real" SNMP variables. The OID of these 
 variables are assembled like this:
 
-  <tableOid>.<entryOid>.<variableSubOid>.<indexOid>
+  <lt;tableOid>.<lt;entryOid>.<lt;variableSubOid>.<lt;indexOid>
 
-The <tableOid> is the OID given to the table. The counterChangeTable has the 
+The <lt;tableOid> is the OID given to the table. The counterChangeTable has the 
 OID enterprises.42.2, which is .1.3.6.1.4.1.42.2.
 
-The <entryOid> is a single number assigned to the table entry. The 
+The <lt;entryOid> is a single number assigned to the table entry. The 
 CounterChangeEntry has the OID counterChangeTable.1, which means that 
-<entryOid> is 1.
+<lt;entryOid> is 1.
 
-The <variableSubOid> is a single number which can be thought to be the column 
-of a specific variable. The counterChangeEpoch has <variableSubOid> 1, while 
-counterChangeTimeString has <variableSubOid> 3.
+The <lt;variableSubOid> is a single number which can be thought to be the column 
+of a specific variable. The counterChangeEpoch has <lt;variableSubOid> 1, while 
+counterChangeTimeString has <lt;variableSubOid> 3.
 
-The <indexOid> is the concatenation of the index variables (counterChangeEpoch 
+The <lt;indexOid> is the concatenation of the index variables (counterChangeEpoch 
 and counterChangeMilliseconds), converted to OID. For example, if 
 counterChangeEpoch was 123456789 and counterChangeMilliseconds was 512, the 
 index would be "123456789.512". The index can be thought of as the identifier 
@@ -148,8 +148,8 @@ Thus, the full OID of the counterChangeTimeString in the entry 123456789.512,
 for example, would be ".1.3.6.1.4.1.42.2.1.3.123456789.512".
 
 A table is implemented by creating a \agentxcpp{Table} object and tell it its 
-<tableOid> (enterprises.42.2).  An entry is implemented by subclassing 
-\agentxcpp{TableEntry}, which initializes its subid to <entryOid> (i.e. 1 for 
+<lt;tableOid> (enterprises.42.2).  An entry is implemented by subclassing 
+\agentxcpp{TableEntry}, which initializes its subid to <lt;entryOid> (i.e. 1 for 
 counterChangeEntry).  For our table, we will implement the  CounterChangeEntry 
 class which contains the four variables counterChangeEpoch, 
 counterChangeMilliseconds, counterChangeTimeString and 
@@ -233,7 +233,7 @@ their value.  Our simpleagent will not change an entry after it was added to
 the table, though.
 
 The CounterChangeEntry::variables() method return all variables as a QMap. The 
-map key will be used by the table as <variableSubOid> part for the variable.
+map key will be used by the table as &lt;variableSubOid> part for the variable.
 
 
 \section extending_simplecounter Extending the SimpleCounter class.

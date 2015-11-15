@@ -203,6 +203,8 @@ Oid& Oid::operator=(const Oid& other)
     // copy inherited stuff
     QVector<quint32>::operator=(other);
     
+    mInclude = other.mInclude;
+
     // Return reference to us
     return *this;
 }

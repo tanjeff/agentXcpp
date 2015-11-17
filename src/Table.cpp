@@ -21,6 +21,11 @@
 
 using namespace agentxcpp;
 
+bool Table::contains(QSharedPointer<TableEntry> entry) const
+{
+    return entries.contains(entry);
+}
+
 bool Table::addEntry(QSharedPointer<TableEntry> entry)
 {
     // Check for MasterProxy object

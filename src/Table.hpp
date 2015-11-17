@@ -176,6 +176,17 @@ class Table
         bool addEntry(QSharedPointer<TableEntry> entry);
 
         /**
+         * \brief Check whether the table contains a given entry.
+         *
+         * \param entry The entry to search for.
+         *
+         * \return True if the table contains the entry, false otherwise.
+         *
+         * \exception None.
+         */
+        bool contains(QSharedPointer<TableEntry> entry) const;
+
+        /**
          * \brief Remove an entry from the table.
          *
          * This method removes all variables of the entry from the 

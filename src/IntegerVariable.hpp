@@ -244,7 +244,7 @@ namespace agentxcpp
              * shall release any ressources allocated by testset().
              *
              * The default implementation does nothing. If no action is
-             * required to perform the CleanupSet operaiton, this method need
+             * required to perform the CleanupSet operation, this method need
              * not be overridden.
              *
              * \param _v The new value for the object.

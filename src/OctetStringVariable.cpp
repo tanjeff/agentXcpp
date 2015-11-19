@@ -32,7 +32,7 @@ OctetStringVariable::OctetStringVariable(QString v)
 
 void OctetStringVariable::setValue(QString _value)
 {
-    // Here we convert initial value to a binary string. We do this in three
+    // Here we convert initial value to a binary string. We do this in four
     // steps:
     // 1. get the bare data: v.toStdString().data()
     // 2. cast the data to the value type of binary

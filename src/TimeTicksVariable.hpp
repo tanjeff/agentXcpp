@@ -182,7 +182,7 @@ namespace agentxcpp
                 if (new_value)
                 {
                     // Type matches variable
-                    return testset(new_value);
+                    return testset(new_value->value());
                 }
                 else
                 {
@@ -210,7 +210,7 @@ namespace agentxcpp
              *
              * \return The result of the check.
              */
-            virtual testset_result_t testset(QSharedPointer<TimeTicksVariable> v)
+            virtual testset_result_t testset(quint32 _v)
             {
                 return noAccess;
             }
@@ -225,7 +225,7 @@ namespace agentxcpp
              */
             virtual void handle_cleanupset()
             {
-                cleanupset(new_value);
+                cleanupset(new_value->value());
             }
 
             /**
@@ -241,7 +241,7 @@ namespace agentxcpp
              *
              * \param _v The new value for the object.
              */
-            virtual void cleanupset(QSharedPointer<TimeTicksVariable> _v)
+            virtual void cleanupset(quint32 _v)
             {
                 return;
             }
@@ -256,7 +256,7 @@ namespace agentxcpp
              */
             virtual bool handle_commitset()
             {
-                return commitset(new_value);
+                return commitset(new_value->value());
             }
 
             /**
@@ -274,7 +274,7 @@ namespace agentxcpp
              *
              * \return True if the operation succeeded, false otherwise.
              */
-            virtual bool commitset(QSharedPointer<TimeTicksVariable> _v)
+            virtual bool commitset(quint32 _v)
             {
                 return false;
             }
@@ -290,7 +290,7 @@ namespace agentxcpp
              */
             virtual bool handle_undoset()
             {
-                return undoset(new_value);
+                return undoset(new_value->value());
             }
 
             /**
@@ -316,7 +316,7 @@ namespace agentxcpp
              *
              * \return True on success, false otherwise.
              */
-            virtual bool undoset(QSharedPointer<TimeTicksVariable> v)
+            virtual bool undoset(quint32 _v)
             {
                 return false;
             }

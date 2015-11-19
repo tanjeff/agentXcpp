@@ -230,7 +230,7 @@ namespace agentxcpp
                 if (new_value)
                 {
                     // Type matches variable
-                    return testset(new_value);
+                    return testset(new_value->address);
                 }
                 else
                 {
@@ -258,7 +258,7 @@ namespace agentxcpp
              *
              * \return The result of the check.
              */
-            virtual testset_result_t testset(QSharedPointer<IpAddressVariable> _v)
+            virtual testset_result_t testset(const quint8 _v[4])
             {
                 return noAccess;
             }
@@ -273,7 +273,7 @@ namespace agentxcpp
              */
             virtual void handle_cleanupset()
             {
-                cleanupset(new_value);
+                cleanupset(new_value->address);
             }
 
             /**
@@ -289,7 +289,7 @@ namespace agentxcpp
              *
              * \param _v The new value for the object.
              */
-            virtual void cleanupset(QSharedPointer<IpAddressVariable> _v)
+            virtual void cleanupset(const quint8 _v[4])
             {
                 return;
             }
@@ -304,7 +304,7 @@ namespace agentxcpp
              */
             virtual bool handle_commitset()
             {
-                return commitset(new_value);
+                return commitset(new_value->address);
             }
 
             /**
@@ -322,7 +322,7 @@ namespace agentxcpp
              *
              * \return True if the operation succeeded, false otherwise.
              */
-            virtual bool commitset(QSharedPointer<IpAddressVariable> _v)
+            virtual bool commitset(const quint8 _v[4])
             {
                 return false;
             }
@@ -338,7 +338,7 @@ namespace agentxcpp
              */
             virtual bool handle_undoset()
             {
-                return undoset(new_value);
+                return undoset(new_value->address);
             }
 
             /**
@@ -364,7 +364,7 @@ namespace agentxcpp
              *
              * \return True on success, false otherwise.
              */
-            virtual bool undoset(QSharedPointer<IpAddressVariable> _v)
+            virtual bool undoset(const quint8 _v[4])
             {
                 return false;
             }

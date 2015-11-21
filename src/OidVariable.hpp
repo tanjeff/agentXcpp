@@ -181,10 +181,9 @@ namespace agentxcpp
              * This function calls get() to update the internal value,
              * converts it to QSharedPointer<AbstractValue> and returns it.
              */
-            virtual QSharedPointer<AbstractVariable> handle_get()
+            virtual void handle_get()
             {
                 this->get();
-                return QSharedPointer<OidVariable>(new OidVariable(*this));
             }
 
             /**

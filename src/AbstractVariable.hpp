@@ -57,7 +57,7 @@ namespace agentxcpp
              * \exception generic_error If obtaining the current value fails.
              *                          No other exception shall be thrown.
              */
-            virtual QSharedPointer<AbstractVariable> handle_get() = 0;
+            virtual void handle_get() = 0;
 
 
             /**

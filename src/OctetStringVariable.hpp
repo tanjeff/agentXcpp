@@ -122,10 +122,9 @@ namespace agentxcpp
              *
              * \brief Handle a Get Request.
              */
-            virtual QSharedPointer<AbstractVariable> handle_get()
+            virtual void handle_get()
             {
                 this->get();
-                return QSharedPointer<OctetStringVariable>(new OctetStringVariable(*this));
             }
 
             /**

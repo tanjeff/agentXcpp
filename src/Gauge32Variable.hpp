@@ -123,10 +123,9 @@ namespace agentxcpp
              * This function calls get() to obtain the new value,
              * converts it to QSharedPointer<AbstractValue> and returns it.
              */
-            virtual QSharedPointer<AbstractVariable> handle_get()
+            virtual void handle_get()
             {
                 this->get();
-                return QSharedPointer<Gauge32Variable>(new Gauge32Variable(*this));
             }
 
             /**

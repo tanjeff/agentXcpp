@@ -34,7 +34,7 @@ namespace agentxcpp
      *
      * \brief Represents a VarBind according to RFC 2741, section 5.4.
      */
-    class varbind
+    class Varbind
     {
 	private:
 	    /**
@@ -76,7 +76,7 @@ namespace agentxcpp
 	     * If the type of the variable cannot be determined, inval_param is 
 	     * thrown.
 	     */
-	    varbind(const Oid&, QSharedPointer<AbstractVariable> v);
+	    Varbind(const Oid&, QSharedPointer<AbstractVariable> v);
 	    
 	    /**
 	     * \brief These values can be used to create a VarBind.
@@ -95,7 +95,7 @@ namespace agentxcpp
 	     * Only the constants defined by varbind::type_t are allowed.  A 
 	     * wrong type will cause an inval_param exception.
 	     */
-	    varbind(const Oid&, type_t);
+	    Varbind(const Oid&, type_t);
 
 	    /**
 	     * \internal
@@ -121,7 +121,7 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    varbind(binary::const_iterator& pos,
+	    Varbind(binary::const_iterator& pos,
 		    const binary::const_iterator& end,
 		    bool big_endian=true);
 

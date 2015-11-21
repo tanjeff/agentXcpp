@@ -505,7 +505,7 @@ namespace agentxcpp
 	     */
 	    void send_notification(const Oid& snmpTrapOID,
 	                           const TimeTicksVariable* sysUpTime,
-	                           const std::vector<varbind>& varbinds=vector<varbind>());
+	                           const std::vector<Varbind>& varbinds=vector<Varbind>());
 
 	    /**
 	     * \brief Writing aid: Send notification without sysUpTime.0.
@@ -520,7 +520,7 @@ namespace agentxcpp
 	     * const vector<varbind>&)
 	     */
 	    void send_notification(const Oid& snmpTrapOID,
-	                           const std::vector<varbind>& varbinds=vector<varbind>())
+	                           const std::vector<Varbind>& varbinds=vector<Varbind>())
 	    {
 	        send_notification(snmpTrapOID, 0, varbinds);
 	    }

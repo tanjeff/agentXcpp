@@ -24,7 +24,7 @@
 #include <QtGlobal>
 
 #include "PDUwithContext.hpp"
-#include "varbind.hpp"
+#include "Varbind.hpp"
 
 using std::vector;
 
@@ -41,7 +41,7 @@ namespace agentxcpp
 	    /**
 	     * \brief The VarBind list
 	     */
-	    vector<varbind> vb;
+	    vector<Varbind> vb;
 
 	public:
 	    /**
@@ -95,7 +95,7 @@ namespace agentxcpp
 	     *         if sysUpTime.0 was supplied, as the first if it was 
 	     *         not.
 	     */
-	    vector<varbind>& get_vb()
+	    vector<Varbind>& get_vb()
 	    {
 		return this->vb;
 	    }

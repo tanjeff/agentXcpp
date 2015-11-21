@@ -26,7 +26,7 @@
 
 #include "PDU.hpp"
 #include "OctetStringVariable.hpp"
-#include "varbind.hpp"
+#include "Varbind.hpp"
 
 using std::vector;
 
@@ -119,7 +119,7 @@ namespace agentxcpp
 	     *
 	     * This vector may be empty if the %PDU has no VarBinds.
 	     */
-	    vector<varbind> varbindlist;
+	    vector<Varbind> varbindlist;
 
 	    /**
 	     * \brief Parse constructor

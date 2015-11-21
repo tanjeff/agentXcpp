@@ -466,7 +466,7 @@ void MasterProxy::handle_getpdu(QSharedPointer<ResponsePDU> response, QSharedPoi
                 {
                     // Add variable to response (Step (1): include name)
                     var->second->handle_get();
-                    response->varbindlist.push_back( varbind(name, var->second) );
+                    response->varbindlist.push_back( Varbind(name, var->second) );
                 }
                 catch(...)
                 {
@@ -490,14 +490,14 @@ void MasterProxy::handle_getpdu(QSharedPointer<ResponsePDU> response, QSharedPoi
 		    // Step (4): We have a variable with the object
 		    //           identifier prefix 'name': Send noSuchInstance 
 		    //           error (Step (1): include name)
-		    response->varbindlist.push_back( varbind(name, varbind::noSuchInstance) );
+		    response->varbindlist.push_back( Varbind(name, Varbind::noSuchInstance) );
 		}
 		else
 		{
 		    // Step (3): we have no variable with the object
 		    //           identifier prefix 'name': Send noSuchObject 
 		    //           error (Step (1): include name)
-		    response->varbindlist.push_back( varbind(name, varbind::noSuchObject) );
+		    response->varbindlist.push_back( Varbind(name, Varbind::noSuchObject) );
 		}
 	    }
 
@@ -560,7 +560,7 @@ void MasterProxy::handle_getnextpdu(QSharedPointer<ResponsePDU> response, QShare
                 try
                 {
                     next_var->second->handle_get();
-                    response->varbindlist.push_back( varbind(next_var->first, next_var->second) );
+                    response->varbindlist.push_back( Varbind(next_var->first, next_var->second) );
                 }
                 catch(...)
                 {
@@ -574,7 +574,7 @@ void MasterProxy::handle_getnextpdu(QSharedPointer<ResponsePDU> response, QShare
 	    else
 	    {
                 // "Next" variable was NOT found
-		response->varbindlist.push_back( varbind(starting_oid, varbind::endOfMibView) );
+		response->varbindlist.push_back( Varbind(starting_oid, Varbind::endOfMibView) );
 	    }
 
             index++;
@@ -589,14 +589,14 @@ void MasterProxy::handle_testsetpdu(QSharedPointer<ResponsePDU> response, QShare
     // RFC 2741, 7.2.4.1 "Subagent Processing of the agentx-TestSet-PDU"
 
     // Extract Varbind list
-    vector<varbind>& vb = testset_pdu->get_vb();
+    vector<Varbind>& vb = testset_pdu->get_vb();
 
     // Initially, no Varbind failed:
     response->set_error(ResponsePDU::noAgentXError);
 
     // Iterate over list and handle each Varbind separately. Return on the 
     // first varbind which doesn't validate correctly.
-    vector<varbind>::const_iterator i;
+    vector<Varbind>::const_iterator i;
     quint16 index;
     for(i = vb.begin(), index = 1; i != vb.end(); i++, index++)
     {
@@ -941,23 +941,23 @@ void MasterProxy::removeVariables(const QVector<Oid>& ids)
 
 void MasterProxy::send_notification(const Oid& snmpTrapOID,
                                     const TimeTicksVariable* sysUpTime,
-                                    const vector<varbind>& varbinds)
+                                    const vector<Varbind>& varbinds)
 {
     QSharedPointer<NotifyPDU> pdu(new NotifyPDU);
     pdu->set_sessionID(this->sessionID);
 
-    vector<varbind>& vb = pdu->get_vb();
+    vector<Varbind>& vb = pdu->get_vb();
 
     // First of all: add mandatory sysUpTime (if given)
     if(sysUpTime)
     {
         QSharedPointer<TimeTicksVariable> value(new TimeTicksVariable(*sysUpTime));
-        vb.push_back(varbind(Oid(sysUpTime_oid, "0"), value));
+        vb.push_back(Varbind(Oid(sysUpTime_oid, "0"), value));
     }
 
     // Second: add mandatory snmpTrapOID
     QSharedPointer<OidVariable> trapoid(new OidVariable(snmpTrapOID));
-    vb.push_back(varbind(Oid(snmpTrapOID_oid, "0"), trapoid));
+    vb.push_back(Varbind(Oid(snmpTrapOID_oid, "0"), trapoid));
 
     // Append given varbinds
     vb.insert(vb.end(), varbinds.begin(), varbinds.end());

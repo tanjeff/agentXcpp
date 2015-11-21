@@ -17,7 +17,8 @@
  * for more details.
  */
 
-#include "varbind.hpp"
+#include "Varbind.hpp"
+
 #include "OctetStringVariable.hpp"
 #include "IntegerVariable.hpp"
 #include "Counter32Variable.hpp"
@@ -31,7 +32,7 @@
 
 using namespace agentxcpp;
 
-binary varbind::serialize() const
+binary Varbind::serialize() const
 {
     binary serialized;
 
@@ -53,7 +54,7 @@ binary varbind::serialize() const
 }
 
 
-varbind::varbind(const Oid& o, QSharedPointer<AbstractVariable> v)
+Varbind::Varbind(const Oid& o, QSharedPointer<AbstractVariable> v)
 {
     name = o;
     var = v;
@@ -76,7 +77,7 @@ varbind::varbind(const Oid& o, QSharedPointer<AbstractVariable> v)
 }
 
 
-varbind::varbind(const Oid& o, type_t t)
+Varbind::Varbind(const Oid& o, type_t t)
 {
     name = o;
 
@@ -96,7 +97,7 @@ varbind::varbind(const Oid& o, type_t t)
     }
 }
 
-varbind::varbind(binary::const_iterator& pos,
+Varbind::Varbind(binary::const_iterator& pos,
 		 const binary::const_iterator& end,
 		 bool big_endian)
 {

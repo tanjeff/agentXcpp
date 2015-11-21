@@ -30,10 +30,12 @@ namespace agentxcpp
      * \brief Base class for SNMP variables.
      *
      * This class is the base class for SNMP variable implementations. It 
-     * provides the interface which is used by agentXcpp to perform
-     * operations on variables.
+     * provides the interface which is used by agentXcpp (namely by the 
+     * MasterProxy class) to perform operations on variables. An overiew on 
+     * variable handling in agentxcpp is given in \ref variables.
      *
-     * \todo Explain how Variables work in general.
+     * \note This class should never be inherited by non-agentXcpp code.
+     *
      */
     class AbstractVariable
     {
@@ -41,18 +43,23 @@ namespace agentxcpp
         public:
 
             /**
-             * \brief Destructor.
+             * \brief Virtual destructor.
              */
             virtual ~AbstractVariable()
             {
             }
 
             /**
+             * \internal
+             *
              * \brief Handle AgentX Get request.
              *
-             * This method is called when the SNMP request "Get" is received
-             * for the
-             * variable. It shall update the internal state.
+             * This method is called by the MasterProxy object when the SNMP 
+             * request "Get" is received for the variable. It should update the 
+             * internal state.
+             *
+             * \note Any exception thrown by this method results in sending a 
+             *       generic error to the master agent.
              *
              * \exception generic_error If obtaining the current value fails.
              *                          No other exception shall be thrown.
@@ -71,13 +78,14 @@ namespace agentxcpp
              *       agentXcpp implementation and is therefore not part of this 
              *       enumeration.
              *
-             * \internal
-             *
              * The numeric values are given in RFC 2741, 7.2.4.1. "Subagent 
              * Processing of the agentx-TestSet-PDU".
              *
+             * \internal
+             *
              * \note These values must be in sync with the corresponding
              *       errors defined in agentxcpp::ResponsePDU::error_t.
+             *
              */
             enum testset_result_t
             {
@@ -155,13 +163,14 @@ namespace agentxcpp
             };
 
             /**
+             * \internal
+             *
              * \brief Validate whether a Set operation would be successful.
              *
              * This method is called when the SNMP request "TestSet" is
-             * received. It
-             * shall check whether a Set operation is possible for the 
-             * variable. It shall acquire the resources needed to perform the 
-             * Set operation (but the Set shall not yet be performed).
+             * received. It shall check whether a Set operation is possible for 
+             * the variable. It shall acquire the resources needed to perform 
+             * the Set operation (but the Set shall not yet be performed).
              *
              * \note This is the only method which receives the new value to be
              *       set. An implementation must save the new value for 
@@ -174,6 +183,8 @@ namespace agentxcpp
             virtual testset_result_t handle_testset(QSharedPointer<AbstractVariable>) = 0;
 
             /**
+             * \internal
+             *
              * \brief Release resources after a Set operation.
              *
              * This method is called when the SNMP request "CleanupSet"
@@ -186,12 +197,13 @@ namespace agentxcpp
             virtual void handle_cleanupset() = 0;
 
             /**
+             * \internal
+             *
              * \brief Actually perform the Set operation.
              *
              * This method is called when the SNMP request "CommitSet"
-             * is received for
-             * the variable. It shall perform the Set operation. It shall 
-             * report whether the operation succeeded.
+             * is received for the variable. It shall perform the Set 
+             * operation. It shall report whether the operation succeeded.
              *
              * \note The new value is given to handle_testset() prior to
              *       calling handle_commitset().
@@ -203,11 +215,13 @@ namespace agentxcpp
             virtual bool handle_commitset()= 0;
 
             /**
+             * \internal
+             *
              * \brief Undo a Set operation which was already performed.
              *
              * This method is called when the SNMP request "UndoSet" is
-             * received. It
-             * shall undo the operation performed by handle_commitset().
+             * received. It shall undo the operation performed by 
+             * handle_commitset().
              *
              * \return True on success, false otherwise.
              *
@@ -218,31 +232,33 @@ namespace agentxcpp
             /**
              * \internal
              *
-             * \brief Serialize the value.
+             * \brief Serialize the variable.
              *
-             * This function must be implemented by all derived classes. The
-             * function shall generate a serialized form of the internal value.
+             * This function shall generate a serialized form of the internal 
+             * variable (i.e. the network representation of the variable).
              *
-             * \return The serialized form of the value.
+             * \return The serialized form of the variable.
              *
-             * \exception None: The function shall not throw.
+             * \exception The function shall not throw.
              */
             virtual binary serialize() const = 0;
 
             /**
+             * \internal
+             *
              * \brief Convert an INDEX variable to an Oid part.
              *
              * If an SNMP variable is used as INDEX within a table,
              * then its value is used as part of the Oid for that table
-             * entry (or row). Therefore, such variables must be
-             * convertible to Oid's. This method provides this conversion.
+             * entry. Therefore, such variables must be convertible to Oid's.  
+             * This method provides this conversion.
              *
              * Not all variable types are allowed to be used as INDEX and are
              * therefore not convertible to Oid. For variables which are not
              * convertible, this method shall return the null Oid.
              *
-             * \return The variable, converted to Oid, or the null Oid if the
-             *         variable don't support such conversion.
+             * \return The Oid representing the variables value, or the null 
+             *         Oid if the variable don't support such conversion.
              *
              * \exception This method shall not throw.
              */

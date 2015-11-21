@@ -166,7 +166,7 @@ the variables which can be queried. Therefore, neither the table nor the
 entries are added to the MasterProxy object. Only the variables are added.
 
 
-\section implementing_entry Implementing the CounterChangeEntry class
+\section tables_implementing_entry Implementing the CounterChangeEntry class
 
 First of all, we implement the CounterChangeEntry class. Here is the full 
 code:
@@ -236,7 +236,7 @@ The CounterChangeEntry::variables() method return all variables as a QMap. The
 map key will be used by the table as &lt;variableSubOid> part for the variable.
 
 
-\section extending_simplecounter Extending the SimpleCounter class.
+\section tables_extending_simplecounter Extending the SimpleCounter class.
 
 
 Next, we extent the SimpleCounter class so that it adds an entry to the table 
@@ -355,7 +355,7 @@ int main(int argc, char** argv)
 And that's all we need for our table. Next, let's try it out.
 
 
-\section compiling_notification Compiling the Subagent
+\section tables_compiling_notification Compiling the Subagent
 
 We didn't add implementation files in this tutorial, so no additional steps are 
 needed for compiling. However, we have to recompile the the whole thing. We 
@@ -376,7 +376,7 @@ g++ simpleagent.cpp -o simpleagent moc_NotificationSender.o `pkg-config --cflags
 Now, the executable is ready to run.
 
 
-\section running Running the subagent
+\section tables_running Running the subagent
 
 The subagent is run like descibed in the previous tutorials, simply by executing it:
 

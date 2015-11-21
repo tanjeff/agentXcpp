@@ -118,13 +118,13 @@ class NotificationSender : public QObject
         {
             std::cout << "notification!" << std::endl;
 
-            std::vector<varbind> objects;
-            QSharedPointer<AbstractVariable> counterVariable(new IntegerVariable(counter->value()));
-            objects.push_back(varbind(simpleCounter_oid, counterVariable));
+            std::vector<Varbind> objects;
+            IntegerVariable(counter->value()));
+            objects.push_back(Varbind(simpleCounter_oid, counterVariable));
 
             QMetaObject::invokeMethod(master, "send_notification",
                                       Q_ARG(const Oid&, simpleCounter_oid),
-                                      Q_ARG(const std::vector<varbind>&, objects)
+                                      Q_ARG(const std::vector<Varbind>&, objects)
                                      );
         }
 };
@@ -277,7 +277,7 @@ can see its output. The <tt>-Le</tt> parameter redirects the logging messages
 to stderr (i.e. to the console window).
 
 
-\subsection starting_subagent Starting the Subagent
+\subsection notifications_starting_subagent Starting the Subagent
 
 Now, the subagent is started:
 

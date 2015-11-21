@@ -19,61 +19,112 @@
 
 /*! 
 
-\internal
 
 
 \page variables The Variable Objects
 
 
-\section introduction Introduction
+\section variables_introduction Introduction
 
 SNMP and AgentX are all about variables, and how to obtain or alter their 
-values. In agentXcpp, variables are represented by classes which implement the 
-agentxcpp::AbstractVariable interface. Values are represented by classes 
-implementing agentxcpp::AbstractValue. 
+values. In agentXcpp, variables are represented by objects which implement the 
+\agentxcpp{AbstractVariable} interface. The library provides some classes such 
+as \agentxcpp{IntegerVariable} and \agentxcpp{OctetStringVariable}, all 
+implementing \agentxcpp{AbstractVariable}. These classes can directly be 
+instantiated to serve as read-only variables (they do not support SNMP SET 
+requests), and their value can be obtained with value() and altered with 
+setValue().
 
-SNMP variables 
+However, it is normally more useful to derive from these classes and reimplement 
+get(), so that the value can be obtained in the moment a GET request occurs.  
+Also, the <tt>testset()</tt>, <tt>commitset()</tt>, <tt>undoset()</tt> and 
+<tt>cleanupset()</tt> methods can be reimplemented to add write support.
 
-The library provides some classes such as agentxcpp::IntegerValue and 
-agentxcpp::OctetStringValue, which have an internal value and can be 
-serialized and deserialized to be included in PDU messages. To actually 
-provide an SNMP variable, one of these classes must be derived.
+\section variables_get How SNMP GET requests are served
+
+Each variable has an internal member to store its value, e.g.  
+\agentxcpp{IntegerVariable::v}. The <tt>get()</tt> method is called by the 
+library when an SNMP GET is requested for the variable. This method should then 
+update the internal member to reflect the current state. The default 
+<tt>get()</tt> implementation does nothing and thus allows to read the value as 
+set by the last call to setValue(). This makes it possible to use the Variable 
+class without inheriting.
 
 
-\section serializing_parsing Serializing and Parsing Variables
+\internal
 
-The agentxcpp::variable interface provides the serialize function to serialize 
-a variable object. Parsing is done using parse constructors. This is the same 
-mechanism as used by the %PDU classes. See \ref pdus for an explanation.
+\subsection variables_get_internal How GET requests are handled internally
+
+When the \agentxcpp{MasterProxy} object receives a GET (or GETNEXT) request, it 
+looks up the variable registered with the requested OID. This works even for 
+variables which are part of a table, because the \agentxcpp{Table} class 
+registers its variables like any other variable. Then the MasterProxy invokes 
+the variable's \agentxcpp{AbstractVariable::handle_get()} method to update the 
+value of the variable. After that, it adds the variable to a \agentxcpp{Varbind} 
+object which is then embedded into the response and sent back to the master 
+agent (possibly with further varbinds). 
+
+The variable's \agentxcpp{AbstractVariable::handle_get()} method is implemented 
+in the subclasses. It first calls get() to update the internally stored value.  
+The default implementation of get() does nothing, but can be overridden by 
+subclasses.
 
 
 
-\section get GET Requests
 
-When the agentxcpp::MasterProxy object receives a GET request, it looks up the 
-variable registered with the requested OID. Then it invokes the variable's 
-update() function (found in the agentxcpp::variable interface) to update the 
-internal state of the variable. Finally the variable is serialized and embedded 
-within a agentxcpp::ResponsePDU and sent to the master agent.
+\section variables_set How SNMP SET requests are served
 
-The agentxcpp::variable::update() method is implemented in the variable classes 
-such as agentxcpp::IntegerValue, agentxcpp::OctetStringValue, 
-agentxcpp::Counter32Value, and 
-so on.  The implementation just calls the get() method of the respective 
-object, which returns the new value of the object. Then, update() stores the 
-new value within the variable. 
+Each variable provides the functions <tt>testset()</tt>, <tt>commitset()</tt>, 
+<tt>cleanupset()</tt> and <tt>undoset()</tt>, which are called while processing 
+an SNMP SET request for the variable. Each of these functions takes the new 
+value as parameter (e.g. an qint32 value for \agentxcpp{IntegerVariable}). The 
+functions should then act as described in \ref the_set_steps, returning success 
+or failure. It is not required that the functions update the internal member, 
+because on SET request, a subagent does not send the new state back to the 
+master agent.
 
-When implementing an SNMP variable, the user of the agentXcpp library derives 
-one of the variable classes (e.g. agentxcpp::OctetStringValue) and overrides the 
-get() method. The get() method may throw agentxcpp::generic_error, in which 
-case a generic error is reported to the master agent. Note that any other 
-exception also results in a generic error reported to the master agent.
+The default implementation of the SET-supporting methods is to fail with 
+\agentxcpp{AbstractVariable::noAccess}, indicating that the variable is 
+read-only. It is required to reimplement the methods in a derived class to 
+enable write support.
 
-The variable classes provide default implementations of get() which throws 
-agentxcpp::generic_error. As a side effect, a generic error is reported if a 
-derived class does not override get(). The main reason for providing a default 
-implementations is that get() cannot be pure virtual, because the variable 
-classes are created while parsing PDU contents.  Abstract classes would not 
-allow that mechanism.
+\cond INTERNAL
+
+\subsection variables_set_internal How SET requests are handled internally
+
+When the \agentxcpp{MasterProxy} object receives a TESTSET, COMMITSET, 
+CLEANUPSET or UNDOSET request, it looks up the variable corresponding to the 
+given OID and calls its \agentxcpp{AbstractVariable::handle_testset()}, 
+\agentxcpp{AbstractVariable::handle_commitset()}, 
+\agentxcpp{AbstractVariable::handle_cleanupset()} or
+\agentxcpp{AbstractVariable::handle_undoset()} method, respectively. These 
+methods are implemented in the subclasses of AbstractVariable. The first one, 
+<tt>handle_testset()</tt>, is the only one which receives new new value, in form 
+of a pointer to \agentxcpp{AbstractVariable}, and stores it internally for later 
+use. The other three methods then use the stored pointer to obtain access to the 
+new value.
+
+In particular, the <tt>handle_testset()</tt> method converts the pointer to 
+\agentxcpp{AbstractVariable} into a pointer to the more concrete classe (e.g.  
+\agentxcpp{Gauge32Variable} and stores it. Then, it calls the testset() method.  
+The <tt>handle_commitset()</tt> <tt>handle_cleanupset()</tt> and 
+<tt>handle_undoset()</tt> methods only call <tt>commitset()</tt>, 
+<tt>cleanupset()</tt> and <tt>undoset()</tt>, respectively.
+
+The default implementation of <tt>testset()</tt> returns 
+\agentxcpp{AbstractVariable::noAccess} to indicate that the variable is 
+read-only. The method can be overridden by subclasses to enable write support. 
+The default implementations of <tt>commitset()</tt>, <tt>cleanupset()</tt> and 
+<tt>undoset()</tt> all return false to indicate an error.
+
+
+\section variables_serializing_parsing Serializing and Parsing Variables
+
+The \agentxcpp{AbstractVariable} interface provides the 
+\agentxcpp{AbstractVariable::serialize()} function to serialize a variable 
+object.  Parsing is done using parse constructors. This is the same mechanism as 
+used by the %PDU classes. See \ref pdus for a general explanation.
+
+\endcond
 
 */

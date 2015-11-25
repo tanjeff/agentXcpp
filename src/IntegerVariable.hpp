@@ -29,27 +29,44 @@
 namespace agentxcpp
 {
     /**
-     * \brief Represents an Integer as described in RFC 2741.
+     * \brief This class represents an Integer variable as described in RFC 
+     *        2741.
+     *
+     * The page \ref variables explains how to use variables.
+     *
+     * \note When an IntegerVariable is used as INDEX within a table, it should 
+     *       never hold the value 0. This is because the value is then used as 
+     *       part of an OID, where 0 is forbidden (or at least discouraged).
      */
     class IntegerVariable : public AbstractVariable
     {
 	protected:
 	    /**
-	     * \brief The Integer value.
+             * \brief The current value.
 	     *
-	     * According to RFC 2578, INTEGER is a signed 32-bit number.
-	     */
+             * This is the value which is sent to the master agent on SNMP Get 
+             * requests. According to RFC 2578, INTEGER is a signed 32-bit 
+             * number. The value can be obtained with value() and set with 
+             * setValue().  
+             *
+             * The perform_get() method should update this member.
+             *
+             * The methods perform_testset(), perform_commitset(), 
+             * perform_cleanupset() and/or perform_undoset() may update this 
+             * member, but it is not needed for proper function.
+             */
 	    qint32 v;
 
         private:
 
             /**
-             * \brief The new value for the variable in a Set operation.
+             * \brief The new value for the variable. Used during a Set 
+             *        operation.
              *
-             * The Set operation is performed in up to four steps (testset,
-             * commitset, cleanupset, undoset). Only the testset step actually
+             * The Set operation is performed in up to four steps (perform_testset,
+             * perform_commitset, perform_cleanupset, perform_undoset). Only the perform_testset step actually
              * receives the new value. This value is stored here so that it can
-             * be delivered to commitset(), undoset() and cleanupset().
+             * be delivered to perform_commitset(), perform_undoset() and perform_cleanupset().
              */
             QSharedPointer<IntegerVariable> new_value;
 
@@ -58,9 +75,9 @@ namespace agentxcpp
 	    /**
              * \internal
              *
-	     * \brief Create an IntegerValue object.
-	     *
-	     * The default value of the new object is 0.
+	     * \brief Constructor.
+             *
+             * Creates an IntegerValue object.
 	     *
 	     * \exception None.
 	     */
@@ -69,12 +86,13 @@ namespace agentxcpp
             /**
 	     * \internal
 	     *
-	     * \brief Encode the object as described in RFC 2741, section 5.4
+             * \brief Encode the object as described in RFC 2741, section   
+             *        5.4.
 	     *
 	     * This function uses big endian.
 	     */
 	    virtual binary serialize() const;
-	    
+
 	    /**
 	     * \internal
 	     *
@@ -90,21 +108,21 @@ namespace agentxcpp
 	     * position is undefined.
 	     *
 	     * \param pos Iterator pointing to the current stream position.
-	     *            The iterator is advanced while reading the header.
+             *            The iterator is advanced while parsing.
 	     *
 	     * \param end Iterator pointing one element past the end of the
-	     *            current stream. This is needed to mark the end of the 
-	     *            buffer.
+             *            current stream. This is needed to avoid buffer 
+             *            overrun.
 	     *
 	     * \param big_endian Whether the input stream is in big endian
-	     *                   format
+             *                   format.
 	     */
 	    IntegerVariable(binary::const_iterator& pos,
 		    const binary::const_iterator& end,
 		    bool big_endian=true);
 
 	    /**
-	     * \brief Convert the value to an OID.
+             * \brief Convert the value to an OID.
 	     *
 	     * The conversion is done according to RFC 2578,
 	     * 7.7. "Mapping of the INDEX clause". The value is
@@ -112,6 +130,8 @@ namespace agentxcpp
 	     * INTEGER values are signed, while subids are not.
 	     * A negative value with be converted to a big unsigned
 	     * subid.
+             *
+             * This method should not be overridden.
 	     *
 	     * \note If an INTEGER is used in an INDEX clause, the
 	     *       value 0 should be avoided according to
@@ -124,11 +144,21 @@ namespace agentxcpp
 	        return oid;
 	    }
 
+            /**
+             * \brief Set the value.
+             * 
+             * \param _value The new value.
+             */
             void setValue(qint32 _value)
             {
                 v = _value;
             }
 
+            /**
+             * \brief Get the current value.
+             *
+             * \return The new value.
+             */
             qint32 value()
             {
                 return v;
@@ -139,28 +169,22 @@ namespace agentxcpp
              *
              * \brief Handle a Get Request.
              *
-             * This function calls get() to obtain the new value,
-             * converts it to QSharedPointer<AbstractValue> and returns it.
+             * This function calls perform_get() to update the internal 
+             * value.
              */
             virtual void handle_get()
             {
-                this->get();
+                perform_get();
             }
 
             /**
-             * \brief Handle a Get request.
+             * \brief Perform a Get request.
              *
-             * This method is called when an SNMP Get request is received.
-             * It shall
-             * return the current value of the variable.
-             *
-             * \note This method is pure virtual and thus \e must be
-             *       implemented. It is not possible to implement write-only
-             *       SNMP variables.
-             *
-             * \return The value of the variable.
+             * This method is invoked when an SNMP Get request is received.
+             * It should update the internal value 
+             * \agentxcpp{IntegerVariable::v}.
              */
-            virtual void get()
+            virtual void perform_get()
             {
             }
 
@@ -169,19 +193,19 @@ namespace agentxcpp
              *
              * \brief Handle a TestSet request.
              *
-             * This function converts the argument to QSharedPointer<T>() and
-             * calls
-             * testset() with the converted value. If conversion fails,
-             * testset() is not called. This function also stores the given
-             * value to the new_value member.
+             * This function converts the argument to 
+             * QSharedPointer<IntegerVariable>, stores it in 
+             * \agentxcpp{IntegerVariable::new_value} and then calls perform_testset() 
+             * with the internal value of 
+             * \agentxcpp{IntegerVariable::new_value}. If conversion fails, 
+             * \agentxcpp{AbstractVariable::wrongType} is returned and 
+             * perform_testset() is not called.
              *
              * \param _v The new value for the variable.
              *
-             * \return agentxcpp::AbstractVariable::wrongType if the conversion
-             *                                                fails. Otherwise,
-             *                                                the result of
-             *                                                testset() is
-             *                                                returned.
+             * \return \agentxcpp{AbstractVariable::wrongType}
+             *         if the conversion fails.  Otherwise, the result of
+             *         perform_testset() is returned.
              */
             virtual testset_result_t handle_testset(QSharedPointer<AbstractVariable> _v)
             {
@@ -189,7 +213,7 @@ namespace agentxcpp
                 if (new_value)
                 {
                     // Type matches variable
-                    return testset(new_value->value());
+                    return perform_testset(new_value->value());
                 }
                 else
                 {
@@ -200,24 +224,26 @@ namespace agentxcpp
             }
 
             /**
-             * \brief Handle a TestSet request.
+             * \brief Perform an SNMP TestSet request.
              *
-             * This method is called when an SNMP TestSet request is received.
-             * It
-             * shall check whether a Set operation is possible for the
+             * This method is invoked when an SNMP TestSet request is 
+             * received.
+             * It shall check whether a Set operation is possible for the
              * variable.  It shall acquire the resources needed to perform the
-             * Set operation (but the Set shall not yet be performed).
+             * Set operation (but the Set operation shall not yet be 
+             * performed).
              *
-             * The default implementation returns
-             * agentxcpp::AbstractVariable::noAccess to indicate that
+             * The default implementation returns 
+             * \agentxcpp{AbstractVariable::noAccess} to indicate that
              * this is a read-only variable. Thus, for read-only variables this
              * method need not be overridden.
              *
-             * \param _v The new value for the object.
+             * \param _v The new value provided by the master agent.
              *
-             * \return The result of the check.
+             * \return The result of the check (this is reported to the master 
+             *         agent).
              */
-            virtual testset_result_t testset(qint32 _v)
+            virtual testset_result_t perform_testset(qint32 _v)
             {
                 return noAccess;
             }
@@ -227,28 +253,31 @@ namespace agentxcpp
              *
              * \brief Handle a CleanupSet request.
              *
-             * This function calls cleanupset() with the value from the last
-             * handle_testset() invokation.
+             * This function calls perform_cleanupset() with the internal value of \ref 
+             * agentxcpp::IntegerVariable::new_value "new_value" (which was 
+             * updated by the last \ref 
+             * agentxcpp::IntegerVariable::handle_testset() "handle_testset()" 
+             * invocation).
              */
             virtual void handle_cleanupset()
             {
-                cleanupset(new_value->value());
+                perform_cleanupset(new_value->value());
             }
 
             /**
-             * \brief Handle a CleanupSet request.
+             * \brief Perform an SNMP CleanupSet request.
              *
-             * This method is called when an SNMP CleanupSet request is
-             * received. It
-             * shall release any ressources allocated by testset().
+             * This method is invoked when an SNMP CleanupSet request is
+             * received. It shall release any resources allocated by 
+             * perform_testset().
              *
              * The default implementation does nothing. If no action is
              * required to perform the CleanupSet operation, this method need
              * not be overridden.
              *
-             * \param _v The new value for the object.
+             * \param _v The value to which the variable was (possibly) set.
              */
-            virtual void cleanupset(qint32 _v)
+            virtual void perform_cleanupset(qint32 _v)
             {
                 return;
             }
@@ -258,30 +287,35 @@ namespace agentxcpp
              *
              * \brief Handle a CommitSet request.
              *
-             * This function calls commitset() with the value from the last
-             * handle_testset() Invocation and returns its return value.
+             * This function calls \ref agentxcpp::IntegerVariable::perform_commitset() 
+             * "perform_commitset()" with the internal value of \ref 
+             * agentxcpp::IntegerVariable::new_value "new_value" (which was 
+             * updated by the last \ref 
+             * agentxcpp::IntegerVariable::handle_testset() "handle_testset()" 
+             * invocation).
+             *
+             * \return The return value of perform_commitset().
              */
             virtual bool handle_commitset()
             {
-                return commitset(new_value->value());
+                return perform_commitset(new_value->value());
             }
 
             /**
-             * \brief Handle a CommitSet request.
+             * \brief Perform an SNMP CommitSet request.
              *
-             * This method is called when an SNMP CommitSet request is
-             * received. It
-             * shall perform the actual write operation.
+             * This method is invoked when an SNMP CommitSet request is
+             * received. It shall perform the actual write operation.
              *
              * The default implementation returns false to indicate that the
-             * operation failed. To implement a writable SNMP variable this
+             * operation failed. To implement a writeable SNMP variable this
              * method must be overridden.
              *
-             * \param _v The new value for the object.
+             * \param _v The value which shall be written.
              *
              * \return True if the operation succeeded, false otherwise.
              */
-            virtual bool commitset(qint32 _v)
+            virtual bool perform_commitset(qint32 _v)
             {
                 return false;
             }
@@ -291,25 +325,31 @@ namespace agentxcpp
              *
              * \brief Handle a UndoSet request.
              *
-             * This function calls undoset() with the value from the last
-             * handle_testset() invocation and returns its return value.
+             * This function calls perform_undoset() with the internal value of \ref 
+             * agentxcpp::IntegerVariable::new_value "new_value" (which was 
+             * updated by the last \ref 
+             * agentxcpp::IntegerVariable::handle_testset() "handle_testset()" 
+             * invocation).
+             *
+             * \return The return value of perform_undoset().
              *
              */
             virtual bool handle_undoset()
             {
-                return undoset(new_value->value());
+                return perform_undoset(new_value->value());
             }
 
             /**
-             * \brief Handle an UndoSet request.
+             * \brief Perform an SNMP UndoSet request.
              *
-             * This method is called when an SNMP UndoSet request is received.
-             * It
-             * shall undo whatever commitset() performed. It shall also release
-             * all resources allocated by testset().
+             * This method is invoked when an SNMP UndoSet request is 
+             * received.
+             * It shall undo whatever perform_commitset() performed. It shall also 
+             * release all resources allocated by perform_testset(), because 
+             * perform_cleanupset() \e will \e not be called afterwards.
              *
              * The default implementation returns false to indicate that
-             * the operation failed. It is strongly recommended that writable
+             * the operation failed. It is strongly recommended that writeable
              * variables override this method.
              *
              * \internal
@@ -319,16 +359,14 @@ namespace agentxcpp
              *
              * \endinternal
              *
-             * \param _v The new value for the object.
+             * \param _v The value just set by perform_commitset().
              *
              * \return True on success, false otherwise.
              */
-            virtual bool undoset(qint32 _v)
+            virtual bool perform_undoset(qint32 _v)
             {
                 return false;
             }
-
-
     };
 }
 

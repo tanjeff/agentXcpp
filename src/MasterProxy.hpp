@@ -482,7 +482,7 @@ namespace agentxcpp
              *                  to RFC 1907, which says: "<em>The time (in
              *                  hundreths of a second) since the network
              *                  management portion of the system was last
-             *                  re-initialized.</em>". You can use You can use
+             *                  re-initialized.</em>". You can use
              *                  agentxcpp::processUpTime() to get the uptime of
              *                  the current process. If the NULL pointer
              *                  is given, the sysUpTime.0 will not be included

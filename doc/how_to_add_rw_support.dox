@@ -83,28 +83,29 @@ Therefore, the SET operation is carried out in multiple distinct steps:
      
 
 To implement these actions, the Variable classes provides the methods 
-testset(), commitset(), cleanupset() and undoset(), which can be overridden by 
-a concrete implementation.
+<tt>perform_testset()</tt>, <tt>perform_commitset()</tt>, 
+<tt>perform_cleanupset()</tt> and <tt>perform_undoset()</tt>, which can be 
+overridden by a concrete implementation.
 
 \section extend_simplecounter Extending the SimpleCounter class
 
 To implement write support for the SimpleCounter class, we implement all four 
-methods. The testset() implementation allocates an quint32 value, which is 
-deallocated by cleanupset() respectively undoset().  This is not very 
-realistic, but it demonstrates the usage of the individual steps. The 
-commitset() method stores the old value (in case an undo needs to be carried 
-out by undoset()) and sets the new value.
+methods. The <tt>perform_testset()</tt> implementation allocates an quint32 value, which is 
+deallocated by <tt>perform_cleanupset()</tt> respectively <tt>perform_undoset()</tt>.  This is not 
+very realistic, but it demonstrates the usage of the individual steps. The 
+<tt>perform_commitset()</tt> method stores the old value (in case an undo needs to be carried out by 
+<tt>perform_undoset()</tt>) and sets the new value.
 
 
 
 
 \subsection TestSet
 
-The testset() method must be overridden by any variable which should be 
-writeable. If it is not overridden, agentXcpp assumes that the variable is 
-read-only (which we exploited in the first, read-only version).  This also 
-means that an e.g. IntegerVariable object is read-only by default and needs to 
-be subclassed to add write support. Hence, we implement it for our 
+The <tt>perform_testset()</tt> method must be overridden by any variable which 
+should be writeable. If it is not overridden, agentXcpp assumes that the 
+variable is read-only (which we exploited in the first, read-only version).  
+This also means that an e.g. IntegerVariable object is read-only by default and 
+needs to be subclassed to add write support. Hence, we implement it for our 
 SimpleCounter class by adding the following code to it:
 
 \code
@@ -113,7 +114,7 @@ SimpleCounter class by adding the following code to it:
 
     public:
         virtual testset_result_t
-        testset(QSharedPointer<IntegerVariable> new_value)
+        perform_testset(QSharedPointer<IntegerVariable> new_value)
         {
             try
             {
@@ -130,20 +131,20 @@ SimpleCounter class by adding the following code to it:
         }
 \endcode
 
-The \ref agentxcpp::IntegerVariable::testset "testset()" method receives the 
-value and can check whether setting the variable to this value would work.  
-Here, we don't check the value, but we allocate an quint32 to store the old 
-value, which is needed for undoset().  If allocation fails, we return the error 
-\ref agentxcpp::AbstractVariable::resourceUnavailable "resourceUnavailable".
+The \ref agentxcpp::IntegerVariable::perform_testset "perform_testset()" method 
+receives the value and can check whether setting the variable to this value 
+would work.  Here, we don't check the value, but we allocate an quint32 to store the old value, 
+which is needed for <tt>perform_undoset()</tt>.  If allocation fails, we return the error \ref 
+agentxcpp::AbstractVariable::resourceUnavailable "resourceUnavailable".
 
 
 \subsection CommitSet
 
-The commitset() method must also be implemented for writeable variables.  In 
-the SimpleCounter class, this method stores the old value and sets the internal 
-value:
+The <tt>perform_commitset()</tt> method must also be implemented for writeable 
+variables.  In the SimpleCounter class, this method stores the old value and 
+sets the internal value:
 \code
-        virtual bool commitset(QSharedPointer<IntegerVariable> new_value)
+        virtual bool perform_commitset(QSharedPointer<IntegerVariable> new_value)
         {
             // Remember old value for rollback
             (*old_value) = v;
@@ -156,31 +157,30 @@ value:
 
 \subsection CleanupSet
 
-The cleanupset() method releases old_value again:
+The <tt>perform_cleanupset()</tt> method releases old_value again:
 
 \code
-        virtual void cleanupset(QSharedPointer<IntegerVariable> new_value)
+        virtual void perform_cleanupset(QSharedPointer<IntegerVariable> new_value)
         {
             // Release old value
             delete old_value;
         }
 \endcode
 
-If old_value were an quint32 (instead of a pointer to quint32), no allocation 
-and deallocation would have been necessary. The cleanupset() method would not 
-be implemented then.  In fact, this method is the only one which is optional 
-for writeable variables, while the other methods are mandatory.
+If old_value were an quint32 (instead of a pointer to quint32), no allocation and deallocation would 
+have been necessary. The <tt>perform_cleanupset()</tt> method would not be implemented then.  In 
+fact, this method is the only one which is optional for writeable variables, while the other methods 
+are mandatory.
 
 \subsection UndoSet
 
-The undoset() method must be implemented by each writeable variable and shall 
-perform a rollback. It is technically possible to omit this method; the 
-compiler has no way to detect a missing implementation. However, it is an error 
-to omit it, and an error will be reported to the master agent if it is missing.  
-For simpleCounter implementation is easy:
+The <tt>perform_undoset()</tt> method must be implemented by each writeable variable and shall 
+perform a rollback. It is technically possible to omit this method; the compiler has no way to 
+detect a missing implementation. However, it is an error to omit it, and an error will be reported 
+to the master agent if it is missing.  For simpleCounter implementation is easy:
 
 \code
-        virtual bool undoset(QSharedPointer<IntegerVariable> new_value)
+        virtual bool perform_undoset(QSharedPointer<IntegerVariable> new_value)
         {
             // Restore old value
             v = *old_value;

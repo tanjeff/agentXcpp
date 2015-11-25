@@ -244,8 +244,6 @@ namespace agentxcpp
             virtual binary serialize() const = 0;
 
             /**
-             * \internal
-             *
              * \brief Convert an INDEX variable to an Oid part.
              *
              * If an SNMP variable is used as INDEX within a table,

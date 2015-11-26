@@ -55,21 +55,23 @@ This is the same as before, but with "ACCESS read-write".
 
 A single SNMP Set request may set multiple variables at once (possibly 
 distributed over multiple subagents), and SNMP guarantees an atomic operation 
-in that case.  This means that, should any variable fail to perform the SET 
-operation, no other variable is allowed to perform the SET operation either.  
+in that case.  This means that, should any variable fail to perform the Set 
+operation, no other variable is allowed to perform the Set operation either.  
 Therefore, the SET operation is carried out in multiple distinct steps:
 
 -# \b TestSet checks whether the variable could be set at all. This step is 
-   performed for all variables (in all subagents) affected by the single SNMP 
-   request.  If any variable is not able to accept its new value, the SET 
-   operation is aborted (and no variable gets updated). During this step 
-   subagents shall allocate the resources they need to carry out the SET 
-   operation later, but they shall not update their value yet.
+   performed for all variables (in all subagents) affected by the single SNMP Set
+   request.  If any variable is not able to accept its new value, the Set 
+   operation is aborted, and the next step "CommitSet" is skipped (and no 
+   variable gets updated).  During this step subagents shall allocate the 
+   resources they need to carry out the Set operation later, but they shall not 
+   update their value yet.
 -# \b CommitSet actually sets the new value. This step may fail for a variable, 
-   even if the TestSet step announced that the CommitSet would work. If that 
+   even if the TestSet step announced that the CommitSet would work.  If that 
    happens, all other variables which already performed the CommitSet must undo 
-   their action. It is strongly recommended to implement variables in such a 
-   way that CommitSet does not fail, when possible.
+   their action (which is done in the UndoSet step). It is strongly recommended 
+   to implement variables in such a way that CommitSet does not fail, when 
+   possible.
 -# The third step is one of the following:
    - \b CleanupSet is usually the last step, performed after CommitSet was 
      successful for all variables. In the CleanupSet step, the subagent shall 
@@ -113,8 +115,7 @@ SimpleCounter class by adding the following code to it:
         quint32* old_value;
 
     public:
-        virtual testset_result_t
-        perform_testset(QSharedPointer<IntegerVariable> new_value)
+        virtual testset_result_t perform_testset(qint32 new_value)
         {
             try
             {
@@ -144,12 +145,12 @@ The <tt>perform_commitset()</tt> method must also be implemented for writeable
 variables.  In the SimpleCounter class, this method stores the old value and 
 sets the internal value:
 \code
-        virtual bool perform_commitset(QSharedPointer<IntegerVariable> new_value)
+        virtual bool perform_commitset(qint32 new_value)
         {
             // Remember old value for rollback
             (*old_value) = v;
             // Set new value
-            v = new_value->value();
+            v = new_value;
             // Operation succeeded
             return true;
         }
@@ -160,7 +161,7 @@ sets the internal value:
 The <tt>perform_cleanupset()</tt> method releases old_value again:
 
 \code
-        virtual void perform_cleanupset(QSharedPointer<IntegerVariable> new_value)
+        virtual void perform_cleanupset(qint32 new_value)
         {
             // Release old value
             delete old_value;
@@ -180,7 +181,7 @@ detect a missing implementation. However, it is an error to omit it, and an erro
 to the master agent if it is missing.  For simpleCounter implementation is easy:
 
 \code
-        virtual bool perform_undoset(QSharedPointer<IntegerVariable> new_value)
+        virtual bool perform_undoset(qint32 new_value)
         {
             // Restore old value
             v = *old_value;

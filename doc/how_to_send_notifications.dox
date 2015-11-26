@@ -66,7 +66,7 @@ simpleCounterStatus NOTIFICATION-TYPE
 END
 \endverbatim
 
-As can be seen, we added the simpleCounterChange notification, which will 
+As can be seen, we added the simpleCounterStatus notification, which will 
 include the simpleCounter value when sent. Note that the next-to-last 
 subidentifier for notifications must be 0 according to RFC 1902, 8.5. "Mapping 
 of the NOTIFICATION-TYPE value".
@@ -81,8 +81,8 @@ every second and sends a notification. We will use a QTimer which can use the
 event loop provided by Qt. For this we need a class with a Qt slot to which the 
 QTimer can be connected. We name that class <tt>NotificationSender</tt> and put 
 it into its own file: <tt>NotificationSender.hpp</tt> (for simplicity we 
-implement the whole class in the header, so we won't need an implementation 
-file). Here ist the <tt>NotificationSender.hpp</tt> file:
+implement the whole class in the header, so we won't need an implementation file). Here is the 
+<tt>NotificationSender.hpp</tt> file:
 
 \code
 #ifndef _NOTIFICATIONSENDER_H_
@@ -119,42 +119,28 @@ class NotificationSender : public QObject
             std::cout << "notification!" << std::endl;
 
             std::vector<Varbind> objects;
-            IntegerVariable(counter->value()));
-            objects.push_back(Varbind(simpleCounter_oid, counterVariable));
+            IntegerVariable(counter->value());
+            objects.push_back(Varbind(simpleCounter_oid, counter));
 
-            QMetaObject::invokeMethod(master, "send_notification",
-                                      Q_ARG(const Oid&, simpleCounter_oid),
-                                      Q_ARG(const std::vector<Varbind>&, objects)
-                                     );
+            master->send_notification(enterprises_oid + 42 + 0 + 1, objects);
         }
 };
 
 #endif // _NOTIFICATIONSENDER_H_
 \endcode
 
-\todo Which OID must be given to send_notification()?
+The NotificationSender inherits QObject and uses the Q_OBJECT macro, which is both needed to make 
+the class suitable for Qt's signal/slot mechanism. The constructor takes a pointer to the 
+MasterProxy object (needed to send notifications), a pointer to the SimpleCounter object (will be 
+included in the notifications) and the simpleCounter's OID (will also be included in the 
+notifications).  The sendNotification() slot will be connected to the QTimer object and sends a 
+notification each time it is invoked.
 
-The NotificationSender inherits QObject and uses the Q_OBJECT macro, which is 
-both needed to make the class suitable for Qt's signal/slot mechanism. The 
-constructor takes a pointer to the MasterProxy object (needed to send 
-notifications), the simpleCounter's oid (will be included in the notifications) 
-and a pointer to the counter (will be queried to include its value in the 
-notifications).  The sendNotification() slot will be connected to the QTimer 
-object and sends a notification each time it is invoked. Also, it performs an 
-output to indicate that a notification is sent.
-
-We use QMetaObject::invokeMethod() here to invoke the 
-MasterProxy::send_notification() slot. This would even work if the 
-NotificationSender were running in a separate thread. In our example, were the 
-NotificationSender and the MasterProxy run in the same thread, a simple call 
-would also work:
-
-\code
-// Could be used instead of QMetaObject::invokeMethod(),
-// because NotificationSender and MasterProxy run in
-// the same thread:
-master->send_notification(simpleCounter_oid, objects);
-\endcode
+The direct call to the
+\ref agentxcpp::MasterProxy::send_notification(const Oid&, const std::vector< Varbind >&) 
+"MasterProxy::send_notification()" slot works, because the NotificationSender and the MasterProxy 
+will run in the same thread.  If they were running in separate threads, 
+<tt>QMetaObject::invokeMethod()</tt> would be used to invoke the slot.
 
 Next, we augment the code within the <tt>main()</tt> function. But first, we 
 need additional includes in <tt>simpleagent.cpp</tt>:
@@ -164,7 +150,7 @@ need additional includes in <tt>simpleagent.cpp</tt>:
 #include "NotificationSender.hpp"
 \endcode
 
-And this is the complete <tt>main()</tt> function:
+And this is the complete revised <tt>main()</tt> function:
 
 \code
 int main(int argc, char** argv)
@@ -192,10 +178,10 @@ int main(int argc, char** argv)
 }
 \endcode
 
-First, we create a NotificationSender object.  Then, we create a QTimer object, 
-connect its <tt>timeout()</tt> signal to the NotificationSender's 
-<tt>sendNotification()</tt> slot, configure its interval to 1 second (the timer 
-is repetitive by default), and start it.
+The additional code creates a NotificationSender object.  Then, it creates a 
+QTimer object, connects its <tt>timeout()</tt> signal to the 
+NotificationSender's <tt>sendNotification()</tt> slot, configures its interval 
+to 1 second (the timer is repetitive by default), and starts it.
 
 
 \section compiling_notification Compiling the Subagent

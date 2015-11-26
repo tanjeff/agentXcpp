@@ -97,19 +97,19 @@ The simpleCounter has a type which is given in the SYNTAX clause in the MIB.
 AgentXcpp provides various classes to match standard SYNTAX types. These 
 classes can be inherited to implement variables of this type, which is what 
 SimpleCounter does. However, IntegerVariable and it companions can also be used 
-without subclassing them; they have default get() implementations which do 
+without subclassing them; they have default <tt>perform_get()</tt> implementations which do 
 nothing. Their internal value can be obtained with value() and set with 
 setValue(), and an SNMP GET request will return this internal state.  
 
 SimpleCounter inherits from IntegerVariable and overrides 
-IntegerVariable::get(). This method is invoked on SNMP GET requests and should 
+IntegerVariable::perform_get(). This method is invoked on SNMP GET requests and should 
 update the internal value of the IntegerVariable object. In our case, it simply 
 increments the member variable "v" (this is easier than using value() and 
 setValue()):
 
 \code
     public:
-        virtual void get()
+        virtual void perform_get()
         {
             ++v;
         }

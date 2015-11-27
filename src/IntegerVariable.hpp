@@ -63,8 +63,9 @@ namespace agentxcpp
              * \brief The new value for the variable. Used during a Set 
              *        operation.
              *
-             * The Set operation is performed in up to four steps (perform_testset,
-             * perform_commitset, perform_cleanupset, perform_undoset). Only the perform_testset step actually
+             * The Set operation is performed in up to four steps (TestSet,              
+             * CommitSet, CleanupSet, UndoSet). Only the TestSet step 
+             * actually
              * receives the new value. This value is stored here so that it can
              * be delivered to perform_commitset(), perform_undoset() and perform_cleanupset().
              */
@@ -73,9 +74,7 @@ namespace agentxcpp
 	public:
 
 	    /**
-             * \internal
-             *
-	     * \brief Constructor.
+             * \brief Constructor.
              *
              * Creates an IntegerValue object.
 	     *
@@ -157,9 +156,9 @@ namespace agentxcpp
             /**
              * \brief Get the current value.
              *
-             * \return The new value.
+             * \return The value.
              */
-            qint32 value()
+            virtual qint32 value()
             {
                 return v;
             }
@@ -181,8 +180,7 @@ namespace agentxcpp
              * \brief Perform a Get request.
              *
              * This method is invoked when an SNMP Get request is received.
-             * It should update the internal value 
-             * \agentxcpp{IntegerVariable::v}.
+             * It should update the internal value \ref v.
              */
             virtual void perform_get()
             {
@@ -193,11 +191,9 @@ namespace agentxcpp
              *
              * \brief Handle a TestSet request.
              *
-             * This function converts the argument to 
-             * QSharedPointer<IntegerVariable>, stores it in 
-             * \agentxcpp{IntegerVariable::new_value} and then calls perform_testset() 
-             * with the internal value of 
-             * \agentxcpp{IntegerVariable::new_value}. If conversion fails, 
+             * This function converts the argument, stores it in \ref new_value 
+             * and then calls perform_testset() with the internal value of \ref 
+             * new_value.  If conversion fails, 
              * \agentxcpp{AbstractVariable::wrongType} is returned and 
              * perform_testset() is not called.
              *
@@ -253,11 +249,9 @@ namespace agentxcpp
              *
              * \brief Handle a CleanupSet request.
              *
-             * This function calls perform_cleanupset() with the internal value of \ref 
-             * agentxcpp::IntegerVariable::new_value "new_value" (which was 
-             * updated by the last \ref 
-             * agentxcpp::IntegerVariable::handle_testset() "handle_testset()" 
-             * invocation).
+             * This function calls perform_cleanupset() with the internal value 
+             * of \ref new_value (which was updated by the last
+             * \ref handle_testset() invocation).
              */
             virtual void handle_cleanupset()
             {
@@ -287,12 +281,9 @@ namespace agentxcpp
              *
              * \brief Handle a CommitSet request.
              *
-             * This function calls \ref agentxcpp::IntegerVariable::perform_commitset() 
-             * "perform_commitset()" with the internal value of \ref 
-             * agentxcpp::IntegerVariable::new_value "new_value" (which was 
-             * updated by the last \ref 
-             * agentxcpp::IntegerVariable::handle_testset() "handle_testset()" 
-             * invocation).
+             * This function calls \ref perform_commitset() with the internal 
+             * value of \ref new_value (which was updated by the last
+             * \ref handle_testset() invocation).
              *
              * \return The return value of perform_commitset().
              */
@@ -325,11 +316,9 @@ namespace agentxcpp
              *
              * \brief Handle a UndoSet request.
              *
-             * This function calls perform_undoset() with the internal value of \ref 
-             * agentxcpp::IntegerVariable::new_value "new_value" (which was 
-             * updated by the last \ref 
-             * agentxcpp::IntegerVariable::handle_testset() "handle_testset()" 
-             * invocation).
+             * This function calls perform_undoset() with the internal value of 
+             * \ref new_value (which was updated by the last
+             * \ref handle_testset() invocation).
              *
              * \return The return value of perform_undoset().
              *

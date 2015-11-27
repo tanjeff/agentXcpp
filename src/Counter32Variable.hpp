@@ -29,6 +29,9 @@ namespace agentxcpp
 
         public:
 
+            /**
+             * \brief Constructor.
+             */
             Counter32Variable(quint32 _value = 0)
             : v(_value)
             {
@@ -37,9 +40,7 @@ namespace agentxcpp
 	    /**
 	     * \internal
              *
-             * \copydoc 
-             * agentxcpp::IntegerVariable::IntegerVariable(binary::const_iterator&, 
-             * const binary::const_iterator&, bool)
+             * \copydoc agentxcpp::IntegerVariable::IntegerVariable(binary::const_iterator&, const binary::const_iterator&, bool)
 	     *
 	     */
             Counter32Variable(binary::const_iterator& pos,
@@ -63,8 +64,10 @@ namespace agentxcpp
                 v = _value;
             }
 
-            /*
-             * \copydoc agentxcpp::IntegerVariable::value()
+            /**
+             * \brief Get the current value.
+             *
+             * \return The value.
              */
             virtual quint32 value()
             {
@@ -91,7 +94,7 @@ namespace agentxcpp
             /**
              * \internal
              *
-             * \copydoc agentxcpp::IntegerVariable::handle_testet()
+             * \copydoc agentxcpp::IntegerVariable::handle_testset()
              */
             virtual testset_result_t handle_testset(QSharedPointer<AbstractVariable> _v)
             {
@@ -110,9 +113,7 @@ namespace agentxcpp
             }
 
             /**
-             * \brief Handle a TestSet request.
-             *
-             * \copydoc agentxcpp::IntegerVariable::perform_testet()
+             * \copydoc agentxcpp::IntegerVariable::perform_testset()
              */
             virtual testset_result_t perform_testset(quint32 _v)
             {

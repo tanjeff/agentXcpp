@@ -33,18 +33,22 @@ namespace agentxcpp
      */
     class IpAddressVariable : public AbstractVariable
     {
-	private:
-	    /**
-	     * \brief Hide default constructor
-	     */
-            IpAddressVariable();
-
+        protected:
 	    /**
 	     * \brief The IP address.
 	     *
 	     * According to RFC 2578, IpAddress is a 32-bit number.
 	     */
-            quint8 address[4]; // only IPv4
+            quint8 v[4]; // only IPv4
+
+	private:
+	    /**
+	     * \brief Hidden default constructor.
+             *
+             * This constructor is private so it cannot be used to construct
+             * objects.
+	     */
+            IpAddressVariable();
 
             /**
              * \copydoc agentxcpp::IntegerVariable::new_value
@@ -55,9 +59,7 @@ namespace agentxcpp
             /**
              * \internal
              *
-             * \copydoc 
-             * agentxcpp::IntegerVariable::IntegerVariable(binary::const_iterator&, 
-             * const binary::const_iterator&, bool)
+             * \copydoc agentxcpp::IntegerVariable::IntegerVariable(binary::const_iterator&, const binary::const_iterator&, bool)
              *
              */
             IpAddressVariable(binary::const_iterator& pos,
@@ -87,10 +89,10 @@ namespace agentxcpp
 		      quint8 c,
 		      quint8 d)
 	    {
-		address[0] = a;
-		address[1] = b;
-		address[2] = c;
-		address[3] = d;
+		v[0] = a;
+		v[1] = b;
+		v[2] = c;
+		v[3] = d;
 	    }
 
 
@@ -106,10 +108,10 @@ namespace agentxcpp
                            quint8 c,
                            quint8 d)
             {
-                address[0] = a;
-                address[1] = b;
-                address[2] = c;
-                address[3] = d;
+                v[0] = a;
+                v[1] = b;
+                v[2] = c;
+                v[3] = d;
             }
 
 	    /**
@@ -133,7 +135,7 @@ namespace agentxcpp
 	        {
 	            throw(inval_param());
 	        }
-	        return address[index];
+	        return v[index];
 	    }
 
 	    /**
@@ -147,10 +149,10 @@ namespace agentxcpp
 	    virtual Oid toOid() const
 	    {
 	        Oid oid;
-	        oid.push_back(address[0]);
-	        oid.push_back(address[1]);
-	        oid.push_back(address[2]);
-	        oid.push_back(address[3]);
+	        oid.push_back(v[0]);
+	        oid.push_back(v[1]);
+	        oid.push_back(v[2]);
+	        oid.push_back(v[3]);
 	        return oid;
 	    }
 
@@ -174,7 +176,7 @@ namespace agentxcpp
             /**
              * \internal
              *
-             * \copydoc agentxcpp::IntegerVariable::handle_testet()
+             * \copydoc agentxcpp::IntegerVariable::handle_testset()
              */
             virtual testset_result_t handle_testset(QSharedPointer<AbstractVariable> _v)
             {
@@ -182,7 +184,7 @@ namespace agentxcpp
                 if (new_value)
                 {
                     // Type matches variable
-                    return perform_testset(new_value->address);
+                    return perform_testset(new_value->v);
                 }
                 else
                 {
@@ -195,7 +197,7 @@ namespace agentxcpp
             /**
              * \brief Handle a TestSet request.
              *
-             * \copydoc agentxcpp::IntegerVariable::perform_testet()
+             * \copydoc agentxcpp::IntegerVariable::perform_testset()
              */
             virtual testset_result_t perform_testset(const quint8 _v[4])
             {
@@ -209,7 +211,7 @@ namespace agentxcpp
              */
             virtual void handle_cleanupset()
             {
-                perform_cleanupset(new_value->address);
+                perform_cleanupset(new_value->v);
             }
 
             /**
@@ -227,7 +229,7 @@ namespace agentxcpp
              */
             virtual bool handle_commitset()
             {
-                return perform_commitset(new_value->address);
+                return perform_commitset(new_value->v);
             }
 
             /**
@@ -245,7 +247,7 @@ namespace agentxcpp
              */
             virtual bool handle_undoset()
             {
-                return perform_undoset(new_value->address);
+                return perform_undoset(new_value->v);
             }
 
             /**

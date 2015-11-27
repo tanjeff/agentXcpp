@@ -52,9 +52,7 @@ namespace agentxcpp
 	public:
 
 	    /**
-             * \internal
-             *
-	     * \brief Create a Gauge32Value without initialization.
+             * \brief Default Constructor.
 	     *
 	     * The value after creation is 0.
 	     */
@@ -66,9 +64,7 @@ namespace agentxcpp
 	    /**
 	     * \internal
              *
-             * \copydoc 
-             * agentxcpp::IntegerVariable::IntegerVariable(binary::const_iterator&, 
-             * const binary::const_iterator&, bool)
+             * \copydoc agentxcpp::IntegerVariable::IntegerVariable(binary::const_iterator&, const binary::const_iterator&, bool)
 	     *
 	     */
 	    Gauge32Variable(binary::const_iterator& pos,
@@ -92,8 +88,10 @@ namespace agentxcpp
                 v = _value;
             }
 
-            /*
-             * \copydoc agentxcpp::IntegerVariable::value()
+            /**
+             * \brief Get the current value.
+             *
+             * \return The value.
              */
             quint32 value()
             {
@@ -120,7 +118,7 @@ namespace agentxcpp
             /**
              * \internal
              *
-             * \copydoc agentxcpp::IntegerVariable::handle_testet()
+             * \copydoc agentxcpp::IntegerVariable::handle_testset()
              */
             virtual testset_result_t handle_testset(QSharedPointer<AbstractVariable> _v)
             {
@@ -141,7 +139,7 @@ namespace agentxcpp
             /**
              * \brief Handle a TestSet request.
              *
-             * \copydoc agentxcpp::IntegerVariable::perform_testet()
+             * \copydoc agentxcpp::IntegerVariable::perform_testset()
              */
             virtual testset_result_t perform_testset(quint32 _v)
             {
@@ -203,15 +201,23 @@ namespace agentxcpp
             }
 
             /**
-             * \brief Return the null Oid.
+             * \brief Convert the value to an OID.
+	     *
+	     * The conversion is done according to RFC 2578,
+	     * 7.7. "Mapping of the INDEX clause". The value is
+             * converted to an Oid with a single subid.
              *
-             * This method returns the null Oid because RFC 2578, 7.7.
-             * "Mapping of the INDEX clause" does not
-             * describe how to convert Gauge32 to an OID.
-             */
+             * This method should not be overridden.
+	     *
+             * \note If an GAUGE32 is used in an INDEX clause, the
+	     *       value 0 should be avoided according to
+	     *       RFC 2578, 7.7. "Mapping of the INDEX clause".
+	     */
             virtual Oid toOid() const
             {
-                return Oid();
+                Oid oid;
+                oid.push_back(v);
+                return oid;
             }
 
 

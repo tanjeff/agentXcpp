@@ -41,7 +41,9 @@ namespace agentxcpp
             binary serialize() const;
 
             /**
-             * \brief Construct object from binary data.
+             * \brief (Default) constructor.
+             *
+             * Construct object from binary data, or construct the empty string.
              */
             OctetStringVariable(binary _value = binary())
                 : v(_value)
@@ -56,9 +58,7 @@ namespace agentxcpp
             /**
              * \internal
              *
-             * \copydoc 
-             * agentxcpp::IntegerVariable::IntegerVariable(binary::const_iterator&, 
-             * const binary::const_iterator&, bool)
+             * \copydoc agentxcpp::IntegerVariable::IntegerVariable(binary::const_iterator&, const binary::const_iterator&, bool)
              *
              */
             OctetStringVariable(binary::const_iterator& pos,
@@ -74,12 +74,14 @@ namespace agentxcpp
             }
 
             /**
-             * \brief Set the current value.
+             * \copydoc agentxcpp::IntegerVariable::setValue()
              */
             void setValue(QString _value);
 
-            /*
-             * \copydoc agentxcpp::IntegerVariable::value()
+            /**
+             * \brief Get the current value.
+             *
+             * \return The value.
              */
             binary value() const
             {
@@ -124,7 +126,7 @@ namespace agentxcpp
             /**
              * \internal
              *
-             * \copydoc agentxcpp::IntegerVariable::handle_testet()
+             * \copydoc agentxcpp::IntegerVariable::handle_testset()
              */
             virtual testset_result_t handle_testset(QSharedPointer<AbstractVariable> _v)
             {
@@ -145,7 +147,7 @@ namespace agentxcpp
             /**
              * \brief Handle a TestSet request.
              *
-             * \copydoc agentxcpp::IntegerVariable::perform_testet()
+             * \copydoc agentxcpp::IntegerVariable::perform_testset()
              */
             virtual testset_result_t perform_testset(const binary& _v)
             {

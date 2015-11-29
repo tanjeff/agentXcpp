@@ -14,7 +14,7 @@ namespace agentxcpp
  *
  * This class represent an SNMP variable with SYNTAX DisplatString. The data 
  * is stored and processed as an OctetStringVariable, but this class provides 
- * the methods value() and setValue() for easy string handling.
+ * additional methods for easy string handling.
  */
 class DisplayStringVariable : public OctetStringVariable
 {
@@ -22,7 +22,9 @@ class DisplayStringVariable : public OctetStringVariable
     public:
 
         /**
-         * \brief Create a DisplayString variable
+         * \brief (Default) constructor.
+         *
+         * Create a DisplayString variable.
          *
          * \param _value The initial value of the variable.
          *

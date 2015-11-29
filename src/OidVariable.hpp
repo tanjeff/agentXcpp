@@ -35,17 +35,18 @@ namespace agentxcpp
      * The agentXcpp library distinguishes between Oid and
      * OidVariable types. An Oid is a sequence of numbers,
      * while OidVariable is an SNMP variable representing an Oid. That
-     * means, that GET and SET requests are possible on OidVariable's, but
+     * means, that Get and Set requests are possible on OidVariable's, but
      * not on Oid's.
      */
     class OidVariable: public AbstractVariable
     {
-        private:
-
+        protected:
             /**
              * \brief The value represented by this variable.
              */
-            Oid mValue;
+            Oid v;
+
+        private:
 
             /**
              * \copydoc agentxcpp::IntegerVariable::new_value
@@ -65,12 +66,23 @@ namespace agentxcpp
              */
             OidVariable(const Oid& o);
 
-            /*
-             * \copydoc agentxcpp::IntegerVariable::value()
+            /**
+             * \brief Default constructor.
+             *
+             * Initialize the value to the null Oid.
+             */
+            OidVariable()
+            {
+            }
+
+            /**
+             * \brief Get the current value.
+             *
+             * \return The value.
              */
             Oid value()
             {
-                return mValue;
+                return v;
             }
 
             /**
@@ -78,7 +90,7 @@ namespace agentxcpp
              */
             void setValue(const Oid& _value)
             {
-                mValue = _value;
+                v = _value;
             }
 
             /**
@@ -93,9 +105,7 @@ namespace agentxcpp
             /**
              * \internal
              *
-             * \copydoc 
-             * agentxcpp::IntegerVariable::IntegerVariable(binary::const_iterator&, 
-             * const binary::const_iterator&, bool)
+             * \copydoc agentxcpp::IntegerVariable::IntegerVariable(binary::const_iterator&, const binary::const_iterator&, bool)
              *
              */
             OidVariable(binary::const_iterator& pos,
@@ -127,11 +137,11 @@ namespace agentxcpp
                 // Store length if needed
                 if(!fixedLength)
                 {
-                    oid.push_back(mValue.size());
+                    oid.push_back(v.size());
                 }
 
                 // Store value
-                oid += mValue;
+                oid += v;
 
                 return oid;
             }
@@ -156,7 +166,7 @@ namespace agentxcpp
             /**
              * \internal
              *
-             * \copydoc agentxcpp::IntegerVariable::handle_testet()
+             * \copydoc agentxcpp::IntegerVariable::handle_testset()
              */
             virtual testset_result_t handle_testset(QSharedPointer<AbstractVariable> _v)
             {
@@ -175,9 +185,7 @@ namespace agentxcpp
             }
 
             /**
-             * \brief Handle a TestSet request.
-             *
-             * \copydoc agentxcpp::IntegerVariable::perform_testet()
+             * \copydoc agentxcpp::IntegerVariable::perform_testset()
              */
             virtual testset_result_t perform_testset(const Oid& _v)
             {

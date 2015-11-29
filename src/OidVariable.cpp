@@ -28,7 +28,7 @@ using namespace std;
 
 OidVariable::OidVariable(const Oid& o)
 {
-    mValue = o;
+    v = o;
 }
 
 
@@ -61,25 +61,25 @@ binary OidVariable::serialize() const
     serialized[reserved_idx] = 0;
 
     // Set include field
-    serialized[include_idx] = mValue.include() ? 1 : 0;
+    serialized[include_idx] = v.include() ? 1 : 0;
 
     // Iterator for the subid's
-    Oid::const_iterator subid = mValue.begin();
+    Oid::const_iterator subid = v.begin();
 
     // Check whether we can use the prefix (RFC 2741, section 5.1)
-    if( mValue.size() >= 5 &&
-	mValue[0] == 1 &&
-	mValue[1] == 3 &&
-	mValue[2] == 6 &&
-	mValue[3] == 1 &&
-	mValue[4] <= 0xff)	// we have only one byte for the prefix!
+    if( v.size() >= 5 &&
+	v[0] == 1 &&
+	v[1] == 3 &&
+	v[2] == 6 &&
+	v[3] == 1 &&
+	v[4] <= 0xff)	// we have only one byte for the prefix!
     {
 	// store the first integer after 1.3.6.1 to prefix field
-	serialized[prefix_idx] = mValue[4];
+	serialized[prefix_idx] = v[4];
 	subid += 5; // point to the subid behind prefix
 
 	// 5 elements are represented by prefix
-	serialized[n_subid_idx] = mValue.size() - 5;
+	serialized[n_subid_idx] = v.size() - 5;
     }
     else
     {
@@ -87,11 +87,11 @@ binary OidVariable::serialize() const
 	serialized[prefix_idx] = 0;
 
 	// All subid's are stored in the stream explicitly
-	serialized[n_subid_idx] = mValue.size();
+	serialized[n_subid_idx] = v.size();
     }
 
     // copy subids to serialized
-    while( subid != mValue.end() )
+    while( subid != v.end() )
     {
 	serialized.push_back( (*subid) >> 24 & 0xff );
 	serialized.push_back( (*subid) >> 16 & 0xff );
@@ -119,21 +119,21 @@ OidVariable::OidVariable(binary::const_iterator& pos,
     int prefix = *pos++;
     if( prefix != 0 )
     {
-	mValue.push_back(1);
-	mValue.push_back(3);
-	mValue.push_back(6);
-	mValue.push_back(1);
-	mValue.push_back(prefix);
+	v.push_back(1);
+	v.push_back(3);
+	v.push_back(6);
+	v.push_back(1);
+	v.push_back(prefix);
     }
 
     // parse include field
     switch( *pos++ )
     {
 	case 0:
-	    mValue.setInclude(false);
+	    v.setInclude(false);
 	    break;
 	case 1:
-	    mValue.setInclude(true);
+	    v.setInclude(true);
 	    break;
 	default:
 	    // Invalid value; we are picky and indicate an error:
@@ -167,7 +167,7 @@ OidVariable::OidVariable(binary::const_iterator& pos,
 	    subid |= *pos++ << 16;
 	    subid |= *pos++ << 24;
 	}
-	mValue.push_back(subid);
+	v.push_back(subid);
     }
 }
 

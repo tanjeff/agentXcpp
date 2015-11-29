@@ -28,19 +28,14 @@ namespace agentxcpp
      * \brief Represents an Opaque object as described in RFC 2741, section
      * 5.4.
      *
-     * This class represent binary data.
-     *
-     * \note There are no functions to convert the binary data to/from
-     *       std::string. If that is needed, OctetStringValue might be a better
-     *       choice.
+     * This class represents binary data. According to RFC 2578,
+     * OPAQUE is used to wrap any ASN.1-type.
      */
     class OpaqueVariable : public AbstractVariable
     {
         protected:
             /**
-             * \brief The string.
-             *
-             * According to RFC 2578, Opaque is used to wrap any ASN.1-type.
+             * \brief The value.
              */
             binary v;
 
@@ -65,9 +60,7 @@ namespace agentxcpp
             /**
              * \internal
              *
-             * \copydoc 
-             * agentxcpp::IntegerVariable::IntegerVariable(binary::const_iterator&, 
-             * const binary::const_iterator&, bool)
+             * \copydoc agentxcpp::IntegerVariable::IntegerVariable(binary::const_iterator&, const binary::const_iterator&, bool)
              *
              */
             OpaqueVariable(binary::const_iterator& pos,
@@ -80,7 +73,9 @@ namespace agentxcpp
             OpaqueVariable(binary initial_value) : v(initial_value) {}
 
             /**
-             * \brief Standard constructor.
+             * \brief Default constructor.
+             *
+             * Initialize the object so it holds no data.
              */
             OpaqueVariable()
             {
@@ -94,8 +89,10 @@ namespace agentxcpp
                 v = _value;
             }
 
-            /*
-             * \copydoc agentxcpp::IntegerVariable::value()
+            /**
+             * \brief Get the current value.
+             *
+             * \return The value.
              */
             binary value()
             {
@@ -122,7 +119,7 @@ namespace agentxcpp
             /**
              * \internal
              *
-             * \copydoc agentxcpp::IntegerVariable::handle_testet()
+             * \copydoc agentxcpp::IntegerVariable::handle_testset()
              */
             virtual testset_result_t handle_testset(QSharedPointer<AbstractVariable> _v)
             {
@@ -141,9 +138,7 @@ namespace agentxcpp
             }
 
             /**
-             * \brief Handle a TestSet request.
-             *
-             * \copydoc agentxcpp::IntegerVariable::perform_testet()
+             * \copydoc agentxcpp::IntegerVariable::perform_testset()
              */
             virtual testset_result_t perform_testset(const binary& _v)
             {
@@ -209,7 +204,7 @@ namespace agentxcpp
              *
              * The conversion is done according to RFC 2578,
              * 7.7. "Mapping of the INDEX clause". First, the
-             * string length is converted to a subid. Then, each
+             * length of the data (in bytes) is converted to a subid. Then, each
              * octet of the value is converted into a separate subid.
              *
              * \todo Support fixed-length strings according to RFC 2578,

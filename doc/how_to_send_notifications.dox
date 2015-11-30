@@ -37,7 +37,7 @@ notification (or trap) is determined solely by the master agent.
 We start with the subagent developed in \ref how_to_add_rw_support, which 
 provides the SNMP variable simpleCounter. This counter is incremented each time 
 it is read. Next we will enhance our implementation so that it sends a 
-notification every second.
+notification each second.
 
 First of all, let's augment the SIMPLE-MIB:
 
@@ -60,13 +60,13 @@ simpleCounter OBJECT-TYPE
 simpleCounterStatus NOTIFICATION-TYPE
     OBJECTS { simpleCounter }
     STATUS current
-    DESCRIPTION "A notification sent each 5 seconds."
+    DESCRIPTION "A notification sent each second."
     ::={ enterprises 42 0 1 }
 
 END
 \endverbatim
 
-As can be seen, we added the simpleCounterChange notification, which will 
+As can be seen, we added the simpleCounterStatus notification, which will 
 include the simpleCounter value when sent. Note that the next-to-last 
 subidentifier for notifications must be 0 according to RFC 1902, 8.5. "Mapping 
 of the NOTIFICATION-TYPE value".
@@ -78,11 +78,11 @@ So, how do we implement a notification? Normally, a subagent is just sitting
 there, waiting for SNMP requests and handling them. Notifications typically 
 arise outside of this mechanism. We simulate that by using a timer which fires 
 every second and sends a notification. We will use a QTimer which can use the 
-event loop provided by QT. For this we need a class with a QT slot to which the 
+event loop provided by Qt. For this we need a class with a Qt slot to which the 
 QTimer can be connected. We name that class <tt>NotificationSender</tt> and put 
 it into its own file: <tt>NotificationSender.hpp</tt> (for simplicity we 
-implement the whole class in the header, so we won't need an implementation 
-file). Here ist the <tt>NotificationSender.hpp</tt> file:
+implement the whole class in the header, so we won't need an implementation file). Here is the 
+<tt>NotificationSender.hpp</tt> file:
 
 \code
 #ifndef _NOTIFICATIONSENDER_H_
@@ -90,7 +90,7 @@ file). Here ist the <tt>NotificationSender.hpp</tt> file:
 
 #include <iostream>
 #include <QObject>
-#include <agentxcpp/OidValue.hpp>
+#include <agentxcpp/Oid.hpp>
 #include <agentxcpp/MasterProxy.hpp>
 #include "SimpleCounter.hpp"
 
@@ -102,12 +102,12 @@ class NotificationSender : public QObject
 
     private:
         MasterProxy* master;
-        OidValue simpleCounter_oid;
+        Oid simpleCounter_oid;
         QSharedPointer<SimpleCounter> counter;
 
     public:
         NotificationSender(MasterProxy* _master,
-                           OidValue _oid,
+                           Oid _oid,
                            QSharedPointer<SimpleCounter> _counter)
         : master(_master), simpleCounter_oid(_oid), counter(_counter)
         {
@@ -118,44 +118,29 @@ class NotificationSender : public QObject
         {
             std::cout << "notification!" << std::endl;
 
-            std::vector<varbind> objects;
-            QSharedPointer<AbstractValue> counter_value(new IntegerValue(counter->value()));
-            objects.push_back(varbind(simpleCounter_oid, counter_value));
+            std::vector<Varbind> objects;
+            IntegerVariable(counter->value());
+            objects.push_back(Varbind(simpleCounter_oid, counter));
 
-            QMetaObject::invokeMethod(master, "send_notification",
-                                      Q_ARG(const OidValue&, simpleCounter_oid),
-                                      Q_ARG(const std::vector<varbind>&, objects)
-                                     );
+            master->send_notification(enterprises_oid + 42 + 0 + 1, objects);
         }
 };
 
 #endif // _NOTIFICATIONSENDER_H_
 \endcode
 
-\todo Which OID must be given to send_notification()?
+The NotificationSender inherits QObject and uses the Q_OBJECT macro, which is both needed to make 
+the class suitable for Qt's signal/slot mechanism. The constructor takes a pointer to the 
+MasterProxy object (needed to send notifications), a pointer to the SimpleCounter object (will be 
+included in the notifications) and the simpleCounter's OID (will also be included in the 
+notifications).  The sendNotification() slot will be connected to the QTimer object and sends a 
+notification each time it is invoked.
 
-The NotificationSender inherits QObject and uses the Q_OBJECT macro, which is 
-both needed to make the class suitable for QT's signal/slot mechanism. The 
-constructor takes a pointer to the MasterProxy object (needed to send 
-notifications), the simpleCounter's oid (will be included in the notifications) 
-and a pointer to the counter (will be queried to include the value in the 
-notifications).  The sendNotification() slot will be connected to the QTimer 
-object and sends a notification each time it is invoked. Also, it performs an 
-output to indicate that a notification is sent, which we will possibly miss as 
-long as the master agent is not yet configured properly.
-
-We use QMetaObject::invokeMethod() here to invoke the 
-MasterProxy::send_notification() slot. This would even work if the 
-NotificationSender were running in a separate thread. In the example, were the 
-NotificationSender and the MasterProxy run in the same thread, a simple call 
-would also work:
-
-\code
-// Could be used instead of QMetaObject::invokeMethod(),
-// because NotificationSender and MasterProxy run in
-// the same thread:
-master->send_notification(simpleCounter_oid, objects);
-\endcode
+The direct call to the
+\ref agentxcpp::MasterProxy::send_notification(const Oid&, const std::vector< Varbind >&) 
+"MasterProxy::send_notification()" slot works, because the NotificationSender and the MasterProxy 
+will run in the same thread.  If they were running in separate threads, 
+<tt>QMetaObject::invokeMethod()</tt> would be used to invoke the slot.
 
 Next, we augment the code within the <tt>main()</tt> function. But first, we 
 need additional includes in <tt>simpleagent.cpp</tt>:
@@ -165,7 +150,7 @@ need additional includes in <tt>simpleagent.cpp</tt>:
 #include "NotificationSender.hpp"
 \endcode
 
-And this is the complete <tt>main()</tt> function:
+And this is the complete revised <tt>main()</tt> function:
 
 \code
 int main(int argc, char** argv)
@@ -173,16 +158,15 @@ int main(int argc, char** argv)
     QCoreApplication app(argc, argv);
     MasterProxy master;
 
-    OidValue simpleagent_oid = OidValue(enterprises_oid, "42.1");
-    master.register_subtree(simpleagent_oid);
+    Oid simpleagentOid = Oid(enterprises_oid, "42");
+    master.register_subtree(simpleagentOid);
 
     QSharedPointer<SimpleCounter> counter(new SimpleCounter);
-    OidValue simpleCounter_oid(simpleagent_oid, "0");
-    master.add_variable(simpleCounter_oid, counter);
-
-    // New code: ----------------------------------------
-    NotificationSender sender(&master, simpleCounter_oid, counter);
-
+    Oid simpleCounterOid = simpleagentOid + 1 + 0;
+    master.add_variable(simpleCounterOid, counter);
+ 
+    // New code for sending notifications ---------------
+    NotificationSender sender(&master, simpleCounterOid, counter);
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()),
                      &sender, SLOT(sendNotification()));
@@ -194,10 +178,10 @@ int main(int argc, char** argv)
 }
 \endcode
 
-First, we create a NotificationSender object.  Then, we create a QTimer object, 
-connect its <tt>timeout()</tt> signal to the NotificationSender's 
-<tt>sendNotification()</tt> slot, configure its interval to 1 second (the timer 
-is repetitive by default), and start it.
+The additional code creates a NotificationSender object.  Then, it creates a 
+QTimer object, connects its <tt>timeout()</tt> signal to the 
+NotificationSender's <tt>sendNotification()</tt> slot, configures its interval 
+to 1 second (the timer is repetitive by default), and starts it.
 
 
 \section compiling_notification Compiling the Subagent
@@ -207,9 +191,7 @@ invoke QT's meta-object compiler (moc) for the NotificationSender class, which
 we do first:
 
 \code
-moc-qt4 `pkg-config --cflags QtCore QtNetwork` \
-        -o moc_NotificationSender.cc \
-        NotificationSender.hpp
+moc-qt4 `pkg-config --cflags QtCore QtNetwork` -o moc_NotificationSender.cc NotificationSender.hpp
 \endcode
 
 This compiles the header <tt>NotificationSender.hpp</tt> into the file 
@@ -224,9 +206,7 @@ Finally we compile the <tt>simpleagent.cpp</tt> and link it against the
 generated object file:
 
 \code
-g++ simpleagent.cpp -o simpleagent moc_NotificationSender.o \
-        `pkg-config --cflags --libs QtNetwork QtCore` \
-        -lagentxcpp
+g++ simpleagent.cpp -o simpleagent moc_NotificationSender.o `pkg-config --cflags --libs QtNetwork QtCore` -lagentxcpp
 \endcode
 
 Now, the executable is ready to run.
@@ -234,7 +214,7 @@ Now, the executable is ready to run.
 
 \section running_notification Running the Subagent
 
-\subsection master_agent The master agent
+\subsection configuring_the_master_agent Configuring the master agent
 
 The subagent is run as described in \ref how_to_write_a_subagent, but to make 
 notifications work, we need additional configuration for the master agent.  
@@ -259,7 +239,7 @@ Note that the path depends on your system. For example in ArchLinux, it is
 /etc/rc.d/snmpd.
 
 
-\subsection snmptrapd The snmptrapd program
+\subsection starting_snmptrapd Starting the snmptrapd program
 
 To receive notifications, we use the snmptrapd program from the NET-SNMP 
 package. First, we have to configure it. Make sure that the following line is 
@@ -283,9 +263,9 @@ can see its output. The <tt>-Le</tt> parameter redirects the logging messages
 to stderr (i.e. to the console window).
 
 
-\subsection starting_subagent Starting the Subagent
+\subsection notifications_starting_subagent Starting the Subagent
 
-The subagent is started as last times:
+Now, the subagent is started:
 
 \verbatim
 ./simpleagent
@@ -305,5 +285,7 @@ snmpset -v1 -c rw localhost SIMPLE-MIB::simpleCounter.0 i 42
 
 This increases or sets the counter value, and the new values are reported 
 within the notifications.
+
+In next lesson you can learn \ref how_to_implement_tables "how to implement SNMP tables"!
 
 */

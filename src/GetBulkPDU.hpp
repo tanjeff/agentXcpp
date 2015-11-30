@@ -25,7 +25,7 @@
 #include <QtGlobal>
 
 #include "PDUwithContext.hpp"
-#include "OidValue.hpp"
+#include "Oid.hpp"
 
 using std::vector;
 using std::pair;
@@ -44,10 +44,10 @@ namespace agentxcpp
 	     * \brief The SearchRange list
 	     *
 	     * A GetBulk %PDU can have multiple SearchRanges. A SearchRange 
-	     * consists of two OidValue's. We store them in a pair<>, and store the 
+	     * consists of two Oid's. We store them in a pair<>, and store the
 	     * pais<>'s in a vector< pair<> >.
 	     */
-	    vector< pair<OidValue,OidValue> > sr;
+	    vector< pair<Oid,Oid> > sr;
 
 	    /**
 	     * \brief The number of variables in the SearchRangeList that are
@@ -107,7 +107,7 @@ namespace agentxcpp
 	     * \note There is no set_sr() function, because the SearchRange
 	     *       list can be modified in place.
 	     */
-	    vector< pair<OidValue,OidValue> >& get_sr()
+	    vector< pair<Oid,Oid> >& get_sr()
 	    {
 		return this->sr;
 	    }

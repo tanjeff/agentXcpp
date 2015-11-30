@@ -25,9 +25,9 @@
 \note It is assumed that agentXcpp is installed properly; see \ref installation 
 for how to do that.
 
-This HOWTO explains how to implement, compile and run a trivial subagent. Our 
-trivial subagent has only one variable called 'simpleCounter' which is 
-described within the following MIB:
+This HOWTO explains how to implement, compile and run a trivial subagent. Our  
+subagent has only one variable called 'simpleCounter' which is described within 
+the following MIB:
 
 \verbatim
 SIMPLE-MIB DEFINITIONS ::= BEGIN
@@ -55,8 +55,8 @@ and the main() function within <tt>simpleagent.cpp</tt>.
 
 \section implement_class Implementing the simpleCounter variable
 
-The simpleCounter thing described above is an OBJECT-TYPE. OBJECT-TYPE is a 
-description of the object, not the object itself. The OID of simpleCounter is 
+The simpleCounter thing mentioned in the MIB is an OBJECT-TYPE.  OBJECT-TYPE is 
+a description of the object, not the object itself. The OID of simpleCounter is 
 "enterprises.42.1", while the real object will be accessible with OID 
 "enterprises.42.1.0".
 
@@ -75,11 +75,8 @@ completeness):
 #ifndef _SIMPLECOUNTER_H_
 #define _SIMPLECOUNTER_H_
 
-// Make the class agentxcpp::Variable available:
-#include <agentxcpp/Variable.hpp>
-
-// Make the class agentxcpp::IntegerValue available:
-#include <agentxcpp/IntegerValue.hpp>
+// Make the class agentxcpp::IntegerVariable available:
+#include <agentxcpp/IntegerVariable.hpp>
 \endcode
 
 All agentXcpp classes are in the namespace 'agentxcpp'. To make the code more 
@@ -92,43 +89,31 @@ using namespace agentxcpp;
 Next, we start our SimpleCounter class:
 
 \code
-class SimpleCounter : public Variable<IntegerValue>
+class SimpleCounter : public IntegerVariable
 {
 \endcode
 
-The simpleCounter has a value type which is given in the SYNTAX clause in the MIB.  
-AgentXcpp provides various classes to match standard SYNTAX types, all of which 
-inherit from the \ref agentxcpp::AbstractValue "AbstractValue" class. Our 
-SimpleCounter class uses \ref agentxcpp::IntegerValue "IntegerValue" as its 
-value type.
+The simpleCounter has a type which is given in the SYNTAX clause in the MIB.  
+AgentXcpp provides various classes to match standard SYNTAX types. These 
+classes can be inherited to implement variables of this type, which is what 
+SimpleCounter does. However, IntegerVariable and it companions can also be used 
+without subclassing them; they have default <tt>perform_get()</tt> implementations which do 
+nothing. Their internal value can be obtained with value() and set with 
+setValue(), and an SNMP GET request will return this internal state.  
 
-Next, the \ref agentxcpp::Variable::get() "get()" method from \ref 
-agentxcpp::Variable "Variable" must be overridden. This method is invoked on 
-SNMP GET requests and returns the current value of the object.  In our case, it 
-increments the member variable "counter" and returns the new value:
+SimpleCounter inherits from IntegerVariable and overrides 
+IntegerVariable::perform_get(). This method is invoked on SNMP GET requests and should 
+update the internal value of the IntegerVariable object. In our case, it simply 
+increments the member variable "v" (this is easier than using value() and 
+setValue()):
 
 \code
-    private:
-        IntegerValue counter;
-
     public:
-        virtual IntegerValue get()
+        virtual void perform_get()
         {
-            counter.value++;
-            return counter;
-        }
-\endcode
-
-We also add a <tt>value()</tt> method to obtain the current value without 
-incrementing it. This might become useful in future:
-
-\code
-        IntegerValue value()
-        {
-            return counter;
+            ++v;
         }
 };
-
 #endif  // _SIMPLECOUNTER_H_
 \endcode
 
@@ -190,34 +175,32 @@ chosen, but it cannot be changed once the \ref agentxcpp::MasterProxy
 Now, as we have the \ref agentxcpp::MasterProxy "MasterProxy" object, we 
 register a subtree.  This means that we provide an OID to the master to 
 indicate that our subagent wishes to serve all requests to OIDs starting with 
-that OID. For our subagent we use "enterprises.42.1", where 'enterprises' is 
+that OID. For our subagent we use "enterprises.42", where 'enterprises' is 
 the standard OID "1.3.6.1.4.1".  The master will then send all SNMP requests 
 within that subtree to our subagent (e.g.  "enterprises.42.1.0" or 
 "enterprises.42.1.1.2.0"), regardless of whether the subagent actually can 
 serve them. If a request cannot be served, the \ref agentxcpp::MasterProxy 
-"MasterProxy" will take care of it and sends an appropriate error message to 
-the master agent. Thus, our SimpleCounter implementation does not have to deal 
-with that.
+"MasterProxy" will take care of it and send an appropriate error message to the 
+master agent. Thus, our SimpleCounter implementation does not have to deal with 
+that.
 
-And here is the code for subtree registration:
+Here is the code for subtree registration:
 
 \code
-    OidValue simpleagent_oid = OidValue(enterprises_oid, "42.1");
-    master.register_subtree(simpleagent_oid);
+    Oid simpleagentOid = Oid(enterprises_oid, "42");
+    master.register_subtree(simpleagentOid);
 \endcode
 
-As you can see, an \ref agentxcpp::OidValue "OidValue" object can be created by giving it 
-the "enterprises_oid" object (which is provided by agentXcpp for convenience) 
-and an additional string with further subids.
+As you can see, an \ref agentxcpp::OidVariable "OidVariable" object can be 
+created by giving it the "enterprises_oid" object (which is provided by 
+agentXcpp for convenience) and an additional string with further subids.
 
-Next, we create a SimpleCounter variable and register it with agentXcpp:
+Next, we create a SimpleCounter variable and register it with the master:
 
 \code
     QSharedPointer<SimpleCounter> counter(new SimpleCounter);
-
-    OidValue simpleCounter_oid(simpleagent_oid, "0");
-
-    master.add_variable(simpleCounter_oid, counter);
+    Oid simpleCounterOid = simpleagentOid + 1 + 0;
+    master.add_variable(simpleCounterOid, counter);
 \endcode
 
 This is the place where we create the real SNMP variable 'counter'. This variable is 
@@ -244,8 +227,7 @@ and, against the agentXcpp library. On a GNU/Linux system, you can type the
 following command:
 
 \code
-g++ simpleagent.cpp -o simpleagent -lagentxcpp \
-    `pkg-config --cflags --libs QtNetwork QtCore`
+g++ simpleagent.cpp -o simpleagent -lagentxcpp `pkg-config --cflags --libs QtNetwork QtCore`
 \endcode
 
 This assumes that the agentxcpp library is installed properly, so that the 
@@ -253,6 +235,8 @@ compiler can find the headers and the shared object file. The pkg-config tool
 is used here to add the compiler flags for QT. Note that we do not compile the 
 SimpleCounter class separately, because it is implemented completely within its 
 header file.
+
+On other systems you may need to use another command.
 
 
 
@@ -287,8 +271,9 @@ The community name is needed later, when issuing a SNMP GET request. We set it
 to "rw" in the example, but you can use anything you wish.
 
 The agentXPerms are not strictly required, but making the socket world-readable 
-saves us some trouble regarding access restrictions. Next, we (re)start the 
-master agent using its init scripts:
+saves us some trouble regarding access restrictions. In the real world you 
+should probably use a more restrictive setting. Next, we (re)start the master 
+agent using its init scripts:
 
 \verbatim
 /etc/init.d/snmpd stop
@@ -308,8 +293,7 @@ Now the subagent can be started:
 ./simpleagent
 \endverbatim
 
-The subagent should keep sitting in the console, and now we can try if it 
-works.
+The subagent keeps sitting in the console, and now we can try if it works.
 
 
 
@@ -317,7 +301,7 @@ works.
 
 Our little subagent exposes an INTEGER object with the OID 
 "1.3.6.1.4.1.42.1.0". We can query this object with an SNMP GET request. We use 
-the NET-SNMP utility snmpget (but you can use any tool you wish, of course):
+the NET-SNMP utility snmpget (you can use any tool that you wish, of course):
 
 \verbatim
 snmpget -v2c -c rw localhost 1.3.6.1.4.1.42.1.0

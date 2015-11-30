@@ -17,32 +17,32 @@
  * for more details.
  */
 
-#include "IntegerValue.hpp"
+#include "TimeTicksVariable.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
 
-binary IntegerValue::serialize() const
+binary TimeTicksVariable::serialize() const
 {
     binary serialized;
 
     // encode value (big endian)
-    write32(serialized, value);
+    write32(serialized, v);
 
     return serialized;
 }
 
 
-IntegerValue::IntegerValue(binary::const_iterator& pos,
-		 const binary::const_iterator& end,
-		 bool big_endian)
+TimeTicksVariable::TimeTicksVariable(binary::const_iterator& pos,
+		     const binary::const_iterator& end,
+		     bool big_endian)
 {
-    // Are there at least 4 bytes in the buffer?
+    // We need 4 bytes
     if(end - pos < 4)
     {
 	throw(parse_error());
     }
 
     // Get value
-    value = read32(pos, big_endian);
+    v = read32(pos, big_endian);
 }

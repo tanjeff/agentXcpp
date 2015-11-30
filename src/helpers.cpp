@@ -36,44 +36,44 @@ namespace agentxcpp
     static QDateTime process_start_time(QDateTime::currentDateTime());
 }
 
-    TimeTicksValue agentxcpp::processUpTime()
+    TimeTicksVariable agentxcpp::processUpTime()
     {
         // Calculate uptime
         qint64 uptime = process_start_time.msecsTo(QDateTime::currentDateTime());
 
         // Convert uptime to hundreths of seconds
-        TimeTicksValue sysuptime( uptime/10 );
+        TimeTicksVariable sysuptime( uptime/10 );
 
         // Return result
         return sysuptime;
     }
 
-    OidValue agentxcpp::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
+    Oid agentxcpp::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
                                                 quint32 specific_trap)
     {
         // We need the OID of the SNMPv1 traps. These are defined here.
         //
         // First we define a "helper" OID:
-        static const OidValue snmpTraps_oid(snmpMIBObjects_oid, "5");
+        static const Oid snmpTraps_oid(snmpMIBObjects_oid, "5");
         //
         // Some traps according to RFC 1907:
-        static const OidValue snmpTraps_coldStart_oid(snmpTraps_oid, "1");
-        static const OidValue snmpTraps_warmStart_oid(snmpTraps_oid, "2");
-        static const OidValue snmpTraps_authenticationFailure_oid(snmpTraps_oid, "5");
+        static const Oid snmpTraps_coldStart_oid(snmpTraps_oid, "1");
+        static const Oid snmpTraps_warmStart_oid(snmpTraps_oid, "2");
+        static const Oid snmpTraps_authenticationFailure_oid(snmpTraps_oid, "5");
         //
         // Some traps according to RFC 1573:
-        static const OidValue snmpTraps_linkDown_oid(snmpTraps_oid, "3");
-        static const OidValue snmpTraps_linkUp_oid(snmpTraps_oid, "4");
+        static const Oid snmpTraps_linkDown_oid(snmpTraps_oid, "3");
+        static const Oid snmpTraps_linkUp_oid(snmpTraps_oid, "4");
 
         // Finally, egpNeighborLoss. According to RC 1907 it is defined in RFC
         // 1213, however, the latter doesn't define it. On the other hand,
         // RFC 2089 defines egpNeighborLoss as 1.3.6.1.6.3.1.1.5.6, which is
         // snmpTraps.6 and corresponds to the comment in RFC 1907, so we use this
         // one:
-        static const OidValue snmpTraps_egpNeighborLoss_oid(snmpTraps_oid, "6");
+        static const Oid snmpTraps_egpNeighborLoss_oid(snmpTraps_oid, "6");
 
         // calculate the value of snmpTrapOID.0 according to RFC 1908:
-        OidValue value;
+        Oid value;
 
         switch(generic_trap)
         {

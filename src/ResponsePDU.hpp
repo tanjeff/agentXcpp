@@ -25,9 +25,8 @@
 #include <QtGlobal>
 
 #include "PDU.hpp"
-#include "OidValue.hpp"
-#include "OctetStringValue.hpp"
-#include "varbind.hpp"
+#include "OctetStringVariable.hpp"
+#include "Varbind.hpp"
 
 using std::vector;
 
@@ -120,7 +119,7 @@ namespace agentxcpp
 	     *
 	     * This vector may be empty if the %PDU has no VarBinds.
 	     */
-	    vector<varbind> varbindlist;
+	    vector<Varbind> varbindlist;
 
 	    /**
 	     * \brief Parse constructor

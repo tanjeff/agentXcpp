@@ -17,32 +17,34 @@
  * for more details.
  */
 
-#include "TimeTicksValue.hpp"
+#include "Counter64Variable.hpp"
 #include "util.hpp"
+#include "exceptions.hpp"
 
 using namespace agentxcpp;
 
-binary TimeTicksValue::serialize() const
+binary Counter64Variable::serialize() const
 {
     binary serialized;
 
     // encode value (big endian)
-    write32(serialized, value);
+    write64(serialized, v);
 
     return serialized;
 }
 
 
-TimeTicksValue::TimeTicksValue(binary::const_iterator& pos,
-		     const binary::const_iterator& end,
-		     bool big_endian)
+Counter64Variable::Counter64Variable(binary::const_iterator& pos,
+                    const binary::const_iterator& end,
+                    bool big_endian)
 {
-    // We need 4 bytes
-    if(end - pos < 4)
+    // Are there at least 8 bytes in the buffer?
+    if(end - pos < 8)
     {
-	throw(parse_error());
+        throw(parse_error());
     }
 
+
     // Get value
-    value = read32(pos, big_endian);
+    v = read64(pos, big_endian);
 }

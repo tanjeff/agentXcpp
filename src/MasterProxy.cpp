@@ -27,6 +27,7 @@
 #include "GetNextPDU.hpp"
 #include "NotifyPDU.hpp"
 #include "util.hpp"
+#include "OidVariable.hpp"
 
 
 using namespace std;
@@ -41,7 +42,7 @@ using namespace agentxcpp;
 
 MasterProxy::MasterProxy(std::string _description,
 			   quint8 _default_timeout,
-			   OidValue _id,
+			   Oid _id,
 			   std::string _filename) :
     socket_file(_filename.c_str()),
     sessionID(0),
@@ -273,7 +274,7 @@ void MasterProxy::do_registration(QSharedPointer<RegisterPDU> pdu)
 
 
 
-void MasterProxy::register_subtree(OidValue subtree,
+void MasterProxy::register_subtree(Oid subtree,
 		      quint8 priority,
 		      quint8 timeout)
 {
@@ -308,7 +309,7 @@ void MasterProxy::register_subtree(OidValue subtree,
 
 
 
-void MasterProxy::unregister_subtree(OidValue subtree,
+void MasterProxy::unregister_subtree(Oid subtree,
 				      quint8 priority)
 {
     // The UnregisterPDU
@@ -442,29 +443,30 @@ void MasterProxy::handle_getpdu(QSharedPointer<ResponsePDU> response, QSharedPoi
 	// RFC 2741, 7.2.3.1 "Subagent Processing of the agentx-Get-PDU"
 
 	// Extract searchRange list
-	vector<OidValue> sr = get_pdu->get_sr();
+	vector<Oid> sr = get_pdu->get_sr();
 
-	// Iterate over list and handle each OidValue separately
-	vector<OidValue>::const_iterator i;
+	// Iterate over list and handle each Oid separately
+	vector<Oid>::const_iterator i;
         quint16 index = 1;  // Index is 1-based (RFC 2741,
                              // 5.4. "Value Representation"):
 	for(i = sr.begin(); i != sr.end(); i++)
 	{
 	    // The name
-	    const OidValue& name = *i;
+	    const Oid& name = *i;
 
 	    // Find variable for current OID
-	    map< OidValue, QSharedPointer<AbstractVariable> >::const_iterator var;
+	    map< Oid, QSharedPointer<AbstractVariable> >::const_iterator var;
 	    var = variables.find(name);
 	    if(var != variables.end())
 	    {
-		// Step (2): We have a variable for this OidValue
+		// Step (2): We have a variable for this Oid
 
 		// update variable
                 try
                 {
                     // Add variable to response (Step (1): include name)
-                    response->varbindlist.push_back( varbind(name, var->second->handle_get()) );
+                    var->second->handle_get();
+                    response->varbindlist.push_back( Varbind(name, var->second) );
                 }
                 catch(...)
                 {
@@ -480,7 +482,7 @@ void MasterProxy::handle_getpdu(QSharedPointer<ResponsePDU> response, QSharedPoi
 		// Interpret 'name' as prefix:
 		// append .0 and check whether we have a variable
 		// with this name
-		OidValue name_copy(name, 0);
+		Oid name_copy(name, 0);
 
 		var = variables.find(name_copy);
 		if(var != variables.end())
@@ -488,14 +490,14 @@ void MasterProxy::handle_getpdu(QSharedPointer<ResponsePDU> response, QSharedPoi
 		    // Step (4): We have a variable with the object
 		    //           identifier prefix 'name': Send noSuchInstance 
 		    //           error (Step (1): include name)
-		    response->varbindlist.push_back( varbind(name, varbind::noSuchInstance) );
+		    response->varbindlist.push_back( Varbind(name, Varbind::noSuchInstance) );
 		}
 		else
 		{
 		    // Step (3): we have no variable with the object
 		    //           identifier prefix 'name': Send noSuchObject 
 		    //           error (Step (1): include name)
-		    response->varbindlist.push_back( varbind(name, varbind::noSuchObject) );
+		    response->varbindlist.push_back( Varbind(name, Varbind::noSuchObject) );
 		}
 	    }
 
@@ -511,21 +513,21 @@ void MasterProxy::handle_getnextpdu(QSharedPointer<ResponsePDU> response, QShare
 	// RFC 2741, 7.2.3.2 "Subagent Processing of the agentx-GetNext-PDU"
 
 	// Extract searchRange list
-	vector< pair<OidValue,OidValue> >& sr = getnext_pdu->get_sr();
+	vector< pair<Oid,Oid> >& sr = getnext_pdu->get_sr();
 
 	// Iterate over list and handle each SearchRange separately
-	vector< pair<OidValue,OidValue> >::const_iterator i;
+	vector< pair<Oid,Oid> >::const_iterator i;
         quint16 index = 1;  // Index is 1-based (RFC 2741,
                              // 5.4. "Value Representation"):
 	for(i = sr.begin(); i != sr.end(); i++)
 	{
 	    // The names
-	    const OidValue& starting_oid = i->first;
-            const OidValue& ending_oid   = i->second;
+	    const Oid& starting_oid = i->first;
+            const Oid& ending_oid   = i->second;
 
             // Find "next" variable
-	    map< OidValue, QSharedPointer<AbstractVariable> >::const_iterator next_var;
-	    if( ! starting_oid.get_include())
+	    map< Oid, QSharedPointer<AbstractVariable> >::const_iterator next_var;
+	    if( ! starting_oid.include())
             {
                 // Find the closest lexicographical successor to the starting 
                 // OID (excluding the starting OID itself)
@@ -537,7 +539,7 @@ void MasterProxy::handle_getnextpdu(QSharedPointer<ResponsePDU> response, QShare
                 // lexicographical successor of it
                 next_var = variables.lower_bound(starting_oid);
             }
-            if( ! ending_oid.is_null() )
+            if(next_var != variables.end() && ! ending_oid.is_null() )
             {
                 // The "next" variable must precede the ending OID (it must not 
                 // be greater or equal than the ending OID)
@@ -557,7 +559,8 @@ void MasterProxy::handle_getnextpdu(QSharedPointer<ResponsePDU> response, QShare
 		// update variable
                 try
                 {
-                    response->varbindlist.push_back( varbind(next_var->first, next_var->second->handle_get()) );
+                    next_var->second->handle_get();
+                    response->varbindlist.push_back( Varbind(next_var->first, next_var->second) );
                 }
                 catch(...)
                 {
@@ -571,7 +574,7 @@ void MasterProxy::handle_getnextpdu(QSharedPointer<ResponsePDU> response, QShare
 	    else
 	    {
                 // "Next" variable was NOT found
-		response->varbindlist.push_back( varbind(starting_oid, varbind::endOfMibView) );
+		response->varbindlist.push_back( Varbind(starting_oid, Varbind::endOfMibView) );
 	    }
 
             index++;
@@ -586,19 +589,19 @@ void MasterProxy::handle_testsetpdu(QSharedPointer<ResponsePDU> response, QShare
     // RFC 2741, 7.2.4.1 "Subagent Processing of the agentx-TestSet-PDU"
 
     // Extract Varbind list
-    vector<varbind>& vb = testset_pdu->get_vb();
+    vector<Varbind>& vb = testset_pdu->get_vb();
 
     // Initially, no Varbind failed:
     response->set_error(ResponsePDU::noAgentXError);
 
     // Iterate over list and handle each Varbind separately. Return on the 
     // first varbind which doesn't validate correctly.
-    vector<varbind>::const_iterator i;
+    vector<Varbind>::const_iterator i;
     quint16 index;
     for(i = vb.begin(), index = 1; i != vb.end(); i++, index++)
     {
         // Find the associated variable
-        map< OidValue, QSharedPointer<AbstractVariable> >::const_iterator var;
+        map< Oid, QSharedPointer<AbstractVariable> >::const_iterator var;
 	var = variables.find(i->get_name());
         if(var == variables.end())
         {
@@ -852,8 +855,21 @@ void MasterProxy::handle_pdu(QSharedPointer<PDU> pdu)
     catch(disconnected) { /* connection loss. Ignore.*/ }
 }
 
+void MasterProxy::addVariables(QVector< QPair<
+                            Oid, QSharedPointer<AbstractVariable> > > v)
+{
+    QVectorIterator<QPair< Oid,
+                           QSharedPointer<AbstractVariable> > > iter(v);
+    while(iter.hasNext())
+    {
+        QPair<Oid, QSharedPointer<AbstractVariable> > varPair;
+        varPair = iter.next();
 
-void MasterProxy::add_variable(const OidValue& id, QSharedPointer<AbstractVariable> v)
+        add_variable(varPair.first, varPair.second);
+    }
+}
+
+void MasterProxy::add_variable(const Oid& id, QSharedPointer<AbstractVariable> v)
 {
     // Check whether id is contained in a registration
     bool is_registered = false;
@@ -883,44 +899,65 @@ void MasterProxy::add_variable(const OidValue& id, QSharedPointer<AbstractVariab
 }
 
 
-
-void MasterProxy::remove_variable(const OidValue& id)
+bool MasterProxy::isRegistered(Oid id)
 {
-    // Find variable
-    map<OidValue, QSharedPointer<AbstractVariable> >::iterator i = variables.find(id);
-
-    if(i == variables.end())
+    // Check whether id is contained in a registration
+    bool is_registered = false;
+    std::list< QSharedPointer<RegisterPDU> >::const_iterator r;
+    for(r = registrations.begin(); r != registrations.end(); r++)
     {
-	// Variable was not added in advance
-	// -> ignore
-	return;
+        if((*r)->get_instance_registration() == false &&
+           (*r)->get_range_subid() == 0)
+        {
+            // Registration is a simple subtree
+            if( (*r)->get_subtree().contains(id) )
+            {
+                // The ID lies within a registered area
+                is_registered = true;
+                break; // stop search
+            }
+        }
+        // TODO: handle other registrations (e.g. instance registration)
     }
-
-    // Remove variable
-    variables.erase(i);
+    return is_registered;
 }
 
 
 
-void MasterProxy::send_notification(const OidValue& snmpTrapOID,
-                                    const TimeTicksValue* sysUpTime,
-                                    const vector<varbind>& varbinds)
+void MasterProxy::remove_variable(const Oid& id)
+{
+    // Remove variable
+    variables.erase(id); // If variable was not registered: ignore
+}
+
+void MasterProxy::removeVariables(const QVector<Oid>& ids)
+{
+    QVectorIterator<Oid> iter(ids);
+    while(iter.hasNext())
+    {
+        remove_variable(iter.next());
+    }
+}
+
+void MasterProxy::send_notification(const Oid& snmpTrapOID,
+                                    const TimeTicksVariable* sysUpTime,
+                                    const vector<Varbind>& varbinds)
 {
     QSharedPointer<NotifyPDU> pdu(new NotifyPDU);
     pdu->set_sessionID(this->sessionID);
 
-    vector<varbind>& vb = pdu->get_vb();
+    vector<Varbind>& vb = pdu->get_vb();
 
     // First of all: add mandatory sysUpTime (if given)
     if(sysUpTime)
     {
-        QSharedPointer<TimeTicksValue> value(new TimeTicksValue(*sysUpTime));
-        vb.push_back(varbind(OidValue(sysUpTime_oid, "0"), value));
+        QSharedPointer<TimeTicksVariable> value(new TimeTicksVariable(*sysUpTime));
+        vb.push_back(Varbind(Oid(sysUpTime_oid, "0"), value));
     }
 
     // Second: add mandatory snmpTrapOID
-    QSharedPointer<OidValue> trapoid(new OidValue(snmpTrapOID));
-    vb.push_back(varbind(OidValue(snmpTrapOID_oid, "0"), trapoid));
+    QSharedPointer<OidVariable> trapoid(new OidVariable(snmpTrapOID));
+    vb.push_back(Varbind(Oid(snmpTrapOID_oid, "0"), trapoid));
 
     // Append given varbinds
     vb.insert(vb.end(), varbinds.begin(), varbinds.end());

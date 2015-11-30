@@ -28,10 +28,12 @@
 
 #include <QObject>
 #include <QThread>
+#include <QMap>
+#include <QVector>
 
-#include "OidValue.hpp"
+#include "Oid.hpp"
 #include "AbstractVariable.hpp"
-#include "TimeTicksValue.hpp"
+#include "TimeTicksVariable.hpp"
 #include "ClosePDU.hpp"
 #include "ResponsePDU.hpp"
 #include "RegisterPDU.hpp"
@@ -43,7 +45,6 @@
 #include "CommitSetPDU.hpp"
 #include "UndoSetPDU.hpp"
 #include "UnixDomainConnector.hpp"
-
 
 namespace agentxcpp
 {
@@ -101,7 +102,7 @@ namespace agentxcpp
      * 1.3.6.1.4.1.42<b>.1.1</b> and 1.3.6.1.4.1.42<b>.1.2</b>, then a subtree 
      * with OID 1.3.6.1.4.1.42<b>.1</b> should be registered, which includes 
      * both objects.  The master agent will then forward all requests 
-     * conecerning objects in this subtree to this subagent. Requests to 
+     * concerning objects in this subtree to this subagent. Requests to
      * non-existing objects (e.g.  1.3.6.1.4.1.42<b>.1.3</b>) are also 
      * forwarded, and the agentXcpp library will take care of them and return 
      * an appropriate error to the master agent.
@@ -130,13 +131,14 @@ namespace agentxcpp
      *
      * The MasterProxy object generates a RegisterPDU object each time a 
      * registration is performed. These RegisterPDU objects are stored in the 
-     * registrations member.
+     * MasterProxy::registrations member.
      *
      * When unregistering, the matching RegisterPDU is removed from the 
      * registration member.
      *
-     * The registration member becomes invalid on connection loss. Since a 
-     * connection loss is not signalled, the member cannot be cleared in such 
+     * The MasterProxy::registration member becomes invalid on connection loss.
+     * Since a
+     * connection loss is not signaled, the member cannot be cleared in such
      * situations. Therefore, it is cleared in the connect() method if the 
      * object is currently disconnected. If connect() is called on a connected 
      * MasterProxy object, the registrations member is not cleared.
@@ -159,14 +161,14 @@ namespace agentxcpp
      * \internal
      *
      * The variables are stored in the member variables, which is a 
-     * std::map<OidValue, QSharedPointer<variable> >. The key is the OID for which the 
+     * std::map<Oid, QSharedPointer<variable> >. The key is the OID for which the
      * variable was added. This allows easy lookup for the request 
      * dispatcher.
      *
      * When removing a variable, it is removed from the variables member.
      *
      * The variables member becomes invalid on connection loss. Since a 
-     * connection loss is not signalled, the member cannot be cleared in such 
+     * connection loss is not signaled, the member cannot be cleared in such
      * situations.  Therefore, it is cleared in the connect() method if the 
      * object is currently disconnected. If connect() is called on a connected 
      * MasterProxy object, the variables member is not cleared.
@@ -240,7 +242,7 @@ namespace agentxcpp
 	     * \brief An Object Identifier that identifies the subagent. May be
 	     *        the null OID.
 	     */
-	    OidValue id;
+	    Oid id;
 
 	    /**
 	     * \brief The registrations.
@@ -254,7 +256,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Storage for all SNMP variables known to the MasterProxy.
 	     */
-	    std::map< OidValue, QSharedPointer<AbstractVariable> > variables;
+	    std::map< Oid, QSharedPointer<AbstractVariable> > variables;
 
             /**
              * \brief The variables affected by the Set operation currently
@@ -480,7 +482,7 @@ namespace agentxcpp
              *                  to RFC 1907, which says: "<em>The time (in
              *                  hundreths of a second) since the network
              *                  management portion of the system was last
-             *                  re-initialized.</em>". You can use You can use
+             *                  re-initialized.</em>". You can use
              *                  agentxcpp::processUpTime() to get the uptime of
              *                  the current process. If the NULL pointer
              *                  is given, the sysUpTime.0 will not be included
@@ -501,24 +503,24 @@ namespace agentxcpp
 	     *
 	     * \todo Document exceptions.
 	     */
-	    void send_notification(const OidValue& snmpTrapOID,
-	                           const TimeTicksValue* sysUpTime,
-	                           const std::vector<varbind>& varbinds=vector<varbind>());
+	    void send_notification(const Oid& snmpTrapOID,
+	                           const TimeTicksVariable* sysUpTime,
+	                           const std::vector<Varbind>& varbinds=vector<Varbind>());
 
 	    /**
 	     * \brief Writing aid: Send notification without sysUpTime.0.
 	     *
 	     * This calls \ref send_notification(
-	     * const OidValue&, const TimeTicksValue*,
+	     * const Oid&, const TimeTicksVariable*,
 	     * const vector<varbind>&) with a NULL pointer
 	     * for the sysUpTime.0 parameter.
 	     *
 	     * For the documentation of the parameters and exceptions go to
-	     * \ref send_notification(const OidValue&, TimeTicksValue>&,
+	     * \ref send_notification(const Oid&, TimeTicksVariable>&,
 	     * const vector<varbind>&)
 	     */
-	    void send_notification(const OidValue& snmpTrapOID,
-	                           const std::vector<varbind>& varbinds=vector<varbind>())
+	    void send_notification(const Oid& snmpTrapOID,
+	                           const std::vector<Varbind>& varbinds=vector<Varbind>())
 	    {
 	        send_notification(snmpTrapOID, 0, varbinds);
 	    }
@@ -555,7 +557,7 @@ namespace agentxcpp
 	     */
 	    MasterProxy(std::string description="",
 		   quint8 default_timeout=0,
-		   OidValue ID=OidValue(),
+		   Oid ID=Oid(),
 		   std::string unix_domain_socket="/var/agentx/master");
 
 	    /**
@@ -612,7 +614,7 @@ namespace agentxcpp
              *                        that a retry will result in a 
              *                        duplicate_registration error.
 	     */
-	    void register_subtree(OidValue subtree,
+	    void register_subtree(Oid subtree,
 				  quint8 priority=127,
 				  quint8 timeout=0);
 
@@ -657,7 +659,7 @@ namespace agentxcpp
 	     */
             // TODO: the 'priority' parameter can possibly be omitted: the 
             // value can be stored by master_agent upon subtree registration.
-	    void unregister_subtree(OidValue subtree,
+	    void unregister_subtree(Oid subtree,
 				    quint8 priority=127);
 
             /**
@@ -758,7 +760,29 @@ namespace agentxcpp
 	     *                                 within a registered MIB 
 	     *                                 region.
 	     */
-	    void add_variable(const OidValue& id, QSharedPointer<AbstractVariable> v);
+	    void add_variable(const Oid& id, QSharedPointer<AbstractVariable> v);
+
+	    /**
+	    * \brief Add several SNMP variables for serving.
+	    *
+	    * This function takes multiple variables and calls
+	    * agentxcpp::add_variable(const Oid&,
+	    * QSharedPointer<AbstractVariable>) for each of them.
+	    *
+	    * \param vars The variables to be added. Each QPair object contains
+	    *             an OID and the pointer to the variable; see
+	    *             agentxcpp::add_variable(const Oid&,
+	    *             QSharedPointer<AbstractVariable>) for an explanation.
+	    *
+	    * \exception unknown_registration If trying to add a variable
+	    *                                 with an id which does not reside
+	    *                                 within a registered MIB
+	    *                                 region.
+	    *
+	    */
+	    void addVariables(QVector< QPair<
+	                      Oid, QSharedPointer<AbstractVariable> >
+	                                  > vars);
 
 	    /**
 	     * \brief Remove an SNMP variable so that is not longer accessible.
@@ -773,7 +797,35 @@ namespace agentxcpp
 	     *
 	     * \exception None.
 	     */
-	    void remove_variable(const OidValue& id);
+	    void remove_variable(const Oid& id);
+
+	    /**
+	     * \brief Remove several SNMP variables so that they are not longer
+	     *        accessible.
+	     *
+	     * This function takes multiple variables and calls
+             * agentxcpp::remove_variable(const Oid&)
+             * for each of them.
+             *
+             * \param ids The variables to be removed.
+             *
+             * \exception None.
+	     */
+	    void removeVariables(const QVector<Oid>& ids);
+
+	    /**
+	     * \brief Check whether an OID is within the registered ranges.
+	     *
+	     * This function checks whether the given OID is with an OID
+	     * range which was registered before.
+	     *
+	     * \param id The OID to check.
+	     *
+	     * \return true if it is with an registered range, false otherwise.
+	     *
+	     * \exception None.
+	     */
+	    bool isRegistered(Oid id);
     };
 }
 

@@ -202,7 +202,7 @@ class CounterChangeEntry : public TableEntry
                    << counterChangeMilliseconds;
             return result;
         }
-        
+
         virtual QMap< quint32, QSharedPointer<AbstractVariable> > variables()
         {
             QMap< quint32, QSharedPointer<AbstractVariable> > result;
@@ -227,6 +227,9 @@ returning these variables in a QVector, in the order in which they are used in
 the index.  Note that the entry's OID changes if the index variables change 
 their value.  Our simpleagent will not change an entry after it was added to 
 the table, though.
+
+\note The variable types Counter32 and Counter64 are not allowed as index 
+      variables according to RFC 2578, 7.7.
 
 The CounterChangeEntry::variables() method return all variables as a QMap. The 
 map key will be used by the table as &lt;variableSubOid> part for the variable.

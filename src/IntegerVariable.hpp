@@ -314,7 +314,7 @@ namespace agentxcpp
             /**
              * \internal
              *
-             * \brief Handle a UndoSet request.
+             * \brief Handle an UndoSet request.
              *
              * This function calls perform_undoset() with the internal value of 
              * \ref new_value (which was updated by the last

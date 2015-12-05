@@ -18,6 +18,7 @@
  */
 #include "RegisterPDU.hpp"
 #include "util.hpp"
+#include "OidVariable.hpp"
 
 using namespace agentxcpp;
 
@@ -36,7 +37,7 @@ RegisterPDU::RegisterPDU(binary::const_iterator& pos,
     range_subid = *pos++;
     pos++;  // skip reserved field
 
-    subtree = OidValue(pos, end, big_endian);
+    subtree = OidVariable(pos, end, big_endian).value();
 
     // read r.upper_bound only if r.range_subid is not 0
     if(end - pos < 4)
@@ -59,7 +60,7 @@ binary RegisterPDU::serialize() const
     serialized.push_back(range_subid);
     serialized.push_back(0);	// reserved
 
-    serialized += subtree.serialize();
+    serialized += OidVariable(subtree).serialize();
 
     if( range_subid != 0 )
     {

@@ -21,13 +21,11 @@
 
 #include <istream>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/cstdint.hpp>
+#include <QSharedPointer>
+#include <QtGlobal>
 
-#include "OidValue.hpp"
-#include "AbstractValue.hpp"
-
-using boost::uint16_t;
+#include "Oid.hpp"
+#include "AbstractVariable.hpp"
 
 namespace agentxcpp
 {
@@ -36,13 +34,13 @@ namespace agentxcpp
      *
      * \brief Represents a VarBind according to RFC 2741, section 5.4.
      */
-    class varbind
+    class Varbind
     {
 	private:
 	    /**
 	     * \brief The name (OID) of the VarBind.
 	     */
-	    OidValue name;
+	    Oid name;
 
 	    /**
 	     * \brief The variable inside the varbind.
@@ -50,7 +48,7 @@ namespace agentxcpp
 	     * This pointer may be 0 if the varbind has a type without a 
 	     * variable (e.g. "NoSuchObject").
 	     */
-	    boost::shared_ptr<AbstractValue> var;
+	    QSharedPointer<AbstractVariable> var;
 
 	    /**
 	     * \brief The type of the varbind.
@@ -59,7 +57,7 @@ namespace agentxcpp
 	     * 5.4. The serialize() function will copy it directly into the 
 	     * varbind.
 	     */
-	    uint16_t type;
+	    quint16 type;
 	public:
 
 	    /**
@@ -68,7 +66,7 @@ namespace agentxcpp
 	     * The variable must be one of the following types:
 	     * - IntegerValue
 	     * - OctetStringValue
-	     * - OidValue
+	     * - OidVariable
 	     * - IpAddressValue
 	     * - Counter32Value
 	     * - Gauge32Value
@@ -78,7 +76,7 @@ namespace agentxcpp
 	     * If the type of the variable cannot be determined, inval_param is 
 	     * thrown.
 	     */
-	    varbind(const OidValue&, boost::shared_ptr<AbstractValue> v);
+	    Varbind(const Oid&, QSharedPointer<AbstractVariable> v);
 	    
 	    /**
 	     * \brief These values can be used to create a VarBind.
@@ -97,7 +95,7 @@ namespace agentxcpp
 	     * Only the constants defined by varbind::type_t are allowed.  A 
 	     * wrong type will cause an inval_param exception.
 	     */
-	    varbind(const OidValue&, type_t);
+	    Varbind(const Oid&, type_t);
 
 	    /**
 	     * \internal
@@ -123,14 +121,14 @@ namespace agentxcpp
 	     * \param big_endian Whether the input stream is in big endian
 	     *                   format
 	     */
-	    varbind(binary::const_iterator& pos,
+	    Varbind(binary::const_iterator& pos,
 		    const binary::const_iterator& end,
 		    bool big_endian=true);
 
             /**
              * \brief Get the name (the OID) stored within the varbind.
              */
-            OidValue get_name() const
+            Oid get_name() const
             {
                 return name;
             }
@@ -141,7 +139,7 @@ namespace agentxcpp
              * \note This returns a smart pointer to the variable, i.e. the
              *       variable can be modified in-place.
              */
-            boost::shared_ptr<AbstractValue> get_var() const
+            QSharedPointer<AbstractVariable> get_var() const
             {
                 return var;
             }

@@ -17,12 +17,12 @@
  * for more details.
  */
 
-#include "IpAddressValue.hpp"
+#include "IpAddressVariable.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
 
-binary IpAddressValue::serialize() const
+binary IpAddressVariable::serialize() const
 {
     binary serialized;
 
@@ -33,20 +33,20 @@ binary IpAddressValue::serialize() const
     serialized.push_back(4);
 
     // encode address
-    serialized.push_back(address[0]);
-    serialized.push_back(address[1]);
-    serialized.push_back(address[2]);
-    serialized.push_back(address[3]);
+    serialized.push_back(v[0]);
+    serialized.push_back(v[1]);
+    serialized.push_back(v[2]);
+    serialized.push_back(v[3]);
 
     return serialized;
 }
 
 
-IpAddressValue::IpAddressValue(binary::const_iterator& pos,
+IpAddressVariable::IpAddressVariable(binary::const_iterator& pos,
 		     const binary::const_iterator& end,
 		     bool big_endian)
 {
-    uint32_t size;
+    quint32 size;
     
     // Are there at least 8 bytes in the buffer?
     if(end - pos < 8)
@@ -65,8 +65,8 @@ IpAddressValue::IpAddressValue(binary::const_iterator& pos,
     // Get address
     // always most significant first according to 
     // RFC2741, 5.4 "Value Representation"
-    address[0] =  *pos++;
-    address[1] =  *pos++;
-    address[2] =  *pos++;
-    address[3] =  *pos++;
+    v[0] =  *pos++;
+    v[1] =  *pos++;
+    v[2] =  *pos++;
+    v[3] =  *pos++;
 }

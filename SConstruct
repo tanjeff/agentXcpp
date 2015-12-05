@@ -177,29 +177,6 @@ Scons didn't find a usable C++ compiler.
 Note: For Linux, install a package named 'build-essential' or 'g++'."""
     Exit(1)
 
-# Check for boost::bind (header-only lib)
-if not conf.CheckHeader('boost/bind.hpp', '<>', 'C++'):
-    print """
-The boost::bind library is required to build agentXcpp.
-Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
-    Exit(1)
-
-# Check for boost::smart_ptr (header-only lib)
-if not conf.CheckHeader('boost/shared_ptr.hpp', '<>', 'C++'):
-    print """
-The boost::smart_ptr library is required to build agentXcpp.
-Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
-    Exit(1)
-
-# Check for boost::test
-if not conf.CheckLibWithHeader('boost_unit_test_framework', 
-    'boost/test/unit_test.hpp', 'C++', autoadd=0):
-    print """
-The boost::test library is required to build agentXcpp.
-Note: For Linux, install packages named 'libboost-dev' and 'libboost-test-dev'
-      or a package named 'boost'."""
-    Exit(1)
-
 # Check for doxygen executable
 # Note: we call 'doxygen --version' so no input file is required
 if not conf.CheckExe(['doxygen', '--version']):
@@ -224,6 +201,5 @@ env = conf.Finish()
 
 # (export env to them):
 env.SConscript(['src/SConscript',
-		'doc/SConscript',
-	        'unit_tests/SConscript'], 'env')
+		'doc/SConscript'], 'env')
 

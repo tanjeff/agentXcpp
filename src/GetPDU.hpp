@@ -22,7 +22,7 @@
 #include <vector>
 
 #include "PDUwithContext.hpp"
-#include "OidValue.hpp"
+#include "Oid.hpp"
 
 using std::vector;
 
@@ -43,7 +43,7 @@ namespace agentxcpp
 	     * OID is always the null OID. We simply store the OID's for the 
 	     * getPDU into a vector<>.
 	     */
-	    vector<OidValue> sr;
+	    vector<Oid> sr;
 
 	public:
 	    /**
@@ -87,7 +87,7 @@ namespace agentxcpp
 	     * \note There is no set_sr() function, because the SearchRange
 	     *       list can be modified in place.
 	     */
-	    vector<OidValue>& get_sr()
+	    vector<Oid>& get_sr()
 	    {
 		return this->sr;
 	    }

@@ -19,12 +19,11 @@
 #ifndef _UNREGISTERPDU_H_
 #define _UNREGISTERPDU_H_
 
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "PDUwithContext.hpp"
-#include "OidValue.hpp"
+#include "Oid.hpp"
 
-using boost::uint32_t;
 
 namespace agentxcpp
 {
@@ -36,23 +35,23 @@ namespace agentxcpp
     class UnregisterPDU : public PDUwithContext
     {
 	private:
-	    uint8_t priority;
-	    uint8_t range_subid;
-	    OidValue subtree;
-	    uint32_t upper_bound;
+	    quint8 priority;
+	    quint8 range_subid;
+	    Oid subtree;
+	    quint32 upper_bound;
 
 	public:
 	    /**
 	     * \brief Set the upper_bound.
 	     */
-	    void set_upper_bound(uint32_t upper_bound)
+	    void set_upper_bound(quint32 upper_bound)
 	    {
 		this->upper_bound = upper_bound;
 	    }
 	    /**
 	     * \brief Get the upper_bound.
 	     */
-	    uint32_t get_upper_bound()
+	    quint32 get_upper_bound()
 	    {
 		return this->upper_bound;
 	    }
@@ -60,14 +59,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the subtree.
 	     */
-	    void set_subtree(OidValue subtree)
+	    void set_subtree(Oid subtree)
 	    {
 		this->subtree = subtree;
 	    }
 	    /**
 	     * \brief Get the subtree.
 	     */
-	    OidValue get_subtree()
+	    Oid get_subtree()
 	    {
 		return this->subtree;
 	    }
@@ -75,14 +74,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the range_subid.
 	     */
-	    void set_range_subid(uint8_t range_subid)
+	    void set_range_subid(quint8 range_subid)
 	    {
 		this->range_subid = range_subid;
 	    }
 	    /**
 	     * \brief Get the range_subid.
 	     */
-	    uint8_t get_range_subid()
+	    quint8 get_range_subid()
 	    {
 		return this->range_subid;
 	    }
@@ -90,14 +89,14 @@ namespace agentxcpp
 	    /**
 	     * \brief Set the priority.
 	     */
-	    void set_priority(uint8_t priority)
+	    void set_priority(quint8 priority)
 	    {
 		this->priority = priority;
 	    }
 	    /**
 	     * \brief Get the priority.
 	     */
-	    uint8_t get_priority()
+	    quint8 get_priority()
 	    {
 		return this->priority;
 	    }

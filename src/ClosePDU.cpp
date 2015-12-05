@@ -27,7 +27,7 @@ ClosePDU::ClosePDU()
 {
 }
 
-ClosePDU::ClosePDU(uint32_t _sessionID,
+ClosePDU::ClosePDU(quint32 _sessionID,
 		   reason_t _reason)
 {
     // Set sessionID

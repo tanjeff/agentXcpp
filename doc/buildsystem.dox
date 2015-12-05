@@ -50,7 +50,6 @@ which are easily available for your system:
 - Standard build environment (compiler, linker, etc.)
 - Doxygen, to build the documentation
 - SCons, to control the build process
-- The boost libraries
 
 
 
@@ -94,12 +93,6 @@ The build system will choose PREFIX/include (which is <tt>/usr/include</tt> in
 the example) as includedir and PREFIX/share/doc (which is 
 <tt>/usr/share/doc</tt> in the example) as docdir. The default directories can 
 be shown with <tt>scons -h</tt>.
-
-\subsection unit_tests Building the Unit Tests
-
-The unit tests can be build with
-
-<tt>scons testsuite</tt>
 
 \subsection cleaning Cleaning
 
@@ -189,17 +182,6 @@ A more appropriate implementation would scan the Doxygen configuration files
 for the input and output file patterns and define more accurate SCons 
 dependencies.  However, the current implementation will work until a good 
 Doxygen builder becomes available.
-
-
-\subsection unit_tests_sconscript unit_tests/SConscript
-
-The \c SConscript in unit_tests/ builds the unit tests for agentXcpp. When 
-using the g++ compiler, the <tt>-rpath ../src/</tt> parameter is added so that 
-the unit tests can find the agentXcpp shared library although it is not 
-installed in a well-known place (like <tt>/usr/lib</tt>).
-
-An install target is not provided, as unit tests are of course not installed on 
-the target system. Also, the unit tests are not defined as a default target.
 
 
 */

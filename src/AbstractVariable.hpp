@@ -16,14 +16,13 @@
  * See the AgentXcpp library license in the LICENSE file of this package
  * for more details.
  */
-#ifndef _VARIABLE_H_
-#define _VARIABLE_H_
+#ifndef _ABSTRACTVARIABLE_H_
+#define _ABSTRACTVARIABLE_H_
 
-#include <boost/shared_ptr.hpp>
+#include <QSharedPointer>
 
-#include "AbstractValue.hpp"
-
-using boost::shared_ptr;
+#include "binary.hpp"
+#include "Oid.hpp"
 
 namespace agentxcpp
 {
@@ -31,8 +30,12 @@ namespace agentxcpp
      * \brief Base class for SNMP variables.
      *
      * This class is the base class for SNMP variable implementations. It 
-     * provides the interface which is used internally by agentXcpp to perform 
-     * operations on variables.
+     * provides the interface which is used by agentXcpp (namely by the 
+     * MasterProxy class) to perform operations on variables. An overiew on 
+     * variable handling in agentxcpp is given in \ref variables.
+     *
+     * \note This class should never be inherited by non-agentXcpp code.
+     *
      */
     class AbstractVariable
     {
@@ -40,24 +43,28 @@ namespace agentxcpp
         public:
 
             /**
-             * \brief Destructor.
+             * \brief Virtual destructor.
              */
             virtual ~AbstractVariable()
             {
             }
 
             /**
+             * \internal
+             *
              * \brief Handle AgentX Get request.
              *
-             * This method is called when a get request is received for the 
-             * variable. It shall return the current value of the variable.
+             * This method is called by the MasterProxy object when the SNMP 
+             * request "Get" is received for the variable. It should update the 
+             * internal state.
              *
-             * \return The current value of the variable.
+             * \note Any exception thrown by this method results in sending a 
+             *       generic error to the master agent.
              *
              * \exception generic_error If obtaining the current value fails.
              *                          No other exception shall be thrown.
              */
-            virtual shared_ptr<AbstractValue> handle_get() = 0;
+            virtual void handle_get() = 0;
 
 
             /**
@@ -71,11 +78,14 @@ namespace agentxcpp
              *       agentXcpp implementation and is therefore not part of this 
              *       enumeration.
              *
+             * The numeric values are given in RFC 2741, 7.2.4.1. "Subagent 
+             * Processing of the agentx-TestSet-PDU".
+             *
              * \internal
              *
-             * The numeric values are given in RFC 2741, 7.2.4.1. "Subagent 
-             * Processing of the agentx-TestSet-PDU" and must be in sync with 
-             * the corresponding errors defined in ResponsePDU::error_t.
+             * \note These values must be in sync with the corresponding
+             *       errors defined in agentxcpp::ResponsePDU::error_t.
+             *
              */
             enum testset_result_t
             {
@@ -153,57 +163,107 @@ namespace agentxcpp
             };
 
             /**
+             * \internal
+             *
              * \brief Validate whether a Set operation would be successful.
              *
-             * This method is called when a TestSet request is received. It 
-             * shall check whether a Set operation is possible for the 
-             * variable. It shall acquire the resources needed to perform the 
-             * Set operation (but the Set shall not yet performed).
+             * This method is called when the SNMP request "TestSet" is
+             * received. It shall check whether a Set operation is possible for 
+             * the variable. It shall acquire the resources needed to perform 
+             * the Set operation (but the Set shall not yet be performed).
              *
              * \note This is the only method which receives the new value to be
              *       set. An implementation must save the new value for 
              *       subsequent operations (i.e.  handle_commitset()).
              *
              * \return The result of the validation.
+             *
+             * \exception The function shall not throw.
              */
-            virtual testset_result_t handle_testset(shared_ptr<AbstractValue>) = 0;
+            virtual testset_result_t handle_testset(QSharedPointer<AbstractVariable>) = 0;
 
             /**
+             * \internal
+             *
              * \brief Release resources after a Set operation.
              *
-             * This method is called when a CleanupSet request is received. It 
-             * shall release all resources previously allocated by 
-             * handle_testset() (if any). If no resources were allocated, this 
-             * method is not required to do anything.
+             * This method is called when the SNMP request "CleanupSet"
+             * is received. It shall release all resources previously allocated
+             * by handle_testset() (if any). If no resources were allocated,
+             * this method is not required to do anything.
+             *
+             * \exception The function shall not throw.
              */
             virtual void handle_cleanupset() = 0;
 
             /**
+             * \internal
+             *
              * \brief Actually perform the Set operation.
              *
-             * This method is called when a CommitSet request is received for 
-             * the variable. It shall perform the Set operation. It shall 
-             * report whether the operation succeeded.
+             * This method is called when the SNMP request "CommitSet"
+             * is received for the variable. It shall perform the Set 
+             * operation. It shall report whether the operation succeeded.
              *
              * \note The new value is given to handle_testset() prior to
              *       calling handle_commitset().
              *
              * \return True on success, false otherwise.
+             *
+             * \exception The function shall not throw.
              */
             virtual bool handle_commitset()= 0;
 
             /**
+             * \internal
+             *
              * \brief Undo a Set operation which was already performed.
              *
-             * This method is called when an UndoSet request is received. It 
-             * shall undo the operation performed by handle_commitset().
+             * This method is called when the SNMP request "UndoSet" is
+             * received. It shall undo the operation performed by 
+             * handle_commitset().
              *
              * \return True on success, false otherwise.
+             *
+             * \exception The function shall not throw.
              */
             virtual bool handle_undoset() = 0;
+
+            /**
+             * \internal
+             *
+             * \brief Serialize the variable.
+             *
+             * This function shall generate a serialized form of the internal 
+             * variable (i.e. the network representation of the variable).
+             *
+             * \return The serialized form of the variable.
+             *
+             * \exception The function shall not throw.
+             */
+            virtual binary serialize() const = 0;
+
+            /**
+             * \brief Convert an INDEX variable to an Oid part.
+             *
+             * If an SNMP variable is used as INDEX within a table,
+             * then its value is used as part of the Oid for that table
+             * entry. Therefore, such variables must be convertible to Oid's.  
+             * This method provides this conversion.
+             *
+             * Not all variable types are allowed to be used as INDEX and are
+             * therefore not convertible to Oid. For variables which are not
+             * convertible, this method shall return the null Oid.
+             *
+             * \return The Oid representing the variables value, or the null 
+             *         Oid if the variable don't support such conversion.
+             *
+             * \exception This method shall not throw.
+             */
+            virtual Oid toOid() const = 0;
     };
 }
 
 
 
-#endif /* _VARIABLE_H_ */
+#endif /* _ABSTRACTVARIABLE_H_ */

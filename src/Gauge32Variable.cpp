@@ -17,23 +17,23 @@
  * for more details.
  */
 
-#include "Gauge32Value.hpp"
+#include "Gauge32Variable.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
 
-binary Gauge32Value::serialize() const
+binary Gauge32Variable::serialize() const
 {
     binary serialized;
 
     // encode value (big endian)
-    write32(serialized, value);
+    write32(serialized, v);
 
     return serialized;
 }
 
 
-Gauge32Value::Gauge32Value(binary::const_iterator& pos,
+Gauge32Variable::Gauge32Variable(binary::const_iterator& pos,
 		 const binary::const_iterator& end,
 		 bool big_endian)
 {
@@ -44,5 +44,5 @@ Gauge32Value::Gauge32Value(binary::const_iterator& pos,
     }
     
     // Get value
-    value = read32(pos, big_endian);
+    v = read32(pos, big_endian);
 }

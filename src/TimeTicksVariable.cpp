@@ -17,36 +17,32 @@
  * for more details.
  */
 
-#include <boost/cstdint.hpp>
-
-#include "Counter64Value.hpp"
+#include "TimeTicksVariable.hpp"
 #include "util.hpp"
 
 using namespace agentxcpp;
-using boost::uint64_t;
 
-binary Counter64Value::serialize() const
+binary TimeTicksVariable::serialize() const
 {
     binary serialized;
 
     // encode value (big endian)
-    write64(serialized, value);
+    write32(serialized, v);
 
     return serialized;
 }
 
 
-Counter64Value::Counter64Value(binary::const_iterator& pos,
-		    const binary::const_iterator& end,
-		    bool big_endian)
+TimeTicksVariable::TimeTicksVariable(binary::const_iterator& pos,
+		     const binary::const_iterator& end,
+		     bool big_endian)
 {
-    // Are there at least 8 bytes in the buffer?
-    if(end - pos < 8)
+    // We need 4 bytes
+    if(end - pos < 4)
     {
 	throw(parse_error());
     }
 
-
     // Get value
-    value = read64(pos, big_endian);
+    v = read32(pos, big_endian);
 }

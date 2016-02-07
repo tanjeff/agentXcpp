@@ -35,25 +35,17 @@ whenever an official release is created:
 
 -# Update the ChangeLog. Check it in.
 -# Update the README. Check it in.
--# Create an annotated git tag for the release.<br/>
+-# Create an git tag for the release.<br/>
    Each release shall have a tag to uniqely identify it. <b>Do not push</b> the 
    tag yet.
--# Create the packages using the create-release.sh script.<br/>
-   The packages shall have the names agentXcpp-&lt;version&gt;.tar.gz and 
-   agentXcpp-&lt;version&gt;.zip respectively, where &lt;version&gt; is the 
-   tag name.  The contents shall be a single directory named 
-   agentXcpp-&lt;version&gt;.  This directory shall contain the source code.  
-   This is all ensured by the create_release.sh script.
+-# Create the packages using the create-release.py script.<br/>
 -# Test one of the packages:<br/>
    -# Unpack it.
    -# Build and install the contained software.<br/>
       There should be <b>no warnings</b> during build.
    -# Perform the howtos to ensure that they work.
-   -# This is the time to browse the documentation (API and internals) and
-      check whether it is in good shape. This step cannot be formalized, but 
-      eye-catching errors might be found by simply looking around a bit.
    -# If the test fails: no release possible; remove the tag, fix the problem
-   and re-start from step 1.
--# If the test succeeds, the packages and the tag can be published.
+      and re-start from step 1.
+-# If the test succeeds, the packages can be published and the tag can be pushed.
 
 */

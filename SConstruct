@@ -20,6 +20,7 @@
 import subprocess
 import sys
 import os
+import getversion
 
 
 #################################################
@@ -146,23 +147,8 @@ if with_libs != None:
 #################################################
 ## Obtain description of current version
 
-# Get current revision
-# We ask git for a description of the current revision and add it to the 
-# environment. If an error occurs (e.g. git is not installed ot we are outside 
-# of a git repo) no revision can be determined.
-#
-# Note: subprocess.check_output() would be more appropriate, but doesn't
-#       exist in Python 2.4 :-(
-try:
-    proc = subprocess.Popen(["git", "describe", "--always", "--dirty"],
-                            stdout=subprocess.PIPE)
-    (out,err) = proc.communicate()
-    if proc.returncode == 0:
-        # only if call succeeded:
-        env['revision'] = out.strip()
-except:
-    # git describe failed - probably git is not installed.
-    pass
+# Add current revision to the environment
+env['revision'] = getversion.getVersion()
 
 
 #################################################

@@ -101,7 +101,7 @@ To clean the project directory, type:
 <tt>scons -c</tt>
 
 This doesn't clean any files installed with <tt>scons install</tt>.
-  
+
 
 
 \section howitworks How Scons works in agentXcpp
@@ -134,8 +134,9 @@ provided:
 - <tt>--includedir=INCLUDEDIR</tt>
 - <tt>--docdir=DOCDIR</tt>
 
-Next, the git command <tt>describe</tt> is used to determine the revision from 
-which agentXcpp is built. The revision is added to the build environment.
+Next, <tt>getVersion()</tt> from the <tt>getversion.py</tt> script is invoked 
+to determine the revision from which agentXcpp is built.  The revision is added 
+to the build environment.
 
 Finally, the subsidiary SConscript's are invoked, exporting the environment.
 

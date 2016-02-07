@@ -1,0 +1,51 @@
+/*
+ * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ *
+ * This file is part of the agentXcpp library.
+ *
+ * AgentXcpp is free software: you can redistribute it and/or modify
+ * it under the terms of the AgentXcpp library license, version 1, which 
+ * consists of the GNU General Public License and some additional 
+ * permissions.
+ *
+ * AgentXcpp is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * See the AgentXcpp library license in the LICENSE file of this package 
+ * for more details.
+ */
+
+/*! 
+
+
+\page release_howto How to create an agentXcpp release
+
+AgentXcpp releases are provided as tarball as well as as zip file. Both 
+packages contain exactly the same data.
+
+Releases are published once and cannot be revoked thereafter. Therefore, the 
+process by which a release is created must ensure that the package maintains 
+high quality. Each release shall be reproducible and allocatable to a commit in 
+the source code repository. Further, an up-to-date ChangeLog shall be provided, 
+and the released packages shall follow consistent naming conventions.  To 
+comply with these requirements, the following procedure shall be applied 
+whenever an official release is created:
+
+-# Update the ChangeLog. Check it in.
+-# Update the README. Check it in.
+-# Create an git tag for the release.<br/>
+   Each release shall have a tag to uniqely identify it. <b>Do not push</b> the 
+   tag yet.
+-# Create the packages using the create-release.py script.<br/>
+-# Test one of the packages:<br/>
+   -# Unpack it.
+   -# Build and install the contained software.<br/>
+      There should be <b>no warnings</b> during build.
+   -# Perform the howtos to ensure that they work.
+   -# If the test fails: no release possible; remove the tag, fix the problem
+      and re-start from step 1.
+-# If the test succeeds, the packages can be published and the tag can be pushed.
+
+*/

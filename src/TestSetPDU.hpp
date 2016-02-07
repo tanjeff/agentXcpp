@@ -22,7 +22,7 @@
 #include <vector>
 
 #include "PDUwithContext.hpp"
-#include "varbind.hpp"
+#include "Varbind.hpp"
 
 using std::vector;
 
@@ -42,7 +42,7 @@ namespace agentxcpp
 	    // TODO: should be use std::list instead? After all, ist is called 
 	    // a VarBind _list_. This is also true for some other PDU's, grep 
 	    // for 'vector' in *PDU.hpp
-	    vector<varbind> vb;
+	    vector<Varbind> vb;
 
 	public:
 	    /**
@@ -86,7 +86,7 @@ namespace agentxcpp
 	     * \note There is no set_vb() function, because the VarBind
 	     *       list can be modified in place.
 	     */
-	    vector<varbind>& get_vb()
+	    vector<Varbind>& get_vb()
 	    {
 		return this->vb;
 	    }

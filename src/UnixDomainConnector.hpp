@@ -21,7 +21,7 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <QSharedPointer>
 
 #include <QObject>
 #include <QLocalSocket>
@@ -167,7 +167,7 @@ namespace agentxcpp
              *
              * This member is protected by m_response_mutex.
              */
-	    std::map< uint32_t, boost::shared_ptr<ResponsePDU> > m_responses;
+	    std::map< quint32, QSharedPointer<ResponsePDU> > m_responses;
 
             /**
              * \brief Used to protect m_responses and for m_response_arrived.
@@ -213,7 +213,7 @@ namespace agentxcpp
              *
              * \note Don't invoke this slot from outside the object!
              */
-            void do_send(boost::shared_ptr<PDU> pdu);
+            void do_send(QSharedPointer<PDU> pdu);
 
             /**
              * \brief Connect to the remote entity.
@@ -264,7 +264,7 @@ namespace agentxcpp
              * This signal is emitted once for every arrived PDU, except for 
              * %ResponsePDU's.
 	     */
-	    void pduArrived(shared_ptr<PDU>);
+	    void pduArrived(QSharedPointer<PDU>);
 
         public:
             /**
@@ -339,7 +339,7 @@ namespace agentxcpp
              *
              * \note Don't invoke do_send() yourself.
              */
-	    void send(boost::shared_ptr<PDU> pdu);
+	    void send(QSharedPointer<PDU> pdu);
 
             /**
              * \brief Send a PDU and wait for the response.
@@ -351,7 +351,7 @@ namespace agentxcpp
              *
              * \todo Add timeout. Currently, the method does not time out.
              */
-	    boost::shared_ptr<ResponsePDU> request(boost::shared_ptr<PDU> pdu);
+	    QSharedPointer<ResponsePDU> request(QSharedPointer<PDU> pdu);
 
     };
 

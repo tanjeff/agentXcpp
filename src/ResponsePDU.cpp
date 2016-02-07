@@ -22,7 +22,7 @@ ResponsePDU::ResponsePDU(binary::const_iterator& pos,
 {
     // header is parsed by base class constructor
 
-    uint16_t err;
+    quint16 err;
 
     // read simple fields
     this->sysUpTime = read32(pos, big_endian);
@@ -32,7 +32,7 @@ ResponsePDU::ResponsePDU(binary::const_iterator& pos,
     // read varbindlist if present
     while(pos != end)
     {
-	varbindlist.push_back(varbind(pos, end, big_endian));
+	varbindlist.push_back(Varbind(pos, end, big_endian));
     }
     
     /* We accept only allowed values: */
@@ -92,7 +92,7 @@ binary ResponsePDU::serialize() const
     write16(serialized, this->index);
 
     // Encode VarBindList
-    vector<varbind>::const_iterator i;
+    vector<Varbind>::const_iterator i;
     for(i = this->varbindlist.begin(); i != this->varbindlist.end(); i++)
     {
 	serialized += i->serialize();

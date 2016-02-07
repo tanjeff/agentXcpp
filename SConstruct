@@ -20,6 +20,7 @@
 import subprocess
 import sys
 import os
+import getversion
 
 
 #################################################
@@ -146,23 +147,8 @@ if with_libs != None:
 #################################################
 ## Obtain description of current version
 
-# Get current revision
-# We ask git for a description of the current revision and add it to the 
-# environment. If an error occurs (e.g. git is not installed ot we are outside 
-# of a git repo) no revision can be determined.
-#
-# Note: subprocess.check_output() would be more appropriate, but doesn't
-#       exist in Python 2.4 :-(
-try:
-    proc = subprocess.Popen(["git", "describe", "--always", "--dirty"],
-                            stdout=subprocess.PIPE)
-    (out,err) = proc.communicate()
-    if proc.returncode == 0:
-        # only if call succeeded:
-        env['revision'] = out.strip()
-except:
-    # git describe failed - probably git is not installed.
-    pass
+# Add current revision to the environment
+env['revision'] = getversion.getVersion()
 
 
 #################################################
@@ -175,29 +161,6 @@ if env['CXX'] == None:
     print """
 Scons didn't find a usable C++ compiler.
 Note: For Linux, install a package named 'build-essential' or 'g++'."""
-    Exit(1)
-
-# Check for boost::bind (header-only lib)
-if not conf.CheckHeader('boost/bind.hpp', '<>', 'C++'):
-    print """
-The boost::bind library is required to build agentXcpp.
-Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
-    Exit(1)
-
-# Check for boost::smart_ptr (header-only lib)
-if not conf.CheckHeader('boost/shared_ptr.hpp', '<>', 'C++'):
-    print """
-The boost::smart_ptr library is required to build agentXcpp.
-Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
-    Exit(1)
-
-# Check for boost::test
-if not conf.CheckLibWithHeader('boost_unit_test_framework', 
-    'boost/test/unit_test.hpp', 'C++', autoadd=0):
-    print """
-The boost::test library is required to build agentXcpp.
-Note: For Linux, install packages named 'libboost-dev' and 'libboost-test-dev'
-      or a package named 'boost'."""
     Exit(1)
 
 # Check for doxygen executable
@@ -224,6 +187,5 @@ env = conf.Finish()
 
 # (export env to them):
 env.SConscript(['src/SConscript',
-		'doc/SConscript',
-	        'unit_tests/SConscript'], 'env')
+		'doc/SConscript'], 'env')
 

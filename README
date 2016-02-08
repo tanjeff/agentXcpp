@@ -114,6 +114,9 @@ doc/
 src/
 	This directory contains the source code of the library.
 
+artwork/
+        Here is the agentXcpp logo, and possibly other artwork.
+
 
 
 Prerequisites

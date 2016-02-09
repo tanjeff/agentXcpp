@@ -60,6 +60,7 @@ env.Tool('qt4')
 env.EnableQt4Modules(['QtCore',
                       'QtNetwork'])
 
+env.Tool('doxygen')
 
 
 

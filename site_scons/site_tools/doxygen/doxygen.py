@@ -337,7 +337,7 @@ def generate(env):
 
     import SCons.Builder
     doxyfile_builder = SCons.Builder.Builder(
-        action="cd ${SOURCE.dir}  &&  ${DOXYGEN} ${SOURCE.file}",
+        action="cd ${SOURCE.dir}  && (cat ${SOURCE.file} ; echo \"PROJECT_NUMBER=${DOXYPROJECTNUMBER}\" ) | ${DOXYGEN} -",
         emitter=DoxyEmitter,
         target_factory=env.fs.Entry,
         single_source=True,

@@ -23,7 +23,8 @@ Import('env')
 #################################################
 ## API documentation
 
-api = env.Doxygen('api.doxyfile')
+api = env.Doxygen('api.doxyfile',
+                  DOXYPROJECTNUMBER="Version: " + env['revision'])
 env.Clean(api, "api")
 
 api_install = env.Install(env['docdir'], "api")
@@ -33,7 +34,8 @@ env.Clean(api_install, env['docdir'])
 #################################################
 ## Internals documentation (without installation target):
 
-internals = env.Doxygen('internals.doxyfile')
+internals = env.Doxygen('internals.doxyfile',
+                        DOXYPROJECTNUMBER="Version: " + env['revision'])
 env.Clean(internals, "internals")
 
 

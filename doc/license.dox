@@ -65,28 +65,20 @@ harder.
 Therefore, the agentXcpp library is licensed under the GPL, with a linking 
 exception, to ensure ease of use even in non-free software. Note that the 
 library may be \em used without any further restrictions, but changing it and
-copying its code is still covered by the GPL.
-
-Finally, a word on non-copyleft licenses (e.g. the well-known BSD-licenses).  
-The author could have chosen one of them. This would have made agentXcpp a free 
-software, but these licenses do not ensure that the software remains free.  For 
-the author, it was not an option that users (especially companies) could 
-benefit from their improvements to free software while not giving them back to 
-the community. The agentXcpp library may still be modified, even by companies, 
-and it is explicitly allowed to distribute the modified version, e.g. to 
-customers, as long this is done under the terms of the GPL.
-
-
+copying its code is still covered by the GPL. In particular, the agentXcpp 
+source code must be made available whenever an agentXcpp-based program is 
+distributed.
 
 
 \section license_agentxcppLicense The agentXcpp License
 
 The agentXcpp library is licenced under the GPL plus a linking exception.  
-However, parts of the SCons project are disctributed together with agentXcpp, 
-and are licensed differently. The applicable license is stated within each 
-file distrubuted.
+However, the files located in the <tt>site_scons</tt> subdirectory belong to 
+the SCons project and are licensed differently. The applicable license is 
+stated within each of these files.
 
-Here is the license of the AgentXcpp project (\e not of the SCons code):
+Here is the license of the AgentXcpp project (\e excluding the files in 
+<tt>site_scons</tt>):
 
 \verbinclude LICENSE
 

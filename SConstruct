@@ -60,6 +60,7 @@ env.Tool('qt4')
 env.EnableQt4Modules(['QtCore',
                       'QtNetwork'])
 
+env.Tool('doxygen')
 
 
 
@@ -111,19 +112,22 @@ env['includedir'] = GetOption('includedir')
 if env['includedir'][0] != '/' and env['includedir'][0] != '#':
     env['includedir'] = GetLaunchDir() + "/" + env['includedir']
 
-# --with_libs magic
-AddOption('--with_libs', nargs=1, action='store', dest='with_libs', 
+# --with-packages magic
+# Note: the commandline parameter is --with-packages (with a dash), but the
+#       local variable is  with_packages (with underscore) due to python naming
+#       requirements.
+AddOption('--with-packages', nargs=1, action='store', dest='with-packages', 
 	type='string',
 	  help='Colon-separated list of directories. For each ' +
           'directory $DIR the $DIR/include is added to the ' +
           'compilers header search path and $DIR/lib is added ' +
           'to the library search path.',
 	  default=None)
-with_libs = GetOption('with_libs')
-if with_libs != None:
-    # only if --with-libs was provided:
-    with_libs = with_libs.split(':')
-    for dir in with_libs:
+with_packages = GetOption('with-packages')
+if with_packages != None:
+    # only if --with-packages was provided:
+    with_packages = with_packages.split(':')
+    for dir in with_packages:
         # For each DIR:
         # - Make relative path absolute
         # - Fail if DIR/include or DIR/lib is not a directory
@@ -152,34 +156,35 @@ env['revision'] = getversion.getVersion()
 
 
 #################################################
-## Check dependencies
+## Check dependencies (except when the user wants help)
 
-conf = Configure(env, custom_tests={'CheckExe' : CheckExe})
+if not GetOption('help'):
+    conf = Configure(env, custom_tests={'CheckExe' : CheckExe})
 
-# Check for C++ compiler
-if env['CXX'] == None:
-    print """
-Scons didn't find a usable C++ compiler.
-Note: For Linux, install a package named 'build-essential' or 'g++'."""
-    Exit(1)
+    # Check for C++ compiler
+    if env['CXX'] == None:
+        print """
+    Scons didn't find a usable C++ compiler.
+    Note: For Linux, install a package named 'build-essential' or 'g++'."""
+        Exit(1)
 
-# Check for doxygen executable
-# Note: we call 'doxygen --version' so no input file is required
-if not conf.CheckExe(['doxygen', '--version']):
-    print """
-The doxygen program is required to build agentXcpp's documentation.
-Note: For Linux, install a package named 'doxygen'."""
-    Exit(1)
+    # Check for doxygen executable
+    # Note: we call 'doxygen --version' so no input file is required
+    if not conf.CheckExe(['doxygen', '--version']):
+        print """
+    The doxygen program is required to build agentXcpp's documentation.
+    Note: For Linux, install a package named 'doxygen'."""
+        Exit(1)
 
-# Check for dot executable
-# Note: we call 'dot -V' so no input file is required
-if not conf.CheckExe(['dot', '-V']):
-    print """
-The dot program is required to build agentXcpp's documentation.
-Note: For Linux, install a package named 'graphviz'."""
-    Exit(1)
+    # Check for dot executable
+    # Note: we call 'dot -V' so no input file is required
+    if not conf.CheckExe(['dot', '-V']):
+        print """
+    The dot program is required to build agentXcpp's documentation.
+    Note: For Linux, install a package named 'graphviz'."""
+        Exit(1)
 
-env = conf.Finish()
+    env = conf.Finish()
 
 
 #################################################

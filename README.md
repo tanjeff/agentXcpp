@@ -1,11 +1,5 @@
 ![agentXcpp Logo](artwork/github_logo.png)
 
-About this README
-=================
-
-This README gives a short overview of the agentXcpp project and describes how 
-to build its documentation from source. It also introduces this repository's 
-directory structure.
 
 About agentXcpp
 ===============
@@ -24,12 +18,15 @@ You may visit the project's website: [agentxcpp.org](http://agentxcpp.org)
 Status of the project
 ---------------------
 
-All basic functions are implemented.
+All basic functions are implemented. 
 
-This version supports SNMP GET and SET requests as well as notifications.
-Tables are also supported. Contexts (used by SNMPv3) are not yet supported. 
+Somewhat advanced features, e.g. GetBulk requests, contexts (used by SNMPv3) 
+and agent capabilities, are not implemented. Also, TCP is not supported for 
+agentX connections (only unix domain sockets are), so the library will not work 
+on windows. Further, index allocating (needed to combine variables from 
+multiple subagents into a single table) is not available. Currently, the 
+library is also missing logging capabilities.
 
-Read the ChangeLog file to learn more.
 
 License
 -------
@@ -51,7 +48,7 @@ GNU General Public License for more details.
 See the AgentXcpp library license in the LICENSE file of this package 
 for more details.
 
-**IMPORTANT:** The software contained in the `site\_scons` directory is 
+**IMPORTANT:** The software contained in the `site_scons` directory is 
 distributed under its own license. See the files there for details.
 
 
@@ -59,8 +56,10 @@ The Documentation
 =================
 
 
-There are two types of documentation: The "API documentation" and the 
-"internals documentation".
+There are two types of documentation: The
+"[API documentation](http://tanjeff.github.io/agentXcpp/docs/0.3/api/html/index.html)"
+and the 
+"[internals documentation](http://tanjeff.github.io/agentXcpp/docs/0.3/internals/html/index.html)".
 
 The API documentation describes the AgentXcpp API and is intended for the user 
 of the library. It contains not only the complete API reference, but also a 
@@ -71,11 +70,7 @@ descriptions of the used concepts, how the build system is configured and how
 releases should be created. Of course, it contains also the reference of the 
 whole code.
 
-The documentation is [published on the AgentXcpp 
-Homepage](http://agentxcpp.org), but it can also be build from source, which is 
-described in the following.
-
-
+This section describes how to build the documentation from the source.
 
 
 Building the Documentation

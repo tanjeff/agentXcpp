@@ -1,0 +1,4 @@
+<map id="agentxcpp::DisplayStringVariable" name="agentxcpp::DisplayStringVariable">
+<area shape="rect" id="node2" href="$classagentxcpp_1_1_octet_string_variable.html" title="Represents an OctetSting as described in RFC 2741. " alt="" coords="5,80,208,107"/>
+<area shape="rect" id="node3" href="$classagentxcpp_1_1_abstract_variable.html" title="Base class for SNMP variables. " alt="" coords="13,5,200,32"/>
+</map>

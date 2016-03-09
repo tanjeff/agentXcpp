@@ -1,0 +1,35 @@
+var annotated =
+[
+    [ "agentxcpp", null, [
+      [ "AbstractVariable", "classagentxcpp_1_1_abstract_variable.html", "classagentxcpp_1_1_abstract_variable" ],
+      [ "binary", "classagentxcpp_1_1binary.html", null ],
+      [ "Counter32Variable", "classagentxcpp_1_1_counter32_variable.html", "classagentxcpp_1_1_counter32_variable" ],
+      [ "Counter64Variable", "classagentxcpp_1_1_counter64_variable.html", "classagentxcpp_1_1_counter64_variable" ],
+      [ "disconnected", "classagentxcpp_1_1disconnected.html", null ],
+      [ "DisplayStringVariable", "classagentxcpp_1_1_display_string_variable.html", "classagentxcpp_1_1_display_string_variable" ],
+      [ "duplicate_registration", "classagentxcpp_1_1duplicate__registration.html", null ],
+      [ "Gauge32Variable", "classagentxcpp_1_1_gauge32_variable.html", "classagentxcpp_1_1_gauge32_variable" ],
+      [ "generic_error", "classagentxcpp_1_1generic__error.html", null ],
+      [ "IntegerVariable", "classagentxcpp_1_1_integer_variable.html", "classagentxcpp_1_1_integer_variable" ],
+      [ "internal_error", "classagentxcpp_1_1internal__error.html", null ],
+      [ "inval_param", "classagentxcpp_1_1inval__param.html", null ],
+      [ "IpAddressVariable", "classagentxcpp_1_1_ip_address_variable.html", "classagentxcpp_1_1_ip_address_variable" ],
+      [ "master_is_unable", "classagentxcpp_1_1master__is__unable.html", null ],
+      [ "master_is_unwilling", "classagentxcpp_1_1master__is__unwilling.html", null ],
+      [ "MasterProxy", "classagentxcpp_1_1_master_proxy.html", "classagentxcpp_1_1_master_proxy" ],
+      [ "network_error", "classagentxcpp_1_1network__error.html", null ],
+      [ "OctetStringVariable", "classagentxcpp_1_1_octet_string_variable.html", "classagentxcpp_1_1_octet_string_variable" ],
+      [ "Oid", "classagentxcpp_1_1_oid.html", "classagentxcpp_1_1_oid" ],
+      [ "OidVariable", "classagentxcpp_1_1_oid_variable.html", "classagentxcpp_1_1_oid_variable" ],
+      [ "OpaqueVariable", "classagentxcpp_1_1_opaque_variable.html", "classagentxcpp_1_1_opaque_variable" ],
+      [ "parse_error", "classagentxcpp_1_1parse__error.html", null ],
+      [ "Table", "classagentxcpp_1_1_table.html", "classagentxcpp_1_1_table" ],
+      [ "TableEntry", "classagentxcpp_1_1_table_entry.html", "classagentxcpp_1_1_table_entry" ],
+      [ "timeout_error", "classagentxcpp_1_1timeout__error.html", null ],
+      [ "TimeTicksVariable", "classagentxcpp_1_1_time_ticks_variable.html", "classagentxcpp_1_1_time_ticks_variable" ],
+      [ "UnixDomainConnector", "classagentxcpp_1_1_unix_domain_connector.html", "classagentxcpp_1_1_unix_domain_connector" ],
+      [ "unknown_registration", "classagentxcpp_1_1unknown__registration.html", null ],
+      [ "unsupported_context", "classagentxcpp_1_1unsupported__context.html", null ],
+      [ "version_error", "classagentxcpp_1_1version__error.html", null ]
+    ] ]
+];

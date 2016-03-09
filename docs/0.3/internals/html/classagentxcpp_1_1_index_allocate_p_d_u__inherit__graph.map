@@ -1,0 +1,4 @@
+<map id="agentxcpp::IndexAllocatePDU" name="agentxcpp::IndexAllocatePDU">
+<area shape="rect" id="node2" href="$classagentxcpp_1_1_p_d_uwith_context.html" title="{agentxcpp::PDUwithContext\n|&#45; context\l|+ has_context()\l+ get_context()\l+ set_context()\l+ remove_context()\l# PDUwithContext()\l# add_header()\l# PDUwithContext()\l}" alt="" coords="10,453,199,619"/>
+<area shape="rect" id="node3" href="$classagentxcpp_1_1_p_d_u.html" title="The base class of all PDU&#39;s. " alt="" coords="28,5,181,405"/>
+</map>

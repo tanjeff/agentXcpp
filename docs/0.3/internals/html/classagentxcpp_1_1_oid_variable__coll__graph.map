@@ -1,0 +1,4 @@
+<map id="agentxcpp::OidVariable" name="agentxcpp::OidVariable">
+<area shape="rect" id="node2" href="$classagentxcpp_1_1_abstract_variable.html" title="Base class for SNMP variables. " alt="" coords="5,191,192,371"/>
+<area shape="rect" id="node3" href="$classagentxcpp_1_1_oid.html" title="Represents an SNMP object identifier (OID). " alt="" coords="217,132,375,429"/>
+</map>

@@ -1,5 +1,5 @@
 #
-# Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+# Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
 #
 # This file is part of the agentXcpp library.
 #
@@ -22,8 +22,8 @@ Import('env')
 
 # If we are using g++: enable warnings (there is no portable way to enable 
 # warnings, so we enable them only for g++. For development it's enough.)
-if(env["CXX"] == "g++"):
-    env.Append(CPPFLAGS = ['-Wall'])
+if(env["CXX"].endswith("g++")):
+    env.Append(CPPFLAGS = ['-Wall', '-Werror'])
 
 # Build the library:
 agentxcpp = env.SharedLibrary('agentxcpp', Glob('*.cpp'))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -22,14 +22,13 @@
 #include <vector>
 #include <utility>
 
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "PDUwithContext.hpp"
-#include "OidValue.hpp"
+#include "Oid.hpp"
 
 using std::vector;
 using std::pair;
-using boost::uint16_t;
 
 namespace agentxcpp
 {
@@ -45,22 +44,22 @@ namespace agentxcpp
 	     * \brief The SearchRange list
 	     *
 	     * A GetBulk %PDU can have multiple SearchRanges. A SearchRange 
-	     * consists of two OidValue's. We store them in a pair<>, and store the 
+	     * consists of two Oid's. We store them in a pair<>, and store the
 	     * pais<>'s in a vector< pair<> >.
 	     */
-	    vector< pair<OidValue,OidValue> > sr;
+	    vector< pair<Oid,Oid> > sr;
 
 	    /**
 	     * \brief The number of variables in the SearchRangeList that are
 	     *        not repeaters.
 	     */
-	    uint16_t non_repeaters;
+	    quint16 non_repeaters;
 
 	    /**
 	     * \brief The maximum number of repetitions requested for repeating
 	     *        variables.
 	     */
-	    uint16_t max_repititions;
+	    quint16 max_repititions;
 
 	public:
 	    /**
@@ -108,7 +107,7 @@ namespace agentxcpp
 	     * \note There is no set_sr() function, because the SearchRange
 	     *       list can be modified in place.
 	     */
-	    vector< pair<OidValue,OidValue> >& get_sr()
+	    vector< pair<Oid,Oid> >& get_sr()
 	    {
 		return this->sr;
 	    }
@@ -116,7 +115,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Get non_repeaters field
 	     */
-	    uint16_t get_non_repeaters()
+	    quint16 get_non_repeaters()
 	    {
 		return non_repeaters;
 	    }
@@ -124,7 +123,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Set non_repeaters field
 	     */
-	    void set_non_repeaters(uint16_t value)
+	    void set_non_repeaters(quint16 value)
 	    {
 		non_repeaters = value;
 	    }
@@ -132,7 +131,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Get max_repititions field
 	     */
-	    uint16_t get_max_repititions()
+	    quint16 get_max_repititions()
 	    {
 		return max_repititions;
 	    }
@@ -140,7 +139,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Set max_repititions field
 	     */
-	    void set_max_repititions(uint16_t value)
+	    void set_max_repititions(quint16 value)
 	    {
 		max_repititions = value;
 	    }

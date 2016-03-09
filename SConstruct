@@ -1,5 +1,5 @@
 #
-# Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+# Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
 #
 # This file is part of the agentXcpp library.
 #
@@ -20,6 +20,7 @@
 import subprocess
 import sys
 import os
+import getversion
 
 
 #################################################
@@ -59,6 +60,7 @@ env.Tool('qt4')
 env.EnableQt4Modules(['QtCore',
                       'QtNetwork'])
 
+env.Tool('doxygen')
 
 
 
@@ -110,19 +112,22 @@ env['includedir'] = GetOption('includedir')
 if env['includedir'][0] != '/' and env['includedir'][0] != '#':
     env['includedir'] = GetLaunchDir() + "/" + env['includedir']
 
-# --with_libs magic
-AddOption('--with_libs', nargs=1, action='store', dest='with_libs', 
+# --with-packages magic
+# Note: the commandline parameter is --with-packages (with a dash), but the
+#       local variable is  with_packages (with underscore) due to python naming
+#       requirements.
+AddOption('--with-packages', nargs=1, action='store', dest='with-packages', 
 	type='string',
 	  help='Colon-separated list of directories. For each ' +
           'directory $DIR the $DIR/include is added to the ' +
           'compilers header search path and $DIR/lib is added ' +
           'to the library search path.',
 	  default=None)
-with_libs = GetOption('with_libs')
-if with_libs != None:
-    # only if --with-libs was provided:
-    with_libs = with_libs.split(':')
-    for dir in with_libs:
+with_packages = GetOption('with-packages')
+if with_packages != None:
+    # only if --with-packages was provided:
+    with_packages = with_packages.split(':')
+    for dir in with_packages:
         # For each DIR:
         # - Make relative path absolute
         # - Fail if DIR/include or DIR/lib is not a directory
@@ -146,77 +151,40 @@ if with_libs != None:
 #################################################
 ## Obtain description of current version
 
-# Get current revision
-# We ask git for a description of the current revision and add it to the 
-# environment. If an error occurs (e.g. git is not installed ot we are outside 
-# of a git repo) no revision can be determined.
-#
-# Note: subprocess.check_output() would be more appropriate, but doesn't
-#       exist in Python 2.4 :-(
-try:
-    proc = subprocess.Popen(["git", "describe", "--always", "--dirty"],
-                            stdout=subprocess.PIPE)
-    (out,err) = proc.communicate()
-    if proc.returncode == 0:
-        # only if call succeeded:
-        env['revision'] = out.strip()
-except:
-    # git describe failed - probably git is not installed.
-    pass
+# Add current revision to the environment
+env['revision'] = getversion.getVersion()
 
 
 #################################################
-## Check dependencies
+## Check dependencies (except when the user wants help)
 
-conf = Configure(env, custom_tests={'CheckExe' : CheckExe})
+if not GetOption('help'):
+    conf = Configure(env, custom_tests={'CheckExe' : CheckExe})
 
-# Check for C++ compiler
-if env['CXX'] == None:
-    print """
-Scons didn't find a usable C++ compiler.
-Note: For Linux, install a package named 'build-essential' or 'g++'."""
-    Exit(1)
+    # Check for C++ compiler
+    if env['CXX'] == None:
+        print """
+    Scons didn't find a usable C++ compiler.
+    Note: For Linux, install a package named 'build-essential' or 'g++'."""
+        Exit(1)
 
-# Check for boost::bind (header-only lib)
-if not conf.CheckHeader('boost/bind.hpp', '<>', 'C++'):
-    print """
-The boost::bind library is required to build agentXcpp.
-Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
-    Exit(1)
+    # Check for doxygen executable
+    # Note: we call 'doxygen --version' so no input file is required
+    if not conf.CheckExe(['doxygen', '--version']):
+        print """
+    The doxygen program is required to build agentXcpp's documentation.
+    Note: For Linux, install a package named 'doxygen'."""
+        Exit(1)
 
-# Check for boost::smart_ptr (header-only lib)
-if not conf.CheckHeader('boost/shared_ptr.hpp', '<>', 'C++'):
-    print """
-The boost::smart_ptr library is required to build agentXcpp.
-Note: For Linux, install a package named 'libboost-dev' or 'boost'."""
-    Exit(1)
+    # Check for dot executable
+    # Note: we call 'dot -V' so no input file is required
+    if not conf.CheckExe(['dot', '-V']):
+        print """
+    The dot program is required to build agentXcpp's documentation.
+    Note: For Linux, install a package named 'graphviz'."""
+        Exit(1)
 
-# Check for boost::test
-if not conf.CheckLibWithHeader('boost_unit_test_framework', 
-    'boost/test/unit_test.hpp', 'C++', autoadd=0):
-    print """
-The boost::test library is required to build agentXcpp.
-Note: For Linux, install packages named 'libboost-dev' and 'libboost-test-dev'
-      or a package named 'boost'."""
-    Exit(1)
-
-# Check for doxygen executable
-# Note: we call 'doxygen --version' so no input file is required
-if not conf.CheckExe(['doxygen', '--version']):
-    print """
-The doxygen program is required to build agentXcpp's documentation.
-Note: For Linux, install a package named 'doxygen'."""
-    Exit(1)
-
-# Check for dot executable
-# Note: we call 'dot -V' so no input file is required
-if not conf.CheckExe(['dot', '-V']):
-    print """
-The dot program is required to build agentXcpp's documentation.
-Note: For Linux, install a package named 'graphviz'."""
-    Exit(1)
-
-env = conf.Finish()
+    env = conf.Finish()
 
 
 #################################################
@@ -224,6 +192,5 @@ env = conf.Finish()
 
 # (export env to them):
 env.SConscript(['src/SConscript',
-		'doc/SConscript',
-	        'unit_tests/SConscript'], 'env')
+		'doc/SConscript'], 'env')
 

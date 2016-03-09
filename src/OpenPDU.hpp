@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -20,8 +20,8 @@
 #define _OPENPDU_H_
 
 #include "PDU.hpp"
-#include "OidValue.hpp"
-#include "OctetStringValue.hpp"
+#include "Oid.hpp"
+#include "OctetStringVariable.hpp"
 
 namespace agentxcpp
 {
@@ -33,9 +33,9 @@ namespace agentxcpp
     class OpenPDU : public PDU
     {
 	private:
-	    uint8_t timeout;
-	    OidValue id;
-	    OctetStringValue descr;
+	    quint8 timeout;
+	    Oid id;
+	    OctetStringVariable descr;
 
 	public:
 	    /**
@@ -76,7 +76,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Get timeout
 	     */
-	    uint8_t get_timeout()
+	    quint8 get_timeout()
 	    {
 		return this->timeout;
 	    }
@@ -93,7 +93,7 @@ namespace agentxcpp
 	     *		      regions.  The default value of 0 indicates that 
 	     *		      there is no session-wide default value.
 	     */
-	    void set_timeout(uint8_t timeout)
+	    void set_timeout(quint8 timeout)
 	    {
 		this->timeout = timeout;
 	    }
@@ -101,7 +101,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Get ID
 	     */
-	    OidValue get_id()
+	    Oid get_id()
 	    {
 		return this->id;
 	    }
@@ -109,7 +109,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Set ID
 	     */
-	    void set_id(OidValue id)
+	    void set_id(Oid id)
 	    {
 		this->id = id;
 	    }
@@ -117,7 +117,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Get descr
 	     */
-	    OctetStringValue get_descr()
+	    OctetStringVariable get_descr()
 	    {
 		return this->descr;
 	    }
@@ -125,7 +125,7 @@ namespace agentxcpp
 	    /**
 	     * \brief Set descr
 	     */
-	    void set_descr(OctetStringValue descr)
+	    void set_descr(OctetStringVariable descr)
 	    {
 		this->descr = descr;
 	    }

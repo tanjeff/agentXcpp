@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -16,13 +16,9 @@
  * See the AgentXcpp library license in the LICENSE file of this package
  * for more details.
  */
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <QDateTime>
 
 #include "helpers.hpp"
-
-using boost::date_time::microsec_clock;
-using boost::posix_time::ptime;
-using boost::posix_time::time_duration;
 
 using namespace agentxcpp;
 
@@ -37,48 +33,47 @@ namespace agentxcpp
      * and holds the time at which this happened. Afterwards,
      * the uptime of the process can be calculated.
      */
-    static ptime process_start_time(microsec_clock<ptime>::universal_time());
+    static QDateTime process_start_time(QDateTime::currentDateTime());
 }
 
-    TimeTicksValue agentxcpp::processUpTime()
+    TimeTicksVariable agentxcpp::processUpTime()
     {
         // Calculate uptime
-        time_duration uptime = microsec_clock<ptime>::universal_time()
-                               - process_start_time;
+        qint64 uptime = process_start_time.msecsTo(QDateTime::currentDateTime());
 
         // Convert uptime to hundreths of seconds
-        TimeTicksValue sysuptime( uptime.total_milliseconds()/10 );
+        TimeTicksVariable sysuptime( uptime/10 );
 
         // Return result
         return sysuptime;
     }
 
-    OidValue agentxcpp::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
-                                boost::optional<uint32_t> specific_trap)
+    Oid agentxcpp::generate_v1_snmpTrapOID(generic_trap_t generic_trap,
+                                                quint32 specific_trap)
     {
         // We need the OID of the SNMPv1 traps. These are defined here.
         //
         // First we define a "helper" OID:
-        static const OidValue snmpTraps_oid(snmpMIBObjects_oid, "5");
+        static const Oid snmpTraps_oid(snmpMIBObjects_oid, "5");
         //
         // Some traps according to RFC 1907:
-        static const OidValue snmpTraps_coldStart_oid(snmpTraps_oid, "1");
-        static const OidValue snmpTraps_warmStart_oid(snmpTraps_oid, "2");
-        static const OidValue snmpTraps_authenticationFailure_oid(snmpTraps_oid, "5");
+        static const Oid snmpTraps_coldStart_oid(snmpTraps_oid, "1");
+        static const Oid snmpTraps_warmStart_oid(snmpTraps_oid, "2");
+        static const Oid snmpTraps_authenticationFailure_oid(snmpTraps_oid, "5");
         //
         // Some traps according to RFC 1573:
-        static const OidValue snmpTraps_linkDown_oid(snmpTraps_oid, "3");
-        static const OidValue snmpTraps_linkUp_oid(snmpTraps_oid, "4");
+        static const Oid snmpTraps_linkDown_oid(snmpTraps_oid, "3");
+        static const Oid snmpTraps_linkUp_oid(snmpTraps_oid, "4");
 
         // Finally, egpNeighborLoss. According to RC 1907 it is defined in RFC
         // 1213, however, the latter doesn't define it. On the other hand,
         // RFC 2089 defines egpNeighborLoss as 1.3.6.1.6.3.1.1.5.6, which is
         // snmpTraps.6 and corresponds to the comment in RFC 1907, so we use this
         // one:
-        static const OidValue snmpTraps_egpNeighborLoss_oid(snmpTraps_oid, "6");
+        static const Oid snmpTraps_egpNeighborLoss_oid(snmpTraps_oid, "6");
 
         // calculate the value of snmpTrapOID.0 according to RFC 1908:
-        OidValue value;
+        Oid value;
 
         switch(generic_trap)
         {
@@ -101,13 +96,9 @@ namespace agentxcpp
                 value = snmpTraps_egpNeighborLoss_oid;
                 break;
             case enterpriseSpecific:
-                if(!specific_trap)
-                {
-                    throw(inval_param());
-                }
                 value = enterprises_oid;
                 value.push_back(0);
-                value.push_back(*specific_trap);
+                value.push_back(specific_trap);
                 break;
             default:
                 // invalid generic_trap value!

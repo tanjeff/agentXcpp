@@ -1,3 +1,12 @@
+= Version 0.3 =
+
+  - Added support for SNMP tables (this significantly changed the API).
+  - Removed boost dependencies.
+  - Improved the build system.
+  - Added a logo, update doxygen documentation design.
+  - Added a release process (consisting of a script and according
+    documentation).
+
 = Version 0.2 =
 
   - Implemented GetNext handling.

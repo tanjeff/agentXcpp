@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -22,7 +22,7 @@
 #include <vector>
 
 #include "PDUwithContext.hpp"
-#include "varbind.hpp"
+#include "Varbind.hpp"
 
 using std::vector;
 
@@ -40,7 +40,7 @@ namespace agentxcpp
 	     * \brief The VarBindList containing the index names and values
 	     *        requested for allocation.
 	     */
-	    vector<varbind> vb;
+	    vector<Varbind> vb;
 	
 	public:
 	    /**
@@ -85,7 +85,7 @@ namespace agentxcpp
 	     * \note There is no set_vb() function, because the VarBind
 	     *       list can be modified in place.
 	     */
-	    vector<varbind>& get_vb()
+	    vector<Varbind>& get_vb()
 	    {
 		return this->vb;
 	    }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -18,6 +18,7 @@
  */
 
 #include "RemoveAgentCapsPDU.hpp"
+#include "OidVariable.hpp"
 
 
 using namespace agentxcpp;
@@ -28,7 +29,7 @@ RemoveAgentCapsPDU::RemoveAgentCapsPDU(binary::const_iterator& pos,
     : PDUwithContext(pos, end, big_endian)
 {
     // parse ID
-    id = OidValue(pos, end, big_endian);
+    id = OidVariable(pos, end, big_endian).value();
 }
 	    
 
@@ -39,7 +40,7 @@ binary RemoveAgentCapsPDU::serialize()
     binary serialized;
 
     // Serialize data
-    serialized += id.serialize();
+    serialized += OidVariable(id).serialize();
 
     // Add header
     add_header(PDU::agentxRemoveAgentCapsPDU, serialized);
@@ -49,7 +50,7 @@ binary RemoveAgentCapsPDU::serialize()
 }
 
 
-RemoveAgentCapsPDU::RemoveAgentCapsPDU(OidValue id)
+RemoveAgentCapsPDU::RemoveAgentCapsPDU(Oid id)
 {
     this->id = id;
 }

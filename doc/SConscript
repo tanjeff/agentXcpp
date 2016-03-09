@@ -1,5 +1,5 @@
 #
-# Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+# Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
 #
 # This file is part of the agentXcpp library.
 #
@@ -17,98 +17,29 @@
 # for more details.
 #
 
-
-
-# This is a damn hack to get scons working with doxygen: We use the Command 
-# Builder to define how to invoke doxygen. Now, if scons is invoked from the 
-# parent directory, it will invoke doxygen in that directory, giving it e.g.  
-# doc/api.doxyfile as parameter. Doxygen finds its config, but does not find 
-# the sources (it searches the sources in ../src/, but they are actually in 
-# src/).
-# 
-# So we hack the command accordingly, adding a "cd doc" to it and introducing a 
-# lot of dependencies. If the direcory structure of the agentxcpp project is 
-# ever changed, this scons script will likely break, and it will be a mess to 
-# get it working again... I will care about this later. After all it works.
-
-
 # Get the environment from the SConscript above
 Import('env')
-
 
 #################################################
 ## API documentation
 
-# build up the command string.
-# Note: We feed the revision into the PROJECT_NUMBER variable to let it appear 
-# in the generated documentation.
-cmd = "cd doc/ && "
-if 'revision' in env:
-    # Insert revision
-    cmd += "(cat api.doxyfile ; echo \"PROJECT_NUMBER=Revision: "
-    cmd += env['revision']
-    cmd += "\" ) "
-else:
-    # We don't have a revision identifier available
-    cmd += "cat api.doxyfile "
-cmd += "| doxygen - > /dev/null"
+api = env.Doxygen('api.doxyfile',
+                  DOXYPROJECTNUMBER="Version: " + env['revision'])
+env.Clean(api, "api")
 
-# Build it
-# Note: To find out whether a rebuild is neccessary,
-#       Scons looks at the "target". If the target is
-#       a directory, things don't work, thus we use
-#       a HTML file as target
-api = Command('api/html/index.html',
-	      'api.doxyfile',
-	      cmd)
-
-# API doc depends on src/ directory
-# Note: although not all files in there are actually
-#       dependencies, we pretend it was so, to avoid forgotten
-#       deps
-Depends(api, Glob('../src/*.cpp') + Glob('../src/*.hpp'))
-
-# API doc also depends on other files
-Depends(api, Glob('*.dox') + Glob('api.mainpage'))
-
-# Scons does not remove directories when invoked with -c,
-# so we explicit request deletion of the api/ directory
-# in those cases:
-Clean(api, "api")
-
-# Provide an install target
-Install(env['docdir'], "api")
-
-
+api_install = env.Install(env['docdir'], "api")
+env.Clean(api_install, env['docdir'])
 
 
 #################################################
-## The same for the internal documentation:
+## Internals documentation (without installation target):
 
-cmd = "cd doc/ && "
-if 'revision' in env:
-    # Insert revision
-    cmd += "(cat internals.doxyfile ; echo \"PROJECT_NUMBER=Revision: "
-    cmd += env['revision']
-    cmd += "\" ) "
-else:
-    # We don't have a revision identifier available
-    cmd += "cat internals.doxyfile "
-cmd += "| doxygen - > /dev/null"
-
-internals = Command('internals/html/index.html',
-                    'internals.doxyfile',
-		    cmd)
-Depends(internals, Glob('../src/*.cpp') + Glob('../src/*.hpp'))
-Depends(internals, Glob('*.dox') + Glob('internals.mainpage'))
-Clean(internals, "internals")
-
-
-# provide an alias for installing
-Alias("install", env['docdir'])
+internals = env.Doxygen('internals.doxyfile',
+                        DOXYPROJECTNUMBER="Version: " + env['revision'])
+env.Clean(internals, "internals")
 
 
 #################################################
 ## The default targets for this directory
-Default(api, internals)
-
+Alias("install", env['docdir'])
+env.Default(api, internals)

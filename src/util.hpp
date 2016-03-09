@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -20,40 +20,38 @@
 #ifndef _HELPER_H_
 #define _HELPER_H_
 
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "binary.hpp"
 
-using boost::uint16_t;
-using boost::uint32_t;
 
 namespace agentxcpp
 {
 
-    inline uint64_t read64(binary::const_iterator& pos, bool big_endian)
+    inline quint64 read64(binary::const_iterator& pos, bool big_endian)
     {
-        uint64_t value;
+        quint64 value;
         if( big_endian )
         {
-            value =  static_cast<uint64_t>(*pos++) << 56;
-            value |= static_cast<uint64_t>(*pos++) << 48;
-            value |= static_cast<uint64_t>(*pos++) << 40;
-            value |= static_cast<uint64_t>(*pos++) << 32;
-            value |= static_cast<uint64_t>(*pos++) << 24;
-            value |= static_cast<uint64_t>(*pos++) << 16;
-            value |= static_cast<uint64_t>(*pos++) << 8;
-            value |= static_cast<uint64_t>(*pos++) << 0;
+            value =  static_cast<quint64>(*pos++) << 56;
+            value |= static_cast<quint64>(*pos++) << 48;
+            value |= static_cast<quint64>(*pos++) << 40;
+            value |= static_cast<quint64>(*pos++) << 32;
+            value |= static_cast<quint64>(*pos++) << 24;
+            value |= static_cast<quint64>(*pos++) << 16;
+            value |= static_cast<quint64>(*pos++) << 8;
+            value |= static_cast<quint64>(*pos++) << 0;
         }
         else
         {
-            value =  static_cast<uint64_t>(*pos++) << 0;
-            value |= static_cast<uint64_t>(*pos++) << 8;
-            value |= static_cast<uint64_t>(*pos++) << 16;
-            value |= static_cast<uint64_t>(*pos++) << 24;
-            value |= static_cast<uint64_t>(*pos++) << 32;
-            value |= static_cast<uint64_t>(*pos++) << 40;
-            value |= static_cast<uint64_t>(*pos++) << 48;
-            value |= static_cast<uint64_t>(*pos++) << 56;
+            value =  static_cast<quint64>(*pos++) << 0;
+            value |= static_cast<quint64>(*pos++) << 8;
+            value |= static_cast<quint64>(*pos++) << 16;
+            value |= static_cast<quint64>(*pos++) << 24;
+            value |= static_cast<quint64>(*pos++) << 32;
+            value |= static_cast<quint64>(*pos++) << 40;
+            value |= static_cast<quint64>(*pos++) << 48;
+            value |= static_cast<quint64>(*pos++) << 56;
         }
         return value;
     }
@@ -66,7 +64,7 @@ namespace agentxcpp
      *
      * \param value The value which is appended to the string.
      */
-    inline void write64(binary& serialized, uint64_t value)
+    inline void write64(binary& serialized, quint64 value)
     {
         // always big endian
         serialized.push_back(value >> 56 & 0xff);
@@ -80,9 +78,9 @@ namespace agentxcpp
     }
 
 
-    inline uint32_t read32(binary::const_iterator& pos, bool big_endian)
+    inline quint32 read32(binary::const_iterator& pos, bool big_endian)
     {
-        uint32_t value;
+        quint32 value;
         if( big_endian )
         {
             value =  *pos++ << 24;
@@ -108,7 +106,7 @@ namespace agentxcpp
      *
      * \param value The value which is appended to the string.
      */
-    inline void write32(binary& serialized, uint32_t value)
+    inline void write32(binary& serialized, quint32 value)
     {
         // always big endian
         serialized.push_back(value >> 24 & 0xff);
@@ -117,9 +115,9 @@ namespace agentxcpp
         serialized.push_back(value >> 0 & 0xff);
     }
 
-    inline uint16_t read16(binary::const_iterator& pos, bool big_endian)
+    inline quint16 read16(binary::const_iterator& pos, bool big_endian)
     {
-        uint16_t value = 0;
+        quint16 value = 0;
         if( big_endian )
         {
             value |= *pos++ << 8;
@@ -142,7 +140,7 @@ namespace agentxcpp
      *
      * \param value The value which is appended to the string.
      */
-    inline void write16(binary& serialized, uint16_t value)
+    inline void write16(binary& serialized, quint16 value)
     {
         // always big endian
         serialized.push_back(value >> 8 & 0xff);

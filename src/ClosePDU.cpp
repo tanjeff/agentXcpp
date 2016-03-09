@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -27,7 +27,7 @@ ClosePDU::ClosePDU()
 {
 }
 
-ClosePDU::ClosePDU(uint32_t _sessionID,
+ClosePDU::ClosePDU(quint32 _sessionID,
 		   reason_t _reason)
 {
     // Set sessionID

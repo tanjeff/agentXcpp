@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -20,8 +20,8 @@
 #define _ADDAGENTCAPSPDU_H_
 
 #include "PDUwithContext.hpp"
-#include "OidValue.hpp"
-#include "OctetStringValue.hpp"
+#include "Oid.hpp"
+#include "OctetStringVariable.hpp"
 
 namespace agentxcpp
 {
@@ -40,7 +40,7 @@ namespace agentxcpp
 	     * See RFC 2741, 6.2.14. "The agentx-AddAgentCaps-PDU" for 
 	     * details.
 	     */
-	    OidValue id;
+	    Oid id;
 
 	    /**
 	     * \brief An Octet String containing a DisplayString to be used as
@@ -49,7 +49,7 @@ namespace agentxcpp
 	     *
 	     * See RFC 2741, 6.2.14. "The agentx-AddAgentCaps-PDU" for details.
 	     */
-	    OctetStringValue descr;
+	    OctetStringVariable descr;
 	    
 
 	public:
@@ -97,14 +97,14 @@ namespace agentxcpp
 	     *
 	     * \param descr The value of the descr field.
 	     */
-	    AddAgentCapsPDU(OidValue id, OctetStringValue descr);
+	    AddAgentCapsPDU(Oid id, OctetStringVariable descr);
 
 	    /**
 	     * \brief Set the id field
 	     *
 	     * \param id The new id value.
 	     */
-	    void set_id(OidValue id)
+	    void set_id(Oid id)
 	    {
 		this->id = id;
 	    }
@@ -114,7 +114,7 @@ namespace agentxcpp
 	     *
 	     * \return The id value.
 	     */
-	    OidValue get_id()
+	    Oid get_id()
 	    {
 		return this->id;
 	    }
@@ -124,7 +124,7 @@ namespace agentxcpp
 	     *
 	     * \param descr The new descr value.
 	     */
-	    void set_descr(OctetStringValue descr)
+	    void set_descr(OctetStringVariable descr)
 	    {
 		this->descr = descr;
 	    }
@@ -134,7 +134,7 @@ namespace agentxcpp
 	     *
 	     * \return The descr value.
 	     */
-	    OctetStringValue get_descr()
+	    OctetStringVariable get_descr()
 	    {
 		return this->descr;
 	    }

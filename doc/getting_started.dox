@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -29,6 +29,7 @@ sections:
 -# \subpage how_to_add_rw_support
             "Learn how to implement writeable SNMP variables."
 -# \subpage how_to_send_notifications "Learn how to send traps and notifications with agentXcpp."
+-# \subpage how_to_implement_tables "Learn how to implement SNMP tables with agentXcpp."
 
 Finally, start writing your own subagents. Happy hacking!
 

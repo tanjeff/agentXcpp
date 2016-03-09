@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -20,12 +20,10 @@
 #ifndef _CLOSEPDU_H_
 #define _CLOSEPDU_H_
 
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 #include "exceptions.hpp"
 #include "PDU.hpp"
-
-using boost::uint32_t;
 
 namespace agentxcpp
 {
@@ -74,7 +72,7 @@ namespace agentxcpp
 	     *
 	     * \exception inval_param If the reason value is invalid.
 	     */
-	    ClosePDU(uint32_t sessionID,
+	    ClosePDU(quint32 sessionID,
 		     reason_t reason);
 
 	    /**

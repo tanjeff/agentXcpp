@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -22,7 +22,7 @@
 #include <string>
 #include <ostream>
 
-#include <boost/cstdint.hpp>
+#include <QtGlobal>
 
 namespace agentxcpp
 {
@@ -32,7 +32,7 @@ namespace agentxcpp
 	 *
 	 * This class is used as container for binary data.
 	 */
-	class binary : public std::basic_string<boost::uint8_t>
+	class binary : public std::basic_string<quint8>
 	{
 	};
 

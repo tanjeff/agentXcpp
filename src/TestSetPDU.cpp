@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -30,7 +30,7 @@ TestSetPDU::TestSetPDU(binary::const_iterator& pos,
     // Get VarBind's until the PDU is completely parsed
     while( pos < end )
     {
-	vb.push_back(varbind(pos, end, big_endian));
+	vb.push_back(Varbind(pos, end, big_endian));
     }
 }
 	    
@@ -42,7 +42,7 @@ binary TestSetPDU::serialize() const
     binary serialized;
 
     // Add VarBind's
-    vector<varbind>::const_iterator i;
+    vector<Varbind>::const_iterator i;
     for(i = vb.begin(); i < vb.end(); i++)
     {
 	serialized += i->serialize();

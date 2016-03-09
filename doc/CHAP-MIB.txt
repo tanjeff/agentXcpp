@@ -1,0 +1,791 @@
+CHAP-MIB DEFINITIONS ::= BEGIN 
+
+--#######################################################################
+--#          CHAP-MIB for Center                                        #
+--#######################################################################
+--History
+--   2010/01/30   Version 1.0   (CC/AT)
+--   2010/02/17   Version 1.1   (Aufteilung in Plattform- und DC-FEP)
+--   2010/12      Version 1.1.1 (Weitere Objekte hinzugefügt)
+--   2011/05/26   Version 1.2   (Comments improved)
+--#######################################################################
+
+IMPORTS 
+    enterprises                 FROM RFC1155-SMI
+    TimeTicks, Counter, Gauge   FROM RFC1155-SMI
+    DisplayString               FROM RFC1213-MIB
+    TRAP-TYPE                   FROM RFC-1215
+    OBJECT-TYPE                 FROM RFC-1212;
+
+
+--#######################################################################
+--#          CHAP-MIB basic tree                                        #
+--#######################################################################
+
+dfs                     OBJECT IDENTIFIER ::=     {enterprises 16455}
+systemhaus              OBJECT IDENTIFIER ::=     {dfs 3}
+chap                    OBJECT IDENTIFIER ::=     {systemhaus 3}
+chapMIB                 OBJECT IDENTIFIER ::=     {chap 1}
+chapTrap                OBJECT IDENTIFIER ::=     {chap 2}
+
+subsystems              OBJECT IDENTIFIER ::=     {chapMIB 9}
+subsystemProcesses      OBJECT IDENTIFIER ::=     {chapMIB 10}
+externalSystems         OBJECT IDENTIFIER ::=     {chapMIB 11}
+satellites              OBJECT IDENTIFIER ::=     {chapMIB 12}
+versionsAndAdaptations  OBJECT IDENTIFIER ::=     {chapMIB 13}
+
+--#######################################################################
+--#          CHAP-MIB type definitions for CMMC                         #
+--#######################################################################
+
+CmmcServerStateType ::=
+    INTEGER {
+        operational (1),
+        alert       (2),
+        unknown     (3),
+        standby     (4)
+    }
+
+CmmcSatelliteStateType ::=
+    INTEGER {
+        connected    (1),
+        disconnected (2)
+    }
+
+
+CmmcLinkStateType ::=
+    INTEGER {
+        operational(1),
+        alert      (2),
+        unknown    (3),
+        standby    (4)
+    }
+
+CmmcInterfaceStateType ::=
+    INTEGER {
+        operational (1),
+        alert       (2),
+        unknown     (3),
+        other       (4)
+    }
+
+CmmcControlType ::=
+    INTEGER {
+        enabled     (1),
+        disabled    (2)
+    }
+
+CmmcResultType ::=
+    INTEGER {
+        noaction    (1),
+        inprocess   (2),
+        accepted    (3),
+        rejected    (4)
+    }
+
+CmmcServerCommandType ::=
+    INTEGER {
+        start       (1),
+        stop        (2),
+        restart     (3),
+        reboot      (4),
+        switchover  (5)
+    }
+
+CmmcSatelliteCommandType ::=
+    INTEGER {
+        start     (1),
+        stop      (2),
+        restart   (3),
+        reboot    (4)
+    }
+
+CmmcSystemCommandType ::=
+    INTEGER {
+        start       (1),
+        stop        (2),
+        restart     (3)
+    }
+
+
+--#######################################################################
+--#          Common information of the CHAP-MIB                         #
+--#######################################################################
+
+-- MIB Active Object
+chapMIBActive OBJECT-TYPE
+    SYNTAX INTEGER {
+        active (1),
+        standby (2)
+    }
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "Indicates whether this box will respond to chapMIB SNMP accesses. The
+    value active(1) is returned if the Chap server running the SNMP agent is
+    active, otherwise standby(2) is returned. The value standby(2) does not
+    necessarily mean that the server is STANDBY, it may also be OFFLINE or
+    FAILED, for example.  Further, the SNMP agent will respond always to all
+    SNMP requests, even when the server is standby(2)."
+    ::= { chapMIB 1 }
+
+-- Location Object
+chapLocation OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..15))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "Location where CHAP is running, e.g. Duesseldorf, Bremen, Munich"
+    ::= { chapMIB 2 }
+
+-- MIB Version Object
+chapMIBVersion OBJECT-TYPE
+    SYNTAX DisplayString
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "The version of the actual MIB, e.g.
+    Name:      CHAP-MIB
+    Version:   1.1
+    Date:      Feb.17, 2010
+    Author:    CC/AT
+    Copyright: 2010"
+    ::= { chapMIB 3 }
+
+--
+--#######################################################################
+--#          Control-Command Objects of the CHAP system                 #
+--#######################################################################
+--
+--The term "system" means all DC-FEP servers (both DC-FEP servers). This 
+--part specifies the control commands for the system (in opposite to the 
+--subsystem server part of this MIB)
+--
+
+chapSystemCommand OBJECT-TYPE
+    SYNTAX CmmcSystemCommandType
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+    "The valid commands are
+              start    (1),
+              stop     (2),
+              restart  (3)
+    Writing to this variable performs the requested command, as specified above.
+    When read, this variable return the last written value.
+    If the variable was never written before, the value start(1) is returned."
+    ::= { chapMIB 4 }
+
+chapSystemCommandAuthorization OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "Used for bit by bit coding (allow/deny) of possible commands. 
+    The value for allow = 1, the value for deny = 0.
+        Bit 0: start (1),
+        Bit 1: stop (2),
+        Bit 2: restart (3)"
+    ::= { chapMIB 5 }
+
+chapSystemCommandResult OBJECT-TYPE
+    SYNTAX CmmcResultType
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "Result of the system switch command
+        noaction    (1),
+        inprocess   (2),
+        accepted    (3),
+        rejected    (4)"
+    ::= { chapMIB 6 }
+
+chapSystemCommandRejectReason OBJECT-TYPE
+    SYNTAX DisplayString (SIZE (0..25))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "The reason for rejection"
+    ::= { chapMIB 7 }
+
+-- Trap control of the startup command
+startupTrapControlStatus OBJECT-TYPE
+    SYNTAX CmmcControlType
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+    "Startup trap reporting enabled/disabled"
+    ::= { chapMIB 8 }
+
+--
+-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+--#######################################################################
+--#          MIB information of the CHAP server                         #
+--#                (subsystem server group)                             #
+--#######################################################################
+
+-- Subsystem Server State Change Object
+subsystemServerStateChangeCounter OBJECT-TYPE
+    SYNTAX Counter
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "This counter is incremented whenever a state change at one of the
+    subsystems CHAP server happens except when traps are deactivated for the
+    corresponding type. (This counter counts the actually sent traps)"
+    ::= { subsystems 1 }
+
+-- Subsystem Server List Table
+subsystemServerList OBJECT-TYPE
+    SYNTAX SEQUENCE OF SubsystemServerEntry
+    ACCESS not-accessible
+    STATUS mandatory
+    DESCRIPTION
+    "Table of the subsystems CHAP server"
+    ::= { subsystems 2 }
+
+subsystemServerEntry OBJECT-TYPE
+    SYNTAX SubsystemServerEntry
+    ACCESS not-accessible
+    STATUS mandatory
+    DESCRIPTION
+    "A list of the subsystems CHAP server"
+    INDEX { subsystemServerHostname }
+    ::= { subsystemServerList 1 }
+    SubsystemServerEntry ::=     SEQUENCE {
+        subsystemServerHostname              DisplayString (SIZE(0..8)),
+        subsystemServerStatus                CmmcServerStateType,
+        subsystemServerCommandAuthorization  Integer,
+        subsystemServerCommand               CmmcServerCommandType,
+        subsystemServerCommandResult         CmmcResultType,
+        subsystemServerCommandRejectReason   DisplayString (SIZE(0..25)),
+        subsystemServerVersion               DisplayString (SIZE(0..25)),
+        subsystemServerAdaptation            DisplayString (SIZE(0..25))
+    }
+
+subsystemServerHostname OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..8))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "When read, this variable returns the hostname of a server in the
+    subsystemServerList. The hostname is truncated to 8 characters (the actual
+    hostname may be longer). If both servers have the same truncated name
+    (e.g. 'chapserver1' and 'chapserver2' would both become 'chapserv'),
+    one of the names is modified to provide different names.
+    This modification is performed because the truncated hostnames serve as
+    index of the subsystemServerList and must be unique."
+    ::= { subsystemServerEntry 1 }
+
+subsystemServerStatus OBJECT-TYPE
+    SYNTAX CmmcServerStateType
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "valid state for servers"
+    ::= { subsystemServerEntry 2 }
+
+subsystemServerCommandAuthorization OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "Descibes which commands are currently possible.
+    A bit by bit coding is used as follows:
+        Bit 0: start (1),
+        Bit 1: stop (2),
+        Bit 2: restart (3),
+        Bit 3: reboot (4),
+        Bit 4: switchover (5)
+    where the value for 'possible' is 1 and
+    the value for 'not possible' is 0."
+    ::= { subsystemServerEntry 3 }
+
+subsystemServerCommand OBJECT-TYPE
+    SYNTAX CmmcServerCommandType
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+    "Writing to this variable performs the requested command. When read,
+    this variable return the last written value. If the variable was never
+    written before, the value start(1) is returned."
+    ::= { subsystemServerEntry 4 }
+
+subsystemServerCommandResult OBJECT-TYPE
+    SYNTAX CmmcResultType
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "When read, this variable return the result of the last command issued:
+        noaction(1)  is returned if no command was issued yet
+        inprocess(2) is never returned, as the subagent cannot determine when a
+                     command actually finished
+        accepted(3)  is returned if the last issued command was accepted
+                     (which does not mean that the command was successful)
+        rejected(4)  is returned if the last command was rejected
+                     (e.g. insufficient authorization)"
+    ::= { subsystemServerEntry 5 }
+
+subsystemServerCommandRejectReason OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..25))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "The reason for rejection"
+    ::= { subsystemServerEntry 6 }
+
+subsystemServerVersion OBJECT-TYPE 
+    SYNTAX DisplayString (SIZE(0..25))
+    ACCESS read-only 
+    STATUS mandatory 
+    DESCRIPTION 
+    "The currently running version"
+    ::= { subsystemServerEntry 7 } 
+
+subsystemServerAdaptation OBJECT-TYPE 
+    SYNTAX DisplayString (SIZE(0..25))
+    ACCESS read-only 
+    STATUS mandatory 
+    DESCRIPTION 
+    "The adaption currently in use" 
+    ::= { subsystemServerEntry 8 } 
+
+-- Trap control of the subsystems
+subsystemServerTrapControlStatus OBJECT-TYPE
+    SYNTAX CmmcControlType
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+    "Trap reporting enabled/disabled for all subsystems"
+    ::= { subsystems 3 }
+
+
+
+--#######################################################################
+--#          MIB information of the CHAP Satellites                     #
+--#######################################################################
+
+satelliteList OBJECT-TYPE
+    SYNTAX SEQUENCE OF SatelliteEntry
+    ACCESS not-accessible
+    STATUS mandatory
+    DESCRIPTION
+    "Table of the CHAP sattelites"
+    ::= { satellites 1 }
+
+satelliteEntry OBJECT-TYPE
+    SYNTAX SatelliteEntry
+    ACCESS not-accessible
+    STATUS mandatory
+    DESCRIPTION
+    "An entry in the list of the CHAP satellites"
+    INDEX { satelliteHostname }
+    ::= { satelliteList 1 }
+    SatelliteEntry ::=     SEQUENCE {
+        satelliteHostname              DisplayString (SIZE(0..8)),
+        satelliteRole                  DisplayString (SIZE(0..25)),
+        satelliteStatus                CmmcSatelliteStateType,
+        satelliteCommandAuthorization  INTEGER,
+        satelliteCommand               CmmcSatelliteCommandType,
+        satelliteCommandResult         CmmcResultType,
+        satelliteCommandRejectReason   DisplayString (SIZE(0..25)),
+        satelliteVersion               DisplayString (SIZE(0..25)),
+        satelliteAdaptation            DisplayString (SIZE(0..25))
+    }
+
+satelliteHostname OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..8))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "Hostname that identifies the satellite"
+    ::= { satelliteEntry 1 }
+
+satelliteRole OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..25))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "The role of the satellite, e.g. 'Firewall' or 'controller 
+    working position'"
+    ::= { satelliteEntry 2 }
+
+satelliteStatus OBJECT-TYPE
+    SYNTAX CmmcSatelliteStateType
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION "Current status of the satellite (connected/disconnected)"
+    ::= { satelliteEntry 3 }
+
+satelliteCommandAuthorization OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "Which commands are currently available. Encoding is as 
+    follows (1 = allow / 0 = deny): 
+        Bit 0: start (1),
+        Bit 1: stop (2),
+        Bit 2: restart (3),
+        Bit 3: reboot (4)"
+    ::= { satelliteEntry 4 }
+
+satelliteCommand OBJECT-TYPE
+    SYNTAX CmmcSatelliteCommandType
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+    "Issue a command to the satellite. When read, the last issued command is
+    reported. If no command was issued yet, start(1) is reported."
+    ::= { satelliteEntry 5 }
+
+satelliteCommandResult OBJECT-TYPE
+    SYNTAX CmmcResultType
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "Result of the last issued command to this satellite"
+    ::= { satelliteEntry 6 }
+
+satelliteCommandRejectReason OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..25))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "The reason for rejection of the last issued command"
+    ::= { satelliteEntry 7 }
+
+satelliteVersion OBJECT-TYPE 
+    SYNTAX DisplayString (SIZE(0..25))
+    ACCESS read-only 
+    STATUS mandatory 
+    DESCRIPTION 
+    "The currently running version"
+    ::= { satelliteEntry 8 } 
+
+satelliteAdaptation OBJECT-TYPE 
+    SYNTAX DisplayString (SIZE(0..25))
+    ACCESS read-only 
+    STATUS mandatory 
+    DESCRIPTION 
+    "The adaption currently in use" 
+    ::= { satelliteEntry 9 } 
+
+--
+-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+--#######################################################################
+--#          MIB information of the CHAP server processes               #
+--#                (subsystem processes group)                          #
+--#######################################################################
+
+-- maximum number of subsystem processes Object
+maxSubsystemProcesses OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "This number represents the maximum number of CHAP subsystem processes
+    including the time synchronization process"
+    ::= { subsystemProcesses 1 }
+
+-- State Change Object of the processes
+subsystemProcessesStateChangeCounter OBJECT-TYPE
+    SYNTAX Counter
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "This counter is incremented whenever a state change of one of the processes
+    happens except when traps are deactivated for the corresponding type.
+    (This counter counts the actually sent traps)"
+    ::= { subsystemProcesses 2 }
+
+-- Table of the subsystem processes
+subsystemProcessesList OBJECT-TYPE
+    SYNTAX SEQUENCE OF SubsystemProcessesEntry
+    ACCESS not-accessible
+    STATUS mandatory
+    DESCRIPTION
+    "Table of the CHAP processes running on the subsystems."
+    ::= { subsystemProcesses 3 }
+
+subsystemProcessesEntry OBJECT-TYPE
+    SYNTAX SubsystemProcessesEntry
+    ACCESS not-accessible
+    STATUS mandatory
+    DESCRIPTION
+    "A list of processes running at the CHAP subsystems"
+    INDEX { subsystemName, subsystemProcessIndex }
+    ::= { subsystemProcessesList 1 }
+    SubsystemProcessesEntry ::=     SEQUENCE {
+        subsystemName                        DisplayString (SIZE(0..8)),
+        subsystemProcessIndex                INTEGER (1..50),
+        subsystemProcessIdent                DisplayString (SIZE(0..25)),
+        subsystemProcessStatus               CmmcServerStateType
+    }
+
+subsystemName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..8))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "Hostname that identifies the subsystem (<chap server alias name>)"
+    ::= { subsystemProcessesEntry 1 }
+
+subsystemProcessIndex OBJECT-TYPE
+    SYNTAX INTEGER (1..50)
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "An index that identifies an entry of the processes List table uniquely."
+    ::= { subsystemProcessesEntry 2 }
+
+subsystemProcessIdent OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..25))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "The identification (name) of the respective process"
+    ::= { subsystemProcessesEntry 3 }
+
+subsystemProcessStatus OBJECT-TYPE
+    SYNTAX CmmcServerStateType
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "The valid status of the processes is operational, standby, alert and
+    unknown"
+    ::= { subsystemProcessesEntry 4 }
+
+-- Trap control of the subsystem processes
+subsystemProcessesTrapControlStatus OBJECT-TYPE
+    SYNTAX CmmcControlType
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+    "Trap reporting enabled/disabled for all server processes"
+    ::= { subsystemProcesses 4 }
+
+
+--#######################################################################
+--#          External Systems                                           #
+--#######################################################################
+
+-- maximum number of external systems Objects
+maxExternalSystems OBJECT-TYPE
+    SYNTAX    INTEGER
+
+    ACCESS    read-only
+    STATUS    mandatory
+    DESCRIPTION
+        "The maximum number of entries in externalSystemsList. Surplus entries
+         are silently discarded."
+    ::= { externalSystems 1 }
+
+-- State Change Object of the external systems
+externalSystemsStateChangeCounter OBJECT-TYPE
+    SYNTAX    Counter
+    ACCESS    read-only
+    STATUS    mandatory
+    DESCRIPTION
+    "This counter is incremented whenever a state change happens on one of the
+     interfaces to the external systems"
+    ::= { externalSystems 2 }
+
+
+-- Table of the external system interfaces
+externalSystemsList OBJECT-TYPE
+    SYNTAX SEQUENCE OF ExternalSystemsEntry
+    ACCESS not-accessible
+    STATUS mandatory
+    DESCRIPTION
+    "Table of the CHAP processes interfacing to external systems e.g. NTP."
+    ::= { externalSystems 3  }
+
+
+externalSystemsEntry OBJECT-TYPE
+    SYNTAX ExternalSystemsEntry
+    ACCESS not-accessible
+    STATUS mandatory
+    DESCRIPTION
+    "An entry of the externalSystemsList."
+    INDEX { externalSystemLinkSink, externalSystemLinkIdent }
+    ::= { externalSystemsList 1 }
+    ExternalSystemsEntry ::=       SEQUENCE {
+        externalSystemLinkSink             DisplayString (SIZE(0..8)),
+        externalSystemLinkIdent            DisplayString (SIZE(0..25)),
+        externalSystemLinkStatus           CmmcLinkStateType,
+        externalSystemLinkInfo             DisplayString (SIZE(0..8))
+    }
+
+externalSystemLinkSink OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..8))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "Hostname that identifies the CHAP server running the process interfacing 
+    the external system."
+    ::= { externalSystemsEntry 1 }
+
+externalSystemLinkIdent OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..25))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "The identifaction (name) of the process interfacing the external system, 
+    e.g. NTP."
+    ::= { externalSystemsEntry 2 }
+
+externalSystemLinkStatus OBJECT-TYPE
+    SYNTAX CmmcLinkStateType
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "The status of the process interfacing the external system."
+    ::= { externalSystemsEntry 3 }
+
+externalSystemLinkInfo OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..25))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "Additional information, e.g. the hostname of the interfaced system"
+    ::= { externalSystemsEntry 4 }
+
+-- Trap Control of the interfaces
+externalSystemsTrapControlStatus OBJECT-TYPE
+    SYNTAX CmmcControlType
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+    "Trap reporting enabled/disabled for all AMAN interfaces to external
+     systems."
+    ::= { externalSystems 4 }
+
+
+--#######################################################################
+--#          Versions and Adaptations                                   #
+--#######################################################################
+
+
+versionsAndAdaptationsList OBJECT-TYPE 
+    SYNTAX SEQUENCE OF VersionsAndAdaptationsEntry
+    ACCESS not-accessible 
+    STATUS mandatory 
+    DESCRIPTION 
+    "Table of available version-adaptation combinations."
+    ::= { versionsAndAdaptations 1 } 
+
+
+versionsAndAdaptationsEntry OBJECT-TYPE
+    SYNTAX VersionsAndAdaptationsEntry
+    ACCESS not-accessible
+    STATUS mandatory
+    DESCRIPTION
+    "An entry of the VersionsAndAdaptationsList."
+    INDEX { version, adaptation }
+    ::= {  versionsAndAdaptationsList 1 }
+    VersionsAndAdaptationsEntry ::= SEQUENCE {
+       version              DisplayString (SIZE(0..25)),
+       adaptation           DisplayString (SIZE(0..25)),
+       activate             INTEGER (0..1)
+    }
+
+version OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..25))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "The software version."
+    ::= { versionsAndAdaptationsEntry 1 }
+
+adaptation OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..25))
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "The software adaptation."
+    ::= { versionsAndAdaptationsEntry 2 }
+
+activate OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS write-only
+    STATUS mandatory
+    DESCRIPTION
+    "Writing this variable activates this version-adaptation combination on
+     all CHAP servers and sattelites. All servers sattelites are instantly
+     restarted."
+    ::= { versionsAndAdaptationsEntry 3 }
+
+activationResult OBJECT-TYPE
+    SYNTAX CmmcResultType
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+    "Result of Activation command:
+         Accepted = sucess
+         Rejected = fail
+         No activation performed yet = noaction"
+    ::= { versionsAndAdaptations 2 }
+
+
+
+--#######################################################################
+--#          CHAP Traps                                                 #
+--#######################################################################
+
+subsystemServerTrap    TRAP-TYPE
+    ENTERPRISE   chapTrap
+    VARIABLES {
+        subsystemServerStateChangeCounter,
+        subsystemServerHostname,
+        subsystemServerStatus
+    }
+    DESCRIPTION
+    "A status change of one of the servers has occurred
+    (subsystemServerStateChangeCounter, subsystemServerHostname,
+    subsystemServerStatus)"
+    ::= 1
+
+subsystemProcessesTrap    TRAP-TYPE
+    ENTERPRISE   chapTrap
+    VARIABLES {
+        subsystemProcessesStateChangeCounter,
+        subsystemName,
+        subsystemProcessIndex,
+        subsystemProcessIdent,
+        subsystemProcessStatus
+    }
+    DESCRIPTION
+    "A status change of one of the servers processes has occurred
+    (subsystemProcessesStateChangeCounter, subsystemName, subsystemProcessIndex,
+    subsystemProcessIdent, subsystemProcessStatus)"
+    ::= 2
+
+startupTrap    TRAP-TYPE
+    ENTERPRISE   chapTrap
+    VARIABLES   { chapSystemCommand }
+    DESCRIPTION
+    "A start, restart or switchover of the CHAP system has occurred. The CHAP
+    system will set all state change counters to 0. The trap indicates the
+    reason for the startup command. The startupTrap is sent at subagent startup
+    and when the subagent switches to the ACTIVE state. Note that setting
+    startupTrapControlStatus has no effect on startup, because the Trap was
+    already sent when the setting is made."
+    ::= 3
+
+
+externalSystemsTrap   TRAP-TYPE
+    ENTERPRISE  chapTrap
+    VARIABLES {
+        externalSystemsStateChangeCounter,
+        externalSystemLinkSink,
+        externalSystemLinkIdent,
+        externalSystemLinkStatus,
+        externalSystemLinkInfo
+    }
+    DESCRIPTION
+    "A status change of one of the external systems has occurred. Includes the 
+    value of externalSystemsStateChangeCounter after inkrementing it."
+    ::= 4
+
+-- End of CHAP MIB definitions
+END

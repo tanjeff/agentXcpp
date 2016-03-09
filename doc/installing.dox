@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -21,72 +21,56 @@
 
 \page installation Building and Installing AgentXcpp
 
-If you are lucky, there is a package for your system which can be easily 
-installed. If you are not so lucky, or if you are a package maintainer, you 
-have to compile agentXcpp yourself. Here is how to do this.
+It would be nice if if there were a package for your operating system which you 
+could easily install. Probably there is not, so you have to compile agentXcpp 
+yourself. Luckily, this is not too hard. Here is how to do it.
 
 
 
 \section installation_prerequisites Prerequisites
 
-The following software is needed to build agentXcpp, simply use the versions 
-which are easily available for your system:
+The following software is needed to build agentXcpp. Simply use the versions 
+which are easily available for your system.
 - Standard build environment (compiler, linker, etc.)
-- Doxygen, to build the documentation (version 1.8.1.2 is recommended)
+- The QT4 library (devel package, e.g.  libqt4-dev on linux systems)
+- Doxygen, to build the documentation
 - The dot tool from the graphviz package, which is used by doxygen to generate 
   diagrams
 - SCons, to control the build process
-- The following boost libraries:
-  - Bind
-  - Smart Ptr
-  - Test
-  - Integer
-- The following QT4 libraries:
-  - QtCore
-  - QNetwork
 
 
 
 \section installation_installingSystem Building and installing agentXcpp
 
 Building and installing agentXcpp is a one-step operation: one command builds 
-the library and installs all files.  The place where they are is installed can 
-freely be chosen.  If you want to make an agentXcpp package, you probably need 
-to install into a local directory.  If you are an end user you certainly want 
-to install into the system such that you can use the library.
+the library and installs all files.  The place where they are installed can 
+freely be chosen.
 
-To install it into a linux system, the following command should work:
+To install agentXcpp right into a linux system, the following command should 
+work:
 
 \verbatim
-# To install into a linux system, do as root:
-scons install --prefix /usr
+# Install agentXcpp into a linux system
+sudo scons install --prefix /usr
 \endverbatim
 
-\note The build process can be accelerated by givin the <tt>-j i</tt> parameter 
-      to SCons, where i is the maximum number of threads used. As a rule of 
-      thumb, use i = (number_of_cpus + 1).
+\note
+      - Using the <tt>sudo</tt> command may fail on some systems, because the 
+        environment provided by <tt>sudo</tt> may be insufficient for scons,  
+        or because \c sudo is not installed or not configured. In that case 
+        login as root and execute the command without \c sudo, i.e.  
+        '<tt>scons&nbsp;install&nbsp;-</tt><tt>-prefix&nbsp;/usr</tt>'.
+      - The build process can be accelerated by giving the <tt>-j</tt> 
+        parameter to SCons, e.g.  
+        '</tt>sudo&nbsp;scons&nbsp;install&nbsp;-j&nbsp;3&nbsp;-</tt><tt>-prefix&nbsp;/usr</tt>'.  
+        As a rule of thumb, use <tt>number_of_cpus+1</tt>.
 
-Instead of becoming root, you can also use the \c sudo command.
-
-\note Using the <tt>sudo</tt> command may fail on some systems, because the 
-      environment provided by <tt>sudo</tt> may be insufficient for scons.
 
 The shown command will install the headers into 
 <tt>/usr/include/agentxcpp/</tt>, the shared library to <tt>/usr/lib/</tt> and 
-the API documentation to <tt>/usr/share/doc/agentxcpp/</tt>. If want to install 
-into a local directory, use:
-
-\verbatim
-# To install locally, do:
-scons install --prefix ./usr
-\endverbatim
-
-This will install the headers, shared library, and the API documentation to 
-<tt>./usr/include/agentxcpp/</tt>, <tt>./usr/lib/</tt> and 
-<tt>./usr/share/doc/agentxcpp/</tt>, respectively. You can pick them up there 
-for your package.
-
-In addition, you can control the individual installation directories like so:
+the API documentation to <tt>/usr/share/doc/agentxcpp/</tt>. If that doesn't 
+fit for your system, you can control the individual installation directories 
+like so:
 
 \verbatim
 # To choose each directory separately:
@@ -99,8 +83,33 @@ scons install --prefix=/usr \
               --docdir=/opt/agentxcpp/doc
 \endverbatim
 
-If completely omit the <tt>--prefix</tt>, <tt>--libdir</tt>, <tt>--docdir</tt> 
-and <tt>--includedir</tt> parameters, the default prefix will be used (the 
-default prefix can be obtained with <tt>scons --help</tt>).
+The \c -<tt>-prefix</tt> switch is only used to deduce the default installation 
+directories. If all three directories are specified on the command line, \c 
+-<tt>-prefix</tt> does nothing. Package maintainers may omit the directory 
+switches completely and simply call:
+
+\verbatim
+# For package maintainers: Install into ./install-root
+scons install
+\endverbatim
+
+This installs agentXcpp into the directory <tt>./install-root</tt>, from where 
+the files may picked up to build the package.
+
+\section installation_cleaning Uninstalling agentXcpp
+
+You can uninstall agentXcpp again with the following command:
+
+\verbatim
+sudo scons --clean install --prefix /usr
+\endverbatim
+
+The \c -<tt>-clean</tt> switch removes all files which <em>would be 
+installed</em> without that switch. SCons does not remember which files were 
+really installed before.  Therefore, you need to specify the same prefix (or 
+libdir, docdir and includedir) which you used to install the files. You should 
+also use the same agentXcpp version used during installation, since another 
+version might install and uninstall other files.
+
 
 */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -41,8 +41,8 @@ UnixDomainConnector::UnixDomainConnector(
   m_is_connected(false)
 {
     // We want to deliver this types within a signal:
-    qRegisterMetaType< boost::shared_ptr<PDU> >("boost::shared_ptr<PDU>");
-    qRegisterMetaType< boost::shared_ptr<PDU> >("shared_ptr<PDU>");
+    qRegisterMetaType< QSharedPointer<PDU> >("QSharedPointer<PDU>");
+    qRegisterMetaType< QSharedPointer<PDU> >("QSharedPointer<PDU>");
 
     QObject::connect(&m_socket, SIGNAL(readyRead()), this, SLOT(do_receive()));
 }
@@ -181,14 +181,14 @@ void UnixDomainConnector::do_receive()
                 disconnect(); // error!
                 break; // Stop reading PDUs
             }
-            buf.append(reinterpret_cast<uint8_t*>(header), 20);
+            buf.append(reinterpret_cast<quint8*>(header), 20);
         }
 
         // Extract endianness flag
         bool big_endian = ( buf[2] & (1<<4) ) ? true : false;
 
         // Extract payload length
-        uint32_t payload_length;
+        quint32 payload_length;
         binary::const_iterator pos = buf.begin() + 16;
         payload_length = read32(pos, big_endian);
         if( payload_length % 4 != 0 )
@@ -217,7 +217,7 @@ void UnixDomainConnector::do_receive()
             disconnect();
             return;
         }
-        buf.append(reinterpret_cast<uint8_t*>(payload.data()), payload_length);
+        buf.append(reinterpret_cast<quint8*>(payload.data()), payload_length);
 
         queue.push_back(buf);
     }
@@ -227,7 +227,7 @@ void UnixDomainConnector::do_receive()
     for(list<binary>::const_iterator i = queue.begin(); i != queue.end(); i++)
     {
         // Parse PDU
-        shared_ptr<PDU> pdu;
+        QSharedPointer<PDU> pdu;
         try
         {
             pdu = PDU::parse_pdu(*i);
@@ -242,13 +242,13 @@ void UnixDomainConnector::do_receive()
         }
 
         // Special case: ResponsePDU's
-        shared_ptr<ResponsePDU> response;
-        response = boost::dynamic_pointer_cast<ResponsePDU>(pdu);
+        QSharedPointer<ResponsePDU> response;
+        response = qSharedPointerDynamicCast<ResponsePDU>(pdu);
         if(response)
         {
             m_response_mutex.lock();
             // Was a response
-            std::map< uint32_t, boost::shared_ptr<ResponsePDU> >::iterator i;
+            std::map< quint32, QSharedPointer<ResponsePDU> >::iterator i;
             i = this->m_responses.find( response->get_packetID() );
             if(i != this->m_responses.end())
             {
@@ -273,20 +273,21 @@ void UnixDomainConnector::do_receive()
     }
 }
 
-boost::shared_ptr<ResponsePDU> UnixDomainConnector::request(boost::shared_ptr<PDU> pdu)
+QSharedPointer<ResponsePDU> UnixDomainConnector::request(QSharedPointer<PDU> pdu)
 {
     m_response_mutex.lock();
-    m_responses[pdu->get_packetID()] = shared_ptr<ResponsePDU>();
-    QMetaObject::invokeMethod(this, "do_send", Q_ARG(boost::shared_ptr<PDU>, pdu));
+    m_responses[pdu->get_packetID()] = QSharedPointer<ResponsePDU>();
+    QMetaObject::invokeMethod(this, "do_send", Q_ARG(QSharedPointer<PDU>, pdu));
 
-    std::map<uint32_t, boost::shared_ptr<ResponsePDU> >::iterator i;
+    std::map<quint32, QSharedPointer<ResponsePDU> >::iterator i;
+    m_responses[pdu->get_packetID()] = QSharedPointer<ResponsePDU>();
     do
     {
         m_response_arrived.wait(&m_response_mutex);
     }
     while ( ! (m_responses[pdu->get_packetID()]) );
 
-    shared_ptr<ResponsePDU> response = m_responses[pdu->get_packetID()];
+    QSharedPointer<ResponsePDU> response = m_responses[pdu->get_packetID()];
     m_responses.erase(m_responses.find(pdu->get_packetID()));
     m_response_mutex.unlock();
 
@@ -295,7 +296,7 @@ boost::shared_ptr<ResponsePDU> UnixDomainConnector::request(boost::shared_ptr<PD
 
 
 
-void UnixDomainConnector::do_send(boost::shared_ptr<PDU> pdu)
+void UnixDomainConnector::do_send(QSharedPointer<PDU> pdu)
 {
     binary data = pdu->serialize();
 
@@ -304,8 +305,8 @@ void UnixDomainConnector::do_send(boost::shared_ptr<PDU> pdu)
 }
 
 
-void UnixDomainConnector::send(boost::shared_ptr<PDU> pdu)
+void UnixDomainConnector::send(QSharedPointer<PDU> pdu)
 {
     // Start do_disconnect()
-    QMetaObject::invokeMethod(this, "do_send", Q_ARG(boost::shared_ptr<PDU>, pdu));
+    QMetaObject::invokeMethod(this, "do_send", Q_ARG(QSharedPointer<PDU>, pdu));
 }

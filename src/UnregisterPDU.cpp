@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -18,6 +18,7 @@
  */
 #include "UnregisterPDU.hpp"
 #include "util.hpp"
+#include "OidVariable.hpp"
 
 using namespace agentxcpp;
 
@@ -35,7 +36,7 @@ UnregisterPDU::UnregisterPDU(binary::const_iterator& pos,
     range_subid = *pos++;
     pos++;  // skip reserved field
 
-    subtree = OidValue(pos, end, big_endian);
+    subtree = OidVariable(pos, end, big_endian).value();
 
     // read r.upper_bound only if r.range_subid is not 0
     if( range_subid )
@@ -58,7 +59,7 @@ binary UnregisterPDU::serialize() const
     serialized.push_back(this->range_subid);
     serialized.push_back(0);	// reserved
 
-    serialized += subtree.serialize();
+    serialized += OidVariable(subtree).serialize();
 
     if( range_subid )
     {

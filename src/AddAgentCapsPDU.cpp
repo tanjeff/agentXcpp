@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
+ * Copyright 2011-2016 Tanjeff-Nicolai Moos <tanjeff@cccmz.de>
  *
  * This file is part of the agentXcpp library.
  *
@@ -18,6 +18,7 @@
  */
 
 #include "AddAgentCapsPDU.hpp"
+#include "OidVariable.hpp"
 
 
 using namespace agentxcpp;
@@ -28,10 +29,11 @@ AddAgentCapsPDU::AddAgentCapsPDU(binary::const_iterator& pos,
     : PDUwithContext(pos, end, big_endian)
 {
     // parse ID
-    id = OidValue(pos, end, big_endian);
+    OidVariable o(pos, end, big_endian);
+    id = o.value();
 
     // parse descr
-    descr = OctetStringValue(pos, end, big_endian);
+    descr = OctetStringVariable(pos, end, big_endian);
 }
 	    
 
@@ -42,7 +44,7 @@ binary AddAgentCapsPDU::serialize()
     binary serialized;
 
     // Serialize data
-    serialized += id.serialize();
+    serialized += OidVariable(id).serialize();
     serialized += descr.serialize();
 
     // Add header
@@ -53,7 +55,7 @@ binary AddAgentCapsPDU::serialize()
 }
 
 
-AddAgentCapsPDU::AddAgentCapsPDU(OidValue id, OctetStringValue descr)
+AddAgentCapsPDU::AddAgentCapsPDU(Oid id, OctetStringVariable descr)
 {
     this->id = id;
     this->descr = descr;
